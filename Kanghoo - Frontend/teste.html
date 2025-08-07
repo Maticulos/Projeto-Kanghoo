@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="pt-br" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kanghoo - Transporte Inteligente</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- CSS será carregado dinamicamente -->
+    <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.11.4/dist/gsap.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/scrolltrigger@1.0.5/dist/ScrollTrigger.min.js"></script>
+</head>
+<body class="preload">
+    <!-- Sistema de Notificações -->
+    <div id="notification-system" class="notification-container"></div>
+
+    <!-- Modal de Autenticação -->
+    <div id="auth-modal" class="modal" aria-hidden="true" role="dialog">
+        <div class="modal-content" id="modal-content">
+            <button class="modal-close" aria-label="Fechar modal">&times;</button>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <!-- Cabeçalho Avançado -->
+    <header id="main-header" class="header" data-sticky>
+        <div class="container">
+            <div class="header-inner">
+                <a href="#" class="logo" id="logo" data-logo-interactive>
+                    <span>Kanghoo</span>
+                    <svg class="logo-trail" width="100" height="20" viewBox="0 0 100 20" aria-hidden="true"></svg>
+                </a>
+
+                <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-expanded="false" aria-controls="main-nav">
+                    <span class="toggle-line"></span>
+                    <span class="toggle-line"></span>
+                    <span class="toggle-line"></span>
+                </button>
+
+                <nav id="main-nav" class="nav" aria-label="Navegação principal">
+                    <ul class="nav-list">
+                        <li class="nav-item dropdown" data-dropdown>
+                            <button class="nav-link dropdown-toggle" aria-expanded="false">
+                                Soluções <i class="fas fa-chevron-down dropdown-icon"></i>
+                            </button>
+                            <div class="dropdown-menu mega-menu" id="solutions-menu">
+                                <!-- Conteúdo será injetado via JS -->
+                            </div>
+                        </li>
+                        <li class="nav-item"><a href="#pricing" class="nav-link" data-smooth-scroll>Preços</a></li>
+                        <li class="nav-item"><a href="#contact" class="nav-link" data-smooth-scroll>Fale Conosco</a></li>
+                    </ul>
+                </nav>
+
+                <div class="header-actions">
+                    <button class="btn btn-secondary" id="theme-toggle" aria-label="Alternar tema">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <div class="auth-buttons">
+                        <button class="btn btn-outline" id="login-btn" data-auth-trigger="login">Login</button>
+                        <button class="btn btn-primary" id="register-btn" data-auth-trigger="register">Cadastro</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section com Animação -->
+    <section class="hero" id="hero">
+        <canvas id="hero-canvas" class="hero-canvas" aria-hidden="true"></canvas>
+        <div class="container">
+            <div class="hero-content" data-animate="fade-up">
+                <h1 class="hero-title">
+                    <span class="title-line">Uma plataforma,</span>
+                    <span class="title-line">dois mundos de transporte.</span>
+                </h1>
+                <p class="hero-subtitle">Segurança no transporte escolar, inteligência em viagens em grupo.</p>
+                <div class="hero-actions">
+                    <button class="btn btn-primary btn-lg" id="cta-main">Explore Agora</button>
+                    <button class="btn-play" id="video-trigger" aria-label="Assistir vídeo">
+                        <i class="fas fa-play"></i>
+                        <span>Como funciona</span>
+                    </button>
+                </div>
+            </div>
+            <div class="hero-image" data-animate="zoom-in">
+                <img src="https://assets-global.website-files.com/64019a27c181347087819fe1/64019b88417c805a5a1f6c44_kanghoo-hero.png" 
+                     alt="Ilustração de transporte escolar e excursões" 
+                     id="hero-img"
+                     loading="lazy">
+                <div class="hero-stats" id="hero-stats">
+                    <div class="stat-item">
+                        <div class="stat-number" data-counter="10000">0</div>
+                        <div class="stat-label">Viagens realizadas</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" data-counter="500">0</div>
+                        <div class="stat-label">Escolas atendidas</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção de Soluções com Interatividade -->
+    <section class="solutions" id="solutions">
+        <div class="container">
+            <div class="section-header" data-animate="fade-up">
+                <h2 class="section-title">Nossas Soluções</h2>
+                <p class="section-subtitle">Tecnologia que transforma o transporte em experiência</p>
+            </div>
+
+            <div class="solutions-grid" id="solutions-grid">
+                <!-- Itens serão injetados via JS -->
+            </div>
+
+            <div class="solution-features" id="solution-features">
+                <!-- Features serão carregadas dinamicamente conforme interação -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção de Eventos com Carrossel -->
+    <section class="events" id="events">
+        <div class="container">
+            <div class="section-header" data-animate="fade-up">
+                <h2 class="section-title">Encontre sua próxima aventura</h2>
+                <div class="section-controls">
+                    <button class="slider-prev" id="events-prev" aria-label="Evento anterior">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="slider-next" id="events-next" aria-label="Próximo evento">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="events-slider" id="events-slider">
+                <div class="slider-track" id="slider-track">
+                    <!-- Eventos serão carregados via API -->
+                </div>
+            </div>
+
+            <div class="event-details" id="event-details">
+                <!-- Detalhes serão atualizados conforme seleção -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção de Recursos com Animações -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header" data-animate="fade-up">
+                <h2 class="section-title">Viagens mais inteligentes, jornadas mais seguras</h2>
+                <div class="tab-controls" role="tablist">
+                    <button class="tab-btn active" data-tab="school">Transporte Escolar</button>
+                    <button class="tab-btn" data-tab="tours">Excursões</button>
+                    <button class="tab-btn" data-tab="admin">Administração</button>
+                </div>
+            </div>
+
+            <div class="features-content">
+                <div class="features-tabs">
+                    <div class="tab-panel active" data-tab-content="school" id="school-tab">
+                        <!-- Conteúdo será carregado dinamicamente -->
+                    </div>
+                    <div class="tab-panel" data-tab-content="tours" id="tours-tab">
+                        <!-- Conteúdo será carregado dinamicamente -->
+                    </div>
+                    <div class="tab-panel" data-tab-content="admin" id="admin-tab">
+                        <!-- Conteúdo será carregado dinamicamente -->
+                    </div>
+                </div>
+
+                <div class="features-visual" id="features-visual">
+                    <div class="visual-container" id="visual-container">
+                        <!-- Animação SVG/Canvas será renderizada aqui -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção de Preços com Interatividade -->
+    <section class="pricing" id="pricing">
+        <div class="container">
+            <div class="section-header" data-animate="fade-up">
+                <h2 class="section-title">Planos para cada viagem</h2>
+                <div class="toggle-container">
+                    <span>Mensal</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="annual-toggle">
+                        <span class="slider"></span>
+                    </label>
+                    <span>Anual <span class="discount-badge">20% off</span></span>
+                </div>
+            </div>
+
+            <div class="pricing-grid" id="pricing-grid">
+                <!-- Planos serão carregados via JS -->
+            </div>
+
+            <div class="pricing-custom" id="pricing-custom">
+                <button class="btn btn-outline" id="enterprise-trigger">
+                    Precisa de um plano personalizado?
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção de Contato Avançada -->
+    <section class="contact" id="contact">
+        <div class="container">
+            <div class="contact-grid">
+                <div class="contact-info" data-animate="fade-right">
+                    <h2 class="section-title">Fale Conosco</h2>
+                    <p class="contact-description">Tem dúvidas ou precisa de suporte? Nossa equipe está pronta para ajudar.</p>
+                    
+                    <div class="contact-methods">
+                        <div class="contact-item">
+                            <i class="fas fa-phone-alt"></i>
+                            <div>
+                                <h3>Telefone</h3>
+                                <a href="tel:+551234567890">+55 12 3456-7890</a>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <div>
+                                <h3>Email</h3>
+                                <a href="mailto:contato@kanghoo.com">contato@kanghoo.com</a>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <div>
+                                <h3>Endereço</h3>
+                                <address>Av. Paulista, 1000 - São Paulo, SP</address>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="social-links">
+                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+
+                <div class="contact-form-container" data-animate="fade-left">
+                    <form id="contact-form" class="contact-form" novalidate>
+                        <div class="form-group">
+                            <label for="name">Nome completo</label>
+                            <input type="text" id="name" name="name" required>
+                            <div class="error-message"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" required>
+                            <div class="error-message"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="subject">Assunto</label>
+                            <select id="subject" name="subject" required>
+                                <option value="" disabled selected>Selecione um assunto</option>
+                                <option value="support">Suporte Técnico</option>
+                                <option value="sales">Vendas</option>
+                                <option value="partnership">Parcerias</option>
+                                <option value="other">Outro</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Mensagem</label>
+                            <textarea id="message" name="message" rows="5" required></textarea>
+                            <div class="error-message"></div>
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="submit-btn">
+                            <span class="btn-text">Enviar Mensagem</span>
+                            <span class="btn-loading">
+                                <i class="fas fa-spinner fa-spin"></i>
+                            </span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Rodapé Avançado -->
+    <footer class="footer" id="main-footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="#" class="footer-logo">Kanghoo</a>
+                    <p class="footer-tagline">Soluções de viagem sem esforço</p>
+                    <div class="footer-apps">
+                        <button class="app-store-btn" id="app-store-btn">
+                            <i class="fab fa-apple"></i>
+                            <span>App Store</span>
+                        </button>
+                        <button class="play-store-btn" id="play-store-btn">
+                            <i class="fab fa-google-play"></i>
+                            <span>Google Play</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="footer-links">
+                    <div class="links-column">
+                        <h3 class="links-title">Transporte</h3>
+                        <ul>
+                            <li><a href="#" data-footer-link>Rotas</a></li>
+                            <li><a href="#" data-footer-link>Monitoramento</a></li>
+                            <li><a href="#" data-footer-link>Segurança</a></li>
+                            <li><a href="#" data-footer-link>Preços</a></li>
+                        </ul>
+                    </div>
+                    <div class="links-column">
+                        <h3 class="links-title">Excursões</h3>
+                        <ul>
+                            <li><a href="#" data-footer-link>Viagens</a></li>
+                            <li><a href="#" data-footer-link>Reserva</a></li>
+                            <li><a href="#" data-footer-link>Eventos</a></li>
+                            <li><a href="#" data-footer-link>Avaliações</a></li>
+                        </ul>
+                    </div>
+                    <div class="links-column">
+                        <h3 class="links-title">Compartilhado</h3>
+                        <ul>
+                            <li><a href="#" data-footer-link>Assentos</a></li>
+                            <li><a href="#" data-footer-link>Organizar</a></li>
+                            <li><a href="#" data-footer-link>Juntar</a></li>
+                            <li><a href="#" data-footer-link>Ofertas</a></li>
+                        </ul>
+                    </div>
+                    <div class="links-column">
+                        <h3 class="links-title">Administrador</h3>
+                        <ul>
+                            <li><a href="#" data-footer-link>Painel</a></li>
+                            <li><a href="#" data-footer-link>Relatórios</a></li>
+                            <li><a href="#" data-footer-link>Usuários</a></li>
+                            <li><a href="#" data-footer-link>Tarifas</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <div class="footer-legal">
+                    <a href="#">Termos de Serviço</a>
+                    <a href="#">Política de Privacidade</a>
+                    <a href="#">Cookies</a>
+                </div>
+                <div class="footer-copyright">
+                    <p>&copy; <span id="current-year">2024</span> Kanghoo. Todos os direitos reservados.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Configuração inicial para carregamento dinâmico
+        document.addEventListener('DOMContentLoaded', function() {
+            // Remover classe de pré-carregamento
+            document.body.classList.remove('preload');
+            
+            // Carregar CSS dinamicamente
+            const loadCSS = (url) => {
+                const link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = url;
+                document.head.appendChild(link);
+            };
+            
+            // Carregar todos os CSS necessários
+            loadCSS('styles/main.css');
+            loadCSS('styles/animations.css');
+            loadCSS('styles/responsive.css');
+            
+            // Configuração inicial de módulos JS
+            const modules = [
+                'js/modules/animations.js',
+                'js/modules/auth.js',
+                'js/modules/navigation.js',
+                'js/modules/sliders.js',
+                'js/modules/forms.js',
+                'js/modules/ui.js',
+                'js/modules/api.js'
+            ];
+            
+            // Carregar módulos dinamicamente
+            modules.forEach(module => {
+                const script = document.createElement('script');
+                script.src = module;
+                script.defer = true;
+                document.body.appendChild(script);
+            });
+            
+            // Inicializar GSAP e ScrollTrigger após carregamento
+            window.addEventListener('load', function() {
+                if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+                    gsap.registerPlugin(ScrollTrigger);
+                    
+                    // Configurações iniciais de animação
+                    const animateElements = document.querySelectorAll('[data-animate]');
+                    animateElements.forEach(el => {
+                        const animationType = el.getAttribute('data-animate');
+                        // Configurações de animação serão aplicadas aqui
+                    });
+                }
+                
+                // Atualizar ano no copyright
+                document.getElementById('current-year').textContent = new Date().getFullYear();
+            });
+        });
+    </script>
+</body>
+</html>
