@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kanghoo - Transporte Escolar & Excursões</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="header">
+        <div class="container">
+            <h1 class="logo">Kanghoo</h1>
+            <nav class="nav">
+                <div class="nav-dropdown">
+                    <a href="#" class="nav-link dropdown-toggle">Soluções</a>
+                    <div class="nav-dropdown-content hidden">
+                        <div class="dropdown-grid">
+                            <div>
+                                <h3 class="column-title">Passeios escolares</h3>
+                                <a href="#" class="dropdown-item">
+                                    <h4 class="item-title">Rotas de rastreamento</h4>
+                                    <p class="item-description">Rastreamento de veículos e alunos em tempo real.</p>
+                                </a>
+                                <a href="#" class="dropdown-item">
+                                    <h4 class="item-title">Alertas instantâneos para os pais</h4>
+                                    <p class="item-description">Alertas de embarque e desembarque direto no celular.</p>
+                                </a>
+                                <a href="#" class="dropdown-item">
+                                    <h4 class="item-title">Agendamento fácil de viagens</h4>
+                                    <p class="item-description">Atualizações de viagens ao vivo para a sua tranquilidade.</p>
+                                </a>
+                                <a href="#" class="dropdown-item">
+                                    <h4 class="item-title">Registros de presença digitais</h4>
+                                    <p class="item-description">Atualizações de viagens ao vivo para a sua tranquilidade.</p>
+                                </a>
+                            </div>
+                            
+                            <div>
+                                <h3 class="column-title">Passeios compartilhados</h3>
+                                <a href="#" class="dropdown-item">
+                                    <h4 class="item-title">Agendar viagens</h4>
+                                    <p class="item-description">Organize viagens em grupo com facilidade.</p>
+                                </a>
+                                <a href="#" class="dropdown-item">
+                                    <h4 class="item-title">Gerenciar assentos</h4>
+                                    <p class="item-description">Reserva de assentos e rastreamento sem esforço.</p>
+                                </a>
+                                <a href="#" class="dropdown-item">
+                                    <h4 class="item-title">Pagamentos seguros</h4>
+                                    <p class="item-description">Pague por viagens on-line com segurança.</p>
+                                </a>
+                            </div>
+
+                            <div>
+                                <h3 class="column-title">Recursos de administração</h3>
+                                <a href="#" class="dropdown-item">
+                                    <h4 class="item-title">Funções do usuário</h4>
+                                    <p class="item-description">Gerencie o acesso de todos os usuários.</p>
+                                </a>
+                                <a href="#" class="dropdown-item">
+                                    <h4 class="item-title">Relatório de dados</h4>
+                                    <p class="item-description">Acesse dados de viagem e pagamentos.</p>
+                                </a>
+                                <a href="#" class="dropdown-item">
+                                    <h4 class="item-title">Configurações</h4>
+                                    <p class="item-description">Personalize suas preferências.</p>
+                                </a>
+                            </div>
+                            
+                            <div class="highlight-box">
+                                <h4 class="highlight-title">Simplifique sua viagem</h4>
+                                <p class="highlight-description">Gerencie rotas e reservas sem problemas.</p>
+                                <a href="#" class="btn btn-primary btn-small">Descobrir</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <a href="#pricing" class="nav-link">Preços</a>
+                <a href="#contact" class="nav-link">Fale Conosco</a>
+            </nav>
+            <div class="auth-buttons">
+                <button class="btn btn-secondary btn-large" onclick="openAuthModal('login')">Login</button>
+                <button class="btn btn-primary btn-large" onclick="openAuthModal('cadastro')">Cadastro</button>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero-section">
+        <div class="container">
+            <div class="hero-content">
+                <h2 class="hero-headline">Uma plataforma, dois mundos de transporte.</h2>
+                <p class="hero-subheadline">Segurança no transporte escolar, inteligência em viagens em grupo.</p>
+                <button class="btn btn-primary btn-hero">Explore Agora</button>
+            </div>
+            <img src="https://assets-global.website-files.com/64019a27c181347087819fe1/64019b88417c805a5a1f6c44_kanghoo-hero.png" alt="Ilustração de transporte escolar e excursões" class="hero-image">
+        </div>
+    </section>
+
+    <section class="solutions-section">
+        <div class="container">
+            <h2 class="section-title">Nossas Soluções</h2>
+            <div class="solution-grid">
+                <div class="solution-card">
+                    <img src="https://assets-global.website-files.com/64019a27c181347087819fe1/64019bf47854f31c0e3a6ed5_icon-school-bus.svg" alt="Ícone de Ônibus Escolar" class="icon">
+                    <h3>Passeios Escolares</h3>
+                    <p>Rastreamento de rotas, alertas para os pais e notificações instantâneas.</p>
+                </div>
+                <div class="solution-card">
+                    <img src="https://assets-global.website-files.com/64019a27c181347087819fe1/64019bf491f24d35272a08c8_icon-tourist.svg" alt="Ícone de Excursão" class="icon">
+                    <h3>Passeios Compartilhados</h3>
+                    <p>Agende viagens, gerencie assentos e tenha pagamentos seguros e integrados.</p>
+                </div>
+                <div class="solution-card">
+                    <img src="https://assets-global.website-files.com/64019a27c181347087819fe1/64019bf4e402636259f972b2_icon-admin.svg" alt="Ícone de Administração" class="icon">
+                    <h3>Recursos de Administração</h3>
+                    <p>Gerencie usuários, acesse relatórios de dados e controle as configurações.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="events-and-search-section">
+    <div class="container">
+        <h2 class="section-title">Encontre sua próxima aventura</h2>
+        <div class="events-container">
+            <div class="events-list">
+                <div class="event-card active" data-image="https://images.unsplash.com/photo-1542037104857-ff790695029e?q=80&w=2070&auto=format&fit=crop">
+                    <h3>Guns N' Roses em Florianópolis</h3>
+                    <p>Arena Opus<br>São José, Santa Catarina, Brasil</p>
+                    <a href="#">Ver mapa →</a>
+                </div>
+                <div class="event-card" data-image="https://images.unsplash.com/photo-1596706014493-21c6204c3e86?q=80&w=2070&auto=format&fit=crop">
+                    <h3>CCXP25 - Comic Con Experience</h3>
+                    <p>São Paulo Expo<br>Rodovia dos Imigrantes, Km 1,5 - São Paulo, Brasil</p>
+                    <a href="#">Ver mapa →</a>
+                </div>
+                <div class="event-card" data-image="https://images.unsplash.com/photo-1599865181747-d57d55981794?q=80&w=2072&auto=format&fit=crop">
+                    <h3>41ª Festa Pomerana</h3>
+                    <p>Av. 21 de Janeiro - Centro<br>Pomerode, Santa Catarina, Brasil</p>
+                    <a href="#">Ver mapa →</a>
+                </div>
+            </div>
+            <div class="event-image-display">
+                <img id="event-main-image" src="https://images.unsplash.com/photo-1542037104857-ff790695029e?q=80&w=2070&auto=format&fit=crop" alt="Imagem principal do evento">
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="features-section">
+    <div class="container">
+        <h2 class="section-title">Viagens mais inteligentes, jornadas mais seguras.</h2>
+        <div class="feature-grid">
+            <a href="#" class="feature-item">
+                <img src="https://assets-global.website-files.com/64019a27c181347087819fe1/64019c674251ce7c729e248b_icon-live-gps.svg" alt="Ícone de GPS" class="feature-icon">
+                <h3>Atualizações de GPS em tempo real</h3>
+                <p>Mantenha-se informado sobre a localização exata.</p>
+            </a>
+            <a href="#" class="feature-item">
+                <img src="https://assets-global.website-files.com/64019a27c181347087819fe1/64019c67311ac9550186522c_icon-notifications.svg" alt="Ícone de Notificações" class="feature-icon">
+                <h3>Notificações instantâneas para os pais</h3>
+                <p>Alertas de embarque e desembarque direto no celular.</p>
+            </a>
+            <a href="#" class="feature-item">
+                <img src="https://assets-global.website-files.com/64019a27c181347087819fe1/64019c670a485a3c94d27192_icon-presence.svg" alt="Ícone de Presença" class="feature-icon">
+                <h3>Painel de presença ao vivo</h3>
+                <p>Saiba quem está a bordo em tempo real.</p>
+            </a>
+            <a href="#" class="feature-item">
+                <img src="https://assets-global.website-files.com/64019a27c181347087819fe1/64019c67e402633857f9746e_icon-ai-routing.svg" alt="Ícone de IA" class="feature-icon">
+                <h3>Otimização de Rotas de IA</h3>
+                <p>Calcule as rotas mais eficientes e seguras.</p>
+            </a>
+        </div>
+    </div>
+</section>
+
+ <section class="pricing-section" id="pricing">
+        <div class="container">
+            <h2 class="section-title">Planos de Assinatura - Transporte Escolar</h2>
+            <p class="pricing-info-note">
+                Sem letras miúdas: todos os planos podem ser cancelados a qualquer momento. O plano anual oferece
+                desconto equivalente a 1 mês grátis em relação ao plano mensal.
+                <span class="pricing-validity">Preços válidos até 31/12/2025.</span>
+            </p>
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <div class="plan-price-info">
+                        <p class="pricing-sub-note">R$ 187,90/mês ou opte pelo Plano Anual</p>
+                        <p class="pricing-equivalent">Equivalente a</p>
+                        <p class="price-annual">R$ 166,66<span class="per-month">/mês</span></p>
+                        <p class="pricing-economy">Economize R$ 254,80!</p>
+                    </div>
+                    <h3>Plano Basic</h3>
+                    <p class="plan-description">Perfeito para profissionais autônomos</p>
+                    <div class="plan-features-grid">
+                        <ul class="plan-features-list">
+                            <li>Rastreamento GPS ao vivo incluído</li>
+                            <li>Alertas instantâneos para os pais</li>
+                            <li>Agendamento fácil de viagens</li>
+                            <li>Registros de presença digitais</li>
+                        </ul>
+                        <ul class="plan-features-list">
+                            <li>Sugestões de rotas de IA</li>
+                            <li>Histórico de viagens ilimitado</li>
+                            <li>Suporte básico</li>
+                        </ul>
+                    </div>
+                    <button class="btn btn-secondary">Junte-se a nós</button>
+                </div>
+                <div class="pricing-card premium">
+                    <div class="plan-price-info">
+                        <p class="pricing-sub-note">Por R$ 293,60/mês ou opte pelo Plano Anual</p>
+                        <p class="pricing-equivalent">Equivalente a</p>
+                        <p class="price-annual">R$ 266,66<span class="per-month">/mês</span></p>
+                        <p class="pricing-economy">Economize R$ 323,30!</p>
+                    </div>
+                    <h3>Plano Premium</h3>
+                    <p class="plan-description">Todos os recursos, além de controles avançados.</p>
+                    <div class="plan-features-grid">
+                        <ul class="plan-features-list">
+                            <li>Gestão de grupos em tempo real</li>
+                            <li>Construtor de viagens dinâmico</li>
+                            <li>Pagamentos integrados</li>
+                            <li>Ferramentas de comissão inteligentes</li>
+                            <li>Suporte prioritário</li>
+                            <li>Marca personalizada</li>
+                        </ul>
+                        <ul class="plan-features-list">
+                            <li>Atribuições de assentos em massa</li>
+                            <li>Análise avançada</li>
+                            <li>Integrações de API</li>
+                            <li>Calculadora de receita</li>
+                        </ul>
+                    </div>
+                    <button class="btn btn-primary">Junte-se a nós</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="contact-section" id="contact">
+        <div class="container">
+            <h2 class="section-title">Fale Conosco</h2>
+            <form action="#" class="contact-form">
+                <input type="text" placeholder="Nome completo">
+                <input type="email" placeholder="E-mail">
+                <textarea placeholder="Sua mensagem"></textarea>
+                <button type="submit" class="btn btn-primary">Enviar</button>
+            </form>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <p class="footer-tagline">Soluções de viagem sem esforço</p>
+                </div>
+                <div class="footer-links-group">
+                    <h4>Transporte</h4>
+                    <ul>
+                        <li><a href="#">Rotas</a></li>
+                        <li><a href="#">Monitorando</a></li>
+                        <li><a href="#">Segurança</a></li>
+                        <li><a href="#">Preços</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links-group">
+                    <h4>Excursões</h4>
+                    <ul>
+                        <li><a href="#">Viagens</a></li>
+                        <li><a href="#">Reserva</a></li>
+                        <li><a href="#">Eventos</a></li>
+                        <li><a href="#">Avaliações</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links-group">
+                    <h4>Compartilhado</h4>
+                    <ul>
+                        <li><a href="#">Assentos</a></li>
+                        <li><a href="#">Organizar</a></li>
+                        <li><a href="#">Juntar</a></li>
+                        <li><a href="#">Ofertas</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links-group">
+                    <h4>Administrador</h4>
+                    <ul>
+                        <li><a href="#">Painel</a></li>
+                        <li><a href="#">Relatórios</a></li>
+                        <li><a href="#">Usuários</a></li>
+                        <li><a href="#">Tarifas</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="footer-social-media">
+                    <a href="#">Facebook</a>
+                    <a href="#">Instagram</a>
+                    <a href="#">X</a>
+                    <a href="#">LinkedIn</a>
+                    <a href="#">YouTube</a>
+                </div>
+                <div class="footer-copyright">
+                    <p>&copy; 2024 Kanghoo. Todos os direitos reservados.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div id="authModal" class="modal hidden">
+        <div class="modal-content">
+            <h3 id="authTitle">Autenticação</h3>
+            <button class="btn btn-secondary" onclick="selectType('escolar')">Transporte Escolar</button>
+            <button class="btn btn-secondary" onclick="selectType('excursao')">Excursão</button>
+            <button class="btn btn-secondary" onclick="closeModal()">Fechar</button>
+        </div>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>
+```
