@@ -17,6 +17,14 @@ body {
     text-rendering: optimizeLegibility;   /* Melhora o espaçamento entre as letras (kerning e ligatures) */
 }
 
+a {
+    text-decoration: none;
+}
+
+.basic {
+    padding: 0.5rem 2rem 2rem 2rem;
+    margin: 0.5rem 0.2rem 0.2rem 3rem;
+}
 
 .container {
     max-width: 1200px;
@@ -124,6 +132,18 @@ h1, h2, h3, h4 {
     gap: 4rem;
 }
 
+/* --- Hero Section --- */
+.plano-section {
+    color: #1E3A8A;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6rem 2rem;
+    gap: 4rem;
+    margin-left: 10rem;
+}
+
+
 .hero-content {
     flex: 1;
 }
@@ -137,6 +157,11 @@ h1, h2, h3, h4 {
 .hero-subheadline {
     font-size: 1.4rem;
     margin-bottom: 2rem;
+    font-weight: 400;
+}
+
+.plano-p {
+    font-size: 1.4rem;
     font-weight: 400;
 }
 

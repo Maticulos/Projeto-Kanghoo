@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kanghoo - Transporte Escolar & Excursões</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="header">
+    <div class="container">
+        <a href="index.html"><h1 class="logo">Kanghoo</h1></a>
+        <nav class="nav">
+            <div class="nav-dropdown">
+                <a href="#" class="nav-link dropdown-toggle">Soluções</a>
+                
+                <div class="nav-dropdown-content">
+                    <div class="dropdown-grid">
+                        <div class="dropdown-column">
+                            <h4 class="column-title">Passeios escolares</h4>
+                            <a href="#" class="dropdown-item">
+                                <p class="item-title">Rotas de rastreamento</p>
+                                <p class="item-description">Rastreamento de veículos e alunos em tempo real.</p>
+                            </a>
+                            <a href="#" class="dropdown-item">
+                                <p class="item-title">Alertas</p>
+                                <p class="item-description">Atualizações instantâneas sobre chegadas e partidas.</p>
+                            </a>
+                            <a href="#" class="dropdown-item">
+                                <p class="item-title">Notificações aos pais</p>
+                                <p class="item-description">Atualizações de viagens ao vivo para a sua tranquilidade.</p>
+                            </a>
+                        </div>
+                        <div class="dropdown-column">
+                            <h4 class="column-title">Passeios compartilhados</h4>
+                            <a href="#" class="dropdown-item">
+                                <p class="item-title">Agendar viagens</p>
+                                <p class="item-description">Organize viagens em grupo com facilidade.</p>
+                            </a>
+                            <a href="#" class="dropdown-item">
+                                <p class="item-title">Gerenciar assentos</p>
+                                <p class="item-description">Reserva de assentos e rastreamento sem esforço.</p>
+                            </a>
+                            <a href="#" class="dropdown-item">
+                                <p class="item-title">Pagamentos seguros</p>
+                                <p class="item-description">Pague por viagens on-line com segurança.</p>
+                            </a>
+                        </div>
+                        <div class="dropdown-column">
+                            <h4 class="column-title">Recursos de administração</h4>
+                            <a href="#" class="dropdown-item">
+                                <p class="item-title">Funções do usuário</p>
+                                <p class="item-description">Gerencie o acesso de todos os usuários.</p>
+                            </a>
+                            <a href="#" class="dropdown-item">
+                                <p class="item-title">Relatório de dados</p>
+                                <p class="item-description">Acesse dados de viagem e pagamentos.</p>
+                            </a>
+                            <a href="#" class="dropdown-item">
+                                <p class="item-title">Configurações</p>
+                                <p class="item-description">Personalize suas preferências.</p>
+                            </a>
+                        </div>
+                        <div class="dropdown-column highlight-box">
+                            <h4 class="highlight-title">Simplifique sua viagem</h4>
+                            <p class="highlight-description">Gerencie rotas e reservas sem problemas.</p>
+                            <a href="#" class="btn btn-primary btn-small">Descobrir</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <a href="#" class="nav-link">Preços</a>
+            <a href="#contact" class="nav-link">Fale Conosco</a>
+        </nav>
+        <div class="auth-buttons">
+            <button class="btn btn-secondary btn-large" onclick="openAuthModal('login')">Login</button>
+            <button class="btn btn-primary btn-large" onclick="openAuthModal('cadastro')">Cadastro</button>
+        </div>
+    </div>
+</header>
+
+
+
+
+
+
+    <section class="hero-section">
+        <div class="container">
+            <div class="hero-content">
+                <h2 class="hero-headline">Plano mensal</h2>
+                <p class="hero-subheadline">Como funciona</p>
+                <p class="basic">O serviço é renovado a cada mês através de um pagamento recorrente, de forma simples e prática.
+                    <br>A cobrança pode ser feita via boleto bancário ou débito automático no cartão de crédito.
+                </p>
+
+                <p class="hero-subheadline">Vantagens Mensal Basic</p>
+                <ul class="basic">
+                    <li>Busca de rotas por cidade</li>
+                    <li>Visualização de transportes disponíveis</li>
+                    <li>Cadastro de veículos</li>
+                    <li>Acesso ao histórico de viagens</li>
+                    <li>Cadastro de passageiros</li>
+                    <li>Compartilhamento de mapas em tempo real</li>
+                </ul>
+
+                <p class="hero-subheadline">Vantagens Mensal Premium</p>
+                <ul class="basic">
+                    <li>Todas inclusas no Mensal Basic</li>
+                    <li>Gestão de grupos em tempo real</li>
+                    <li>Pagamentos integrados</li>
+                    <li>Suporte 24/7</li>
+                    <li>Gestão de múltiplos usuários</li>
+                </ul>
+
+                <p class="hero-subheadline">Ideal para</p>
+                <ul class="basic">
+                    <li>Quem está conhecendo os serviços da Kanghoo pela primeira vez.</li>
+                    <li>Precisa de uma solução de transporte de alta qualidade para um período específico.</li>
+                </ul>
+
+                <button class="btn btn-primary btn-hero">Contrate</button>
+            </div>
+        </div>
+    </section>
+
+
+    <section class="plano-section">
+        <div class="container">
+            <div class="hero-content">
+                <h2 class="hero-headline">Plano Anual</h2>
+                <p class="plano-p">Como funciona</p>
+                    <p class="basic">Comprometa-se com a excelência e garanta um ano inteiro de tranquilidade e eficiência.
+                        <br>O Plano Anual é a nossa solução de melhor custo-benefício, pensada para quem busca estabilidade e resultados consistentes.
+                    </p>
+
+                    <p class="plano-p">Vantagens Anual Basic</p>
+                    <ul class="basic">
+                        <li>Todas inclusas no Mensal Premium</li>
+                        <li>Acesso ao histórico de viagens</li>
+                    </ul>
+
+                    <p class="plano-p">Vantagens Anual Premium</p>
+                    <ul class="basic">
+                        <li>Todas inclusas no Anual Basic</li>
+                        <li>Exportação de relatórios</li>
+                    </ul>
+
+                    <p class="plano-p">Ideal para</p>
+                    <ul class="basic">
+                        <li>Empresas e gestores que buscam uma parceria de longo prazo para otimizar sua logística de transporte de forma definitiva.</li>
+                        <li>Quem valoriza o planejamento e deseja aproveitar um custo-benefício superior, economizando em relação aos planos de menor duração.</li>
+                    </ul>
+
+                    <button class="btn btn-primary btn-hero">Contrate</button>
+            </div>
+        </div>
+    </section>
+
+
+
+
+
+
+
+</body>
+</html>
