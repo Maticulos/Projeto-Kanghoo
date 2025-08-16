@@ -21,6 +21,21 @@ a {
     text-decoration: none;
 }
 
+.pesquisar {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    border: none;
+    border-radius: 8px;
+    background-color: #fff;
+    color: #1E3A8A;
+    font-weight: 600;
+}
+
+.filtros {
+    color: #fff;
+    font-weight: 600;
+}
+
 .basic {
     padding: 0.5rem 2rem 2rem 2rem;
     margin: 0.5rem 0.2rem 0.2rem 3rem;
