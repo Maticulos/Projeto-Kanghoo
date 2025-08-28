@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encontrar Transporte Escolar - Kanghoo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Estilos específicos para a página de transporte escolar */
+        .filters-section {
+            padding: 40px 0;
+            background: var(--cor-fundo-claro);
+        }
+        
+        .filters-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .filters-title {
+            font-size: 28px;
+            color: var(--cor-azul-texto);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .filter-group {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        
+        .filter-group h3 {
+            font-size: 18px;
+            color: var(--cor-azul-texto);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--cor-amarelo-destaque);
+        }
+        
+        .filter-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .filter-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .filter-option input[type="checkbox"],
+        .filter-option input[type="radio"] {
+            width: 18px;
+            height: 18px;
+        }
+        
+        .filter-option label {
+            font-size: 14px;
+            color: var(--cor-texto-geral);
+        }
+        
+        .filter-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .map-placeholder {
+            height: 500px;
+            background: var(--cor-fundo-claro);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--cor-texto-geral);
+            font-size: 18px;
+            border-top: 1px solid var(--cor-cinza-borda);
+            border-bottom: 1px solid var(--cor-cinza-borda);
+        }
+        
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        input[type="time"],
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--cor-cinza-borda);
+            border-radius: 6px;
+            font-family: 'Poppins', sans-serif;
+        }
+    </style>
+</head>
+<body>
+<!-- header.html -->
+<header class="header">
+    <div class="container">
+        <a href="index.html" class="logo" aria-label="Kanghoo - Página inicial">Kanghoo</a>
+        <nav class="nav" aria-label="Navegação principal">
+            <a href="planos.html" class="nav-link">Planos</a>
+            <a href="index.html#contact" class="nav-link">Fale Conosco</a>
+            <a href="#" class="nav-link" id="open-transport-modal">Encontrar Transporte</a>
+            <a href="sobre.html" class="nav-link">Sobre Nós</a>
+        </nav>
+        <div class="auth-buttons">
+            <a href="login.html" class="btn btn-secondary">Login</a>
+            <button class="btn btn-primary" id="btn-cadastro-modal" aria-haspopup="dialog">Cadastro</button>
+        </div>
+    </div>
+</header>
+
+    <!-- Modal de Cadastro -->
+    <div id="cadastroModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal-content">
+            <button class="close-modal-btn" id="close-modal" aria-label="Fechar modal">&times;</button>
+            <h3 id="modal-title">Qual tipo de cadastro?</h3>
+            <p>Escolha a opção que melhor descreve seu serviço para começar.</p>
+            <div class="modal-options">
+                <a href="cadastro-escolar.html" class="btn btn-primary">Transporte Escolar</a>
+                <a href="cadastro-excursao.html" class="btn btn-secondary">Excursão e Fretamento</a>
+            </div>
+            <div class="modal-footer">
+                <p>Não tem certeza? <a href="index.html#contact">Fale conosco</a></p>
+            </div>
+        </div>
+    </div>
+
+<!-- Modal de Transporte -->
+<div id="transportModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="transport-modal-title">
+    <div class="modal-content">
+        <button class="close-modal-btn" id="close-transport-modal" aria-label="Fechar modal">&times;</button>
+        <h3 id="transport-modal-title">Que tipo de transporte precisa?</h3>
+        <p>Selecione a opção que melhor atende sua necessidade.</p>
+        <div class="modal-options">
+            <a href="encontrar-escolar.html" class="btn btn-primary">Transporte Escolar</a>
+            <a href="encontrar-excursao.html" class="btn btn-secondary">Excursões e Fretamento</a>
+        </div>
+    </div>
+</div>
+    <main>
+        <!-- SEÇÃO DE FILTROS -->
+        <section class="filters-section">
+            <div class="filters-container">
+                <h2 class="filters-title">Encontrar Transporte Escolar</h2>
+                
+                <div class="filters-grid">
+                    <!-- Filtros para transporte escolar -->
+                    <div class="filter-group">
+                        <h3>Localização</h3>
+                        <div class="filter-options">
+                            <div class="filter-option">
+                                <input type="text" placeholder="Cidade, bairro ou endereço">
+                            </div>
+                            <div class="filter-option">
+                                <input type="number" placeholder="Raio de busca (km)" min="0">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Adicione mais filtros específicos para transporte escolar -->
+                </div>
+                
+                <div class="filter-buttons">
+                    <button class="btn btn-secondary">Limpar Filtros</button>
+                    <button class="btn btn-primary">Buscar Transportes</button>
+                </div>
+            </div>
+        </section>
+        
+        <!-- ESPAÇO PARA O MAPA -->
+        <div class="map-placeholder">
+            <div class="map-message">
+                <p>Mapa interativo será carregado aqui</p>
+                <small>Integração com API de mapas via backend</small>
+            </div>
+        </div>
+    </main>
+     <!-- RODAPÉ -->
+<footer class="footer">
+    <div class="container">
+        <!-- Grade principal do footer com a marca e os links -->
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <a href="index.html" class="logo">Kanghoo</a>
+                <p class="footer-tagline">Soluções de viagem sem esforço.</p>
+                <!-- Ícones de redes sociais podem ficar aqui para maior destaque -->
+                <div class="footer-social-media">
+                    <a href="#" aria-label="Facebook"><img src="https://placehold.co/24x24/ffffff/2e3e70?text=F" alt="Facebook"></a>
+                    <a href="#" aria-label="Instagram"><img src="https://placehold.co/24x24/ffffff/2e3e70?text=I" alt="Instagram"></a>
+                    <a href="#" aria-label="LinkedIn"><img src="https://placehold.co/24x24/ffffff/2e3e70?text=L" alt="LinkedIn"></a>
+                </div>
+            </div>
+
+            <div class="footer-links-group">
+                <h4>Transporte</h4>
+                <ul>
+                    <li><a href="cadastro-escolar.html">Transporte Escolar</a></li>
+                    <li><a href="#">Rotas</a></li>
+                    <li><a href="#">Monitoramento</a></li>
+                    <li><a href="#pricing">Preços</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links-group">
+                <h4>Excursões</h4>
+                <ul>
+                    <li><a href="cadastro-excursao.html">Excursões</a></li>
+                    <li><a href="#">Viagens</a></li>
+                    <li><a href="#">Reserva</a></li>
+                    <li><a href="#">Eventos</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links-group">
+                <h4>Empresa</h4>
+                <ul>
+                    <li><a href="sobre.html">Sobre Nós</a></li>
+                    <li><a href="#contact">Contato</a></li>
+                    <li><a href="#">Termos de Uso</a></li>
+                    <li><a href="#">Privacidade</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Linha inferior com o copyright -->
+        <div class="footer-bottom">
+            <p>&copy; 2025 Kanghoo. Todos os direitos reservados.</p>
+        </div>
+    </div>
+</footer>
+    <script src="app.js"></script>
+</body>
+</html>

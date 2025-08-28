@@ -3,23 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Kanghoo</title>
+    <title>Sobre Nós - Kanghoo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="form-page">
-    <!-- Header -->
+<body>
+        <!-- CABEÇALHO FIXO -->
     <header class="header">
         <div class="container">
+            <a href="index.html" class="logo" ></a>
             <a href="index.html" class="logo" aria-label="Kanghoo - Página inicial">Kanghoo</a>
             <nav class="nav" aria-label="Navegação principal">
                 <a href="planos.html" class="nav-link">Planos</a>
                 <a href="index.html#contact" class="nav-link">Fale Conosco</a>
                 <a href="#" class="nav-link" id="open-transport-modal">Encontrar Transporte</a>
-                <a href="sobre.html" class="nav-link">Sobre Nós</a>
+                <a href="#" class="nav-link">Sobre Nós</a>
             </nav>
             <div class="auth-buttons">
-                <a href="login.html" class="btn btn-secondary">Login</a>
-                <button class="btn btn-primary" id="btn-cadastro-modal" aria-haspopup="dialog">Cadastro</button>
+            <a href="login.html" class="btn btn-secondary">Login</a>
+            <button class="btn btn-primary" id="btn-cadastro-modal" aria-haspopup="dialog">Cadastro</button>
             </div>
         </div>
     </header>
@@ -50,47 +54,54 @@
                 <a href="encontrar-escolar.html" class="btn btn-primary">Transporte Escolar</a>
                 <a href="encontrar-excursao.html" class="btn btn-secondary">Excursões e Fretamento</a>
             </div>
-            <div class="modal-footer">
-                <p>Precisa de ajuda? <a href="#contact">Entre em contato</a></p>
-            </div>
         </div>
     </div>
+        <main>
+        <!-- Seção Hero da Página Sobre -->
+        <section class="about-hero">
+            <div class="container">
+                <h1 class="about-headline">Conectando jornadas, garantindo segurança.</h1>
+                <p class="about-subheadline">Somos mais que uma plataforma; somos a tranquilidade que pais, escolas e organizadores de eventos precisam para mover o que mais importa.</p>
+            </div>
+        </section>
 
-    <!-- Conteúdo Principal -->
-    <main class="form-container login-container">
-        <a href="index.html" class="logo" style="text-align: center; display: block; margin-bottom: 1.5rem; font-size: 2rem;">Kanghoo</a>
-        <h1>Acessar sua Conta</h1>
-        <p class="subtitulo">Que bom te ver por aqui!</p>
-        
-        <form id="login-form" action="#" method="POST">
-            <div class="campo-grupo">
-                <div>
-                    <label for="email">E-mail</label>
-                    <input type="email" id="email" name="email" placeholder="seuemail@exemplo.com" required>
+        <!-- Seção da Nossa História -->
+        <section class="story-section">
+            <div class="container">
+                <div class="story-content">
+                    <div class="story-text">
+                        <h2 class="section-title">Como Tudo Começou</h2>
+                        <p>A Kanghoo nasceu de uma necessidade real, observada por pais e organizadores de excursões: a falta de uma ferramenta centralizada, segura e eficiente para gerenciar o transporte de grupos. Cansados de planilhas confusas, grupos de WhatsApp desorganizados e da incerteza sobre a localização dos veículos, um grupo de desenvolvedores e especialistas em logística se uniu.</p>
+                        <p>Nossa missão era clara: usar a tecnologia para transformar a logística de transporte em uma experiência transparente, segura e sem estresse. Começamos com o transporte escolar, criando rotas inteligentes e um canal de comunicação direto com os pais. O sucesso foi tanto que expandimos naturalmente para o mundo das excursões e fretamentos, onde a complexidade exigia uma solução robusta como a nossa.</p>
+                    </div>
+                    <div class="story-image">
+                        <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=2070&auto=format&fit=crop" alt="Equipe da Kanghoo em uma reunião de planejamento">
+                    </div>
                 </div>
             </div>
+        </section>
 
-            <div class="campo-grupo">
-                <div>
-                    <label for="senha">Senha</label>
-                    <input type="password" id="senha" name="senha" placeholder="Sua senha" required>
+        <!-- Seção de Valores -->
+        <section class="values-section">
+            <div class="container">
+                <h2 class="section-title">Nossos Valores</h2>
+                <div class="values-grid">
+                    <div class="value-card">
+                        <h3>Segurança em Primeiro Lugar</h3>
+                        <p>Desde o rastreamento em tempo real até a verificação de motoristas, cada funcionalidade é pensada para garantir a máxima segurança dos passageiros.</p>
+                    </div>
+                    <div class="value-card">
+                        <h3>Inovação Constante</h3>
+                        <p>Estamos sempre buscando novas tecnologias e ouvindo nossos usuários para evoluir e oferecer as melhores ferramentas de gestão do mercado.</p>
+                    </div>
+                    <div class="value-card">
+                        <h3>Transparência Total</h3>
+                        <p>Acreditamos que a confiança é construída com comunicação clara. Oferecemos visibilidade completa de rotas, horários e pagamentos.</p>
+                    </div>
                 </div>
             </div>
+        </section>
 
-            <div class="opcoes-form">
-                <a href="#" id="esqueci-senha">Esqueceu sua senha?</a>
-            </div>
-
-            <div class="botoes-acao">
-                <button type="submit" class="btn btn-primary">Entrar</button>
-            </div>
-            
-            <hr>
-
-            <div class="link-externo">
-                <p>Ainda não tem uma conta? <a href="#" id="btn-cadastro-modal-link">Cadastre-se</a></p>
-            </div>
-        </form>
     </main>
  <!-- RODAPÉ -->
 <footer class="footer">
@@ -131,7 +142,7 @@
             <div class="footer-links-group">
                 <h4>Empresa</h4>
                 <ul>
-                    <li><a href="sobre.html">Sobre Nós</a></li>
+                    <li><a href="#">Sobre Nós</a></li>
                     <li><a href="#contact">Contato</a></li>
                     <li><a href="#">Termos de Uso</a></li>
                     <li><a href="#">Privacidade</a></li>
@@ -145,8 +156,6 @@
         </div>
     </div>
 </footer>
-    
-    <script src="app.js"></script>
-    
 </body>
+<script src="app.js"></script>
 </html>
