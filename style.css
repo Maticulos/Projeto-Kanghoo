@@ -407,6 +407,11 @@ section {
 }
 
 /* --- PREÇOS --- */
+.pricing-section {
+    margin: 0 auto;
+    width: 50%;
+}
+
 .pricing-grid { 
     display: grid; 
     grid-template-columns: 1fr 1fr; 
@@ -420,7 +425,6 @@ section {
     box-shadow: 0 4px 15px var(--cor-sombra); 
     display: flex; 
     flex-direction: column; 
-    position: relative;
 }
 
 .pricing-card.premium { 

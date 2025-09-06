@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,19 +14,19 @@
         .plans-page {
             padding: 100px 0 50px;
         }
-        
+
         .plans-header {
             text-align: center;
             margin-bottom: 40px;
         }
-        
+
         .plans-title {
             font-size: 32px;
             font-weight: 700;
             color: var(--cor-azul-texto);
             margin-bottom: 15px;
         }
-        
+
         .plans-subtitle {
             font-size: 18px;
             margin-bottom: 20px;
@@ -34,21 +35,21 @@
             margin-right: auto;
             color: var(--cor-texto-geral);
         }
-        
+
         .plans-disclaimer {
             background-color: var(--cor-branco);
             padding: 20px;
             border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
             margin-bottom: 30px;
             font-size: 14px;
             line-height: 1.6;
         }
-        
+
         .plans-disclaimer strong {
             color: var(--cor-azul-texto);
         }
-        
+
         .plans-grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -56,7 +57,7 @@
             max-width: 1000px;
             margin: 0 auto;
         }
-        
+
         .plan-card {
             background: var(--cor-branco);
             border-radius: 12px;
@@ -66,18 +67,18 @@
             position: relative;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        
+
         .plan-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
         }
-        
+
         .plan-header {
             border-bottom: 2px solid var(--cor-fundo-claro);
             padding-bottom: 20px;
             margin-bottom: 25px;
         }
-        
+
         .plan-pricing {
             display: flex;
             justify-content: space-between;
@@ -86,19 +87,19 @@
             flex-wrap: wrap;
             gap: 15px;
         }
-        
+
         .monthly-price {
             font-size: 28px;
             font-weight: 700;
             color: var(--cor-azul-texto);
         }
-        
+
         .annual-option {
             font-size: 16px;
             color: var(--cor-texto-geral);
             font-weight: 500;
         }
-        
+
         .equivalent-price {
             background-color: var(--cor-fundo-claro);
             padding: 15px;
@@ -106,44 +107,44 @@
             margin-bottom: 20px;
             text-align: center;
         }
-        
+
         .equivalent-price strong {
             font-size: 22px;
             color: var(--cor-azul-texto);
             display: block;
             margin-bottom: 8px;
         }
-        
+
         .savings {
             color: var(--cor-sucesso);
             font-weight: 700;
             font-size: 16px;
         }
-        
+
         .plan-name {
             font-size: 26px;
             font-weight: 700;
             color: var(--cor-azul-texto);
             margin-bottom: 12px;
         }
-        
+
         .plan-description {
             font-size: 16px;
             color: var(--cor-texto-geral);
             margin-bottom: 20px;
             line-height: 1.5;
         }
-        
+
         .plan-features {
             margin-bottom: 30px;
         }
-        
+
         .feature-item {
             display: flex;
             align-items: flex-start;
             margin-bottom: 14px;
         }
-        
+
         .feature-icon {
             color: var(--cor-amarelo-destaque);
             font-weight: bold;
@@ -151,24 +152,27 @@
             flex-shrink: 0;
             font-size: 18px;
         }
-        
+
         .feature-text {
             flex: 1;
             font-size: 15px;
             line-height: 1.5;
         }
-        
+
         .plan-divider {
             height: 2px;
             background: linear-gradient(90deg, transparent, var(--cor-cinza-borda), transparent);
             margin: 25px 0;
             border: none;
         }
-        
+
         .plan-cta {
             text-align: center;
         }
-        
+        .alinhar {
+            margin-top: 3rem;
+        }
+
         .plan-btn {
             display: inline-block;
             padding: 16px 32px;
@@ -183,23 +187,24 @@
             transition: all 0.3s ease;
             width: 100%;
             text-align: center;
+            margin-top: 1rem;
         }
-        
+
         .plan-btn:hover {
             background-color: #e6c02a;
             transform: translateY(-2px);
             box-shadow: 0 6px 15px rgba(247, 210, 47, 0.3);
         }
-        
+
         @media (min-width: 768px) {
             .plans-grid {
                 grid-template-columns: 1fr 1fr;
             }
-            
+
             .plans-title {
                 font-size: 42px;
             }
-            
+
             .plans-page {
                 padding: 120px 0 60px;
             }
@@ -210,13 +215,14 @@
                 flex-direction: column;
                 align-items: flex-start;
             }
-            
+
             .plan-card {
                 padding: 25px;
             }
         }
     </style>
 </head>
+
 <body>
     <!-- CABEÇALHO FIXO -->
     <header class="header">
@@ -253,7 +259,8 @@
     </div>
 
     <!-- Modal de Transporte -->
-    <div id="transportModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="transport-modal-title">
+    <div id="transportModal" class="modal-overlay hidden" role="dialog" aria-modal="true"
+        aria-labelledby="transport-modal-title">
         <div class="modal-content">
             <button class="close-modal-btn" id="close-transport-modal" aria-label="Fechar modal">&times;</button>
             <h3 id="transport-modal-title">Que tipo de transporte precisa?</h3>
@@ -270,12 +277,14 @@
             <div class="plans-header">
                 <h1 class="plans-title">Planos de Assinatura – Transporte Escolar</h1>
                 <p class="plans-subtitle">Escolha o plano ideal para suas necessidades de transporte escolar</p>
-                
+
                 <div class="plans-disclaimer">
-                    <p>Sem letras miúdas: todos os planos podem ser cancelados a qualquer momento. O plano anual oferece desconto equivalente a 1 mês grátis em relação ao plano mensal. <strong>Preços válidos até 31/12/2025.</strong></p>
+                    <p>Sem letras miúdas: todos os planos podem ser cancelados a qualquer momento. O plano anual oferece
+                        desconto equivalente a 1 mês grátis em relação ao plano mensal. <strong>Preços válidos até
+                            31/12/2025.</strong></p>
                 </div>
             </div>
-            
+
             <div class="plans-grid">
                 <!-- Plano Basic -->
                 <div class="plan-card">
@@ -284,69 +293,68 @@
                             <div class="monthly-price">Plano Basic</div>
                             <div class="annual-option">ou opte pelo Plano Anual</div>
                         </div>
-                        
+
                         <div class="equivalent-price">
                             <strong>Equivalente a R$ 166,66/mês</strong>
                             <div class="savings">Economize R$ 254,80!</div>
                         </div>
-                        
+
                         <h2 class="plan-name">R$ 187,90/mês</h2>
                         <p class="plan-description">Perfeito para profissionais autônomos</p>
                     </div>
-                    
+
                     <div class="plan-features">
-                    <div class="feature-item">
-                        <span class="feature-icon">✓</span>
-                        <span class="feature-text">Rastreamento GPS ao vivo incluído</span>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span class="feature-text">Rastreamento GPS ao vivo incluído</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span class="feature-text">Alertas instantâneos para os pais</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span class="feature-text">Agendamento fácil de viagens</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span class="feature-text">Registros de presença digitais</span>
+                        </div>
+
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span class="feature-text">Sugestões de rotas de IA</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span class="feature-text">Histórico de viagens ilimitado</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span class="feature-text">Suporte básico</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span class="feature-text">Preferências personalizadas</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span class="feature-text">Validação automatica do horário de entrada e saída</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span class="feature-text">Relatório de presença, custos e gastos diários</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span class="feature-text">Limitado a um veículo</span>
+                        </div>
                     </div>
-                    <div class="feature-item">
-                        <span class="feature-icon">✓</span>
-                        <span class="feature-text">Alertas instantâneos para os pais</span>
-                    </div>
-                    <div class="feature-item">
-                        <span class="feature-icon">✓</span>
-                        <span class="feature-text">Agendamento fácil de viagens</span>
-                    </div>
-                    <div class="feature-item">
-                        <span class="feature-icon">✓</span>
-                        <span class="feature-text">Registros de presença digitais</span>
-                    </div>
-                    
-                    <div class="feature-item">
-                        <span class="feature-icon">✓</span>
-                        <span class="feature-text">Sugestões de rotas de IA</span>
-                    </div>
-                    <div class="feature-item">
-                        <span class="feature-icon">✓</span>
-                        <span class="feature-text">Histórico de viagens ilimitado</span>
-                    </div>
-                    <div class="feature-item">
-                        <span class="feature-icon">✓</span>
-                        <span class="feature-text">Suporte básico</span>
-                    </div>
-                    <div class="feature-item">
-                        <span class="feature-icon">✓</span>
-                        <span class="feature-text">Preferências personalizadas</span>
-                    </div>
-                    <div class="feature-item">
-                        <span class="feature-icon">✓</span>
-                        <span class="feature-text">Validação automatica do horário de entrada e saída</span>
-                    </div>
-                    <div class="feature-item">
-                        <span class="feature-icon">✓</span>
-                        <span class="feature-text">Relatório de presença, custos e gastos diários</span>
-                    </div>
-                    <div class="feature-item">
-                        <span class="feature-icon">✓</span>
-                        <span class="feature-text">Limitado a um veículo</span>
-                    </div>
-                </div>
-                    
                     <div class="plan-cta">
                         <a href="#" class="plan-btn">Junte-se a nós</a>
                     </div>
                 </div>
-                
+
                 <!-- Plano Premium -->
                 <div class="plan-card">
                     <div class="plan-header">
@@ -354,16 +362,16 @@
                             <div class="monthly-price">Plano Premium</div>
                             <div class="annual-option">ou opte pelo Plano Anual</div>
                         </div>
-                        
+
                         <div class="equivalent-price">
                             <strong>Equivalente a R$ 266,66/mês</strong>
                             <div class="savings">Economize R$ 323,30!</div>
                         </div>
-                        
+
                         <h2 class="plan-name">R$ 293,60/mês</h2>
                         <p class="plan-description">Todos os recursos, além de controles avançados</p>
                     </div>
-                    
+
                     <div class="plan-features">
                         <div class="feature-item">
                             <span class="feature-icon">✓</span>
@@ -389,7 +397,7 @@
                             <span class="feature-icon">✓</span>
                             <span class="feature-text">Marca personalizada</span>
                         </div>
-                        
+
                         <div class="feature-item">
                             <span class="feature-icon">✓</span>
                             <span class="feature-text">Atribuições de assentos em massa</span>
@@ -410,78 +418,83 @@
                             <span class="feature-icon">✓</span>
                             <span class="feature-text">Rastreamento e relatório de frota</span>
                         </div>
-                        
+
                     </div>
-                    
+
                     <div class="plan-cta">
-                        <a href="#" class="plan-btn">Junte-se a nós</a>
+                        <div class="alinhar">
+                            <a href="#" class="plan-btn">Junte-se a nós</a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </main>
- <!-- RODAPÉ -->
-<footer class="footer">
-    <div class="container">
-        <!-- Grade principal do footer com a marca e os links -->
-        <div class="footer-grid">
-            <div class="footer-brand">
-                <a href="index.html" class="logo">Kanghoo</a>
-                <p class="footer-tagline">Soluções de viagem sem esforço.</p>
-                <!-- Ícones de redes sociais podem ficar aqui para maior destaque -->
-                <div class="footer-social-media">
-                    <a href="#" aria-label="Facebook"><img src="https://placehold.co/24x24/ffffff/2e3e70?text=F" alt="Facebook"></a>
-                    <a href="#" aria-label="Instagram"><img src="https://placehold.co/24x24/ffffff/2e3e70?text=I" alt="Instagram"></a>
-                    <a href="#" aria-label="LinkedIn"><img src="https://placehold.co/24x24/ffffff/2e3e70?text=L" alt="LinkedIn"></a>
+    <!-- RODAPÉ -->
+    <footer class="footer">
+        <div class="container">
+            <!-- Grade principal do footer com a marca e os links -->
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="index.html" class="logo">Kanghoo</a>
+                    <p class="footer-tagline">Soluções de viagem sem esforço.</p>
+                    <!-- Ícones de redes sociais podem ficar aqui para maior destaque -->
+                    <div class="footer-social-media">
+                        <a href="#" aria-label="Facebook"><img src="https://placehold.co/24x24/ffffff/2e3e70?text=F"
+                                alt="Facebook"></a>
+                        <a href="#" aria-label="Instagram"><img src="https://placehold.co/24x24/ffffff/2e3e70?text=I"
+                                alt="Instagram"></a>
+                        <a href="#" aria-label="LinkedIn"><img src="https://placehold.co/24x24/ffffff/2e3e70?text=L"
+                                alt="LinkedIn"></a>
+                    </div>
+                </div>
+
+                <div class="footer-links-group">
+                    <h4>Transporte</h4>
+                    <ul>
+                        <li><a href="cadastro-escolar.html">Transporte Escolar</a></li>
+                        <li><a href="#">Rotas</a></li>
+                        <li><a href="#">Monitoramento</a></li>
+                        <li><a href="#pricing">Preços</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-links-group">
+                    <h4>Excursões</h4>
+                    <ul>
+                        <li><a href="cadastro-excursao.html">Excursões</a></li>
+                        <li><a href="#">Viagens</a></li>
+                        <li><a href="#">Reserva</a></li>
+                        <li><a href="#">Eventos</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-links-group">
+                    <h4>Empresa</h4>
+                    <ul>
+                        <li><a href="sobre.html">Sobre Nós</a></li>
+                        <li><a href="#contact">Contato</a></li>
+                        <li><a href="#">Termos de Uso</a></li>
+                        <li><a href="#">Privacidade</a></li>
+                    </ul>
                 </div>
             </div>
 
-            <div class="footer-links-group">
-                <h4>Transporte</h4>
-                <ul>
-                    <li><a href="cadastro-escolar.html">Transporte Escolar</a></li>
-                    <li><a href="#">Rotas</a></li>
-                    <li><a href="#">Monitoramento</a></li>
-                    <li><a href="#pricing">Preços</a></li>
-                </ul>
-            </div>
-
-            <div class="footer-links-group">
-                <h4>Excursões</h4>
-                <ul>
-                    <li><a href="cadastro-excursao.html">Excursões</a></li>
-                    <li><a href="#">Viagens</a></li>
-                    <li><a href="#">Reserva</a></li>
-                    <li><a href="#">Eventos</a></li>
-                </ul>
-            </div>
-
-            <div class="footer-links-group">
-                <h4>Empresa</h4>
-                <ul>
-                    <li><a href="sobre.html">Sobre Nós</a></li>
-                    <li><a href="#contact">Contato</a></li>
-                    <li><a href="#">Termos de Uso</a></li>
-                    <li><a href="#">Privacidade</a></li>
-                </ul>
+            <!-- Linha inferior com o copyright -->
+            <div class="footer-bottom">
+                <p>&copy; 2025 Kanghoo. Todos os direitos reservados.</p>
             </div>
         </div>
-
-        <!-- Linha inferior com o copyright -->
-        <div class="footer-bottom">
-            <p>&copy; 2025 Kanghoo. Todos os direitos reservados.</p>
-        </div>
-    </div>
-</footer>
+    </footer>
 
     <script src="app.js"></script>
     <script>
         // Inicialização específica para a página de planos
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Adicionar evento ao link do footer
             const footerTransportLink = document.getElementById('open-transport-modal-footer');
             if (footerTransportLink) {
-                footerTransportLink.addEventListener('click', function(e) {
+                footerTransportLink.addEventListener('click', function (e) {
                     e.preventDefault();
                     // Verifica se a função openTransportModal existe
                     if (typeof openTransportModal === 'function') {
@@ -495,4 +508,5 @@
         });
     </script>
 </body>
+
 </html>
