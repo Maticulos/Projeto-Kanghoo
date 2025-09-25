@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Área do Motorista</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <img src="imagens/logo.jpg" alt="Logo" class="icon">
+            <a href="index.html" class="logo" aria-label="Kanghoo - Página inicial">Kanghoo</a>
+            <nav class="nav" aria-label="Navegação principal">
+                <a href="planos.html" class="nav-link">Planos</a>
+                <a href="index.html#contact" class="nav-link">Fale Conosco</a>
+                <a href="#" class="nav-link" id="open-transport-modal">Encontrar Transporte</a>
+                <a href="sobre.html" class="nav-link">Sobre Nós</a>
+            </nav>
+            <div class="auth-buttons">
+                <a href="/logout" class="btn btn-secondary">Logout</a>
+            </div>
+        </div>
+    </header>
+
+
+    <div class="nav-modal">
+        <a  href="#" class="nav-btn">
+            <button class="btn-arrow">&#9650;</button>
+        </a>
+        <a  href="#fim" class="nav-btn">
+            <button class="btn-arrow">&#9660;</button>
+        </a>
+    </div>
+
+    <main class="main-content">
+        <h1>Dashboard do Motorista</h1>
+
+        <% if (dados) { %>
+            <form class="personal-info-form">
+                <div class="form-header">
+                    <h2 class="form-title">
+                        <span class="icon">👤</span>
+                        Informações Pessoais
+                    </h2>
+                    <span class="badge">Dados do Cadastro</span>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="nome-completo">Nome Completo</label>
+                        <input type="text" id="nome-completo" name="nome-completo" value="<%= dados.nome %>" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="profissao">Profissão</label>
+                        <input type="text" id="profissao" name="profissao" value="<%= dados.profissao %>" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="telefone">Telefone</label>
+                        <input type="tel" id="telefone" name="telefone" value="<%= dados.celular %>" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">E-mail</label>
+                        <input type="email" id="email" name="email" value="<%= dados.email %>" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="endereco">CEP</label>
+                        <input type="text" id="endereco" name="endereco" value="<%= dados.cep %>" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="cpf">CPF</label>
+                        <input type="text" id="cpf" name="cpf" value="<%= dados.cpf %>" readonly>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="solicitar-edicao">
+                        Solicitar Edição
+                    </button>
+                    <button type="button" class="btn btn-primary" id="exportar-dados">
+                        Exportar Dados
+                    </button>
+                </div>
+            </form>
+
+            <div class="info-section">
+                <h2 class="section-title">
+                    <span class="icon">🏢</span>
+                    Empresa
+                </h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Modelo</div>
+                        <div class="info-value">N/A</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Ano</div>
+                        <div class="info-value"><%= dados.anoModelo %></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Placa</div>
+                        <div class="info-value"><%= dados.placa %></div>
+                    </div>
+                </div>
+                <div class="edit-section">
+                    <button class="edit-button" id="edit-vehicle-info">
+                        <span>✏️</span> Editar informações do veículo
+                    </button>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h2 class="section-title">
+                    <span class="icon">⭐</span>
+                    Itens de Conforto e Segurança
+                </h2>
+                <ul class="features-list">
+                    <li class="feature-iten">Possui Ar-condicionado: <b><%= dados.arCondicionado ? 'Sim' : 'Não' %></b></li>
+                    <li class="feature-iten">Possui Wi-Fi: <b>Não</b></li>
+                    <li class="feature-iten">Possui Acessibilidade para PCD: <b><%= dados.acessibilidadePCD ? 'Sim' : 'Não' %></b></li>
+                    <li class="feature-iten">Possui Banheiro: <b>Não</b></li>
+                    <li class="feature-iten">Possui Refrigeração: <b>Não</b></li>
+                </ul>
+                <div class="edit-section">
+                    <button class="edit-button" id="edit-comfort-items">
+                        <span>✏️</span> Editar itens de conforto
+                    </button>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h2 class="section-title">
+                    <span class="icon">ℹ️</span>
+                    Informações Adicionais
+                </h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Lotação Máxima</div>
+                        <div class="info-value"><%= dados.lotacaoMaxima %></div>
+                    </div>
+                </div>
+            </div>
+        <% } else { %>
+            <p style="text-align: center; margin-top: 50px;">Nenhum dado de motorista encontrado. Por favor, complete seu cadastro de transporte escolar.</p>
+        <% } %>
+    </main>
+
+    <footer id="fim" class="footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <a href="index.html" class="logo">Kanghoo</a>
+                <p class="footer-tagline">Soluções de viagem sem esforço.</p>
+                <div class="footer-social-media">
+                    <a href="#" aria-label="Facebook"><img src="https://placehold.co/24x24/ffffff/2e3e70?text=F" alt="Facebook"></a>
+                    <a href="#" aria-label="Instagram"><img src="https://placehold.co/24x24/ffffff/2e3e70?text=I" alt="Instagram"></a>
+                    <a href="#" aria-label="LinkedIn"><img src="https://placehold.co/24x24/ffffff/2e3e70?text=L" alt="LinkedIn"></a>
+                </div>
+            </div>
+
+            <div class="footer-links-group">
+                <h4>Transporte</h4>
+                <ul>
+                    <li><a href="cadastro-escolar.html">Transporte Escolar</a></li>
+                    <li><a href="#">Rotas</a></li>
+                    <li><a href="#">Monitoramento</a></li>
+                    <li><a href="#pricing">Preços</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links-group">
+                <h4>Excursões</h4>
+                <ul>
+                    <li><a href="cadastro-excursao.html">Excursões</a></li>
+                    <li><a href="#">Viagens</a></li>
+                    <li><a href="#">Reserva</a></li>
+                    <li><a href="#">Eventos</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links-group">
+                <h4>Empresa</h4>
+                <ul>
+                    <li><a href="sobre.html">Sobre Nós</a></li>
+                    <li><a href="#contact">Contato</a></li>
+                    <li><a href="#">Termos de Uso</a></li>
+                    <li><a href="#">Privacidade</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2025 Kanghoo. Todos os direitos reservados.</p>
+        </div>
+    </div>
+</body>
+</html>

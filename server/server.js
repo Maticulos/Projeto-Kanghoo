@@ -6,11 +6,11 @@ const path = require('path')
 const bcrypt = require('bcryptjs')
 const koaBody = require('koa-bodyparser')
 const session = require('koa-session')
+const serve = require('koa-static')
 
 const app = new Koa()
 const router = new KoaRouter()
 const PORT = 5000
-const nome = 'Joao'
 
 // CHAVE KOA-SESSION.
 app.keys = ['chave']
@@ -19,73 +19,57 @@ app.use(session(app))
 app.use(koaBody())
 app.use(views(path.join(__dirname, 'views'), { extension: 'ejs' }))
 app.use(json())
+app.use(serve(path.join(__dirname, 'public')))
 
 // TODO: IMPLEMENTAR DB DE POSTGRES.
 const usuarios = []
+const cadEscolar = []
 
 const autenticou = async (ctx, next) => {
     if (ctx.session.usuario) {
         await next()
     } else {
-        ctx.redirect('/login')
+        ctx.redirect('/cadastro-escolar')
     }
 }
 
 
-// ROTAS TESTE.
+// ROTA TESTE.
 router.get('/', ctx => {
     ctx.body = 'Bem-vindo ao servidor'
 })
-router.get('/ola', ctx => {
-    ctx.body = `Ola, ${nome}`
-})
 
-router.get('/test', async ctx => {
-    await ctx.render('test', {
-        nome: nome
+// ROTAS PRINCIPAIS.
+router.get('/cadastro-escolar', async ctx => {
+    await ctx.render('cadastro-escolar')
+})
+router.get('/area-motorista', autenticou, async ctx => {
+    const email = ctx.session.usuario.email
+    const dados = cadEscolar.find(c => c.email === email)
+    await ctx.render('area-motorista', { 
+        dados: dados,
+        nome: ctx.session.usuario.nome
     })
 })
 
-// ROTAS PRINCIPAIS.
-router.get('/cadastrar', async ctx => {
-    await ctx.render('cadastrar')
-})
-router.get('/login', async ctx => {
-    await ctx.render('login')
-})
-router.get('/dashboard', autenticou, async ctx => {
-    await ctx.render('dashboard', { nome: ctx.session.usuario.nome })
-})
-
-
-router.post('/cadastrar', async ctx => {
-    const { nome, senha } = ctx.request.body
-
-    if (!nome || !senha) {
-        ctx.status = 400
-        ctx.body = 'Nome e senha obrigatorios'
-        return
-    }
-
-    if (usuarios.find(u => u.nome === nome)) {
+router.post('/cadastro-escolar', async ctx => {
+    const { nome, senha, email, ...dados } = ctx.request.body
+    
+    const emailExistente = usuarios.find(u => u.email === email)
+    if (emailExistente) {
         ctx.status = 409
-        ctx.body = 'Nome existente.'
-        return
     }
-
+    
     const senhaCrypt = await bcrypt.hash(senha, 10)
-    usuarios.push({ nome, senha: senhaCrypt})
-    console.log('Usuario cadastrado: ', nome)
-    ctx.redirect('/login')
-})
+    const novoUsuario = { nome, senha: senhaCrypt, email }
+    
+    usuarios.push(novoUsuario)
 
-router.post('/login', async ctx => {
-    const { nome, senha } = ctx.request.body
-    const usuario = usuarios.find(u => u.nome === nome)
-
+    cadEscolar.push({ ...dados, nome, email })
+    const usuario = usuarios.find(u => u.email === email)
     if (usuario && await bcrypt.compare(senha, usuario.senha)) {
-        ctx.session.usuario = { nome: usuario.nome  }
-        ctx.redirect('/dashboard')
+        ctx.session.usuario = { nome: novoUsuario.nome, email: novoUsuario.email  }
+        ctx.redirect('/area-motorista')
     } else {
         ctx.status = 401
         ctx.body = 'Usuario ou senha invalidos.'
@@ -94,7 +78,7 @@ router.post('/login', async ctx => {
 
 router.get('/logout', ctx => {
     ctx.session = null
-    ctx.redirect ('/login')
+    ctx.redirect ('/cadastro-escolar')
 })
 
 app.use(router.routes()).use(router.allowedMethods())
