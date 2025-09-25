@@ -1,0 +1,7 @@
+{
+  "success": false,
+  "message": "Credenciais inválidas. Verifique seu e-mail e senha e tente novamente.",
+  "timestamp": "2025-09-24T18:00:00Z",
+  "errorCode": "AUTH_001",
+  "details": "O e-mail ou a senha fornecidos não correspondem a um usuário existente."
+}

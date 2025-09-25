@@ -1,0 +1,5 @@
+{
+  "success": false,
+  "message": "Falha no cadastro. O e-mail fornecido já está em uso por outro motorista.",
+  "errorCode": "ESC_001"
+}

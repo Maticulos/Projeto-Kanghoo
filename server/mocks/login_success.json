@@ -1,0 +1,14 @@
+
+{
+  "success": true,
+  "message": "Login bem-sucedido. Bem-vindo de volta!",
+  "timestamp": "2025-09-24T18:00:00Z",
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJVU1ItNzgwMTIifQ.S3T0k4w5-yI_oM2oB-6e_6g1bY7hL7r7q7O8t0",
+    "user": {
+      "id": "USR-8b6e8d6a-2e00-4c59-b46e-36d1d05be11e",
+      "name": "Carlos Eduardo",
+      "email": "carlos.eduardo@kanghoo.com.br"
+    }
+  }
+}

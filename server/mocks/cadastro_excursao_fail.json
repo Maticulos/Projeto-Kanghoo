@@ -1,0 +1,12 @@
+{
+  "success": false,
+  "message": "Falha no cadastro. O CNPJ '98.765.432/0001-21' já está registrado na plataforma.",
+  "timestamp": "2025-09-24T18:06:00Z",
+  "errorCode": "EXC_001",
+  "errors": [
+    {
+      "field": "cnpj",
+      "message": "Este CNPJ já está em uso. Verifique os dados ou entre em contato com o suporte."
+    }
+  ]
+}

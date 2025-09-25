@@ -1,0 +1,17 @@
+{
+  "success": true,
+  "message": "Cadastro de empresa de excursão realizado com sucesso!",
+  "timestamp": "2025-09-24T18:06:00Z",
+  "data": {
+    "id": "USR-b8d2f1a3-4567-89ab-cdef-01234567890a",
+    "razaoSocial": "Excursões Férias Incríveis LTDA",
+    "nomeFantasia": "Férias Incríveis",
+    "cnpj": "98.765.432/0001-21",
+    "email": "contato@feriasincriveis.com.br",
+    "veiculo": {
+      "placa": "HIJ-9012",
+      "renavam": "55667788990",
+      "lotacaoMaxima": 45
+    }
+  }
+}
