@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Kanghoo</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="form-page">
+    <main class="form-container">
+        <h1 id="welcome-message">Carregando...</h1>
+        <p>Você está em uma área segura da aplicação.</p>
+        <div class="botoes-acao" style="justify-content: center; margin-top: 2rem;">
+            <button id="logout-button" class="btn btn-secondary">Sair (Logout)</button>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('authToken');
+            const welcomeMessage = document.getElementById('welcome-message');
+
+            if (!token) {
+                // Se não houver token, redireciona para a página de login
+                window.location.href = '/login.html';
+                return;
+            }
+
+            try {
+                // Tenta buscar os dados protegidos da API
+                const response = await fetch('/api/dashboard', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    // Se o token for inválido/expirado (erro 401), limpa e redireciona
+                    throw new Error('Token inválido ou expirado.');
+                }
+
+                const data = await response.json();
+                welcomeMessage.textContent = `Bem-vindo, ${data.usuario.nome}!`;
+
+            } catch (error) {
+                console.error('Erro de autenticação:', error);
+                // Limpa o token inválido e redireciona para o login
+                localStorage.removeItem('authToken');
+                window.location.href = '/login.html';
+            }
+
+            // Lógica do botão de logout
+            document.getElementById('logout-button').addEventListener('click', () => {
+                localStorage.removeItem('authToken');
+                window.location.href = '/login.html';
+            });
+        });
+    </script>
+</body>
+</html>
