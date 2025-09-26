@@ -379,5 +379,47 @@
 </footer>
     
     <script src="app.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cadastroForm = document.getElementById('cadastroForm');
+
+            cadastroForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                // Pega todos os dados do formulário
+                const formData = new FormData(cadastroForm);
+                const dados = Object.fromEntries(formData.entries());
+
+                // Validação de senha
+                if (dados.senha !== dados.confirmaSenha) {
+                    alert('As senhas não coincidem!');
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/cadastrar', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(dados)
+                    });
+
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(result.message || 'Ocorreu um erro.');
+                    }
+
+                    alert('Cadastro realizado com sucesso! Você será redirecionado para o login.');
+                    window.location.href = '/login.html';
+
+                } catch (error) {
+                    alert(`Erro no cadastro: ${error.message}`);
+                }
+            });
+        });
+    </script>
 </body>
 </html>

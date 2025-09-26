@@ -147,7 +147,45 @@
     </div>
 </footer>
     
-    <script src="app.js"></script>
-    
+<script src="app.js"></script> <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginForm = document.getElementById('login-form');
+
+            if(loginForm) {
+                loginForm.addEventListener('submit', async (e) => {
+                    e.preventDefault(); // Impede o envio padrão do formulário
+
+                    const email = document.getElementById('email').value;
+                    const senha = document.getElementById('senha').value;
+
+                    try {
+                        const response = await fetch('/login', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ email: email, senha: senha })
+                        });
+
+                        const data = await response.json();
+
+                        if (!response.ok) {
+                            // Exibe a mensagem de erro do servidor
+                            throw new Error(data.message || 'Erro ao fazer login.');
+                        }
+                        
+                        // 1. Armazena o token no localStorage
+                        localStorage.setItem('authToken', data.token);
+
+                        // 2. Redireciona para o dashboard
+                        window.location.href = '/dashboard.html';
+
+                    } catch (error) {
+                        alert(`Falha no login: ${error.message}`);
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>
