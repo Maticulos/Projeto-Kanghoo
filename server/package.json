@@ -20,12 +20,16 @@
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
+    "dotenv": "^17.2.2",
+    "jsonwebtoken": "^9.0.2",
     "koa": "^3.0.1",
     "koa-bodyparser": "^4.4.1",
     "koa-json": "^2.0.2",
     "koa-router": "^14.0.0",
     "koa-session": "^6.4.0",
+    "koa-static": "^5.0.0",
     "koa-views": "^8.1.0",
+    "pg": "^8.16.3",
     "uuid": "^9.0.1"
   },
   "engines": {
