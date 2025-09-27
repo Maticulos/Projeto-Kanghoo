@@ -16,6 +16,36 @@
     </main>
 
     <script>
+document.addEventListener('DOMContentLoaded', () => {
+    const token = localStorage.getItem('authToken');
+
+    if (!token) {
+        window.location.href = '/login.html';
+        return;
+    }
+
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        
+        if (payload.role === 'motorista_escolar') {
+            window.location.href = '/area-motorista-escolar.html';
+        } else if (payload.role === 'motorista_excursao') {
+            window.location.href = '/area-motorista-excursao.html';
+        } else {
+            // Fallback, caso precise da área do responsável no futuro
+            // window.location.href = '/area-responsavel.html';
+            alert('Tipo de usuário não reconhecido!');
+            localStorage.removeItem('authToken');
+            window.location.href = '/login.html';
+        }
+
+    } catch (error) {
+        console.error('Erro ao decodificar token ou redirecionar:', error);
+        localStorage.removeItem('authToken');
+        window.location.href = '/login.html';
+    }
+});
+
         document.addEventListener('DOMContentLoaded', async () => {
             const token = localStorage.getItem('authToken');
             const welcomeMessage = document.getElementById('welcome-message');

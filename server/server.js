@@ -60,7 +60,7 @@ router.get('/login', async ctx => {
 router.post('/cadastrar', async ctx => {
     // Pegamos todos os dados possíveis de ambos os formulários
     const { 
-        nomeCompleto, email, senha, celular, dataNascimento, 
+        tipoCadastro,nomeCompleto, email, senha, celular, dataNascimento, 
         placa, renavam, lotacaoMaxima,
         razaoSocial, cnpj, nomeFantasia // Campos da empresa
     } = ctx.request.body;
@@ -86,9 +86,11 @@ router.post('/cadastrar', async ctx => {
         const senhaCrypt = await bcrypt.hash(senha, 10);
 
         const novoUsuarioQuery = `
-            INSERT INTO usuarios (nome_completo, email, senha, celular, data_nascimento) 
-            VALUES ($1, $2, $3, $4, $5) RETURNING id`;
-        const resUsuario = await db.query(novoUsuarioQuery, [nomeCompleto, email, senhaCrypt, celular, dataNascimento]);
+            INSERT INTO usuarios (nome_completo, email, senha, celular, data_nascimento, tipo_cadastro) 
+            VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`; // Adicionamos a nova coluna
+        const resUsuario = await db.query(novoUsuarioQuery, [
+            nomeCompleto, email, senhaCrypt, outrosDados.celular, outrosDados.dataNascimento, tipoCadastro // Passamos o valor
+        ]);
         const novoUsuarioId = resUsuario.rows[0].id;
         
         // Salva o veículo, se houver
@@ -122,27 +124,24 @@ router.post('/cadastrar', async ctx => {
 
 // Rota de Login 
 router.post('/login', async ctx => {
-    // 1. Mudamos de 'nome' para 'email' para corresponder ao que o frontend envia
     const { email, senha } = ctx.request.body; 
     
     try {
-        // 2. Corrigimos a consulta SQL para buscar por 'email'
+        // Pegamos também o tipo_cadastro do banco
         const result = await db.query('SELECT * FROM usuarios WHERE email = $1', [email]);
         const usuario = result.rows[0];
 
         if (usuario && await bcrypt.compare(senha, usuario.senha)) {
-            // Gera o token JWT
+            let userRole = usuario.tipo_cadastro === 'excursao' ? 'motorista_excursao' : 'motorista_escolar';
+
             const token = jwt.sign(
-                { id: usuario.id, nome: usuario.nome_completo }, // Usamos nome_completo para o token
+                { id: usuario.id, nome: usuario.nome_completo, role: userRole }, // O papel agora é específico
                 JWT_SECRET,
-                { expiresIn: '1h' } // Token expira em 1 hora
+                { expiresIn: '1h' }
             );
             
             ctx.status = 200;
-            ctx.body = {
-                message: 'Login bem-sucedido!',
-                token: token
-            };
+            ctx.body = { message: 'Login bem-sucedido!', token: token };
         } else {
             ctx.status = 401;
             // É melhor enviar um objeto JSON mesmo em caso de erro
@@ -165,6 +164,38 @@ router.get('/api/dashboard', autenticar, async ctx => {
             nome: ctx.state.usuario.nome 
         }
     };
+});
+// API PARA BUSCAR DADOS DO PERFIL DO MOTORISTA
+router.get('/api/motorista/profile', autenticar, async ctx => {
+    try {
+        const userId = ctx.state.usuario.id;
+
+        const usuarioQuery = 'SELECT * FROM usuarios WHERE id = $1';
+        const veiculoQuery = 'SELECT * FROM veiculos WHERE usuario_id = $1';
+        const empresaQuery = 'SELECT * FROM empresas WHERE usuario_id = $1';
+
+        const usuarioResult = await db.query(usuarioQuery, [userId]);
+        const veiculoResult = await db.query(veiculoQuery, [userId]);
+        const empresaResult = await db.query(empresaQuery, [userId]);
+
+        if (usuarioResult.rows.length === 0) {
+            ctx.status = 404;
+            ctx.body = { message: "Usuário não encontrado."};
+            return;
+        }
+
+        ctx.status = 200;
+        ctx.body = {
+            usuario: usuarioResult.rows[0],
+            veiculo: veiculoResult.rows.length > 0 ? veiculoResult.rows[0] : null,
+            empresa: empresaResult.rows.length > 0 ? empresaResult.rows[0] : null
+        };
+
+    } catch (error) {
+        console.error("Erro ao buscar dados do perfil:", error);
+        ctx.status = 500;
+        ctx.body = { message: "Erro interno do servidor." };
+    }
 });
 // Inicialização do servidor
 app.use(router.routes()).use(router.allowedMethods());

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Área do Motorista Escolar</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main class="main-content">
+        <div class="personal-info-form">
+            <div class="form-header">
+                <h2 class="form-title">👤 Informações Pessoais</h2>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Nome Completo</label>
+                    <input type="text" id="nome-completo" readonly>
+                </div>
+                <div class="form-group">
+                    <label>E-mail</label>
+                    <input type="email" id="email" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Celular</label>
+                    <input type="tel" id="celular" readonly>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h2 class="section-title">🚗 Veículo</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Placa</div>
+                    <div class="info-value" id="placa">--</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">RENAVAM</div>
+                    <div class="info-value" id="renavam">--</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Lotação Máxima</div>
+                    <div class="info-value" id="lotacao">--</div>
+                </div>
+            </div>
+        </div>
+         <a href="/login.html" id="logout-button" class="btn btn-secondary" style="margin: 0 auto; display: block; width: fit-content;">Sair (Logout)</a>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/motorista/profile', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) throw new Error('Falha ao carregar dados.');
+
+                const data = await response.json();
+
+                // Preenche dados do usuário
+                document.getElementById('nome-completo').value = data.usuario.nome_completo || '';
+                document.getElementById('email').value = data.usuario.email || '';
+                document.getElementById('celular').value = data.usuario.celular || '';
+
+                // Preenche dados do veículo
+                if (data.veiculo) {
+                    document.getElementById('placa').textContent = data.veiculo.placa;
+                    document.getElementById('renavam').textContent = data.veiculo.renavam;
+                    document.getElementById('lotacao').textContent = data.veiculo.lotacao_maxima;
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                localStorage.removeItem('authToken');
+                window.location.href = '/login.html';
+            }
+
+            document.getElementById('logout-button').addEventListener('click', (e) => {
+                e.preventDefault();
+                localStorage.removeItem('authToken');
+                window.location.href = '/login.html';
+            });
+        });
+    </script>
+</body>
+</html>

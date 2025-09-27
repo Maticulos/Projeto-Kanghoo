@@ -8,17 +8,17 @@ const pool = new Pool({
 // Função para criar TODAS as tabelas necessárias
 const criarTabelas = async () => {
   const criarTabelaUsuariosQuery = `
-    CREATE TABLE IF NOT EXISTS usuarios (
-      id SERIAL PRIMARY KEY,
-      nome_completo VARCHAR(255) NOT NULL,
-      email VARCHAR(255) UNIQUE NOT NULL,
-      senha VARCHAR(255) NOT NULL,
-      celular VARCHAR(20),
-      data_nascimento DATE,
-      -- Adicione mais campos de dados pessoais aqui se necessário
-      criado_em TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-    );
-  `;
+  CREATE TABLE IF NOT EXISTS usuarios (
+    id SERIAL PRIMARY KEY,
+    nome_completo VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    senha VARCHAR(255) NOT NULL,
+    celular VARCHAR(20),
+    data_nascimento DATE,
+    tipo_cadastro VARCHAR(50), -- <-- ADICIONE ESTA LINHA
+    criado_em TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+  );
+`;
 
   // Adicione outras tabelas como 'veiculos', 'empresas', etc., conforme sua necessidade.
   // Exemplo para veículos:

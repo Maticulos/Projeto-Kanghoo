@@ -1269,3 +1269,162 @@ main.form-container {
         grid-template-columns: 1fr;
     }
 }
+/* ============================================= */
+/* --- ESTILOS PARA ÁREA DO MOTORISTA LOGADO --- */
+/* ============================================= */
+
+.main-content {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.personal-info-form,
+.info-section {
+    background-color: var(--cor-branco);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px var(--cor-sombra);
+    margin-bottom: 30px; /* Espaçamento entre os cards */
+}
+
+.form-header,
+.info-section .section-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--cor-fundo-claro);
+}
+
+.form-title,
+.info-section .section-title {
+    font-size: 1.5rem;
+    color: var(--cor-azul-escuro);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 0; /* Remove a margem padrão de títulos */
+    text-align: left; /* Garante alinhamento à esquerda */
+}
+
+.badge {
+    background-color: var(--cor-fundo-claro);
+    color: var(--cor-azul-texto);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+    color: var(--cor-texto-geral);
+}
+
+.form-group input {
+    background-color: #f9fafb;
+    border: 1px solid var(--cor-cinza-borda);
+    padding: 10px;
+    border-radius: 6px;
+    font-family: 'Poppins', sans-serif;
+    color: var(--cor-azul-texto);
+    font-size: 1rem;
+}
+
+/* Estilo para campos de input que não podem ser editados */
+.form-group input:read-only {
+    background-color: #eef0f3;
+    cursor: not-allowed;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.info-item {
+    background-color: var(--cor-fundo-claro);
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.info-label {
+    font-size: 0.8rem;
+    color: var(--cor-texto-geral);
+    margin-bottom: 5px;
+    display: block;
+}
+
+.info-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--cor-azul-texto);
+}
+
+.features-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.feature-item {
+    background-color: var(--cor-fundo-claro);
+    color: var(--cor-azul-texto);
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+}
+
+.edit-section {
+    margin-top: 1.5rem;
+    text-align: right;
+}
+
+.edit-button {
+    background: none;
+    border: none;
+    color: var(--cor-azul-escuro);
+    cursor: pointer;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+}
+
+.edit-button:hover {
+    text-decoration: underline;
+}
+
+/* Responsividade para telas menores */
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}
