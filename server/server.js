@@ -65,6 +65,13 @@ router.post('/cadastrar', async ctx => {
         razaoSocial, cnpj, nomeFantasia // Campos da empresa
     } = ctx.request.body;
 
+    cnpjRegex = /^\d{2}\.\d{3}\.\d{3}\/\d{4}\-\d{2}$/
+    if (!cnpjRegex.test(cnpj)) {
+        ctx.status = 400
+        ctx.body = { message: 'O CNPJ deve estar no formato XX.XXX.XXX/XXXX-XX.' }
+        return
+    }
+
     if (!nomeCompleto || !email || !senha) {
         ctx.status = 400;
         ctx.body = { message: 'Nome, e-mail e senha são obrigatórios.' };

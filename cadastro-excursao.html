@@ -501,6 +501,36 @@
                 }
             });
         });
+
+        // TESTE CNPJ
+        const cnpjInput = document.getElementById('cnpj')
+        const aplicarMascaraCNPJ = (value) => {
+            value = value.replace(/\D/g, "");
+            value = value.replace(/^(\d{2})(\d)/, "$1.$2");
+            value = value.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
+            value = value.replace(/\.(\d{3})(\d)/, ".$1/$2");
+            value = value.replace(/(\d{4})(\d)/, "$1-$2");
+            value = value.slice(0, 18);11
+            return value;
+        };
+
+        const cnpjTeste = (cnpj) => {
+            const regex = /^\d{2}\.\d{3}\.\d{3}\/\d{4}\-\d{2}$/; 
+            return regex.test(cnpj);
+        }
+
+        cnpjInput.addEventListener('input', (e) => {
+            // 1. Aplica a máscara e atualiza o campo
+            e.target.value = aplicarMascaraCNPJ(e.target.value);
+            // 2. Valida o formato
+            if (!cnpjTeste(e.target.value)) {
+                cnpjError.textContent = 'O CNPJ deve estar no formato: 00.000.000/0000-00';
+            } else {
+                // Limpa a mensagem se a validação passar
+                cnpjError.textContent = ''; 
+            }
+        })
+
     </script>
 </body>
 </html>
