@@ -4,16 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro de Veículo - Excursão e Fretamento</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../css/style.css">
 </head>
 <body class="form-page">
-    <!-- Header -->
     <header class="header">
         <div class="container">
-            <img src="imagens/logo.jpg" alt="Logo" class="icon">
+            <img src="../imagens/logo.jpg" alt="Logo" class="icon">
             <a href="index.html" class="logo" aria-label="Kanghoo - Página inicial">Kanghoo</a>
             <nav class="nav" aria-label="Navegação principal">
                 <a href="planos.html" class="nav-link">Planos</a>
@@ -22,13 +18,12 @@
                 <a href="sobre.html" class="nav-link">Sobre Nós</a>
             </nav>
             <div class="auth-buttons">
-                <a href="login.html" class="btn btn-secondary">Login</a>
+                <a href="../auth/login.html" class="btn btn-secondary">Login</a>
                 <button class="btn btn-primary" id="btn-cadastro-modal" aria-haspopup="dialog">Cadastro</button>
             </div>
         </div>
     </header>
 
-    <!-- Modal de Cadastro -->
     <div id="cadastroModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
         <div class="modal-content">
             <button class="close-modal-btn" id="close-modal" aria-label="Fechar modal">&times;</button>
@@ -44,7 +39,6 @@
         </div>
     </div>
 
-    <!-- Modal de Transporte -->
     <div id="transportModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="transport-modal-title">
         <div class="modal-content">
             <button class="close-modal-btn" id="close-transport-modal" aria-label="Fechar modal">&times;</button>
@@ -61,13 +55,11 @@
     </div>
     <div class="form-page-wrapper">
 
-    <!-- Conteúdo Principal -->
     <main class="form-container">
         <h1>Cadastro para Excursão e Fretamento</h1>
         
         <form id="cadastroForm" action="#" method="POST" enctype="multipart/form-data">
              <input type="hidden" name="tipoCadastro" value="excursao">
-            <!-- Dados Pessoais -->
             <div class="cadastro-pessoa">
                 <h2>Dados Pessoais</h2>
                 
@@ -163,7 +155,6 @@
 
             <hr>
 
-            <!-- Dados da Empresa -->
             <div class="cadastro-empresa">
                 <h2>Dados da Empresa</h2>
                 
@@ -228,7 +219,6 @@
 
             <hr>
 
-            <!-- Dados do Veículo -->
             <div class="cadastro-veiculo">
                 <h2>Dados do Veículo</h2>
                 
@@ -312,7 +302,6 @@
 
             <hr>
 
-            <!-- Dados do Motorista -->
             <div class="cadastro-motorista">
                 <h2>Dados do Motorista</h2>
                 <div class="campo-grupo">
@@ -345,7 +334,6 @@
 
             <hr>
 
-            <!-- Documentação -->
             <div class="documentacao">
                 <h2>Documentação (Uploads)</h2>
                 <p>Envie cópias legíveis dos seus documentos para validação.</p>
@@ -377,7 +365,6 @@
 
             <hr>
 
-            <!-- Termos e Preferências -->
             <div class="termos-preferencias">
                 <h2>Termos e Preferências</h2>
                 <div class="checkbox-container">
@@ -399,7 +386,6 @@
                 </div>
             </div>
 
-            <!-- Botões de Ação -->
             <div class="botoes-acao">
                 <button type="reset" class="btn-limpar">Limpar</button>
                 <button type="submit" class="btn-cadastrar">Cadastrar</button>
@@ -407,15 +393,12 @@
         </form>
     </main>
 </div>
- <!-- RODAPÉ -->
-<footer class="footer">
+ <footer class="footer">
     <div class="container">
-        <!-- Grade principal do footer com a marca e os links -->
         <div class="footer-grid">
             <div class="footer-brand">
                 <a href="index.html" class="logo">Kanghoo</a>
                 <p class="footer-tagline">Soluções de viagem sem esforço.</p>
-                <!-- Ícones de redes sociais podem ficar aqui para maior destaque -->
                 <div class="footer-social-media">
                     <a href="#" aria-label="Facebook"><img src="https://placehold.co/24x24/ffffff/2e3e70?text=F" alt="Facebook"></a>
                     <a href="#" aria-label="Instagram"><img src="https://placehold.co/24x24/ffffff/2e3e70?text=I" alt="Instagram"></a>
@@ -454,14 +437,13 @@
             </div>
         </div>
 
-        <!-- Linha inferior com o copyright -->
         <div class="footer-bottom">
             <p>&copy; 2025 Kanghoo. Todos os direitos reservados.</p>
         </div>
     </div>
 </footer>
     
-    <script src="app.js"></script>
+    <script src="../js/app.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -502,7 +484,5 @@
             });
         });
     </script>
-</body>
-</html>
 </body>
 </html>
