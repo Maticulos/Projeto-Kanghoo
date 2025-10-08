@@ -1,7 +1,6 @@
 const Koa = require('koa');
 const KoaRouter = require('koa-router');
 const json = require('koa-json');
-const views = require('koa-views');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const koaBody = require('koa-bodyparser');
@@ -17,7 +16,6 @@ const JWT_SECRET = 'sua_chave_secreta_super_segura';
 // ORDEM CORRETA DOS MIDDLEWARES
 app.use(serve(path.join(__dirname, '..'))); // 1. Tenta servir arquivos estáticos (HTML, CSS, imagens)
 app.use(koaBody()); // 2. Se não for um arquivo, processa o corpo da requisição (JSON, formulários)
-app.use(views(path.join(__dirname, 'views'), { extension: 'ejs' })); // 3. Habilita a renderização de views
 app.use(json()); // 4. Formata a saída JSON de forma legível
 
 
@@ -65,13 +63,6 @@ router.post('/cadastrar', async ctx => {
         razaoSocial, cnpj, nomeFantasia // Campos da empresa
     } = ctx.request.body;
 
-    cnpjRegex = /^\d{2}\.\d{3}\.\d{3}\/\d{4}\-\d{2}$/
-    if (!cnpjRegex.test(cnpj)) {
-        ctx.status = 400
-        ctx.body = { message: 'O CNPJ deve estar no formato XX.XXX.XXX/XXXX-XX.' }
-        return
-    }
-
     if (!nomeCompleto || !email || !senha) {
         ctx.status = 400;
         ctx.body = { message: 'Nome, e-mail e senha são obrigatórios.' };
@@ -96,7 +87,7 @@ router.post('/cadastrar', async ctx => {
             INSERT INTO usuarios (nome_completo, email, senha, celular, data_nascimento, tipo_cadastro) 
             VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`; // Adicionamos a nova coluna
         const resUsuario = await db.query(novoUsuarioQuery, [
-            nomeCompleto, email, senhaCrypt, outrosDados.celular, outrosDados.dataNascimento, tipoCadastro // Passamos o valor
+            nomeCompleto, email, senhaCrypt, celular, dataNascimento, tipoCadastro // Passamos o valor
         ]);
         const novoUsuarioId = resUsuario.rows[0].id;
         
