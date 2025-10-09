@@ -4,18 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Kanghoo</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body class="form-page">
+    <!-- Header -->
     <header class="header">
         <div class="container">
-            <img src="../imagens/logo.jpg" alt="Logo" class="icon">
-            <a href="../public/index.html" class="logo" aria-label="Kanghoo - Página inicial">Kanghoo</a>
+            <img src="imagens/logo.jpg" alt="Logo" class="icon">
+            <a href="index.html" class="logo" aria-label="Kanghoo - Página inicial">Kanghoo</a>
             <nav class="nav" aria-label="Navegação principal">
-                <a href="../public/planos.html" class="nav-link">Planos</a>
-                <a href="../public/index.html#contact" class="nav-link">Fale Conosco</a>
+                <a href="planos.html" class="nav-link">Planos</a>
+                <a href="index.html#contact" class="nav-link">Fale Conosco</a>
                 <a href="#" class="nav-link" id="open-transport-modal">Encontrar Transporte</a>
-                <a href="../public/sobre.html" class="nav-link">Sobre Nós</a>
+                <a href="sobre.html" class="nav-link">Sobre Nós</a>
             </nav>
             <div class="auth-buttons">
                 <a href="login.html" class="btn btn-secondary">Login</a>
@@ -24,8 +25,41 @@
         </div>
     </header>
 
+    <!-- Modal de Cadastro -->
+    <div id="cadastroModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal-content">
+            <button class="close-modal-btn" id="close-modal" aria-label="Fechar modal">&times;</button>
+            <h3 id="modal-title">Qual tipo de cadastro?</h3>
+            <p>Escolha a opção que melhor descreve seu serviço para começar.</p>
+            <div class="modal-options">
+                <a href="cadastro-escolar.html" class="btn btn-primary">Transporte Escolar</a>
+                <a href="cadastro-excursao.html" class="btn btn-secondary">Excursão e Fretamento</a>
+            </div>
+            <div class="modal-footer">
+                <p>Não tem certeza? <a href="index.html#contact">Fale conosco</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Transporte -->
+    <div id="transportModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="transport-modal-title">
+        <div class="modal-content">
+            <button class="close-modal-btn" id="close-transport-modal" aria-label="Fechar modal">&times;</button>
+            <h3 id="transport-modal-title">Que tipo de transporte precisa?</h3>
+            <p>Selecione a opção que melhor atende sua necessidade.</p>
+            <div class="modal-options">
+                <a href="encontrar-escolar.html" class="btn btn-primary">Transporte Escolar</a>
+                <a href="encontrar-excursao.html" class="btn btn-secondary">Excursões e Fretamento</a>
+            </div>
+            <div class="modal-footer">
+                <p>Precisa de ajuda? <a href="#contact">Entre em contato</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conteúdo Principal -->
     <main class="form-container login-container">
-        <a href="../public/index.html" class="logo" style="text-align: center; display: block; margin-bottom: 1.5rem; font-size: 2rem;">Kanghoo</a>
+        <a href="index.html" class="logo" style="text-align: center; display: block; margin-bottom: 1.5rem; font-size: 2rem;">Kanghoo</a>
         <h1>Acessar sua Conta</h1>
         <p class="subtitulo">Que bom te ver por aqui!</p>
         
@@ -59,80 +93,67 @@
             </div>
         </form>
     </main>
+ <!-- RODAPÉ -->
+<footer class="footer">
+    <div class="container">
+        <!-- Grade principal do footer com a marca e os links -->
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <a href="index.html" class="logo">Kanghoo</a>
+                <p class="footer-tagline">Soluções de viagem sem esforço.</p>
+                <!-- Ícones de redes sociais podem ficar aqui para maior destaque -->
+                <div class="footer-social-media">
+                    <a href="#" aria-label="Facebook"><img src="https://placehold.co/24x24/ffffff/2e3e70?text=F" alt="Facebook"></a>
+                    <a href="#" aria-label="Instagram"><img src="https://placehold.co/24x24/ffffff/2e3e70?text=I" alt="Instagram"></a>
+                    <a href="#" aria-label="LinkedIn"><img src="https://placehold.co/24x24/ffffff/2e3e70?text=L" alt="LinkedIn"></a>
+                </div>
+            </div>
 
-    <div id="cadastroModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-        <div class="modal-content">
-            <button class="close-modal-btn" id="close-modal" aria-label="Fechar modal">&times;</button>
-            <h3 id="modal-title">Qual tipo de cadastro?</h3>
-            <p>Escolha a opção que melhor descreve seu serviço para começar.</p>
-            <div class="modal-options">
-                <a href="../public/cadastro-escolar.html" class="btn btn-primary">Transporte Escolar</a>
-                <a href="../public/cadastro-excursao.html" class="btn btn-secondary">Excursão e Fretamento</a>
+            <div class="footer-links-group">
+                <h4>Transporte</h4>
+                <ul>
+                    <li><a href="cadastro-escolar.html">Transporte Escolar</a></li>
+                    <li><a href="#">Rotas</a></li>
+                    <li><a href="#">Monitoramento</a></li>
+                    <li><a href="#pricing">Preços</a></li>
+                </ul>
             </div>
-            <div class="modal-footer">
-                <p>Não tem certeza? <a href="../public/index.html#contact">Fale conosco</a></p>
+
+            <div class="footer-links-group">
+                <h4>Excursões</h4>
+                <ul>
+                    <li><a href="cadastro-excursao.html">Excursões</a></li>
+                    <li><a href="#">Viagens</a></li>
+                    <li><a href="#">Reserva</a></li>
+                    <li><a href="#">Eventos</a></li>
+                </ul>
             </div>
+
+            <div class="footer-links-group">
+                <h4>Empresa</h4>
+                <ul>
+                    <li><a href="sobre.html">Sobre Nós</a></li>
+                    <li><a href="#contact">Contato</a></li>
+                    <li><a href="#">Termos de Uso</a></li>
+                    <li><a href="#">Privacidade</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Linha inferior com o copyright -->
+        <div class="footer-bottom">
+            <p>&copy; 2025 Kanghoo. Todos os direitos reservados.</p>
         </div>
     </div>
-
-    <footer id="fim" class="footer">
-        <div class="container">
-            <div class="footer-grid">
-                <div class="footer-brand">
-                    <a href="../public/index.html" class="logo">Kanghoo</a>
-                    <p class="footer-tagline">Soluções de viagem sem esforço.</p>
-                    <div class="footer-social-media">
-                        <a href="#" aria-label="Facebook"><img src="https://placehold.co/24x24/ffffff/2e3e70?text=F" alt="Facebook"></a>
-                        <a href="#" aria-label="Instagram"><img src="https://placehold.co/24x24/ffffff/2e3e70?text=I" alt="Instagram"></a>
-                        <a href="#" aria-label="LinkedIn"><img src="https://placehold.co/24x24/ffffff/2e3e70?text=L" alt="LinkedIn"></a>
-                    </div>
-                </div>
-
-                <div class="footer-links-group">
-                    <h4>Transporte</h4>
-                    <ul>
-                        <li><a href="../public/cadastro-escolar.html">Transporte Escolar</a></li>
-                        <li><a href="#">Rotas</a></li>
-                        <li><a href="#">Monitoramento</a></li>
-                        <li><a href="../public/planos.html">Preços</a></li>
-                    </ul>
-                </div>
-
-                <div class="footer-links-group">
-                    <h4>Excursões</h4>
-                    <ul>
-                        <li><a href="../public/cadastro-excursao.html">Excursões</a></li>
-                        <li><a href="#">Viagens</a></li>
-                        <li><a href="#">Reserva</a></li>
-                        <li><a href="#">Eventos</a></li>
-                    </ul>
-                </div>
-
-                <div class="footer-links-group">
-                    <h4>Empresa</h4>
-                    <ul>
-                        <li><a href="../public/sobre.html">Sobre Nós</a></li>
-                        <li><a href="../public/index.html#contact">Contato</a></li>
-                        <li><a href="#">Termos de Uso</a></li>
-                        <li><a href="#">Privacidade</a></li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="footer-bottom">
-                <p>&copy; 2025 Kanghoo. Todos os direitos reservados.</p>
-            </div>
-        </div>
-    </footer>
+</footer>
     
-    <script src="../js/app.js"></script>
-    <script>
+<script src="app.js"></script> <script>
         document.addEventListener('DOMContentLoaded', () => {
             const loginForm = document.getElementById('login-form');
 
             if(loginForm) {
                 loginForm.addEventListener('submit', async (e) => {
-                    e.preventDefault();
+                    e.preventDefault(); // Impede o envio padrão do formulário
 
                     const email = document.getElementById('email').value;
                     const senha = document.getElementById('senha').value;
@@ -140,21 +161,24 @@
                     try {
                         const response = await fetch('/login', {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
                             body: JSON.stringify({ email: email, senha: senha })
                         });
 
                         const data = await response.json();
 
                         if (!response.ok) {
+                            // Exibe a mensagem de erro do servidor
                             throw new Error(data.message || 'Erro ao fazer login.');
                         }
                         
+                        // 1. Armazena o token no localStorage
                         localStorage.setItem('authToken', data.token);
 
-                        // CORREÇÃO APLICADA AQUI:
-                        // Removemos a barra inicial para que o redirecionamento seja relativo à pasta atual (auth)
-                        window.location.href = 'dashboard.html';
+                        // 2. Redireciona para o dashboard
+                        window.location.href = '/dashboard.html';
 
                     } catch (error) {
                         alert(`Falha no login: ${error.message}`);

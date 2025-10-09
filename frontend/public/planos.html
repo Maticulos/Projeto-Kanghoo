@@ -1,44 +1,264 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Planos - Kanghoo</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        /* ESTILOS ESPECÍFICOS PARA PLANOS */
+        .plans-page {
+            padding: 100px 0 50px;
+        }
+
+        .plans-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .plans-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--cor-azul-texto);
+            margin-bottom: 15px;
+        }
+
+        .plans-subtitle {
+            font-size: 18px;
+            margin-bottom: 20px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            color: var(--cor-texto-geral);
+        }
+
+        .plans-disclaimer {
+            background-color: var(--cor-branco);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .plans-disclaimer strong {
+            color: var(--cor-azul-texto);
+        }
+
+        .plans-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .plan-card {
+            background: var(--cor-branco);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            padding: 35px;
+            position: relative;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .plan-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .plan-header {
+            border-bottom: 2px solid var(--cor-fundo-claro);
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+        }
+
+        .plan-pricing {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .monthly-price {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--cor-azul-texto);
+        }
+
+        .annual-option {
+            font-size: 16px;
+            color: var(--cor-texto-geral);
+            font-weight: 500;
+        }
+
+        .equivalent-price {
+            background-color: var(--cor-fundo-claro);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .equivalent-price strong {
+            font-size: 22px;
+            color: var(--cor-azul-texto);
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .savings {
+            color: var(--cor-sucesso);
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .plan-name {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--cor-azul-texto);
+            margin-bottom: 12px;
+        }
+
+        .plan-description {
+            font-size: 16px;
+            color: var(--cor-texto-geral);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .plan-features {
+            margin-bottom: 30px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 14px;
+        }
+
+        .feature-icon {
+            color: var(--cor-amarelo-destaque);
+            font-weight: bold;
+            margin-right: 12px;
+            flex-shrink: 0;
+            font-size: 18px;
+        }
+
+        .feature-text {
+            flex: 1;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .plan-divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--cor-cinza-borda), transparent);
+            margin: 25px 0;
+            border: none;
+        }
+
+        .plan-cta {
+            text-align: center;
+        }
+        .alinhar {
+            margin-top: 3rem;
+        }
+
+        .plan-btn {
+            display: inline-block;
+            padding: 16px 32px;
+            background-color: var(--cor-amarelo-destaque);
+            color: var(--cor-azul-texto);
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .plan-btn:hover {
+            background-color: #e6c02a;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(247, 210, 47, 0.3);
+        }
+
+        @media (min-width: 768px) {
+            .plans-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .plans-title {
+                font-size: 42px;
+            }
+
+            .plans-page {
+                padding: 120px 0 60px;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .plan-pricing {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .plan-card {
+                padding: 25px;
+            }
+        }
+    </style>
 </head>
+
 <body>
+    <!-- CABEÇALHO FIXO -->
     <header class="header">
         <div class="container">
-            <img src="../imagens/logo.jpg" alt="Logo" class="icon">
-            <a href="index.html" class="logo" aria-label="Kanghoo - Página inicial">Kanghoo</a>
+            <img src="/imagens/logo.jpg" alt="Logo" class="icon">
+            <a href="/" class="logo" aria-label="Kanghoo - Página inicial">Kanghoo</a>
             <nav class="nav" aria-label="Navegação principal">
-                <a href="planos.html" class="nav-link">Planos</a>
-                <a href="index.html#contact" class="nav-link">Fale Conosco</a>
+                <a href="/planos.html" class="nav-link">Planos</a>
+                <a href="/#contact" class="nav-link">Fale Conosco</a>
                 <a href="#" class="nav-link" id="open-transport-modal">Encontrar Transporte</a>
-                <a href="sobre.html" class="nav-link">Sobre Nós</a>
+                <a href="/sobre.html" class="nav-link">Sobre Nós</a>
             </nav>
             <div class="auth-buttons">
-                <a href="../auth/login.html" class="btn btn-secondary">Login</a>
+                <a href="/login.html" class="btn btn-secondary">Login</a>
                 <button class="btn btn-primary" id="btn-cadastro-modal" aria-haspopup="dialog">Cadastro</button>
             </div>
         </div>
     </header>
 
+    <!-- Modal de Cadastro -->
     <div id="cadastroModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
         <div class="modal-content">
             <button class="close-modal-btn" id="close-modal" aria-label="Fechar modal">&times;</button>
             <h3 id="modal-title">Qual tipo de cadastro?</h3>
             <p>Escolha a opção que melhor descreve seu serviço para começar.</p>
             <div class="modal-options">
-                <a href="cadastro-escolar.html" class="btn btn-primary">Transporte Escolar</a>
-                <a href="cadastro-excursao.html" class="btn btn-secondary">Excursão e Fretamento</a>
+                <a href="/cadastro-escolar.html" class="btn btn-primary">Transporte Escolar</a>
+                <a href="/cadastro-excursao.html" class="btn btn-secondary">Excursão e Fretamento</a>
             </div>
             <div class="modal-footer">
-                <p>Não tem certeza? <a href="index.html#contact">Fale conosco</a></p>
+                <p>Não tem certeza? <a href="/#contact">Fale conosco</a></p>
             </div>
         </div>
     </div>
 
+    <!-- Modal de Transporte -->
     <div id="transportModal" class="modal-overlay hidden" role="dialog" aria-modal="true"
         aria-labelledby="transport-modal-title">
         <div class="modal-content">
@@ -46,8 +266,8 @@
             <h3 id="transport-modal-title">Que tipo de transporte precisa?</h3>
             <p>Selecione a opção que melhor atende sua necessidade.</p>
             <div class="modal-options">
-                <a href="encontrar-escolar.html" class="btn btn-primary">Transporte Escolar</a>
-                <a href="encontrar-excursao.html" class="btn btn-secondary">Excursões e Fretamento</a>
+                <a href="/encontrar-escolar.html" class="btn btn-primary">Transporte Escolar</a>
+                <a href="/encontrar-excursao.html" class="btn btn-secondary">Excursões e Fretamento</a>
             </div>
         </div>
     </div>
@@ -66,6 +286,7 @@
             </div>
 
             <div class="plans-grid">
+                <!-- Plano Basic -->
                 <div class="plan-card">
                     <div class="plan-header">
                         <div class="plan-pricing">
@@ -134,6 +355,7 @@
                     </div>
                 </div>
 
+                <!-- Plano Premium -->
                 <div class="plan-card">
                     <div class="plan-header">
                         <div class="plan-pricing">
@@ -208,12 +430,15 @@
             </div>
         </div>
     </main>
+    <!-- RODAPÉ -->
     <footer class="footer">
         <div class="container">
+            <!-- Grade principal do footer com a marca e os links -->
             <div class="footer-grid">
                 <div class="footer-brand">
                     <a href="/" class="logo">Kanghoo</a>
                     <p class="footer-tagline">Soluções de viagem sem esforço.</p>
+                    <!-- Ícones de redes sociais podem ficar aqui para maior destaque -->
                     <div class="footer-social-media">
                         <a href="#" aria-label="Facebook"><img src="https://placehold.co/24x24/ffffff/2e3e70?text=F"
                                 alt="Facebook"></a>
@@ -227,7 +452,7 @@
                 <div class="footer-links-group">
                     <h4>Transporte</h4>
                     <ul>
-                        <li><a href="cadastro-escolar.html">Transporte Escolar</a></li>
+                        <li><a href="/cadastro-escolar.html">Transporte Escolar</a></li>
                         <li><a href="#">Rotas</a></li>
                         <li><a href="#">Monitoramento</a></li>
                         <li><a href="#pricing">Preços</a></li>
@@ -237,7 +462,7 @@
                 <div class="footer-links-group">
                     <h4>Excursões</h4>
                     <ul>
-                        <li><a href="cadastro-excursao.html">Excursões</a></li>
+                        <li><a href="/cadastro-excursao.html">Excursões</a></li>
                         <li><a href="#">Viagens</a></li>
                         <li><a href="#">Reserva</a></li>
                         <li><a href="#">Eventos</a></li>
@@ -247,7 +472,7 @@
                 <div class="footer-links-group">
                     <h4>Empresa</h4>
                     <ul>
-                        <li><a href="sobre.html">Sobre Nós</a></li>
+                        <li><a href="/sobre.html">Sobre Nós</a></li>
                         <li><a href="#contact">Contato</a></li>
                         <li><a href="#">Termos de Uso</a></li>
                         <li><a href="#">Privacidade</a></li>
@@ -255,13 +480,14 @@
                 </div>
             </div>
 
+            <!-- Linha inferior com o copyright -->
             <div class="footer-bottom">
                 <p>&copy; 2025 Kanghoo. Todos os direitos reservados.</p>
             </div>
         </div>
     </footer>
 
-    <script src="../js/app.js"></script>
+    <script src="/js/app.js"></script>
     <script>
         // Inicialização específica para a página de planos
         document.addEventListener('DOMContentLoaded', function () {

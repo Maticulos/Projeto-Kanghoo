@@ -4,49 +4,55 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro de Veículo - Transporte Escolar</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body class="form-page">
+    <!-- Header -->
     <header class="header">
         <div class="container">
-            <img src="../imagens/logo.jpg" alt="Logo" class="icon">
-            <a href="index.html" class="logo" aria-label="Kanghoo - Página inicial">Kanghoo</a>
+            <img src="/imagens/logo.jpg" alt="Logo" class="icon">
+            <a href="/" class="logo" aria-label="Kanghoo - Página inicial">Kanghoo</a>
             <nav class="nav" aria-label="Navegação principal">
-                <a href="planos.html" class="nav-link">Planos</a>
-                <a href="index.html#contact" class="nav-link">Fale Conosco</a>
+                <a href="/planos.html" class="nav-link">Planos</a>
+                <a href="/#contact" class="nav-link">Fale Conosco</a>
                 <a href="#" class="nav-link" id="open-transport-modal">Encontrar Transporte</a>
-                <a href="sobre.html" class="nav-link">Sobre Nós</a>
+                <a href="/sobre.html" class="nav-link">Sobre Nós</a>
             </nav>
             <div class="auth-buttons">
-                <a href="../auth/login.html" class="btn btn-secondary">Login</a>
+                <a href="/login.html" class="btn btn-secondary">Login</a>
                 <button class="btn btn-primary" id="btn-cadastro-modal" aria-haspopup="dialog">Cadastro</button>
             </div>
         </div>
     </header>
 
+    <!-- Modal de Cadastro -->
     <div id="cadastroModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
         <div class="modal-content">
             <button class="close-modal-btn" id="close-modal" aria-label="Fechar modal">&times;</button>
             <h3 id="modal-title">Qual tipo de cadastro?</h3>
             <p>Escolha a opção que melhor descreve seu serviço para começar.</p>
             <div class="modal-options">
-                <a href="cadastro-escolar.html" class="btn btn-primary">Transporte Escolar</a>
-                <a href="cadastro-excursao.html" class="btn btn-secondary">Excursão e Fretamento</a>
+                <a href="/cadastro-escolar.html" class="btn btn-primary">Transporte Escolar</a>
+                <a href="/cadastro-excursao.html" class="btn btn-secondary">Excursão e Fretamento</a>
             </div>
             <div class="modal-footer">
-                <p>Não tem certeza? <a href="index.html#contact">Fale conosco</a></p>
+                <p>Não tem certeza? <a href="/#contact">Fale conosco</a></p>
             </div>
         </div>
     </div>
 
+    <!-- Modal de Transporte -->
     <div id="transportModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="transport-modal-title">
         <div class="modal-content">
             <button class="close-modal-btn" id="close-transport-modal" aria-label="Fechar modal">&times;</button>
             <h3 id="transport-modal-title">Que tipo de transporte precisa?</h3>
             <p>Selecione a opção que melhor atende sua necessidade.</p>
             <div class="modal-options">
-                <a href="encontrar-escolar.html" class="btn btn-primary">Transporte Escolar</a>
-                <a href="encontrar-excursao.html" class="btn btn-secondary">Excursões e Fretamento</a>
+                <a href="/encontrar-escolar.html" class="btn btn-primary">Transporte Escolar</a>
+                <a href="/encontrar-excursao.html" class="btn btn-secondary">Excursões e Fretamento</a>
             </div>
             <div class="modal-footer">
                 <p>Precisa de ajuda? <a href="#contact">Entre em contato</a></p>
@@ -55,11 +61,13 @@
     </div>
 
     <div class="form-page-wrapper">
+    <!-- Conteúdo Principal -->
     <main class="form-container">
         <h1>Cadastro para Transporte Escolar</h1>
         
         <form id="cadastroForm" action="#" method="POST" enctype="multipart/form-data">
             <input type="hidden" name="tipoCadastro" value="escolar">
+            <!-- Dados Pessoais -->
             <div class="cadastro-pessoa">
                 <h2>Dados Pessoais</h2>
                 
@@ -155,6 +163,7 @@
 
             <hr>
 
+            <!-- Dados do Veículo -->
             <div class="cadastro-veiculo">
                 <h2>Dados do Veículo</h2>
                 
@@ -226,6 +235,7 @@
 
             <hr>
 
+            <!-- Dados do Motorista -->
             <div class="cadastro-motorista">
                 <h2>Dados do Motorista</h2>
                 <div class="campo-grupo">
@@ -258,6 +268,7 @@
 
             <hr>
 
+            <!-- Documentação -->
             <div class="documentacao">
                 <h2>Documentação (Uploads)</h2>
                 <p>Envie cópias legíveis dos seus documentos para validação.</p>
@@ -283,6 +294,7 @@
 
             <hr>
 
+            <!-- Termos e Preferências -->
             <div class="termos-preferencias">
                 <h2>Termos e Preferências</h2>
                 <div class="checkbox-container">
@@ -304,6 +316,7 @@
                 </div>
             </div>
 
+            <!-- Botões de Ação -->
             <div class="botoes-acao">
                 <button type="reset" class="btn-limpar">Limpar</button>
                 <button type="submit" class="btn-cadastrar">Cadastrar</button>
@@ -312,12 +325,15 @@
     </main>
     </div>
 
- <footer class="footer">
+ <!-- RODAPÉ -->
+<footer class="footer">
     <div class="container">
+        <!-- Grade principal do footer com a marca e os links -->
         <div class="footer-grid">
             <div class="footer-brand">
-                <a href="index.html" class="logo">Kanghoo</a>
+                <a href="/" class="logo">Kanghoo</a>
                 <p class="footer-tagline">Soluções de viagem sem esforço.</p>
+                <!-- Ícones de redes sociais podem ficar aqui para maior destaque -->
                 <div class="footer-social-media">
                     <a href="#" aria-label="Facebook"><img src="https://placehold.co/24x24/ffffff/2e3e70?text=F" alt="Facebook"></a>
                     <a href="#" aria-label="Instagram"><img src="https://placehold.co/24x24/ffffff/2e3e70?text=I" alt="Instagram"></a>
@@ -356,13 +372,14 @@
             </div>
         </div>
 
+        <!-- Linha inferior com o copyright -->
         <div class="footer-bottom">
             <p>&copy; 2025 Kanghoo. Todos os direitos reservados.</p>
         </div>
     </div>
 </footer>
     
-    <script src="../js/app.js"></script>
+    <script src="/js/app.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
