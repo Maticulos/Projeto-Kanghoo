@@ -7,37 +7,38 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header class="header">
-        <div class="container">
-            <img src="../imagens/logo.jpg" alt="Logo" class="icon">
-            <a href="index.html" class="logo" aria-label="Kanghoo - Página inicial">Kanghoo</a>
-            <nav class="nav" aria-label="Navegação principal">
-                <a href="planos.html" class="nav-link">Planos</a>
-                <a href="index.html#contact" class="nav-link">Fale Conosco</a>
-                <a href="#" class="nav-link" id="open-transport-modal">Encontrar Transporte</a>
-                <a href="sobre.html" class="nav-link">Sobre Nós</a>
-            </nav>
-            <div class="auth-buttons">
-                <a href="login.html" class="btn btn-secondary">Login</a>
-                <button class="btn btn-primary" id="btn-cadastro-modal" aria-haspopup="dialog">Cadastro</button>
-            </div>
+<!-- HEADER COM A ANIMAÇÃO CORRIGIDA -->
+<header class="header">
+    <div class="container">
+        <!-- O link principal volta para o index.html na pasta public -->
+        <a href="../public/index.html" class="logo-link" aria-label="Kanghoo - Página inicial">
+            <img src="../imagens/logo.png" alt="Ícone Kanghoo" class="logo-icon">
+            <span class="logo-text-full">Kanghoo</span>
+        </a>
+        
+        <nav class="nav" aria-label="Navegação principal">
+            <a href="../public/planos.html" class="nav-link">Planos</a>
+            <a href="../public/index.html#contact" class="nav-link">Fale Conosco</a>
+            <a href="#" class="nav-link" id="open-transport-modal">Encontrar Transporte</a>
+            <a href="../public/sobre.html" class="nav-link">Sobre Nós</a>
+        </nav>
+        
+        <div class="auth-buttons">
+            <!-- Estando na pasta auth, o link para login é direto -->
+            <a href="login.html" class="btn btn-secondary">Login</a>
+            <button class="btn btn-primary" id="btn-cadastro-modal" aria-haspopup="dialog">Cadastro</button>
         </div>
-    </header>
-
-
-        <div class="nav-modal">
-        <a  href="#" class="nav-btn">
-            <button class="btn-arrow">&#9650;</button>
-        </a>
-        <a  href="#fim" class="nav-btn">
-            <button class="btn-arrow">&#9660;</button>
-        </a>
     </div>
+</header>
+    
 
+
+    <!-- Conteúdo Principal -->
     <main class="main-content">
+        <!-- Formulário de Informações Pessoais com fundo destacado -->
         <form class="personal-info-form">
             <div class="form-header">
                 <h2 class="form-title">
@@ -89,6 +90,7 @@
             </div>
         </form>
 
+        <!-- Informações da Escola -->
         <div class="info-section">
             <h2 class="section-title">
                 <span class="icon">🏢</span>
@@ -110,6 +112,7 @@
             </div>
         </div>
 
+        <!-- Percurso -->
         <div class="info-section">
             <h2 class="section-title">
                 <span class="icon">🛣️</span>
@@ -129,6 +132,7 @@
             </div>
         </div>
 
+        <!-- Informações Adicionais -->
         <div class="info-section">
             <h2 class="section-title">
                 <span class="icon">ℹ️</span>
@@ -149,52 +153,51 @@
     </div>
     </main>
     
-    <footer id="fim" class="footer">
+    <!-- RODAPÉ -->
+<footer id="fim" class="footer">
     <div class="container">
         <div class="footer-grid">
             <div class="footer-brand">
-                <a href="index.html" class="logo">Kanghoo</a>
+                <a href="../public/index.html" class="logo">Kanghoo</a>
                 <p class="footer-tagline">Soluções de viagem sem esforço.</p>
                 <div class="footer-social-media">
-                    <a href="#" aria-label="Facebook"><img src="https://placehold.co/24x24/ffffff/2e3e70?text=F" alt="Facebook"></a>
-                    <a href="#" aria-label="Instagram"><img src="https://placehold.co/24x24/ffffff/2e3e70?text=I" alt="Instagram"></a>
-                    <a href="#" aria-label="LinkedIn"><img src="https://placehold.co/24x24/ffffff/2e3e70?text=L" alt="LinkedIn"></a>
+                    <a href="#" aria-label="Facebook"><img src="../imagens/face.png" alt="Facebook"></a>
+                    <a href="#" aria-label="Instagram"><img src="../imagens/insta.png" alt="Instagram"></a>
+                    <a href="#" aria-label="LinkedIn"><img src="../imagens/linkedin.png" alt="LinkedIn"></a>
                 </div>
             </div>
-
             <div class="footer-links-group">
                 <h4>Transporte</h4>
                 <ul>
-                    <li><a href="cadastro-escolar.html">Transporte Escolar</a></li>
+                    <li><a href="../public/encontrar-escolar.html">Transporte Escolar</a></li>
                     <li><a href="#">Rotas</a></li>
                     <li><a href="#">Monitoramento</a></li>
-                    <li><a href="#pricing">Preços</a></li>
+                    <li><a href="../public/planos.html">Preços</a></li>
                 </ul>
             </div>
-
             <div class="footer-links-group">
                 <h4>Excursões</h4>
                 <ul>
-                    <li><a href="cadastro-excursao.html">Excursões</a></li>
+                    <li><a href="../public/encontrar-excursao.html">Excursões</a></li>
                     <li><a href="#">Viagens</a></li>
                     <li><a href="#">Reserva</a></li>
                     <li><a href="#">Eventos</a></li>
                 </ul>
             </div>
-
             <div class="footer-links-group">
                 <h4>Empresa</h4>
                 <ul>
-                    <li><a href="sobre.html">Sobre Nós</a></li>
-                    <li><a href="#contact">Contato</a></li>
+                    <li><a href="../public/sobre.html">Sobre Nós</a></li>
+                    <li><a href="../public/index.html#contact">Contato</a></li>
                     <li><a href="#">Termos de Uso</a></li>
                     <li><a href="#">Privacidade</a></li>
                 </ul>
             </div>
         </div>
-
         <div class="footer-bottom">
             <p>&copy; 2025 Kanghoo. Todos os direitos reservados.</p>
         </div>
+    </div>
+</footer>
 </body>
 </html>
