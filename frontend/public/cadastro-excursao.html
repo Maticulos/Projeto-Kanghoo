@@ -95,7 +95,7 @@
                 <div class="campo-grupo">
                     <div>
                         <label for="celular">Celular (WhatsApp)</label>
-                        <input type="tel" id="celular" name="celular" placeholder="(XX) XXXXX-XXXX" required>
+                        <input type="tel" id="celular" name="celular" placeholder="(XX) XXXXX-XXXX" maxlength="15" required>
                     </div>
                 </div>
                 
@@ -106,7 +106,7 @@
                     </div>
                     <div>
                         <label for="telefoneEmergencia">Contato de Emergência (Telefone)</label>
-                        <input type="tel" id="telefoneEmergencia" name="telefoneEmergencia">
+                        <input type="tel" id="telefoneEmergencia" name="telefoneEmergencia" maxlength="15">
                     </div>
                 </div>
 
@@ -114,7 +114,7 @@
                 <div class="campo-grupo">
                     <div>
                         <label for="cep">CEP</label>
-                        <input type="text" id="cep" name="cep" required>
+                        <input type="text" id="cep" name="cep" placeholder="XXXXX-XXX" maxlength="9" required>
                     </div>
                 </div>
                 <div class="campo-grupo">
@@ -184,14 +184,14 @@
                 <div class="campo-grupo">
                     <div>
                         <label for="cnpj">CNPJ</label>
-                        <input type="text" id="cnpj" name="cnpj" required>
+                        <input type="text" id="cnpj" name="cnpj" placeholder="XX.XXX.XXX/XXXX-XX" maxlength="18" required>
                     </div>
                 </div>
                 
                 <div class="campo-grupo">
                     <div>
                         <label for="telefoneEmpresa">Telefone da Empresa</label>
-                        <input type="tel" id="telefoneEmpresa" name="telefoneEmpresa">
+                        <input type="tel" id="telefoneEmpresa" name="telefoneEmpresa" maxlength="15">
                     </div>
                 </div>
                 
@@ -199,7 +199,7 @@
                 <div class="campo-grupo">
                     <div>
                         <label for="cepEmpresa">CEP</label>
-                        <input type="text" id="cepEmpresa" name="cepEmpresa">
+                        <input type="text" id="cepEmpresa" name="cepEmpresa" placeholder="XXXXX-XXX" maxlength="9">
                     </div>
                 </div>
                 <div class="campo-grupo">
@@ -235,13 +235,13 @@
                 <div class="campo-grupo">
                     <div>
                         <label for="placa">Placa</label>
-                        <input type="text" id="placa" name="placa" required>
+                        <input type="text" id="placa" name="placa" placeholder="ABC-1234" maxlength="8" required>
                     </div>
                 </div>
                 <div class="campo-grupo">
                     <div>
                         <label for="renavam">RENAVAM</label>
-                        <input type="text" id="renavam" name="renavam" required>
+                        <input type="text" id="renavam" name="renavam" maxlength="11" required>
                     </div>
                 </div>
                 <div class="campo-grupo">
@@ -318,7 +318,7 @@
                 <div class="campo-grupo">
                     <div>
                         <label for="cnhMotorista">Número da CNH</label>
-                        <input type="text" id="cnhMotorista" name="cnhMotorista" required>
+                        <input type="text" id="cnhMotorista" name="cnhMotorista" maxlength="11" required>
                     </div>
                 </div>
                 <div class="campo-grupo">
@@ -465,6 +465,101 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // Máscaras de entrada
+            const celularInput = document.getElementById('celular');
+            const telefoneEmergenciaInput = document.getElementById('telefoneEmergencia');
+            const telefoneEmpresaInput = document.getElementById('telefoneEmpresa');
+            const cepInput = document.getElementById('cep');
+            const cepEmpresaInput = document.getElementById('cepEmpresa');
+            const cnpjInput = document.getElementById('cnpj');
+            const placaInput = document.getElementById('placa');
+            const renavamInput = document.getElementById('renavam');
+            const cnhInput = document.getElementById('cnhMotorista');
+
+            // Máscara para telefone: (XX) XXXXX-XXXX
+            function mascaraTelefone(input) {
+                input.addEventListener('input', (e) => {
+                    let valor = e.target.value.replace(/\D/g, '');
+                    if (valor.length > 11) valor = valor.slice(0, 11);
+                    
+                    if (valor.length > 6) {
+                        valor = `(${valor.slice(0, 2)}) ${valor.slice(2, 7)}-${valor.slice(7)}`;
+                    } else if (valor.length > 2) {
+                        valor = `(${valor.slice(0, 2)}) ${valor.slice(2)}`;
+                    } else if (valor.length > 0) {
+                        valor = `(${valor}`;
+                    }
+                    
+                    e.target.value = valor;
+                });
+            }
+
+            // Máscara para CEP: XXXXX-XXX
+            function mascaraCEP(input) {
+                input.addEventListener('input', (e) => {
+                    let valor = e.target.value.replace(/\D/g, '');
+                    if (valor.length > 8) valor = valor.slice(0, 8);
+                    
+                    if (valor.length > 5) {
+                        valor = `${valor.slice(0, 5)}-${valor.slice(5)}`;
+                    }
+                    
+                    e.target.value = valor;
+                });
+            }
+
+            // Máscara para CNPJ: XX.XXX.XXX/XXXX-XX
+            function mascaraCNPJ(input) {
+                input.addEventListener('input', (e) => {
+                    let valor = e.target.value.replace(/\D/g, '');
+                    if (valor.length > 14) valor = valor.slice(0, 14);
+                    
+                    if (valor.length > 12) {
+                        valor = `${valor.slice(0, 2)}.${valor.slice(2, 5)}.${valor.slice(5, 8)}/${valor.slice(8, 12)}-${valor.slice(12)}`;
+                    } else if (valor.length > 8) {
+                        valor = `${valor.slice(0, 2)}.${valor.slice(2, 5)}.${valor.slice(5, 8)}/${valor.slice(8)}`;
+                    } else if (valor.length > 5) {
+                        valor = `${valor.slice(0, 2)}.${valor.slice(2, 5)}.${valor.slice(5)}`;
+                    } else if (valor.length > 2) {
+                        valor = `${valor.slice(0, 2)}.${valor.slice(2)}`;
+                    }
+                    
+                    e.target.value = valor;
+                });
+            }
+
+            // Máscara para Placa: ABC-1234 ou ABC1D23 (Mercosul)
+            function mascaraPlaca(input) {
+                input.addEventListener('input', (e) => {
+                    let valor = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+                    if (valor.length > 7) valor = valor.slice(0, 7);
+                    
+                    if (valor.length > 3) {
+                        valor = `${valor.slice(0, 3)}-${valor.slice(3)}`;
+                    }
+                    
+                    e.target.value = valor;
+                });
+            }
+
+            // Apenas números para RENAVAM e CNH
+            function apenasNumeros(input) {
+                input.addEventListener('input', (e) => {
+                    e.target.value = e.target.value.replace(/\D/g, '');
+                });
+            }
+
+            // Aplicar máscaras
+            if (celularInput) mascaraTelefone(celularInput);
+            if (telefoneEmergenciaInput) mascaraTelefone(telefoneEmergenciaInput);
+            if (telefoneEmpresaInput) mascaraTelefone(telefoneEmpresaInput);
+            if (cepInput) mascaraCEP(cepInput);
+            if (cepEmpresaInput) mascaraCEP(cepEmpresaInput);
+            if (cnpjInput) mascaraCNPJ(cnpjInput);
+            if (placaInput) mascaraPlaca(placaInput);
+            if (renavamInput) apenasNumeros(renavamInput);
+            if (cnhInput) apenasNumeros(cnhInput);
+
             const cadastroForm = document.getElementById('cadastroForm');
 
             cadastroForm.addEventListener('submit', async (e) => {

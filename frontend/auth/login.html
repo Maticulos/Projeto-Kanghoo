@@ -4,22 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Kanghoo</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/frontend/css/style.css">
 </head>
 <body class="form-page">
     <!-- Header -->
     <header class="header">
         <div class="container">
-            <img src="imagens/logo.jpg" alt="Logo" class="icon">
-            <a href="index.html" class="logo" aria-label="Kanghoo - Página inicial">Kanghoo</a>
+            <img src="/frontend/imagens/logo.jpg" alt="Logo" class="icon">
+            <a href="/frontend/public/index.html" class="logo" aria-label="Kanghoo - Página inicial">Kanghoo</a>
             <nav class="nav" aria-label="Navegação principal">
-                <a href="planos.html" class="nav-link">Planos</a>
-                <a href="index.html#contact" class="nav-link">Fale Conosco</a>
+                <a href="/frontend/public/planos.html" class="nav-link">Planos</a>
+                <a href="/frontend/public/index.html#contact" class="nav-link">Fale Conosco</a>
                 <a href="#" class="nav-link" id="open-transport-modal">Encontrar Transporte</a>
-                <a href="sobre.html" class="nav-link">Sobre Nós</a>
+                <a href="/frontend/public/sobre.html" class="nav-link">Sobre Nós</a>
             </nav>
             <div class="auth-buttons">
-                <a href="login.html" class="btn btn-secondary">Login</a>
+                <a href="/frontend/auth/login.html" class="btn btn-secondary">Login</a>
                 <button class="btn btn-primary" id="btn-cadastro-modal" aria-haspopup="dialog">Cadastro</button>
             </div>
         </div>
@@ -32,11 +32,11 @@
             <h3 id="modal-title">Qual tipo de cadastro?</h3>
             <p>Escolha a opção que melhor descreve seu serviço para começar.</p>
             <div class="modal-options">
-                <a href="cadastro-escolar.html" class="btn btn-primary">Transporte Escolar</a>
-                <a href="cadastro-excursao.html" class="btn btn-secondary">Excursão e Fretamento</a>
+                <a href="/frontend/public/cadastro-escolar.html" class="btn btn-primary">Transporte Escolar</a>
+                <a href="/frontend/public/cadastro-excursao.html" class="btn btn-secondary">Excursão e Fretamento</a>
             </div>
             <div class="modal-footer">
-                <p>Não tem certeza? <a href="index.html#contact">Fale conosco</a></p>
+                <p>Não tem certeza? <a href="/frontend/public/index.html#contact">Fale conosco</a></p>
             </div>
         </div>
     </div>
@@ -48,8 +48,8 @@
             <h3 id="transport-modal-title">Que tipo de transporte precisa?</h3>
             <p>Selecione a opção que melhor atende sua necessidade.</p>
             <div class="modal-options">
-                <a href="encontrar-escolar.html" class="btn btn-primary">Transporte Escolar</a>
-                <a href="encontrar-excursao.html" class="btn btn-secondary">Excursões e Fretamento</a>
+                <a href="/frontend/public/encontrar-escolar.html" class="btn btn-primary">Transporte Escolar</a>
+                <a href="/frontend/public/encontrar-excursao.html" class="btn btn-secondary">Excursões e Fretamento</a>
             </div>
             <div class="modal-footer">
                 <p>Precisa de ajuda? <a href="#contact">Entre em contato</a></p>
@@ -59,7 +59,7 @@
 
     <!-- Conteúdo Principal -->
     <main class="form-container login-container">
-        <a href="index.html" class="logo" style="text-align: center; display: block; margin-bottom: 1.5rem; font-size: 2rem;">Kanghoo</a>
+        <a href="/frontend/public/index.html" class="logo" style="text-align: center; display: block; margin-bottom: 1.5rem; font-size: 2rem;">Kanghoo</a>
         <h1>Acessar sua Conta</h1>
         <p class="subtitulo">Que bom te ver por aqui!</p>
         
@@ -72,9 +72,19 @@
             </div>
 
             <div class="campo-grupo">
-                <div>
+                <div class="password-field-wrapper">
                     <label for="senha">Senha</label>
-                    <input type="password" id="senha" name="senha" placeholder="Sua senha" required>
+                    <div class="password-input-container">
+                        <input type="password" id="senha" name="senha" placeholder="Sua senha" required>
+                        <button type="button" class="toggle-password" id="togglePassword" aria-label="Mostrar senha">
+                            <svg class="eye-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path class="eye-open" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle class="eye-open" cx="12" cy="12" r="3"></circle>
+                                <path class="eye-closed" d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" style="display:none;"></path>
+                                <line class="eye-closed" x1="1" y1="1" x2="23" y2="23" style="display:none;"></line>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -99,7 +109,7 @@
         <!-- Grade principal do footer com a marca e os links -->
         <div class="footer-grid">
             <div class="footer-brand">
-                <a href="index.html" class="logo">Kanghoo</a>
+                <a href="/frontend/public/index.html" class="logo">Kanghoo</a>
                 <p class="footer-tagline">Soluções de viagem sem esforço.</p>
                 <!-- Ícones de redes sociais podem ficar aqui para maior destaque -->
                 <div class="footer-social-media">
@@ -112,7 +122,7 @@
             <div class="footer-links-group">
                 <h4>Transporte</h4>
                 <ul>
-                    <li><a href="cadastro-escolar.html">Transporte Escolar</a></li>
+                    <li><a href="/frontend/public/cadastro-escolar.html">Transporte Escolar</a></li>
                     <li><a href="#">Rotas</a></li>
                     <li><a href="#">Monitoramento</a></li>
                     <li><a href="#pricing">Preços</a></li>
@@ -122,7 +132,7 @@
             <div class="footer-links-group">
                 <h4>Excursões</h4>
                 <ul>
-                    <li><a href="cadastro-excursao.html">Excursões</a></li>
+                    <li><a href="/frontend/public/cadastro-excursao.html">Excursões</a></li>
                     <li><a href="#">Viagens</a></li>
                     <li><a href="#">Reserva</a></li>
                     <li><a href="#">Eventos</a></li>
@@ -132,7 +142,7 @@
             <div class="footer-links-group">
                 <h4>Empresa</h4>
                 <ul>
-                    <li><a href="sobre.html">Sobre Nós</a></li>
+                    <li><a href="/frontend/public/sobre.html">Sobre Nós</a></li>
                     <li><a href="#contact">Contato</a></li>
                     <li><a href="#">Termos de Uso</a></li>
                     <li><a href="#">Privacidade</a></li>
@@ -147,8 +157,33 @@
     </div>
 </footer>
     
-<script src="app.js"></script> <script>
+<script src="/frontend/js/app.js"></script> <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // Toggle de visualização de senha
+            const togglePassword = document.getElementById('togglePassword');
+            const senhaInput = document.getElementById('senha');
+            const eyeOpen = document.querySelectorAll('.eye-open');
+            const eyeClosed = document.querySelectorAll('.eye-closed');
+
+            if (togglePassword && senhaInput) {
+                togglePassword.addEventListener('click', () => {
+                    // Alterna o tipo de input entre password e text
+                    const type = senhaInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                    senhaInput.setAttribute('type', type);
+                    
+                    // Alterna os ícones
+                    eyeOpen.forEach(el => {
+                        el.style.display = type === 'password' ? 'block' : 'none';
+                    });
+                    eyeClosed.forEach(el => {
+                        el.style.display = type === 'password' ? 'none' : 'block';
+                    });
+                    
+                    // Atualiza o aria-label para acessibilidade
+                    togglePassword.setAttribute('aria-label', type === 'password' ? 'Mostrar senha' : 'Ocultar senha');
+                });
+            }
+
             const loginForm = document.getElementById('login-form');
 
             if(loginForm) {

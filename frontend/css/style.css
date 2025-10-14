@@ -1428,3 +1428,52 @@ main.form-container {
         grid-template-columns: 1fr;
     }
 }
+
+/* --- ESTILO PARA CAMPO DE SENHA COM ÍCONE DE VISUALIZAÇÃO --- */
+.password-field-wrapper {
+    width: 100%;
+}
+
+.password-input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-input-container input[type="password"],
+.password-input-container input[type="text"] {
+    padding-right: 45px; /* Espaço para o botão do olho */
+}
+
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--cor-texto-geral);
+    transition: color 0.3s ease;
+    z-index: 10;
+}
+
+.toggle-password:hover {
+    color: var(--cor-azul-escuro);
+}
+
+.toggle-password:focus {
+    outline: 2px solid var(--cor-amarelo-destaque);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+.eye-icon {
+    width: 20px;
+    height: 20px;
+    pointer-events: none;
+}
