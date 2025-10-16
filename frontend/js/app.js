@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
         initEventCards();
         initModals();
         initProgressBar();
+        initBillingToggle();
         console.log('Kanghoo App inicializado com sucesso');
     }
 
@@ -145,6 +146,65 @@ document.addEventListener('DOMContentLoaded', function() {
             const progress = (window.scrollY / totalHeight) * 100;
             domCache.progressBar.style.width = `${progress}%`;
         });
+    }
+
+    // --- Toggle de Cobrança Mensal/Anual com atualização dinâmica de preços ---
+    function initBillingToggle() {
+        const toggle = document.querySelector('.billing-toggle');
+        const cards = document.querySelectorAll('.plan-card');
+        if (!toggle || cards.length === 0) return;
+
+        const buttons = toggle.querySelectorAll('.toggle-btn');
+
+        // Mapeamento de preços (valores atuais conforme conteúdo das páginas)
+        const prices = {
+            basic: { monthly: 187.90, annualMonthly: 166.66 },
+            premium: { monthly: 293.60, annualMonthly: 266.66 }
+        };
+
+        const currencyBRL = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+        const updateMode = (mode) => {
+            cards.forEach(card => {
+                const plan = card.getAttribute('data-plan') || card.querySelector('[data-plan]')?.getAttribute('data-plan');
+                if (!plan || !prices[plan]) return;
+
+                const nameEl = card.querySelector('.plan-name');
+                const equivBox = card.querySelector('.equivalent-price');
+                const equivStrong = card.querySelector('.equivalent-price strong');
+                const savingsEl = card.querySelector('.equivalent-price .savings');
+
+                const monthly = prices[plan].monthly;
+                const annualMonthly = prices[plan].annualMonthly;
+                const annualTotal = +(annualMonthly * 12).toFixed(2);
+                const monthlyTotal = +(monthly * 12).toFixed(2);
+                const savings = +(monthlyTotal - annualTotal).toFixed(2);
+
+                if (mode === 'monthly') {
+                    if (nameEl) nameEl.textContent = `${currencyBRL(monthly)}/mês`;
+                    if (equivBox) equivBox.style.display = 'none';
+                } else {
+                    if (nameEl) nameEl.textContent = `${currencyBRL(annualTotal)}/ano`;
+                    if (equivBox) {
+                        equivBox.style.display = '';
+                        if (equivStrong) equivStrong.textContent = `Equivalente a ${currencyBRL(annualMonthly)}/mês`;
+                        if (savingsEl) savingsEl.textContent = `Economize ${currencyBRL(savings)}!`;
+                    }
+                }
+            });
+        };
+
+        buttons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                buttons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const mode = btn.dataset.billing === 'annual' ? 'annual' : 'monthly';
+                updateMode(mode);
+            });
+        });
+
+        // Inicializa como mensal
+        updateMode('monthly');
     }
 
     init();

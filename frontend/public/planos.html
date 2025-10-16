@@ -56,6 +56,7 @@
             gap: 30px;
             max-width: 1000px;
             margin: 0 auto;
+            align-items: stretch;
         }
 
         .plan-card {
@@ -66,6 +67,8 @@
             padding: 35px;
             position: relative;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
         }
 
         .plan-card:hover {
@@ -168,9 +171,8 @@
 
         .plan-cta {
             text-align: center;
-        }
-        .alinhar {
-            margin-top: 3rem;
+            margin-top: auto;
+            padding-top: 20px;
         }
 
         .plan-btn {
@@ -289,11 +291,15 @@
                         desconto equivalente a 1 mês grátis em relação ao plano mensal. <strong>Preços válidos até
                             31/12/2025.</strong></p>
                 </div>
+                <div class="billing-toggle" aria-label="Alternar cobrança">
+                    <button class="toggle-btn active" data-billing="monthly">Mensal</button>
+                    <button class="toggle-btn" data-billing="annual">Anual</button>
+                </div>
             </div>
 
             <div class="plans-grid">
                 <!-- Plano Basic -->
-                <div class="plan-card">
+                <div class="plan-card" data-plan="basic">
                     <div class="plan-header">
                         <div class="plan-pricing">
                             <div class="monthly-price">Plano Basic</div>
@@ -362,8 +368,9 @@
                 </div>
 
                 <!-- Plano Premium -->
-                <div class="plan-card">
+                <div class="plan-card popular" data-plan="premium">
                     <div class="plan-header">
+                        <div class="popular-badge">Mais popular</div>
                         <div class="plan-pricing">
                             <div class="monthly-price">Plano Premium</div>
                             <div class="annual-option">ou opte pelo Plano Anual</div>
@@ -428,9 +435,8 @@
                     </div>
 
                     <div class="plan-cta">
-                        <div class="alinhar">
-                            <a href="#" class="plan-btn">Junte-se a nós</a>
-                        </div>
+                        <a href="#" class="plan-btn btn-premium">Junte-se a nós</a>
+                        <p class="cta-note">Cancelamento a qualquer momento</p>
                     </div>
                 </div>
             </div>

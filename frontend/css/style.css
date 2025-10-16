@@ -452,6 +452,7 @@ section {
 .pricing-card.premium { 
     background-color: var(--cor-azul-escuro); 
     color: var(--cor-branco); 
+    box-shadow: 0 8px 25px rgba(249, 200, 14, 0.28);
 }
 
 .pricing-card h3 { 
@@ -526,6 +527,66 @@ section {
     font-weight: 600;
     font-size: 14px;
     margin: 5px 0 15px;
+}
+
+/* --- CTA Premium com gradiente e sombra extra --- */
+.btn-premium {
+    background: linear-gradient(90deg, #f7d22f 0%, #ffd84d 100%);
+    color: var(--cor-azul-texto);
+    border: none;
+    box-shadow: 0 8px 20px rgba(247, 210, 47, 0.45);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.btn-premium:hover {
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 28px rgba(247, 210, 47, 0.55);
+}
+
+/* Microcopy sob o CTA */
+.plan-cta .cta-note {
+    margin-top: 10px;
+    font-size: 14px;
+    color: var(--cor-texto-geral);
+    opacity: 0.9;
+    text-align: center;
+}
+
+/* Toggle Mensal/Anual */
+.billing-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background-color: var(--cor-fundo-claro);
+    border-radius: 999px;
+    padding: 6px;
+    margin-top: 16px;
+}
+
+.billing-toggle .toggle-btn {
+    border: none;
+    background: transparent;
+    color: var(--cor-azul-texto);
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+}
+
+.billing-toggle .toggle-btn.active {
+    background-color: var(--cor-azul-escuro);
+    color: var(--cor-branco);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Garantir sombra amarela destacando Premium (popular) */
+.plan-card.popular {
+    box-shadow: 0 6px 16px rgba(247, 210, 47, 0.5);
+}
+
+.plan-card.popular:hover {
+    box-shadow: 0 10px 28px rgba(247, 210, 47, 0.6);
 }
 
 .pricing-footer {
@@ -977,6 +1038,7 @@ main.form-container {
     gap: 30px;
     max-width: 900px;
     margin: 1rem;
+    align-items: stretch;
 }
 
 .plan-card {
@@ -985,6 +1047,16 @@ main.form-container {
     overflow: hidden;
     box-shadow: 0 6px 15px var(--cor-sombra-escura);
     padding: 30px;
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.plan-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
 }
 
 .plan-header {
@@ -1076,11 +1148,32 @@ main.form-container {
 .plan-cta {
     text-align: center;
     height: auto;
+    margin-top: auto;
+    padding-top: 20px;
 }
 
-.plan-cta-2 {
-    margin: 5rem;
+/* Destaque para plano popular */
+.plan-card.popular {
+    border: 2px solid var(--cor-amarelo-destaque);
+    box-shadow: 0 8px 25px rgba(249, 200, 14, 0.28);
 }
+
+.plan-card.popular:hover {
+    box-shadow: 0 12px 35px rgba(249, 200, 14, 0.38);
+}
+
+.popular-badge {
+    display: inline-block;
+    background-color: var(--cor-amarelo-destaque);
+    color: var(--cor-azul-texto);
+    font-weight: 700;
+    font-size: 12px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    margin-bottom: 10px;
+}
+
+
 
 
 /* --- COMPONENTES ADICIONAIS --- */
