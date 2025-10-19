@@ -9,12 +9,6 @@ document.addEventListener('DOMContentLoaded', function() {
         cadastroModal: document.getElementById('cadastroModal'),
         openModalBtn: document.getElementById('btn-cadastro-modal'),
         closeModalBtn: document.getElementById('close-modal'),
-        transportModal: document.getElementById('transportModal'),
-        openTransportModal: document.getElementById('open-transport-modal'),
-        closeTransportModal: document.getElementById('close-transport-modal'),
-        openTransportSearch: document.getElementById('open-transport-modal-search'),
-        openTransportFilters: document.getElementById('open-transport-filters'),
-        openTransportModalHero: document.getElementById('open-transport-modal-hero'),
         progressBar: document.querySelector('.scroll-progress-bar')
     };
 
@@ -180,23 +174,6 @@ document.addEventListener('DOMContentLoaded', function() {
             domCache.closeModalBtn?.addEventListener('click', () => closeModal(domCache.cadastroModal));
             domCache.cadastroModal.addEventListener('click', (e) => {
                 if (e.target === domCache.cadastroModal) closeModal(domCache.cadastroModal);
-            });
-        }
-        
-        if (domCache.transportModal) {
-            const transportTriggers = [
-                domCache.openTransportModal, 
-                domCache.openTransportSearch, 
-                domCache.openTransportFilters,
-                domCache.openTransportModalHero
-            ].filter(Boolean);
-            transportTriggers.forEach(trigger => trigger.addEventListener('click', (e) => {
-                e.preventDefault();
-                openModal(domCache.transportModal)
-            }));
-            domCache.closeTransportModal?.addEventListener('click', () => closeModal(domCache.transportModal));
-            domCache.transportModal.addEventListener('click', (e) => {
-                if (e.target === domCache.transportModal) closeModal(domCache.transportModal);
             });
         }
     }

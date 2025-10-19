@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encontrar Transporte - Kanghoo</title>
+    <meta name="description" content="Encontre transporte escolar e excursões na sua região. Filtros avançados, mapa interativo e contato direto com prestadores.">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="icon" href="../imagens/favicon.ico" type="image/x-icon">
+    <style>
+        /* Estilos específicos para a página unificada de transporte */
+        .transport-type-selector {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        
+        .transport-type-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .transport-tab {
+            flex: 1;
+            padding: 1rem 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            color: white;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .transport-tab:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .transport-tab.active {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            border-color: white;
+        }
+        
+        .transport-tab h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.2rem;
+        }
+        
+        .transport-tab p {
+            margin: 0;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .filters-section {
+            background: #f8f9fa;
+            padding: 3rem 0;
+        }
+        
+        .filters-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .filter-group {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .filter-group h3 {
+            margin: 0 0 1rem 0;
+            color: #333;
+            font-size: 1.1rem;
+        }
+        
+        .filter-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+        
+        .filter-option input,
+        .filter-option select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .filter-option input:focus,
+        .filter-option select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .checkbox-item input[type="checkbox"] {
+            width: auto;
+        }
+        
+        .filter-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .results-section {
+            padding: 3rem 0;
+        }
+        
+        .results-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .results-count {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .sort-options select {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+        
+        .transport-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .transport-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 25px rgba(0,0,0,0.15);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .provider-info h4 {
+            margin: 0 0 0.5rem 0;
+            color: #333;
+        }
+        
+        .provider-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .transport-type-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .badge-escolar {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        .badge-excursao {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+        
+        .card-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .card-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+        
+        .map-container {
+            height: 400px;
+            background: #f0f0f0;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+        
+        .map-placeholder {
+            text-align: center;
+            color: #666;
+        }
+        
+        @media (max-width: 768px) {
+            .transport-type-tabs {
+                flex-direction: column;
+            }
+            
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-buttons {
+                flex-direction: column;
+            }
+            
+            .results-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+            
+            .card-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header id="header" class="header" role="banner">
+        <div class="container">
+            <a href="index.html" class="logo-link" aria-label="Kanghoo - Página inicial">
+                <img src="../imagens/logo.png" alt="Ícone Kanghoo" class="logo-icon">
+                <span class="logo-text-full">Kanghoo</span>
+            </a>
+            <nav id="main-nav" class="nav" role="navigation" aria-label="Navegação principal">
+                <a href="planos.html" class="nav-link">Planos</a>
+                <a href="index.html#contact" class="nav-link">Fale Conosco</a>
+                <a href="encontrar-transporte.html" class="nav-link">Encontrar Transporte</a>
+                <a href="sobre.html" class="nav-link">Sobre Nós</a>
+            </nav>
+            <div class="auth-buttons">
+                <a href="../auth/login.html" class="btn btn-blue">Login</a>
+                <button class="btn btn-primary" id="btn-cadastro-modal" aria-haspopup="dialog">Cadastro</button>
+            </div>
+        </div>
+    </header>
+
+    <div id="cadastroModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal-content">
+            <button class="close-modal-btn" id="close-modal" aria-label="Fechar modal">&times;</button>
+            <h3 id="modal-title">Qual tipo de cadastro?</h3>
+            <p>Escolha a opção que melhor descreve seu serviço para começar.</p>
+            <div class="modal-options">
+                <a href="cadastro-escolar.html" class="btn btn-primary">Transporte Escolar</a>
+                <a href="cadastro-excursao.html" class="btn btn-blue">Excursão e Fretamento</a>
+            </div>
+            <div class="modal-footer">
+                <p>Não tem certeza? <a href="index.html#contact">Fale conosco</a></p>
+            </div>
+        </div>
+    </div>
+
+    <main>
+        <!-- SELETOR DE TIPO DE TRANSPORTE -->
+        <section class="transport-type-selector">
+            <div class="container">
+                <div class="transport-type-tabs">
+                    <div class="transport-tab active" data-type="escolar">
+                        <h3>🚌 Transporte Escolar</h3>
+                        <p>Segurança e pontualidade para o dia a dia</p>
+                    </div>
+                    <div class="transport-tab" data-type="excursao">
+                        <h3>🚐 Excursões & Fretamento</h3>
+                        <p>Viagens especiais e eventos</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEÇÃO DE FILTROS -->
+        <section class="filters-section">
+            <div class="filters-container">
+                <h2 class="filters-title">Filtros de Busca</h2>
+                
+                <div class="filters-grid">
+                    <!-- Localização -->
+                    <div class="filter-group">
+                        <h3>📍 Localização</h3>
+                        <div class="filter-options">
+                            <div class="filter-option">
+                                <input type="text" id="endereco" placeholder="Cidade, bairro ou endereço">
+                            </div>
+                            <div class="filter-option">
+                                <input type="number" id="raio" placeholder="Raio de busca (km)" min="1" max="50" value="10">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Horários (específico para escolar) -->
+                    <div class="filter-group" id="horarios-filter">
+                        <h3>⏰ Horários</h3>
+                        <div class="filter-options">
+                            <div class="filter-option">
+                                <select id="turno">
+                                    <option value="">Todos os turnos</option>
+                                    <option value="manha">Manhã</option>
+                                    <option value="tarde">Tarde</option>
+                                    <option value="noite">Noite</option>
+                                </select>
+                            </div>
+                            <div class="filter-option">
+                                <input type="time" id="horario-ida" placeholder="Horário de ida">
+                            </div>
+                            <div class="filter-option">
+                                <input type="time" id="horario-volta" placeholder="Horário de volta">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Datas (específico para excursão) -->
+                    <div class="filter-group hidden" id="datas-filter">
+                        <h3>📅 Datas</h3>
+                        <div class="filter-options">
+                            <div class="filter-option">
+                                <input type="date" id="data-inicio" placeholder="Data de início">
+                            </div>
+                            <div class="filter-option">
+                                <input type="date" id="data-fim" placeholder="Data de fim">
+                            </div>
+                            <div class="filter-option">
+                                <select id="duracao">
+                                    <option value="">Duração</option>
+                                    <option value="1">1 dia</option>
+                                    <option value="2-3">2-3 dias</option>
+                                    <option value="4-7">4-7 dias</option>
+                                    <option value="7+">Mais de 7 dias</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Capacidade -->
+                    <div class="filter-group">
+                        <h3>👥 Capacidade</h3>
+                        <div class="filter-options">
+                            <div class="filter-option">
+                                <select id="capacidade">
+                                    <option value="">Qualquer capacidade</option>
+                                    <option value="1-15">1-15 pessoas</option>
+                                    <option value="16-30">16-30 pessoas</option>
+                                    <option value="31-50">31-50 pessoas</option>
+                                    <option value="50+">Mais de 50 pessoas</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Características do Veículo -->
+                    <div class="filter-group">
+                        <h3>🚗 Características</h3>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="ar-condicionado">
+                                <label for="ar-condicionado">Ar-condicionado</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="wifi">
+                                <label for="wifi">Wi-Fi</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="acessibilidade">
+                                <label for="acessibilidade">Acessibilidade PCD</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="seguro">
+                                <label for="seguro">Seguro completo</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Preço -->
+                    <div class="filter-group">
+                        <h3>💰 Faixa de Preço</h3>
+                        <div class="filter-options">
+                            <div class="filter-option">
+                                <select id="faixa-preco">
+                                    <option value="">Qualquer preço</option>
+                                    <option value="0-100">Até R$ 100</option>
+                                    <option value="100-200">R$ 100 - R$ 200</option>
+                                    <option value="200-500">R$ 200 - R$ 500</option>
+                                    <option value="500+">Acima de R$ 500</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="filter-buttons">
+                    <button class="btn btn-outline" onclick="limparFiltros()">Limpar Filtros</button>
+                    <button class="btn btn-primary" onclick="buscarTransportes()">🔍 Buscar Transportes</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- MAPA INTERATIVO -->
+        <section class="map-container">
+            <div class="map-placeholder">
+                <h3>🗺️ Mapa Interativo</h3>
+                <p>Visualize os transportes disponíveis na sua região</p>
+                <small>Integração com API de mapas será implementada</small>
+            </div>
+        </section>
+
+        <!-- RESULTADOS DA BUSCA -->
+        <section class="results-section">
+            <div class="results-container">
+                <div class="results-header">
+                    <div class="results-count">
+                        <span id="results-count">0 transportes encontrados</span>
+                    </div>
+                    <div class="sort-options">
+                        <label for="ordenacao">Ordenar por:</label>
+                        <select id="ordenacao" onchange="ordenarResultados()">
+                            <option value="relevancia">Relevância</option>
+                            <option value="preco-menor">Menor preço</option>
+                            <option value="preco-maior">Maior preço</option>
+                            <option value="avaliacao">Melhor avaliação</option>
+                            <option value="distancia">Menor distância</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="results-list">
+                    <!-- Exemplo de card de resultado -->
+                    <div class="transport-card">
+                        <div class="card-header">
+                            <div class="provider-info">
+                                <h4>Transporte Escolar São João</h4>
+                                <div class="provider-rating">
+                                    <span>⭐ 4.8</span>
+                                    <span>(127 avaliações)</span>
+                                </div>
+                            </div>
+                            <div class="transport-type-badge badge-escolar">
+                                Transporte Escolar
+                            </div>
+                        </div>
+                        
+                        <div class="card-details">
+                            <div class="detail-item">
+                                <span>📍</span>
+                                <span>Vila Mariana - 2.3 km</span>
+                            </div>
+                            <div class="detail-item">
+                                <span>👥</span>
+                                <span>Até 25 crianças</span>
+                            </div>
+                            <div class="detail-item">
+                                <span>⏰</span>
+                                <span>07:00 - 18:00</span>
+                            </div>
+                            <div class="detail-item">
+                                <span>💰</span>
+                                <span>R$ 180/mês</span>
+                            </div>
+                            <div class="detail-item">
+                                <span>✅</span>
+                                <span>Ar-condicionado, Seguro</span>
+                            </div>
+                        </div>
+                        
+                        <div class="card-actions">
+                            <button class="btn btn-outline">Ver Detalhes</button>
+                            <button class="btn btn-primary">Entrar em Contato</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- RODAPÉ -->
+    <footer id="fim" class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="index.html" class="logo">Kanghoo</a>
+                    <p class="footer-tagline">Soluções de viagem sem esforço.</p>
+                    <div class="footer-social-media">
+                        <a href="#" aria-label="Facebook"><img src="../imagens/face.png" alt="Facebook"></a>
+                        <a href="#" aria-label="Instagram"><img src="../imagens/insta.png" alt="Instagram"></a>
+                        <a href="#" aria-label="LinkedIn"><img src="../imagens/linkedin.png" alt="LinkedIn"></a>
+                    </div>
+                </div>
+                <div class="footer-links-group">
+                    <h4>Transporte</h4>
+                    <ul>
+                        <li><a href="encontrar-transporte.html">Encontrar Transporte</a></li>
+                        <li><a href="#">Rotas</a></li>
+                        <li><a href="#">Monitoramento</a></li>
+                        <li><a href="planos.html">Preços</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links-group">
+                    <h4>Serviços</h4>
+                    <ul>
+                        <li><a href="#">Transporte Escolar</a></li>
+                        <li><a href="#">Excursões</a></li>
+                        <li><a href="#">Fretamento</a></li>
+                        <li><a href="#">Eventos</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links-group">
+                    <h4>Empresa</h4>
+                    <ul>
+                        <li><a href="sobre.html">Sobre Nós</a></li>
+                        <li><a href="#contact">Contato</a></li>
+                        <li><a href="#">Termos de Uso</a></li>
+                        <li><a href="#">Privacidade</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Kanghoo. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../js/app.js"></script>
+    <script>
+        // JavaScript para funcionalidade da página unificada
+        document.addEventListener('DOMContentLoaded', function() {
+            // Modal de cadastro
+            const btnCadastroModal = document.getElementById('btn-cadastro-modal');
+            const cadastroModal = document.getElementById('cadastroModal');
+            const closeModal = document.getElementById('close-modal');
+
+            if (btnCadastroModal && cadastroModal) {
+                btnCadastroModal.addEventListener('click', function() {
+                    cadastroModal.classList.remove('hidden');
+                });
+            }
+
+            if (closeModal && cadastroModal) {
+                closeModal.addEventListener('click', function() {
+                    cadastroModal.classList.add('hidden');
+                });
+            }
+
+            if (cadastroModal) {
+                cadastroModal.addEventListener('click', function(e) {
+                    if (e.target === cadastroModal) {
+                        cadastroModal.classList.add('hidden');
+                    }
+                });
+            }
+
+            // Gerenciar tabs de tipo de transporte
+            const transportTabs = document.querySelectorAll('.transport-tab');
+            const horariosFilter = document.getElementById('horarios-filter');
+            const datasFilter = document.getElementById('datas-filter');
+            
+            transportTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active de todas as tabs
+                    transportTabs.forEach(t => t.classList.remove('active'));
+                    // Adiciona active na tab clicada
+                    this.classList.add('active');
+                    
+                    const type = this.dataset.type;
+                    
+                    // Mostra/esconde filtros específicos
+                    if (type === 'escolar') {
+                        horariosFilter.classList.remove('hidden');
+                        datasFilter.classList.add('hidden');
+                    } else {
+                        horariosFilter.classList.add('hidden');
+                        datasFilter.classList.remove('hidden');
+                    }
+                    
+                    // Atualiza título dos filtros
+                    const title = document.querySelector('.filters-title');
+                    title.textContent = type === 'escolar' ? 
+                        'Filtros para Transporte Escolar' : 
+                        'Filtros para Excursões e Fretamento';
+                });
+            });
+        });
+        
+        function setTransportType(type) {
+            const tabs = document.querySelectorAll('.transport-tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.type === type) {
+                    tab.classList.add('active');
+                    tab.click(); // Trigger the click event to update filters
+                }
+            });
+            
+            // Fechar modal
+            const modal = document.getElementById('cadastroModal');
+            if (modal) {
+                modal.classList.add('hidden');
+            }
+        }
+        
+        function limparFiltros() {
+            // Limpar todos os inputs e selects
+            const inputs = document.querySelectorAll('.filter-option input, .filter-option select');
+            inputs.forEach(input => {
+                if (input.type === 'checkbox') {
+                    input.checked = false;
+                } else {
+                    input.value = '';
+                }
+            });
+            
+            // Resetar raio para valor padrão
+            const raioInput = document.getElementById('raio');
+            if (raioInput) {
+                raioInput.value = '10';
+            }
+        }
+        
+        function buscarTransportes() {
+            // Coletar dados dos filtros
+            const activeTab = document.querySelector('.transport-tab.active');
+            const filtros = {
+                tipo: activeTab ? activeTab.dataset.type : 'escolar',
+                endereco: document.getElementById('endereco')?.value || '',
+                raio: document.getElementById('raio')?.value || '10',
+                capacidade: document.getElementById('capacidade')?.value || '',
+                faixaPreco: document.getElementById('faixa-preco')?.value || '',
+                arCondicionado: document.getElementById('ar-condicionado')?.checked || false,
+                wifi: document.getElementById('wifi')?.checked || false,
+                acessibilidade: document.getElementById('acessibilidade')?.checked || false,
+                seguro: document.getElementById('seguro')?.checked || false
+            };
+            
+            // Adicionar filtros específicos baseado no tipo
+            if (filtros.tipo === 'escolar') {
+                filtros.turno = document.getElementById('turno')?.value || '';
+                filtros.horarioIda = document.getElementById('horario-ida')?.value || '';
+                filtros.horarioVolta = document.getElementById('horario-volta')?.value || '';
+            } else {
+                filtros.dataInicio = document.getElementById('data-inicio')?.value || '';
+                filtros.dataFim = document.getElementById('data-fim')?.value || '';
+                filtros.duracao = document.getElementById('duracao')?.value || '';
+            }
+            
+            console.log('Filtros de busca:', filtros);
+            
+            // Aqui seria feita a chamada para a API
+            // Por enquanto, simular resultados
+            simularResultados(filtros);
+        }
+        
+        function simularResultados(filtros) {
+            const resultsCount = document.getElementById('results-count');
+            const resultsList = document.getElementById('results-list');
+            
+            // Simular alguns resultados baseados no tipo
+            const resultados = filtros.tipo === 'escolar' ? 
+                gerarResultadosEscolares() : 
+                gerarResultadosExcursoes();
+            
+            resultsCount.textContent = `${resultados.length} transportes encontrados`;
+            
+            // Limpar resultados anteriores
+            resultsList.innerHTML = '';
+            
+            // Adicionar novos resultados
+            resultados.forEach(resultado => {
+                const card = criarCardResultado(resultado);
+                resultsList.appendChild(card);
+            });
+        }
+        
+        function gerarResultadosEscolares() {
+            return [
+                {
+                    nome: 'Transporte Escolar São João',
+                    tipo: 'escolar',
+                    avaliacao: 4.8,
+                    avaliacoes: 127,
+                    distancia: '2.3 km',
+                    capacidade: 'Até 25 crianças',
+                    horario: '07:00 - 18:00',
+                    preco: 'R$ 180/mês',
+                    caracteristicas: 'Ar-condicionado, Seguro'
+                },
+                {
+                    nome: 'Van Escolar Alegria',
+                    tipo: 'escolar',
+                    avaliacao: 4.6,
+                    avaliacoes: 89,
+                    distancia: '3.1 km',
+                    capacidade: 'Até 15 crianças',
+                    horario: '06:30 - 17:30',
+                    preco: 'R$ 150/mês',
+                    caracteristicas: 'Ar-condicionado, Wi-Fi'
+                }
+            ];
+        }
+        
+        function gerarResultadosExcursoes() {
+            return [
+                {
+                    nome: 'Excursões Aventura',
+                    tipo: 'excursao',
+                    avaliacao: 4.9,
+                    avaliacoes: 203,
+                    distancia: '1.8 km',
+                    capacidade: 'Até 45 pessoas',
+                    horario: 'Flexível',
+                    preco: 'R$ 80/pessoa/dia',
+                    caracteristicas: 'Ar-condicionado, Wi-Fi, Seguro'
+                },
+                {
+                    nome: 'Turismo & Fretamento Silva',
+                    tipo: 'excursao',
+                    avaliacao: 4.7,
+                    avaliacoes: 156,
+                    distancia: '4.2 km',
+                    capacidade: 'Até 50 pessoas',
+                    horario: '24h disponível',
+                    preco: 'R$ 120/pessoa/dia',
+                    caracteristicas: 'Ar-condicionado, Wi-Fi, Banheiro'
+                }
+            ];
+        }
+        
+        function criarCardResultado(resultado) {
+            const card = document.createElement('div');
+            card.className = 'transport-card';
+            
+            const badgeClass = resultado.tipo === 'escolar' ? 'badge-escolar' : 'badge-excursao';
+            const badgeText = resultado.tipo === 'escolar' ? 'Transporte Escolar' : 'Excursão & Fretamento';
+            
+            card.innerHTML = `
+                <div class="card-header">
+                    <div class="provider-info">
+                        <h4>${resultado.nome}</h4>
+                        <div class="provider-rating">
+                            <span>⭐ ${resultado.avaliacao}</span>
+                            <span>(${resultado.avaliacoes} avaliações)</span>
+                        </div>
+                    </div>
+                    <div class="transport-type-badge ${badgeClass}">
+                        ${badgeText}
+                    </div>
+                </div>
+                
+                <div class="card-details">
+                    <div class="detail-item">
+                        <span>📍</span>
+                        <span>${resultado.distancia}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span>👥</span>
+                        <span>${resultado.capacidade}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span>⏰</span>
+                        <span>${resultado.horario}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span>💰</span>
+                        <span>${resultado.preco}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span>✅</span>
+                        <span>${resultado.caracteristicas}</span>
+                    </div>
+                </div>
+                
+                <div class="card-actions">
+                    <button class="btn btn-outline">Ver Detalhes</button>
+                    <button class="btn btn-primary">Entrar em Contato</button>
+                </div>
+            `;
+            
+            return card;
+        }
+        
+        function ordenarResultados() {
+            const ordenacao = document.getElementById('ordenacao').value;
+            console.log('Ordenar por:', ordenacao);
+            // Implementar lógica de ordenação
+        }
+    </script>
+</body>
+</html>
