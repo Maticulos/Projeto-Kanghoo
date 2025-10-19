@@ -171,7 +171,7 @@
             <div class="footer-links-group">
                 <h4>Transporte</h4>
                 <ul>
-                    <li><a href="../public/encontrar-escolar.html">Transporte Escolar</a></li>
+                    <li><a href="../public/encontrar-transporte.html" onclick="setTransportType('escolar')">Transporte Escolar</a></li>
                     <li><a href="#">Rotas</a></li>
                     <li><a href="#">Monitoramento</a></li>
                     <li><a href="../public/planos.html">Preços</a></li>
@@ -181,7 +181,7 @@
             <div class="footer-links-group">
                 <h4>Excursões</h4>
                 <ul>
-                    <li><a href="../public/encontrar-excursao.html">Excursões</a></li>
+                    <li><a href="../public/encontrar-transporte.html" onclick="setTransportType('excursao')">Excursões</a></li>
                     <li><a href="#">Fretamento</a></li>
                     <li><a href="#">Turismo</a></li>
                 </ul>
@@ -367,6 +367,10 @@ document.addEventListener('DOMContentLoaded', async function() {
         showError('Erro ao carregar dados: ' + error.message);
     }
 });
+
+function setTransportType(type) {
+    localStorage.setItem('transportType', type);
+}
 </script>
 
 </body>

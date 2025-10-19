@@ -138,6 +138,19 @@ class MultiStepForm {
             }
         });
         
+        // Adicionar listeners para atualizar progresso em tempo real
+        this.form.addEventListener('input', () => {
+            // Debounce para evitar muitas atualizações
+            clearTimeout(this.progressUpdateTimeout);
+            this.progressUpdateTimeout = setTimeout(() => {
+                this.updateProgressDetails();
+            }, 300);
+        });
+        
+        this.form.addEventListener('change', () => {
+            this.updateProgressDetails();
+        });
+        
         // Keyboard navigation
         document.addEventListener('keydown', (e) => {
             if (e.ctrlKey) {
@@ -258,6 +271,145 @@ class MultiStepForm {
             progressFill.style.width = `${percentage}%`;
             progressFill.style.animation = '';
         }, 800);
+        
+        // Atualizar informações detalhadas da barra de progresso
+        this.updateProgressDetails();
+    }
+    
+    updateProgressDetails() {
+        // Criar ou atualizar container de detalhes do progresso
+        let progressDetails = document.querySelector('.progress-details');
+        if (!progressDetails) {
+            progressDetails = document.createElement('div');
+            progressDetails.className = 'progress-details';
+            
+            const progressContainer = document.querySelector('.progress-container');
+            progressContainer.appendChild(progressDetails);
+        }
+        
+        // Calcular estatísticas
+        const currentStepInfo = this.steps[this.currentStep];
+        const completedSteps = this.currentStep;
+        const remainingSteps = this.totalSteps - this.currentStep - 1;
+        const progressPercentage = Math.round((this.currentStep / (this.totalSteps - 1)) * 100);
+        
+        // Validar campos do passo atual
+        const currentStepElement = document.querySelector(`[data-step="${this.currentStep}"]`);
+        const requiredFields = currentStepElement ? currentStepElement.querySelectorAll('[required]') : [];
+        const filledFields = Array.from(requiredFields).filter(field => {
+            if (field.type === 'checkbox' || field.type === 'radio') {
+                return field.checked;
+            }
+            return field.value.trim() !== '';
+        });
+        
+        const fieldCompletionPercentage = requiredFields.length > 0 ? 
+            Math.round((filledFields.length / requiredFields.length) * 100) : 100;
+        
+        // Criar HTML dos detalhes
+        progressDetails.innerHTML = `
+            <div class="progress-info">
+                <div class="progress-main-info">
+                    <div class="current-step-info">
+                        <span class="step-number">${this.currentStep + 1}</span>
+                        <span class="step-title">${currentStepInfo.title}</span>
+                        <span class="step-percentage">${progressPercentage}%</span>
+                    </div>
+                    <div class="step-description">
+                        ${currentStepInfo.description}
+                    </div>
+                </div>
+                
+                <div class="progress-stats">
+                    <div class="stat-item">
+                        <span class="stat-icon">✅</span>
+                        <span class="stat-label">Concluídos</span>
+                        <span class="stat-value">${completedSteps}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon">📝</span>
+                        <span class="stat-label">Atual</span>
+                        <span class="stat-value">1</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon">⏳</span>
+                        <span class="stat-label">Restantes</span>
+                        <span class="stat-value">${remainingSteps}</span>
+                    </div>
+                </div>
+                
+                <div class="field-completion">
+                    <div class="field-completion-header">
+                        <span class="field-completion-label">Campos obrigatórios</span>
+                        <span class="field-completion-percentage">${filledFields.length}/${requiredFields.length} (${fieldCompletionPercentage}%)</span>
+                    </div>
+                    <div class="field-completion-bar">
+                        <div class="field-completion-fill" style="width: ${fieldCompletionPercentage}%"></div>
+                    </div>
+                </div>
+                
+                ${this.getStepValidationStatus()}
+            </div>
+        `;
+        
+        // Adicionar animação de entrada
+        progressDetails.style.opacity = '0';
+        progressDetails.style.transform = 'translateY(-10px)';
+        
+        setTimeout(() => {
+            progressDetails.style.transition = 'all 0.3s ease';
+            progressDetails.style.opacity = '1';
+            progressDetails.style.transform = 'translateY(0)';
+        }, 100);
+    }
+    
+    getStepValidationStatus() {
+        const currentStepElement = document.querySelector(`[data-step="${this.currentStep}"]`);
+        if (!currentStepElement) return '';
+        
+        const requiredFields = currentStepElement.querySelectorAll('[required]');
+        const errors = [];
+        
+        requiredFields.forEach(field => {
+            const isEmpty = field.type === 'checkbox' || field.type === 'radio' ? 
+                !field.checked : field.value.trim() === '';
+            
+            if (isEmpty) {
+                const label = this.getFieldLabel(field);
+                errors.push(label || field.name || 'Campo obrigatório');
+            }
+        });
+        
+        if (errors.length === 0) {
+            return `
+                <div class="validation-status success">
+                    <span class="validation-icon">✅</span>
+                    <span class="validation-message">Todos os campos obrigatórios preenchidos</span>
+                </div>
+            `;
+        } else {
+            return `
+                <div class="validation-status warning">
+                    <span class="validation-icon">⚠️</span>
+                    <span class="validation-message">Campos pendentes: ${errors.slice(0, 2).join(', ')}${errors.length > 2 ? '...' : ''}</span>
+                </div>
+            `;
+        }
+    }
+    
+    getFieldLabel(field) {
+        // Tentar encontrar label associado
+        if (field.id) {
+            const label = document.querySelector(`label[for="${field.id}"]`);
+            if (label) return label.textContent.replace('*', '').trim();
+        }
+        
+        // Tentar encontrar label pai
+        const parentLabel = field.closest('label');
+        if (parentLabel) return parentLabel.textContent.replace('*', '').trim();
+        
+        // Usar placeholder ou name
+        return field.placeholder || field.name || 'Campo';
     }
     
     addPageTransitionEffect() {

@@ -54,8 +54,8 @@
             <h3 id="transport-modal-title">Que tipo de transporte precisa?</h3>
             <p>Selecione a opção que melhor atende sua necessidade.</p>
             <div class="modal-options">
-                <a href="../public/encontrar-escolar.html" class="btn btn-primary">Transporte Escolar</a>
-                <a href="../public/encontrar-excursao.html" class="btn btn-blue">Excursões e Fretamento</a>
+                <a href="../public/encontrar-transporte.html" class="btn btn-primary" onclick="setTransportType('escolar')">Transporte Escolar</a>
+                <a href="../public/encontrar-transporte.html" class="btn btn-blue" onclick="setTransportType('excursao')">Excursões e Fretamento</a>
             </div>
         </div>
     </div>
@@ -116,7 +116,7 @@
             <div class="footer-links-group">
                 <h4>Transporte</h4>
                 <ul>
-                    <li><a href="../public/encontrar-escolar.html">Transporte Escolar</a></li>
+                    <li><a href="../public/encontrar-transporte.html" onclick="setTransportType('escolar')">Transporte Escolar</a></li>
                     <li><a href="#">Rotas</a></li>
                     <li><a href="#">Monitoramento</a></li>
                     <li><a href="#pricing">Preços</a></li>
@@ -202,6 +202,10 @@
                 });
             }
         });
+        
+        function setTransportType(type) {
+            localStorage.setItem('transportType', type);
+        }
     </script>
 </body>
 </html>

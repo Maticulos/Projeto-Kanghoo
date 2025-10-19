@@ -1,95 +1,205 @@
-const Koa = require('koa');
-const KoaRouter = require('koa-router');
-const json = require('koa-json');
-const path = require('path');
-const bcrypt = require('bcryptjs');
-const koaBody = require('koa-bodyparser');
-const jwt = require('jsonwebtoken');
-const db = require('./db');
-const serve = require('koa-static');
-const cors = require('@koa/cors');
-const { securityConfig, getSecurityHeaders, sanitizeForLog, validateInput, validateLoginData, validateCadastroData } = require('./security-config');
+/**
+ * SERVIDOR PRINCIPAL DA APLICAÇÃO DE TRANSPORTE ESCOLAR
+ * 
+ * Este arquivo configura e inicializa o servidor Koa.js que serve como backend
+ * para a aplicação de transporte escolar. O servidor gerencia:
+ * 
+ * - Autenticação e autorização de usuários
+ * - Cadastro de motoristas, responsáveis e crianças
+ * - Sistema de rastreamento de veículos
+ * - API para comunicação com o frontend
+ * - Segurança robusta com rate limiting e validações
+ * 
+ * Tecnologias utilizadas:
+ * - Koa.js: Framework web minimalista para Node.js
+ * - PostgreSQL: Banco de dados relacional
+ * - JWT: Autenticação baseada em tokens
+ * - bcrypt: Hash seguro de senhas
+ * 
+ * @author Equipe de Desenvolvimento
+ * @version 1.0.0
+ */
 
+// === IMPORTAÇÕES DE DEPENDÊNCIAS ===
+
+// Framework web Koa.js e seus middlewares
+const Koa = require('koa');                    // Framework principal
+const KoaRouter = require('koa-router');       // Sistema de rotas
+const json = require('koa-json');              // Formatação de JSON
+const koaBody = require('koa-bodyparser');     // Parser do corpo das requisições
+const serve = require('koa-static');           // Servir arquivos estáticos
+const cors = require('@koa/cors');             // Cross-Origin Resource Sharing
+
+// Utilitários do Node.js
+const path = require('path');                  // Manipulação de caminhos de arquivos
+
+// Bibliotecas de segurança
+const bcrypt = require('bcryptjs');            // Hash de senhas
+const jwt = require('jsonwebtoken');           // JSON Web Tokens
+
+// Configurações personalizadas
+const db = require('./config/db');             // Conexão com banco de dados
+const { 
+    securityConfig, 
+    getSecurityHeaders, 
+    sanitizeForLog, 
+    validateInput, 
+    validateLoginData, 
+    validateCadastroData 
+} = require('./config/security-config');       // Configurações de segurança
+
+// Carregar variáveis de ambiente do arquivo .env
 require('dotenv').config({ path: '../.env' });
 
-const app = new Koa();
-const router = new KoaRouter();
-const PORT = process.env.PORT || 5000;
+// === INICIALIZAÇÃO DA APLICAÇÃO ===
+
+const app = new Koa();                         // Instância principal do Koa
+const router = new KoaRouter();                // Roteador principal
+const PORT = process.env.PORT || 5000;         // Porta do servidor (padrão: 5000)
+
+// Configuração do JWT Secret com fallback seguro
 const JWT_SECRET = process.env.JWT_SECRET || (() => {
     console.error('⚠️  AVISO DE SEGURANÇA: JWT_SECRET não definido no .env');
     console.error('⚠️  Usando chave temporária - ALTERE IMEDIATAMENTE em produção!');
     return 'temp_key_' + Math.random().toString(36).substring(2, 15);
 })();
 
-// --- MIDDLEWARES ---
-// A ordem é importante.
+// === CONFIGURAÇÃO DE MIDDLEWARES ===
+// IMPORTANTE: A ordem dos middlewares é crucial no Koa.js
+// Cada middleware é executado na ordem definida aqui
 
-// 0. Configurar headers de segurança robustos
+/**
+ * MIDDLEWARE 1: HEADERS DE SEGURANÇA
+ * 
+ * Aplica headers de segurança robustos em todas as respostas para proteger
+ * contra ataques comuns como XSS, clickjacking, MIME sniffing, etc.
+ * 
+ * Headers aplicados:
+ * - X-Frame-Options: Previne clickjacking
+ * - X-Content-Type-Options: Previne MIME sniffing
+ * - X-XSS-Protection: Ativa proteção XSS do navegador
+ * - Content-Security-Policy: Define política de segurança de conteúdo
+ * - Referrer-Policy: Controla informações de referrer
+ */
 app.use(async (ctx, next) => {
     const headers = getSecurityHeaders();
     
-    // Aplicar todos os headers de segurança
+    // Aplicar todos os headers de segurança definidos na configuração
     Object.entries(headers).forEach(([key, value]) => {
         ctx.set(key, value);
     });
     
-    // Remove header que expõe tecnologia
+    // Remove header que expõe a tecnologia utilizada (segurança por obscuridade)
     ctx.remove('X-Powered-By');
     
     await next();
 });
 
-// 0.5. Configurar CORS
+/**
+ * MIDDLEWARE 2: CORS (Cross-Origin Resource Sharing)
+ * 
+ * Configura as políticas de CORS para permitir requisições do frontend.
+ * Em desenvolvimento, permite todas as origens para facilitar testes.
+ * Em produção, deve ser configurado com domínios específicos.
+ */
 app.use(cors({
-    origin: '*', // Permitir todas as origens para desenvolvimento
-    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowHeaders: ['Content-Type', 'Authorization', 'Accept'],
-    credentials: true
+    origin: '*',                                    // DESENVOLVIMENTO: Permitir todas as origens
+    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Métodos HTTP permitidos
+    allowHeaders: ['Content-Type', 'Authorization', 'Accept'],  // Headers permitidos
+    credentials: true                               // Permitir cookies e credenciais
 }));
 
-// 1. Servir arquivos da subpasta 'public' primeiro.
-// O Koa vai procurar o index.html aqui e vai encontrá-lo na raiz.
+/**
+ * MIDDLEWARE 3: SERVIDOR DE ARQUIVOS ESTÁTICOS - PÚBLICO
+ * 
+ * Serve arquivos da pasta 'frontend/public' com prioridade.
+ * Esta pasta contém os arquivos HTML principais da aplicação.
+ * O Koa procura primeiro aqui por arquivos como index.html.
+ */
 app.use(serve(path.join(__dirname, '../frontend/public')));
 
-// 2. Servir outros arquivos (css, js, imagens) da pasta 'frontend' principal.
-// Se um arquivo não for encontrado em 'public', ele procura aqui.
+/**
+ * MIDDLEWARE 4: SERVIDOR DE ARQUIVOS ESTÁTICOS - GERAL
+ * 
+ * Serve outros arquivos estáticos (CSS, JS, imagens) da pasta 'frontend'.
+ * Este middleware só é executado se o arquivo não for encontrado na pasta 'public'.
+ * Implementa um sistema de fallback para servir recursos estáticos.
+ */
 app.use(serve(path.join(__dirname, '../frontend')));
 
-// 3. Processar o corpo da requisição (para rotas de API como /login, /cadastrar)
+/**
+ * MIDDLEWARE 5: PARSER DO CORPO DAS REQUISIÇÕES
+ * 
+ * Processa o corpo das requisições HTTP (JSON, form-data, etc.)
+ * e disponibiliza os dados em ctx.request.body.
+ * Essencial para rotas de API que recebem dados do cliente.
+ */
 app.use(koaBody());
 
-// 4. Formatar a saída JSON de forma legível (pretty-print)
+/**
+ * MIDDLEWARE 6: FORMATAÇÃO DE JSON
+ * 
+ * Formata a saída JSON de forma legível (pretty-print) durante desenvolvimento.
+ * Melhora a experiência de debugging ao visualizar respostas da API.
+ */
 app.use(json());
 
-// --- RATE LIMITING ---
+// === SISTEMA DE RATE LIMITING ===
+
+/**
+ * ARMAZENAMENTO EM MEMÓRIA PARA RATE LIMITING
+ * 
+ * Utiliza um Map para armazenar as requisições por IP.
+ * Em produção, considere usar Redis para persistência e escalabilidade.
+ * 
+ * Estrutura: Map<IP_ADDRESS, Array<TIMESTAMP>>
+ */
 const rateLimitStore = new Map();
 
+/**
+ * FACTORY FUNCTION PARA RATE LIMITING
+ * 
+ * Cria um middleware de rate limiting configurável que limita o número
+ * de requisições por IP em uma janela de tempo específica.
+ * 
+ * Algoritmo: Sliding Window
+ * - Mantém um array de timestamps para cada IP
+ * - Remove timestamps antigos automaticamente
+ * - Bloqueia requisições quando o limite é atingido
+ * 
+ * @param {number} windowMs - Janela de tempo em milissegundos (padrão: 15 minutos)
+ * @param {number} maxRequests - Número máximo de requisições (padrão: 100)
+ * @returns {Function} Middleware do Koa para rate limiting
+ */
 const rateLimit = (windowMs = 15 * 60 * 1000, maxRequests = 100) => {
     return async (ctx, next) => {
+        // Obter IP do cliente (considera proxies e load balancers)
         const clientIP = ctx.request.ip || ctx.request.socket.remoteAddress;
         const now = Date.now();
         const windowStart = now - windowMs;
         
-        // Limpar registros antigos
+        // Limpeza automática: remover registros antigos da janela de tempo
         if (rateLimitStore.has(clientIP)) {
             const requests = rateLimitStore.get(clientIP).filter(time => time > windowStart);
             rateLimitStore.set(clientIP, requests);
         }
         
-        // Verificar limite
+        // Verificar se o limite foi atingido
         const requests = rateLimitStore.get(clientIP) || [];
         
         if (requests.length >= maxRequests) {
+            // Limite atingido: retornar erro 429 (Too Many Requests)
             ctx.status = 429;
             ctx.body = { 
                 error: 'Muitas tentativas. Tente novamente em alguns minutos.',
                 retryAfter: Math.ceil(windowMs / 1000)
             };
+            // Header padrão para informar quando tentar novamente
             ctx.set('Retry-After', Math.ceil(windowMs / 1000));
             return;
         }
         
-        // Adicionar nova requisição
+        // Registrar nova requisição e continuar
         requests.push(now);
         rateLimitStore.set(clientIP, requests);
         
@@ -173,6 +283,65 @@ router.post('/api/contact', async (ctx) => {
         console.error('Erro ao salvar contato:', error);
         ctx.status = 500;
         ctx.body = { message: 'Erro interno do servidor.' };
+    }
+});
+
+// Rota de proxy para busca de CEP
+router.get('/api/cep/:cep', async (ctx) => {
+    const { cep } = ctx.params;
+    
+    // Validar formato do CEP
+    const cepLimpo = cep.replace(/\D/g, '');
+    if (cepLimpo.length !== 8) {
+        ctx.status = 400;
+        ctx.body = { error: 'CEP deve ter 8 dígitos' };
+        return;
+    }
+    
+    try {
+        // Fazer requisição para ViaCEP usando https nativo
+        const https = require('https');
+        
+        const dados = await new Promise((resolve, reject) => {
+            const req = https.get(`https://viacep.com.br/ws/${cepLimpo}/json/`, (res) => {
+                let data = '';
+                
+                res.on('data', (chunk) => {
+                    data += chunk;
+                });
+                
+                res.on('end', () => {
+                    try {
+                        const jsonData = JSON.parse(data);
+                        resolve(jsonData);
+                    } catch (parseError) {
+                        reject(new Error('Erro ao processar resposta da API'));
+                    }
+                });
+            });
+            
+            req.on('error', (error) => {
+                reject(error);
+            });
+            
+            req.setTimeout(10000, () => {
+                req.destroy();
+                reject(new Error('Timeout na requisição'));
+            });
+        });
+        
+        if (dados.erro) {
+            ctx.status = 404;
+            ctx.body = { error: 'CEP não encontrado' };
+            return;
+        }
+        
+        ctx.status = 200;
+        ctx.body = dados;
+    } catch (error) {
+        console.error('Erro ao buscar CEP:', error);
+        ctx.status = 500;
+        ctx.body = { error: 'Erro interno do servidor' };
     }
 });
 
@@ -480,6 +649,7 @@ const responsavelRoutes = require('./routes/responsavel');
 const rastreamentoRoutes = require('./routes/rastreamento');
 const trackingApiRoutes = require('./routes/tracking-api');
 const cadastroCriancasRoutes = require('./routes/cadastro-criancas');
+const transportesRoutes = require('./routes/transportes');
 
 // Registrar rotas
 app.use(motoristaEscolarRoutes.routes());
@@ -492,6 +662,7 @@ app.use(trackingApiRoutes.routes());
 app.use(trackingApiRoutes.allowedMethods());
 app.use(cadastroCriancasRoutes.routes());
 app.use(cadastroCriancasRoutes.allowedMethods());
+app.use('/api/transportes', transportesRoutes.routes(), transportesRoutes.allowedMethods());
 // app.use('/api/responsavel', responsavelRoutes.routes(), responsavelRoutes.allowedMethods());
 // app.use('/api/rastreamento', rastreamentoRoutes.routes(), rastreamentoRoutes.allowedMethods());
 

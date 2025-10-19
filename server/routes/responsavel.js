@@ -1,7 +1,7 @@
 const KoaRouter = require('koa-router');
-const db = require('../db');
+const db = require('../config/db');
 const { authenticateToken, requireRole } = require('../middleware/auth-utils');
-const { validateInput, sanitizeForLog } = require('../security-config');
+const { validateInput, sanitizeForLog } = require('../config/security-config');
 
 const router = new KoaRouter({ prefix: '/api/responsavel' });
 

@@ -266,11 +266,11 @@
             <h3 id="modal-title">Qual tipo de cadastro?</h3>
             <p>Escolha a opção que melhor descreve seu serviço para começar.</p>
             <div class="modal-options">
-                <a href="../public/cadastro-escolar.html" class="btn btn-primary">Transporte Escolar</a>
-                <a href="../public/cadastro-excursao.html" class="btn btn-blue">Excursão e Fretamento</a>
+                <a href="cadastro-escolar.html" class="btn btn-primary">Transporte Escolar</a>
+                <a href="cadastro-excursao.html" class="btn btn-blue">Excursão e Fretamento</a>
             </div>
             <div class="modal-footer">
-                <p>Não tem certeza? <a href="../public/index.html#contact">Fale conosco</a></p>
+                <p>Não tem certeza? <a href="index.html#contact">Fale conosco</a></p>
             </div>
         </div>
     </div>
@@ -283,8 +283,8 @@
             <h3 id="transport-modal-title">Que tipo de transporte precisa?</h3>
             <p>Selecione a opção que melhor atende sua necessidade.</p>
             <div class="modal-options">
-                <a href="../public/encontrar-escolar.html" class="btn btn-primary">Transporte Escolar</a>
-                <a href="../public/encontrar-excursao.html" class="btn btn-blue">Excursões e Fretamento</a>
+                <a href="encontrar-transporte.html" class="btn btn-primary" onclick="setTransportType('escolar')">Transporte Escolar</a>
+                <a href="encontrar-transporte.html" class="btn btn-blue" onclick="setTransportType('excursao')">Excursões e Fretamento</a>
             </div>
         </div>
     </div>
@@ -467,7 +467,7 @@
             <div class="footer-links-group">
                 <h4>Transporte</h4>
                 <ul>
-                    <li><a href="encontrar-escolar.html">Transporte Escolar</a></li>
+                    <li><a href="encontrar-transporte.html" onclick="setTransportType('escolar')">Transporte Escolar</a></li>
                     <li><a href="#">Rotas</a></li>
                     <li><a href="#">Monitoramento</a></li>
                     <li><a href="planos.html">Preços</a></li>
@@ -476,7 +476,7 @@
             <div class="footer-links-group">
                 <h4>Excursões</h4>
                 <ul>
-                    <li><a href="encontrar-excursao.html">Excursões</a></li>
+                    <li><a href="encontrar-transporte.html" onclick="setTransportType('excursao')">Excursões</a></li>
                     <li><a href="#">Viagens</a></li>
                     <li><a href="#">Reserva</a></li>
                     <li><a href="#">Eventos</a></li>
@@ -513,11 +513,16 @@
                         openTransportModal();
                     } else {
                         // Fallback: redireciona para a página de encontrar transporte
-                        window.location.href = '/encontrar-escolar.html';
+                        localStorage.setItem('transportType', 'escolar');
+                window.location.href = '/encontrar-transporte.html';
                     }
                 });
             }
         });
+        
+        function setTransportType(type) {
+            localStorage.setItem('transportType', type);
+        }
     </script>
 </body>
 

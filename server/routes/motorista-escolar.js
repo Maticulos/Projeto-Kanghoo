@@ -1,27 +1,18 @@
 const KoaRouter = require('koa-router');
-const db = require('../db');
+const db = require('../config/db');
 const { authenticateToken, requireRole } = require('../middleware/auth-utils');
-const { validateInput, sanitizeForLog } = require('../security-config');
-const multer = require('@koa/multer');
+const { validateInput, sanitizeForLog } = require('../config/security-config');
+const { createSecureUpload, validateUploadedFiles } = require('../middleware/upload-security');
 const csv = require('csv-parser');
 const fs = require('fs');
 
 const router = new KoaRouter();
 
-// Configuração do multer para upload de CSV
-const upload = multer({
-    dest: 'uploads/',
-    fileFilter: (req, file, cb) => {
-        if (file.mimetype === 'text/csv' || file.originalname.endsWith('.csv')) {
-            cb(null, true);
-        } else {
-            cb(new Error('Apenas arquivos CSV são permitidos'), false);
-        }
-    },
-    limits: {
-        fileSize: 5 * 1024 * 1024 // 5MB
-    }
-});
+// Configuração segura do upload para CSV
+const csvUpload = createSecureUpload('csv', { maxFiles: 1 });
+const documentUpload = createSecureUpload('documents', { maxFiles: 5 });
+const imageUpload = createSecureUpload('images', { maxFiles: 3 });
+const allFilesUpload = createSecureUpload('all', { maxFiles: 10 });
 
 // Aplicar middlewares de autenticação e autorização em todas as rotas
 router.use(authenticateToken);
@@ -138,7 +129,7 @@ router.post('/criancas', async (ctx) => {
 });
 
 // Rota para importar crianças via CSV
-router.post('/criancas/importar-csv', upload.single('arquivo_csv'), async (ctx) => {
+router.post('/criancas/importar-csv', csvUpload.single('arquivo_csv'), validateUploadedFiles('csv'), async (ctx) => {
     try {
         const motoristaId = ctx.user.id;
         const arquivo = ctx.file;
@@ -407,6 +398,142 @@ router.put('/criancas/:id/rota', async (ctx) => {
         ctx.body = {
             sucesso: false,
             mensagem: 'Erro interno do servidor'
+        };
+    }
+});
+
+// Rota para upload de documentos (CNH, CRLV, Antecedentes, CNPJ)
+router.post('/upload/documentos', documentUpload.fields([
+    { name: 'uploadCNH', maxCount: 1 },
+    { name: 'uploadCRLV', maxCount: 1 },
+    { name: 'uploadAntecedentes', maxCount: 1 },
+    { name: 'uploadCNPJ', maxCount: 1 }
+]), validateUploadedFiles('documents'), async (ctx) => {
+    try {
+        const motoristaId = ctx.user.id;
+        const files = ctx.files;
+        
+        if (!files || Object.keys(files).length === 0) {
+            ctx.status = 400;
+            ctx.body = {
+                sucesso: false,
+                mensagem: 'Nenhum arquivo foi enviado'
+            };
+            return;
+        }
+        
+        const uploadedFiles = {};
+        
+        // Processar cada tipo de documento
+        for (const [fieldName, fileArray] of Object.entries(files)) {
+            if (fileArray && fileArray.length > 0) {
+                const file = fileArray[0];
+                uploadedFiles[fieldName] = {
+                    originalName: file.sanitizedOriginalName,
+                    fileName: file.secureFileName,
+                    size: file.size,
+                    mimeType: file.mimetype,
+                    uploadDate: new Date(file.uploadTimestamp)
+                };
+            }
+        }
+        
+        // Salvar informações dos arquivos no banco de dados
+        // (Aqui você pode implementar a lógica para salvar no banco)
+        
+        ctx.body = {
+            sucesso: true,
+            mensagem: 'Documentos enviados com sucesso',
+            arquivos: uploadedFiles
+        };
+        
+    } catch (error) {
+        console.error('Erro no upload de documentos:', error);
+        ctx.status = 500;
+        ctx.body = {
+            sucesso: false,
+            mensagem: error.message || 'Erro interno do servidor'
+        };
+    }
+});
+
+// Rota para upload de foto de perfil
+router.post('/upload/foto-perfil', imageUpload.single('fotoPerfil'), validateUploadedFiles('images'), async (ctx) => {
+    try {
+        const motoristaId = ctx.user.id;
+        const file = ctx.file;
+        
+        if (!file) {
+            ctx.status = 400;
+            ctx.body = {
+                sucesso: false,
+                mensagem: 'Nenhuma imagem foi enviada'
+            };
+            return;
+        }
+        
+        const fileInfo = {
+            originalName: file.sanitizedOriginalName,
+            fileName: file.secureFileName,
+            size: file.size,
+            mimeType: file.mimetype,
+            uploadDate: new Date(file.uploadTimestamp)
+        };
+        
+        // Salvar informações da foto no banco de dados
+        // (Aqui você pode implementar a lógica para salvar no banco)
+        
+        ctx.body = {
+            sucesso: true,
+            mensagem: 'Foto de perfil enviada com sucesso',
+            arquivo: fileInfo
+        };
+        
+    } catch (error) {
+        console.error('Erro no upload da foto de perfil:', error);
+        ctx.status = 500;
+        ctx.body = {
+            sucesso: false,
+            mensagem: error.message || 'Erro interno do servidor'
+        };
+    }
+});
+
+// Rota para upload múltiplo (todos os tipos)
+router.post('/upload/multiplo', allFilesUpload.array('arquivos', 10), validateUploadedFiles('all'), async (ctx) => {
+    try {
+        const motoristaId = ctx.user.id;
+        const files = ctx.files;
+        
+        if (!files || files.length === 0) {
+            ctx.status = 400;
+            ctx.body = {
+                sucesso: false,
+                mensagem: 'Nenhum arquivo foi enviado'
+            };
+            return;
+        }
+        
+        const uploadedFiles = files.map(file => ({
+            originalName: file.sanitizedOriginalName,
+            fileName: file.secureFileName,
+            size: file.size,
+            mimeType: file.mimetype,
+            uploadDate: new Date(file.uploadTimestamp)
+        }));
+        
+        ctx.body = {
+            sucesso: true,
+            mensagem: `${files.length} arquivo(s) enviado(s) com sucesso`,
+            arquivos: uploadedFiles
+        };
+        
+    } catch (error) {
+        console.error('Erro no upload múltiplo:', error);
+        ctx.status = 500;
+        ctx.body = {
+            sucesso: false,
+            mensagem: error.message || 'Erro interno do servidor'
         };
     }
 });

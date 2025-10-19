@@ -4,7 +4,7 @@
  */
 
 const Router = require('koa-router');
-const trackingService = require('../tracking-persistence');
+const trackingService = require('../utils/tracking-persistence');
 const { authenticateToken } = require('../middleware/auth-utils');
 
 const router = new Router({ prefix: '/api/tracking' });

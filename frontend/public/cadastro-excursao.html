@@ -42,11 +42,11 @@
             <h3 id="modal-title">Qual tipo de cadastro?</h3>
             <p>Escolha a opção que melhor descreve seu serviço para começar.</p>
             <div class="modal-options">
-                <a href="../public/cadastro-escolar.html" class="btn btn-primary">Transporte Escolar</a>
-                <a href="../public/cadastro-excursao.html" class="btn btn-blue">Excursão e Fretamento</a>
+                <a href="cadastro-escolar.html" class="btn btn-primary">Transporte Escolar</a>
+                <a href="cadastro-excursao.html" class="btn btn-blue">Excursão e Fretamento</a>
             </div>
             <div class="modal-footer">
-                <p>Não tem certeza? <a href="../public/index.html#contact">Fale conosco</a></p>
+                <p>Não tem certeza? <a href="index.html#contact">Fale conosco</a></p>
             </div>
         </div>
     </div>
@@ -58,11 +58,11 @@
             <h3 id="transport-modal-title">Que tipo de transporte precisa?</h3>
             <p>Selecione a opção que melhor atende sua necessidade.</p>
             <div class="modal-options">
-                <a href="../public/encontrar-escolar.html" class="btn btn-primary">Transporte Escolar</a>
-                <a href="../public/encontrar-excursao.html" class="btn btn-blue">Excursões e Fretamento</a>
+                <a href="encontrar-transporte.html" class="btn btn-primary" onclick="setTransportType('escolar')">Transporte Escolar</a>
+                <a href="encontrar-transporte.html" class="btn btn-blue" onclick="setTransportType('excursao')">Excursões e Fretamento</a>
             </div>
             <div class="modal-footer">
-                <p>Precisa de ajuda? <a href="../public/index.html#contact">Entre em contato</a></p>
+                <p>Precisa de ajuda? <a href="index.html#contact">Entre em contato</a></p>
             </div>
         </div>
     </div>
@@ -134,6 +134,16 @@
                     <div>
                         <label for="bairro">Bairro</label>
                         <input type="text" id="bairro" name="bairro" required>
+                    </div>
+                </div>
+                <div class="campo-grupo">
+                    <div>
+                        <label for="cidade">Cidade</label>
+                        <input type="text" id="cidade" name="cidade" required>
+                    </div>
+                    <div>
+                        <label for="estado">Estado</label>
+                        <input type="text" id="estado" name="estado" required maxlength="2" placeholder="SP">
                     </div>
                 </div>
                 <div class="campo-grupo">
@@ -217,6 +227,16 @@
                     <div>
                         <label for="bairroEmpresa">Bairro</label>
                         <input type="text" id="bairroEmpresa" name="bairroEmpresa">
+                    </div>
+                </div>
+                <div class="campo-grupo">
+                    <div>
+                        <label for="cidadeEmpresa">Cidade</label>
+                        <input type="text" id="cidadeEmpresa" name="cidadeEmpresa">
+                    </div>
+                    <div>
+                        <label for="estadoEmpresa">Estado</label>
+                        <input type="text" id="estadoEmpresa" name="estadoEmpresa" maxlength="2" placeholder="SP">
                     </div>
                 </div>
                 <div class="campo-grupo">
@@ -414,7 +434,7 @@
             <div class="footer-links-group">
                 <h4>Transporte</h4>
                 <ul>
-                    <li><a href="encontrar-escolar.html">Transporte Escolar</a></li>
+                    <li><a href="encontrar-transporte.html" onclick="setTransportType('escolar')">Transporte Escolar</a></li>
                     <li><a href="#">Rotas</a></li>
                     <li><a href="#">Monitoramento</a></li>
                     <li><a href="planos.html">Preços</a></li>
@@ -423,7 +443,7 @@
             <div class="footer-links-group">
                 <h4>Excursões</h4>
                 <ul>
-                    <li><a href="encontrar-excursao.html">Excursões</a></li>
+                    <li><a href="encontrar-transporte.html" onclick="setTransportType('excursao')">Excursões</a></li>
                     <li><a href="#">Viagens</a></li>
                     <li><a href="#">Reserva</a></li>
                     <li><a href="#">Eventos</a></li>
@@ -488,8 +508,10 @@
             // Inicializar o formulário multi-etapas
             new MultiStepForm('cadastroForm', steps);
         });
+        
+        function setTransportType(type) {
+            localStorage.setItem('transportType', type);
+        }
     </script>
-</body>
-</html>
 </body>
 </html>
