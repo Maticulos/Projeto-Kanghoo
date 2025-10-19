@@ -28,7 +28,7 @@
         
         <div class="auth-buttons">
             <!-- Caminho corrigido para a pasta auth -->
-            <a href="../auth/login.html" class="btn btn-secondary">Login</a>
+            <a href="../auth/login.html" class="btn btn-blue">Login</a>
             <button class="btn btn-primary" id="btn-cadastro-modal" aria-haspopup="dialog">Cadastro</button>
         </div>
     </div>
@@ -42,7 +42,7 @@
             <p>Escolha a opção que melhor descreve seu serviço para começar.</p>
             <div class="modal-options">
                 <a href="../public/cadastro-escolar.html" class="btn btn-primary">Transporte Escolar</a>
-                <a href="../public/cadastro-excursao.html" class="btn btn-secondary">Excursão e Fretamento</a>
+                <a href="../public/cadastro-excursao.html" class="btn btn-blue">Excursão e Fretamento</a>
             </div>
             <div class="modal-footer">
                 <p>Não tem certeza? <a href="../public/index.html#contact">Fale conosco</a></p>
@@ -58,7 +58,7 @@
             <p>Selecione a opção que melhor atende sua necessidade.</p>
             <div class="modal-options">
                 <a href="../public/encontrar-escolar.html" class="btn btn-primary">Transporte Escolar</a>
-                <a href="../public/encontrar-excursao.html" class="btn btn-secondary">Excursões e Fretamento</a>
+                <a href="../public/encontrar-excursao.html" class="btn btn-blue">Excursões e Fretamento</a>
             </div>
         </div>
     </div>
@@ -87,6 +87,31 @@
             </div>
         </section>
 
+        <!-- Seção de Estatísticas -->
+        <section class="stats-section">
+            <div class="container">
+                <h2 class="section-title">Kanghoo em Números</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">15,000+</div>
+                        <div class="stat-label">Usuários Ativos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">500+</div>
+                        <div class="stat-label">Rotas Ativas</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">98%</div>
+                        <div class="stat-label">Satisfação dos Clientes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">50+</div>
+                        <div class="stat-label">Cidades Atendidas</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Seção de Valores -->
         <section class="values-section">
             <div class="container">
@@ -103,6 +128,168 @@
                     <div class="value-card">
                         <h3>Transparência Total</h3>
                         <p>Acreditamos que a confiança é construída com comunicação clara. Oferecemos visibilidade completa de rotas, horários e pagamentos.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção da Equipe -->
+        <section class="team-section">
+            <div class="container">
+                <h2 class="section-title">Nossa Equipe</h2>
+                <p class="section-subtitle">Conheça as pessoas por trás da Kanghoo que trabalham todos os dias para tornar suas viagens mais seguras e eficientes.</p>
+                <div class="team-grid">
+                    <div class="team-member">
+                        <div class="member-photo">
+                            <img src="../imagens/joao-silva.svg" 
+                                 alt="João Silva - CEO & Fundador" 
+                                 loading="lazy"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="photo-placeholder" style="display: none;">JS</div>
+                        </div>
+                        <div class="member-info">
+                            <h3>João Silva</h3>
+                            <p class="member-role">CEO & Fundador</p>
+                            <p class="member-description">Especialista em logística com mais de 15 anos de experiência no setor de transporte. Visionário por trás da criação da Kanghoo.</p>
+                        </div>
+                    </div>
+                    <div class="team-member">
+                        <div class="member-photo">
+                            <img src="../imagens/maria-santos.svg" 
+                                 alt="Maria Santos - CTO" 
+                                 loading="lazy"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="photo-placeholder" style="display: none;">MS</div>
+                        </div>
+                        <div class="member-info">
+                            <h3>Maria Santos</h3>
+                            <p class="member-role">CTO</p>
+                            <p class="member-description">Engenheira de software com expertise em sistemas de rastreamento e desenvolvimento de aplicações móveis seguras.</p>
+                        </div>
+                    </div>
+                    <div class="team-member">
+                        <div class="member-photo">
+                            <img src="../imagens/carlos-oliveira.svg" 
+                                 alt="Carlos Oliveira - Head de Operações" 
+                                 loading="lazy"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="photo-placeholder" style="display: none;">CO</div>
+                        </div>
+                        <div class="member-info">
+                            <h3>Carlos Oliveira</h3>
+                            <p class="member-role">Head de Operações</p>
+                            <p class="member-description">Responsável por garantir que todas as operações funcionem perfeitamente, com foco na experiência do usuário e eficiência operacional.</p>
+                        </div>
+                    </div>
+                    <div class="team-member">
+                        <div class="member-photo">
+                            <img src="../imagens/ana-costa.svg" 
+                                 alt="Ana Costa - Head de Segurança" 
+                                 loading="lazy"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="photo-placeholder" style="display: none;">AC</div>
+                        </div>
+                        <div class="member-info">
+                            <h3>Ana Costa</h3>
+                            <p class="member-role">Head de Segurança</p>
+                            <p class="member-description">Especialista em segurança digital e física, responsável por todos os protocolos de segurança da plataforma e verificação de motoristas.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção de Cronologia -->
+        <section class="timeline-section">
+            <div class="container">
+                <h2 class="section-title">Nossa Jornada</h2>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-year">2020</div>
+                        <div class="timeline-content">
+                            <h3>Fundação da Kanghoo</h3>
+                            <p>Início do desenvolvimento da plataforma com foco em transporte escolar seguro e eficiente.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-year">2021</div>
+                        <div class="timeline-content">
+                            <h3>Primeiro Piloto</h3>
+                            <p>Lançamento do projeto piloto com 5 escolas e mais de 500 alunos atendidos.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-year">2022</div>
+                        <div class="timeline-content">
+                            <h3>Expansão para Excursões</h3>
+                            <p>Desenvolvimento do módulo de excursões e fretamento, ampliando nosso escopo de atuação.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-year">2023</div>
+                        <div class="timeline-content">
+                            <h3>Crescimento Exponencial</h3>
+                            <p>Alcançamos a marca de 10.000 usuários ativos e 300 rotas gerenciadas.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-year">2024</div>
+                        <div class="timeline-content">
+                            <h3>Inovação Tecnológica</h3>
+                            <p>Implementação de IA para otimização de rotas e sistema de notificações inteligentes.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-year">2025</div>
+                        <div class="timeline-content">
+                            <h3>Expansão Nacional</h3>
+                            <p>Presença em mais de 50 cidades e planos de expansão para todo o território nacional.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção de Depoimentos -->
+        <section class="testimonials-section">
+            <div class="container">
+                <h2 class="section-title">O Que Nossos Clientes Dizem</h2>
+                <div class="testimonials-grid">
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <p>"A Kanghoo revolucionou a forma como gerenciamos o transporte escolar. Agora os pais têm total visibilidade e nós temos controle completo das rotas. Recomendo para todas as escolas!"</p>
+                        </div>
+                        <div class="testimonial-author">
+                            <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=1974&auto=format&fit=crop" alt="Roberto Mendes">
+                            <div class="author-info">
+                                <h4>Roberto Mendes</h4>
+                                <p>Diretor - Colégio São Paulo</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <p>"Como mãe de dois filhos, a tranquilidade que a Kanghoo me proporciona é inestimável. Posso acompanhar o trajeto em tempo real e recebo notificações de tudo. Simplesmente perfeito!"</p>
+                        </div>
+                        <div class="testimonial-author">
+                            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80" alt="Fernanda Lima">
+                            <div class="author-info">
+                                <h4>Fernanda Lima</h4>
+                                <p>Mãe de Aluno</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <p>"Organizamos excursões há 10 anos e nunca tivemos uma ferramenta tão completa. O controle de pagamentos, comunicação com os participantes e rastreamento é fantástico!"</p>
+                        </div>
+                        <div class="testimonial-author">
+                            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=2070&auto=format&fit=crop" alt="Carlos Vieira">
+                            <div class="author-info">
+                                <h4>Carlos Vieira</h4>
+                                <p>Organizador de Excursões</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -157,4 +344,5 @@
 </footer>
 </body>
 <script src="../js/app.js"></script>
+<script src="../js/animacoes-sobre.js"></script>
 </html>

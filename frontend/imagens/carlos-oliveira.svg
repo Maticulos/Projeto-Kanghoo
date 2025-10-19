@@ -1,0 +1,44 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#047857;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="100" fill="url(#bg3)"/>
+  
+  <!-- Face -->
+  <circle cx="100" cy="85" r="35" fill="#fbbf24" opacity="0.9"/>
+  
+  <!-- Hair (short, professional) -->
+  <path d="M 70 65 Q 100 50 130 65 Q 130 75 100 75 Q 70 75 70 65" fill="#374151"/>
+  
+  <!-- Beard -->
+  <path d="M 80 95 Q 100 105 120 95 Q 115 110 100 112 Q 85 110 80 95" fill="#374151"/>
+  
+  <!-- Eyes -->
+  <circle cx="88" cy="80" r="3" fill="#1f2937"/>
+  <circle cx="112" cy="80" r="3" fill="#1f2937"/>
+  
+  <!-- Glasses -->
+  <circle cx="88" cy="80" r="8" fill="none" stroke="#1f2937" stroke-width="2"/>
+  <circle cx="112" cy="80" r="8" fill="none" stroke="#1f2937" stroke-width="2"/>
+  <line x1="96" y1="80" x2="104" y2="80" stroke="#1f2937" stroke-width="2"/>
+  
+  <!-- Nose -->
+  <ellipse cx="100" cy="90" rx="2" ry="4" fill="#f59e0b" opacity="0.7"/>
+  
+  <!-- Mouth -->
+  <path d="M 92 100 Q 100 106 108 100" stroke="#1f2937" stroke-width="2" fill="none"/>
+  
+  <!-- Body/Shirt -->
+  <rect x="70" y="130" width="60" height="70" rx="10" fill="#047857"/>
+  
+  <!-- Collar -->
+  <polygon points="85,130 115,130 110,140 90,140" fill="#065f46"/>
+  
+  <!-- Initials as backup -->
+  <text x="100" y="180" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="white">CO</text>
+</svg>

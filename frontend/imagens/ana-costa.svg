@@ -1,0 +1,41 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8b5cf6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#5b21b6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="100" fill="url(#bg4)"/>
+  
+  <!-- Face -->
+  <circle cx="100" cy="85" r="35" fill="#fbbf24" opacity="0.9"/>
+  
+  <!-- Hair (bob cut, professional) -->
+  <path d="M 65 60 Q 100 45 135 60 Q 135 80 125 90 Q 100 85 75 90 Q 65 80 65 60" fill="#92400e"/>
+  
+  <!-- Eyes -->
+  <circle cx="88" cy="80" r="3" fill="#1f2937"/>
+  <circle cx="112" cy="80" r="3" fill="#1f2937"/>
+  
+  <!-- Eyebrows -->
+  <path d="M 82 75 L 94 75" stroke="#92400e" stroke-width="2"/>
+  <path d="M 106 75 L 118 75" stroke="#92400e" stroke-width="2"/>
+  
+  <!-- Nose -->
+  <ellipse cx="100" cy="90" rx="2" ry="4" fill="#f59e0b" opacity="0.7"/>
+  
+  <!-- Mouth (confident smile) -->
+  <path d="M 90 100 Q 100 108 110 100" stroke="#1f2937" stroke-width="2" fill="none"/>
+  
+  <!-- Body/Blazer -->
+  <rect x="70" y="130" width="60" height="70" rx="10" fill="#5b21b6"/>
+  
+  <!-- Lapels -->
+  <polygon points="70,130 85,130 80,145 70,145" fill="#4c1d95"/>
+  <polygon points="115,130 130,130 130,145 120,145" fill="#4c1d95"/>
+  
+  <!-- Initials as backup -->
+  <text x="100" y="180" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="white">AC</text>
+</svg>

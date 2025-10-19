@@ -4,26 +4,94 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kanghoo - Transporte Escolar & Excursões</title>
+    <meta name="description" content="Kanghoo: plataforma para transporte escolar e excursões em grupo. Rastreamento, pagamentos integrados, gestão de grupos e planos flexíveis mensais/anuais.">
+    <meta property="og:title" content="Kanghoo - Transporte Escolar & Excursões">
+    <meta property="og:description" content="Rastreamento, pagamentos e gestão inteligente para transporte escolar e excursões. Veja nossos planos.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://kanghoo.example/">
+    <meta property="og:image" content="../imagens/logo.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Kanghoo - Transporte Escolar & Excursões">
+    <meta name="twitter:description" content="Planos com recursos avançados para transporte escolar e excursões.">
+    <link rel="canonical" href="https://kanghoo.example/">
+    
+    <!-- Favicons e ícones -->
+    <link rel="icon" type="image/x-icon" href="../imagens/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="../imagens/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="../imagens/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="../imagens/icon-512.png">
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Meta tags de segurança -->
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    
+    <!-- Preconnect para recursos externos -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Preload de recursos críticos -->
+    <link rel="preload" href="../css/style.css" as="style">
+    <link rel="preload" href="../imagens/mulher andando na cidade.jpg" as="image">
+    <link rel="preload" href="../js/app.js" as="script">
+    
+    <!-- Fontes otimizadas -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/style.css">
+    
+    <!-- Dados estruturados JSON-LD -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Kanghoo",
+        "description": "Plataforma para transporte escolar e excursões em grupo com rastreamento, pagamentos integrados e gestão de grupos.",
+        "url": "https://kanghoo.example/",
+        "logo": "https://kanghoo.example/imagens/logo.png",
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "contactType": "customer service",
+            "availableLanguage": "Portuguese"
+        },
+        "sameAs": [
+            "https://facebook.com/kanghoo",
+            "https://instagram.com/kanghoo",
+            "https://linkedin.com/company/kanghoo"
+        ],
+        "service": [
+            {
+                "@type": "Service",
+                "name": "Transporte Escolar",
+                "description": "Rastreamento GPS, alertas para pais e gestão completa de transporte escolar"
+            },
+            {
+                "@type": "Service", 
+                "name": "Excursões e Fretamento",
+                "description": "Organização de viagens em grupo, pagamentos integrados e gestão de assentos"
+            }
+        ]
+    }
+    </script>
 </head>
 <body>
-<header id="header" class="header">
+<!-- Skip links para acessibilidade -->
+<a href="#main-content" class="skip-link">Pular para o conteúdo principal</a>
+<a href="#main-nav" class="skip-link">Pular para a navegação</a>
+
+<header id="header" class="header" role="banner">
     <div class="container">
         <a href="index.html" class="logo-link" aria-label="Kanghoo - Página inicial">
             <img src="../imagens/logo.png" alt="Ícone Kanghoo" class="logo-icon">
             <span class="logo-text-full">Kanghoo</span>
         </a>
-        <nav class="nav" aria-label="Navegação principal">
+        <nav id="main-nav" class="nav" role="navigation" aria-label="Navegação principal">
             <a href="planos.html" class="nav-link">Planos</a>
             <a href="#contact" class="nav-link">Fale Conosco</a>
             <a href="#" class="nav-link" id="open-transport-modal">Encontrar Transporte</a>
             <a href="sobre.html" class="nav-link">Sobre Nós</a>
         </nav>
         <div class="auth-buttons">
-            <a href="../auth/login.html" class="btn btn-secondary">Login</a>
+            <a href="../auth/login.html" class="btn btn-blue">Login</a>
             <button class="btn btn-primary" id="btn-cadastro-modal" aria-haspopup="dialog">Cadastro</button>
         </div>
     </div>
@@ -49,7 +117,7 @@
         <p>Escolha a opção que melhor descreve seu serviço para começar.</p>
         <div class="modal-options">
             <a href="cadastro-escolar.html" class="btn btn-primary">Transporte Escolar</a>
-            <a href="cadastro-excursao.html" class="btn btn-secondary">Excursão e Fretamento</a>
+            <a href="cadastro-excursao.html" class="btn btn-blue">Excursão e Fretamento</a>
         </div>
         <div class="modal-footer">
             <p>Não tem certeza? <a href="#contact">Fale conosco</a></p>
@@ -64,7 +132,7 @@
         <p>Selecione a opção que melhor atende sua necessidade.</p>
         <div class="modal-options">
             <a href="encontrar-escolar.html" class="btn btn-primary">Transporte Escolar</a>
-            <a href="encontrar-excursao.html" class="btn btn-secondary">Excursões e Fretamento</a>
+            <a href="encontrar-excursao.html" class="btn btn-blue">Excursões e Fretamento</a>
         </div>
     </div>
 </div>
@@ -77,11 +145,11 @@
                 <p class="hero-subheadline">Segurança no transporte escolar, inteligência em viagens em grupo.</p>
                 <div class="hero-actions">
                     <a href="#solutions" class="btn btn-primary btn-hero">Explore Agora</a>
-                    <button class="btn btn-secondary btn-hero" id="open-transport-modal-hero">Encontrar Transporte</button>
+                    <button class="btn btn-blue btn-hero" id="open-transport-modal-hero">Encontrar Transporte</button>
                 </div>
             </div>
             <div class="hero-image-container">
-                <img src="../imagens/mulher andando na cidade.jpg" alt="Mulher com mochila andando em uma ciclovia na cidade" class="hero-image">
+                <img src="../imagens/mulher andando na cidade.jpg" alt="Mulher com mochila andando em uma ciclovia na cidade" class="hero-image" fetchpriority="high" decoding="async" width="1200" height="800">
             </div>
         </div>
     </section>
@@ -91,27 +159,27 @@
             <h2 class="section-title">Nossas Soluções</h2>
             <div class="solution-grid">
                 <div class="solution-card">
-                    <img src="../imagens/crianças.png" alt="Crianças sorrindo em transporte escolar" class="solution-card-image">
+                    <img src="../imagens/crianças.png" alt="Crianças sorrindo em transporte escolar" class="solution-card-image" loading="lazy" decoding="async">
                     <div class="solution-card-content">
                         <h3>Passeios Escolares</h3>
                         <p>Rastreamento de rotas, alertas para os pais e notificações instantâneas.</p>
-                        <a href="cadastro-escolar.html" class="btn btn-secondary btn-small">Saiba mais</a>
+                        <a href="cadastro-escolar.html" class="btn btn-blue btn-small">Saiba mais</a>
                     </div>
                 </div>
                 <div class="solution-card">
-                    <img src="../imagens/transporte-turismo-viagem-rodoviaria-e-conceito-de-pessoas-grupo-de-passageiros-felizes.png" alt="Grupo de pessoas felizes em uma excursão" class="solution-card-image">
+                    <img src="../imagens/transporte-turismo-viagem-rodoviaria-e-conceito-de-pessoas-grupo-de-passageiros-felizes.png" alt="Grupo de pessoas felizes em uma excursão" class="solution-card-image" loading="lazy" decoding="async">
                     <div class="solution-card-content">
                         <h3>Passeios Compartilhados</h3>
                         <p>Agende viagens, gerencie assentos e tenha pagamentos seguros e integrados.</p>
-                        <a href="cadastro-excursao.html" class="btn btn-secondary btn-small">Saiba mais</a>
+                        <a href="cadastro-excursao.html" class="btn btn-blue btn-small">Saiba mais</a>
                     </div>
                 </div>
                 <div class="solution-card">
-                    <img src="../imagens/transporte-executivo-de-pessoas-preco.png" alt="Pessoa utilizando um notebook para administração de transportes" class="solution-card-image">
+                    <img src="../imagens/transporte-executivo-de-pessoas-preco.png" alt="Pessoa utilizando um notebook para administração de transportes" class="solution-card-image" loading="lazy" decoding="async">
                     <div class="solution-card-content">
                         <h3>Recursos de Administração</h3>
                         <p>Gerencie usuários, acesse relatórios de dados e controle as configurações.</p>
-                        <a href="#pricing" class="btn btn-secondary btn-small">Ver planos</a>
+                        <a href="#pricing" class="btn btn-blue btn-small">Ver planos</a>
                     </div>
                 </div>
             </div>
@@ -137,7 +205,7 @@
                     </div>
                 </div>
                 <div class="event-image-display">
-                    <img id="event-main-image" src="../imagens/guns2.jpg" alt="Imagem principal do evento" loading="lazy">
+                    <img id="event-main-image" src="../imagens/guns2.jpg" alt="Imagem principal do evento" loading="lazy" decoding="async">
                 </div>
             </div>
         </div>
@@ -240,37 +308,49 @@
     <section class="contact-section animated-section" id="contact">
         <div class="container">
             <h2 class="section-title">Fale Conosco</h2>
-            <form action="#" class="contact-form" id="contact-form">
-                <input type="text" placeholder="Nome completo" required aria-label="Nome completo">
-                <input type="email" placeholder="E-mail" required aria-label="E-mail">
-                <input type="tel" placeholder="Telefone" aria-label="Telefone">
-                <select aria-label="Tipo de consulta">
+            <form action="/api/contact" method="post" class="contact-form" id="contact-form" novalidate>
+                <input type="text" name="nome" placeholder="Nome completo" required aria-label="Nome completo" aria-describedby="nome-error">
+                <div id="nome-error" class="error-message" aria-live="polite"></div>
+                
+                <input type="email" name="email" placeholder="E-mail" required aria-label="E-mail" aria-describedby="email-error">
+                <div id="email-error" class="error-message" aria-live="polite"></div>
+                
+                <input type="tel" name="telefone" placeholder="Telefone" aria-label="Telefone" aria-describedby="telefone-error">
+                <div id="telefone-error" class="error-message" aria-live="polite"></div>
+                
+                <select name="assunto" aria-label="Tipo de consulta" aria-describedby="assunto-error">
                     <option value="">Selecione o assunto</option>
                     <option value="suporte">Suporte Técnico</option>
                     <option value="vendas">Informações de Vendas</option>
                     <option value="parceria">Proposta de Parceria</option>
                     <option value="outro">Outro</option>
                 </select>
-                <textarea placeholder="Sua mensagem" required aria-label="Sua mensagem"></textarea>
+                <div id="assunto-error" class="error-message" aria-live="polite"></div>
+                
+                <textarea name="mensagem" placeholder="Sua mensagem" required aria-label="Sua mensagem" aria-describedby="mensagem-error"></textarea>
+                <div id="mensagem-error" class="error-message" aria-live="polite"></div>
+                
+                <input type="text" name="website" aria-hidden="true" hidden>
                 <button type="submit" class="btn btn-primary">
                     Enviar
                     <span class="loading-spinner" aria-hidden="true"></span>
                 </button>
+                <div id="contact-feedback" aria-live="polite"></div>
             </form>
         </div>
     </section>
 </main>
 
-<footer id="fim" class="footer">
+<footer id="fim" class="footer" role="contentinfo">
     <div class="container">
         <div class="footer-grid">
             <div class="footer-brand">
                 <a href="index.html" class="logo">Kanghoo</a>
                 <p class="footer-tagline">Soluções de viagem sem esforço.</p>
                 <div class="footer-social-media">
-                    <a href="#" aria-label="Facebook"><img src="../imagens/face.png" alt="Facebook"></a>
-                    <a href="#" aria-label="Instagram"><img src="../imagens/insta.png" alt="Instagram"></a>
-                    <a href="#" aria-label="LinkedIn"><img src="../imagens/linkedin.png" alt="LinkedIn"></a>
+                    <a href="#" aria-label="Facebook"><img src="../imagens/face.png" alt="Facebook" loading="lazy" decoding="async"></a>
+                    <a href="#" aria-label="Instagram"><img src="../imagens/insta.png" alt="Instagram" loading="lazy" decoding="async"></a>
+                    <a href="#" aria-label="LinkedIn"><img src="../imagens/linkedin.png" alt="LinkedIn" loading="lazy" decoding="async"></a>
                 </div>
             </div>
             <div class="footer-links-group">
@@ -308,5 +388,6 @@
 </footer>
 
 <script src="../js/app.js"></script>
+<script src="../js/animacoes-index.js"></script>
 </body>
 </html>

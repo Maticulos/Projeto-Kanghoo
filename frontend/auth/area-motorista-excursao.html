@@ -27,9 +27,8 @@
         </nav>
         
         <div class="auth-buttons">
-            <!-- Estando na pasta auth, o link para login é direto -->
-            <a href="login.html" class="btn btn-secondary">Login</a>
-            <button class="btn btn-primary" id="btn-cadastro-modal" aria-haspopup="dialog">Cadastro</button>
+            <!-- Botão de logout para usuário logado -->
+            <button id="logout-button" class="btn btn-logout">Sair (Logout)</button>
         </div>
     </div>
 </header>
@@ -89,7 +88,7 @@
             </div>
             
             <div class="form-actions">
-                <button type="button" class="btn btn-secondary" id="solicitar-edicao">
+                <button type="button" class="btn btn-blue" id="solicitar-edicao">
                     Solicitar Edição
                 </button>
                 <button type="button" class="btn btn-primary" id="exportar-dados">
@@ -212,5 +211,62 @@
         </div>
     </div>
 </footer>
+
+<script>
+    // Verificar se o usuário está logado
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        window.location.href = 'login.html';
+    }
+
+    // Funcionalidade do botão de logout
+    document.getElementById('logout-button').addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        // Confirmar logout
+        if (confirm('Tem certeza que deseja sair?')) {
+            // Remover token do localStorage
+            localStorage.removeItem('authToken');
+            
+            // Redirecionar para a página de login
+            window.location.href = 'login.html';
+        }
+    });
+
+    // Carregar dados do usuário
+    async function loadUserData() {
+        try {
+            const response = await fetch('/api/motorista/profile', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                
+                // Preencher campos com dados do usuário
+                document.getElementById('nome-completo').value = data.nome || '';
+                document.getElementById('profissao').value = data.profissao || '';
+                document.getElementById('telefone').value = data.telefone || '';
+                document.getElementById('email').value = data.email || '';
+                document.getElementById('endereco').value = data.endereco || '';
+                document.getElementById('cpf').value = data.cpf || '';
+            } else {
+                console.error('Erro ao carregar dados do usuário');
+                if (response.status === 401) {
+                    localStorage.removeItem('authToken');
+                    window.location.href = 'login.html';
+                }
+            }
+        } catch (error) {
+            console.error('Erro na requisição:', error);
+        }
+    }
+
+    // Carregar dados quando a página carregar
+    document.addEventListener('DOMContentLoaded', loadUserData);
+</script>
+
 </body>
 </html>

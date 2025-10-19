@@ -28,6 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
         initModals();
         initProgressBar();
         initBillingToggle();
+        initImageErrorHandling();
         console.log('Kanghoo App inicializado com sucesso');
     }
 
@@ -94,18 +95,79 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+
+    // Tratamento de erro para imagens
+    function initImageErrorHandling() {
+        const images = document.querySelectorAll('img');
+        images.forEach(img => {
+            img.addEventListener('error', function() {
+                // Fallback para imagem quebrada
+                this.style.display = 'none';
+                
+                // Criar elemento de fallback se não existir
+                if (!this.nextElementSibling || !this.nextElementSibling.classList.contains('image-fallback')) {
+                    const fallback = document.createElement('div');
+                    fallback.className = 'image-fallback';
+                    const span = document.createElement('span');
+                    span.textContent = 'Imagem não disponível';
+                    fallback.appendChild(span);
+                    fallback.style.cssText = `
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        background: #f3f4f6;
+                        color: #6b7280;
+                        min-height: 200px;
+                        border-radius: 8px;
+                        font-size: 14px;
+                    `;
+                    this.parentNode.insertBefore(fallback, this.nextSibling);
+                }
+            });
+        });
+    }
     
     function initModals() {
+        let lastFocused = null;
+        const focusableSelector = 'a[href], button, input, textarea, select, [tabindex]:not([tabindex="-1"])';
+        const trapFocus = (modal) => {
+            const focusables = Array.from(modal.querySelectorAll(focusableSelector)).filter(el => !el.hasAttribute('disabled'));
+            const firstEl = focusables[0];
+            const lastEl = focusables[focusables.length - 1];
+            const handleKeyDown = (e) => {
+                if (e.key === 'Tab') {
+                    if (e.shiftKey && document.activeElement === firstEl) {
+                        e.preventDefault();
+                        lastEl?.focus();
+                    } else if (!e.shiftKey && document.activeElement === lastEl) {
+                        e.preventDefault();
+                        firstEl?.focus();
+                    }
+                } else if (e.key === 'Escape') {
+                    closeModal(modal);
+                }
+            };
+            modal.addEventListener('keydown', handleKeyDown);
+            modal.__cleanupTrap = () => modal.removeEventListener('keydown', handleKeyDown);
+            firstEl?.focus();
+        };
+
         const openModal = (modal) => {
             if (modal) {
+                lastFocused = document.activeElement;
                 modal.classList.remove('hidden');
                 document.body.classList.add('modal-open');
+                trapFocus(modal);
             }
         };
         const closeModal = (modal) => {
             if (modal) {
                 modal.classList.add('hidden');
                 document.body.classList.remove('modal-open');
+                modal.__cleanupTrap?.();
+                if (lastFocused && typeof lastFocused.focus === 'function') {
+                    lastFocused.focus();
+                }
             }
         };
 
@@ -164,7 +226,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const currencyBRL = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
+        const setActiveButton = (mode) => {
+            buttons.forEach(b => b.classList.toggle('active', b.dataset.billing === mode));
+        };
+
         const updateMode = (mode) => {
+            setActiveButton(mode);
+            localStorage.setItem('billingMode', mode);
             cards.forEach(card => {
                 const plan = card.getAttribute('data-plan') || card.querySelector('[data-plan]')?.getAttribute('data-plan');
                 if (!plan || !prices[plan]) return;
@@ -196,16 +264,181 @@ document.addEventListener('DOMContentLoaded', function() {
 
         buttons.forEach(btn => {
             btn.addEventListener('click', () => {
-                buttons.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
                 const mode = btn.dataset.billing === 'annual' ? 'annual' : 'monthly';
                 updateMode(mode);
             });
         });
 
-        // Inicializa como mensal
-        updateMode('monthly');
+        // Inicializa com prioridade: query param > localStorage > monthly
+        const urlParams = new URLSearchParams(window.location.search);
+        const paramMode = urlParams.get('billing');
+        const storedMode = localStorage.getItem('billingMode');
+        const initialMode = (paramMode === 'annual' || paramMode === 'monthly') ? paramMode : (storedMode || 'monthly');
+        updateMode(initialMode);
+    }
+
+    // Validação client-side aprimorada
+    function initFormValidation() {
+        const form = document.getElementById('contact-form');
+        if (!form) return;
+
+        const validators = {
+            nome: (value) => {
+                if (!value.trim()) return 'Nome é obrigatório';
+                if (value.trim().length < 2) return 'Nome deve ter pelo menos 2 caracteres';
+                if (!/^[a-zA-ZÀ-ÿ\s]+$/.test(value)) return 'Nome deve conter apenas letras';
+                return null;
+            },
+            email: (value) => {
+                if (!value.trim()) return 'E-mail é obrigatório';
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(value)) return 'E-mail inválido';
+                return null;
+            },
+            telefone: (value) => {
+                if (value && !/^[\d\s\(\)\-\+]+$/.test(value)) return 'Telefone inválido';
+                return null;
+            },
+            mensagem: (value) => {
+                if (!value.trim()) return 'Mensagem é obrigatória';
+                if (value.trim().length < 10) return 'Mensagem deve ter pelo menos 10 caracteres';
+                return null;
+            }
+        };
+
+        const showError = (fieldName, message) => {
+            const errorEl = document.getElementById(`${fieldName}-error`);
+            const field = document.querySelector(`[name="${fieldName}"]`);
+            if (errorEl && field) {
+                errorEl.textContent = message;
+                errorEl.classList.add('show');
+                field.parentElement.classList.add('error');
+            }
+        };
+
+        const clearError = (fieldName) => {
+            const errorEl = document.getElementById(`${fieldName}-error`);
+            const field = document.querySelector(`[name="${fieldName}"]`);
+            if (errorEl && field) {
+                errorEl.textContent = '';
+                errorEl.classList.remove('show');
+                field.parentElement.classList.remove('error');
+            }
+        };
+
+        const validateField = (fieldName, value) => {
+            const validator = validators[fieldName];
+            if (!validator) return true;
+            
+            const error = validator(value);
+            if (error) {
+                showError(fieldName, error);
+                return false;
+            } else {
+                clearError(fieldName);
+                return true;
+            }
+        };
+
+        // Validação em tempo real
+        Object.keys(validators).forEach(fieldName => {
+            const field = document.querySelector(`[name="${fieldName}"]`);
+            if (field) {
+                field.addEventListener('blur', () => {
+                    validateField(fieldName, field.value);
+                });
+                field.addEventListener('input', () => {
+                    if (field.parentElement.classList.contains('error')) {
+                        validateField(fieldName, field.value);
+                    }
+                });
+            }
+        });
+
+        return { validateField, clearError };
+    }
+
+    // Interceptar envio do formulário de contato para integração com API
+    function initContactForm() {
+        const form = document.getElementById('contact-form');
+        if (!form) return;
+        
+        const { validateField, clearError } = initFormValidation();
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const feedback = document.getElementById('contact-feedback');
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Limpar erros anteriores
+            ['nome', 'email', 'telefone', 'mensagem'].forEach(clearError);
+            
+            const formData = new FormData(form);
+            const payload = {
+                nome: formData.get('nome')?.toString().trim() || '',
+                email: formData.get('email')?.toString().trim() || '',
+                telefone: formData.get('telefone')?.toString().trim() || '',
+                mensagem: formData.get('mensagem')?.toString().trim() || '',
+                website: formData.get('website')?.toString().trim() || '' // honeypot
+            };
+
+            // Validar todos os campos
+            let isValid = true;
+            Object.keys(payload).forEach(fieldName => {
+                if (fieldName !== 'website') {
+                    if (!validateField(fieldName, payload[fieldName])) {
+                        isValid = false;
+                    }
+                }
+            });
+
+            if (!isValid) {
+                if (feedback) {
+                    feedback.textContent = 'Por favor, corrija os erros acima.';
+                    feedback.style.color = 'var(--cor-erro)';
+                }
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.classList.add('loading');
+            if (feedback) { 
+                feedback.textContent = 'Enviando...';
+                feedback.style.color = 'var(--cor-texto-geral)';
+            }
+            
+            try {
+                const res = await fetch('/api/contact', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    if (feedback) { 
+                        feedback.textContent = 'Mensagem enviada com sucesso!';
+                        feedback.style.color = 'var(--cor-sucesso)';
+                    }
+                    form.reset();
+                } else {
+                    const msg = data?.message || 'Erro ao enviar sua mensagem.';
+                    if (feedback) { 
+                        feedback.textContent = msg;
+                        feedback.style.color = 'var(--cor-erro)';
+                    }
+                }
+            } catch (err) {
+                if (feedback) { 
+                    feedback.textContent = 'Falha de rede. Tente novamente.';
+                    feedback.style.color = 'var(--cor-erro)';
+                }
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('loading');
+            }
+        });
     }
 
     init();
+    initContactForm();
 });

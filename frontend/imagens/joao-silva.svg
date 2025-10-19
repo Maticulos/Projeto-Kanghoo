@@ -1,0 +1,36 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1e40af;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="100" fill="url(#bg1)"/>
+  
+  <!-- Face -->
+  <circle cx="100" cy="85" r="35" fill="#fbbf24" opacity="0.9"/>
+  
+  <!-- Hair -->
+  <path d="M 65 60 Q 100 45 135 60 Q 135 75 100 75 Q 65 75 65 60" fill="#4b5563"/>
+  
+  <!-- Eyes -->
+  <circle cx="88" cy="80" r="3" fill="#1f2937"/>
+  <circle cx="112" cy="80" r="3" fill="#1f2937"/>
+  
+  <!-- Nose -->
+  <ellipse cx="100" cy="90" rx="2" ry="4" fill="#f59e0b" opacity="0.7"/>
+  
+  <!-- Mouth -->
+  <path d="M 92 100 Q 100 108 108 100" stroke="#1f2937" stroke-width="2" fill="none"/>
+  
+  <!-- Body/Shirt -->
+  <rect x="70" y="130" width="60" height="70" rx="10" fill="#1e40af"/>
+  
+  <!-- Tie -->
+  <polygon points="95,130 105,130 108,160 92,160" fill="#fbbf24"/>
+  
+  <!-- Initials as backup -->
+  <text x="100" y="180" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="white">JS</text>
+</svg>

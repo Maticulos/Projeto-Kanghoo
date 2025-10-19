@@ -5,28 +5,49 @@
 
 // Função para aplicar máscara genérica
 function aplicarMascara(input, mascara) {
-    if (!input) return;
+    if (!input) {
+        console.log("ERRO: Input não encontrado para máscara:", mascara);
+        return;
+    }
     
-    input.addEventListener('input', function(e) {
-        // Evitar loop infinito
-        if (e.inputType === 'insertText' || e.inputType === 'deleteContentBackward' || !e.inputType) {
-            const valorAtual = e.target.value;
-            let valor = valorAtual.replace(/\D/g, '');
-            let valorMascarado = '';
-            let indice = 0;
-            
-            for (let i = 0; i < mascara.length && indice < valor.length; i++) {
-                if (mascara[i] === '#') {
-                    valorMascarado += valor[indice++];
-                } else {
-                    valorMascarado += mascara[i];
-                }
-            }
-            
-            if (valorAtual !== valorMascarado) {
-                e.target.value = valorMascarado;
+    console.log("Aplicando máscara", mascara, "para input:", input.id || input.name || "sem id");
+    
+    // Função para aplicar a máscara
+    function formatarValor(valor) {
+        // Remove todos os caracteres não numéricos
+        let apenasNumeros = valor.replace(/\D/g, '');
+        let valorMascarado = '';
+        let indice = 0;
+        
+        // Aplica a máscara
+        for (let i = 0; i < mascara.length && indice < apenasNumeros.length; i++) {
+            if (mascara[i] === '#') {
+                valorMascarado += apenasNumeros[indice++];
+            } else {
+                valorMascarado += mascara[i];
             }
         }
+        
+        return valorMascarado;
+    }
+    
+    // Evento de input
+    input.addEventListener('input', function(e) {
+        const valorAtual = e.target.value;
+        const valorFormatado = formatarValor(valorAtual);
+        
+        if (valorAtual !== valorFormatado) {
+            e.target.value = valorFormatado;
+        }
+    });
+    
+    // Evento de paste
+    input.addEventListener('paste', function(e) {
+        setTimeout(() => {
+            const valorAtual = e.target.value;
+            const valorFormatado = formatarValor(valorAtual);
+            e.target.value = valorFormatado;
+        }, 10);
     });
     
     return input;
@@ -59,10 +80,73 @@ function mascaraCEP(input) {
     aplicarMascara(input, '#####-###');
 }
 
+// Função para aplicar máscara de CPF
+function mascaraCPF(input) {
+    if (!input) return;
+    aplicarMascara(input, '###.###.###-##');
+}
+
 // Função para aplicar máscara de CNPJ
 function mascaraCNPJ(input) {
     if (!input) return;
     aplicarMascara(input, '##.###.###/####-##');
+}
+
+// Máscara para nomes (apenas letras, espaços e acentos)
+function mascaraNome(input) {
+    if (!input) return;
+    
+    input.addEventListener('input', function(e) {
+        let valor = e.target.value;
+        
+        // Remove números e caracteres especiais, mantém apenas letras, espaços e acentos
+        valor = valor.replace(/[^a-zA-ZÀ-ÿ\s]/g, '');
+        
+        // Remove espaços múltiplos
+        valor = valor.replace(/\s+/g, ' ');
+        
+        // Capitaliza primeira letra de cada palavra
+        valor = valor.replace(/\b\w/g, l => l.toUpperCase());
+        
+        if (e.target.value !== valor) {
+            e.target.value = valor;
+        }
+    });
+}
+
+// Máscara para números (apenas dígitos)
+function mascaraNumero(input) {
+    if (!input) return;
+    
+    input.addEventListener('input', function(e) {
+        let valor = e.target.value.replace(/\D/g, '');
+        
+        if (e.target.value !== valor) {
+            e.target.value = valor;
+        }
+    });
+}
+
+// Máscara para cor do veículo (apenas letras e espaços)
+function mascaraCor(input) {
+    if (!input) return;
+    
+    input.addEventListener('input', function(e) {
+        let valor = e.target.value;
+        
+        // Remove números e caracteres especiais, mantém apenas letras, espaços e acentos
+        valor = valor.replace(/[^a-zA-ZÀ-ÿ\s]/g, '');
+        
+        // Remove espaços múltiplos
+        valor = valor.replace(/\s+/g, ' ');
+        
+        // Capitaliza primeira letra de cada palavra
+        valor = valor.replace(/\b\w/g, l => l.toUpperCase());
+        
+        if (e.target.value !== valor) {
+            e.target.value = valor;
+        }
+    });
 }
 
 // Função para aplicar máscara de placa de veículo (formato novo Mercosul)
@@ -151,6 +235,53 @@ function mascaraApolice(input) {
         if (valor.length > 20) {
             valor = valor.slice(0, 20);
         }
+        
+        if (e.target.value !== valor) {
+            e.target.value = valor;
+        }
+    });
+}
+
+// Função para aplicar máscara de email
+function mascaraEmail(input) {
+    if (!input) return;
+    
+    input.addEventListener('input', function(e) {
+        let valor = e.target.value;
+        
+        // Remove caracteres inválidos para email (mantém apenas letras, números, @, ., -, _)
+        valor = valor.replace(/[^a-zA-Z0-9@._-]/g, '');
+        
+        // Converte para minúsculas
+        valor = valor.toLowerCase();
+        
+        // Evita múltiplos @ consecutivos
+        valor = valor.replace(/@+/g, '@');
+        
+        // Evita múltiplos pontos consecutivos
+        valor = valor.replace(/\.+/g, '.');
+        
+        if (e.target.value !== valor) {
+            e.target.value = valor;
+        }
+    });
+}
+
+// Função para aplicar máscara de complemento (endereço)
+function mascaraComplemento(input) {
+    if (!input) return;
+    
+    input.addEventListener('input', function(e) {
+        let valor = e.target.value;
+        
+        // Remove caracteres especiais perigosos, mantém letras, números, espaços e alguns símbolos comuns
+        valor = valor.replace(/[^a-zA-ZÀ-ÿ0-9\s.,\-\/°ºª]/g, '');
+        
+        // Remove espaços múltiplos
+        valor = valor.replace(/\s+/g, ' ');
+        
+        // Capitaliza primeira letra de cada palavra
+        valor = valor.replace(/\b\w/g, l => l.toUpperCase());
         
         if (e.target.value !== valor) {
             e.target.value = valor;
@@ -256,12 +387,18 @@ function mascaraData(input) {
 // Função para inicializar todas as máscaras
 function inicializarMascaras() {
     try {
-        console.log("Inicializando máscaras de entrada...");
+        console.log("=== INICIANDO MÁSCARAS ===");
+        console.log("DOM carregado:", document.readyState);
+        
+        // Verificar se existem campos na página
+        const todosCampos = document.querySelectorAll('input[type="text"], input[type="tel"], input[type="email"]');
+        console.log("Total de campos encontrados:", todosCampos.length);
         
         // Aplicar máscaras para campos de telefone
         const camposTelefone = document.querySelectorAll('#celular, #telefone, #telefoneEmergencia, #telefoneEmpresa');
+        console.log("Campos de telefone encontrados:", camposTelefone.length);
         camposTelefone.forEach(campo => {
-            console.log("Aplicando máscara de telefone para:", campo.id);
+            console.log("Aplicando máscara de telefone para:", campo.id, campo);
             mascaraTelefone(campo);
         });
         
@@ -307,8 +444,50 @@ function inicializarMascaras() {
             mascaraApolice(campoApolice);
         }
         
+        // Aplicar máscara para campo de CPF
+        const campoCPF = document.querySelector('#cpf');
+        if (campoCPF) {
+            console.log("Aplicando máscara de CPF");
+            mascaraCPF(campoCPF);
+        }
+        
+        // Aplicar máscara para campos de email
+        const camposEmail = document.querySelectorAll('#email, input[type="email"]');
+        camposEmail.forEach(campo => {
+            console.log("Aplicando máscara de email para:", campo.id);
+            mascaraEmail(campo);
+        });
+        
+        // Aplicar máscara para campos de complemento
+        const camposComplemento = document.querySelectorAll('#complemento, #complementoEmpresa');
+        camposComplemento.forEach(campo => {
+            console.log("Aplicando máscara de complemento para:", campo.id);
+            mascaraComplemento(campo);
+        });
+        
+        // Aplicar máscaras para campos de nome
+        const camposNome = document.querySelectorAll('#nome, #nomeMotorista, #nomeEmpresa, #nomeResponsavel, #nomeCompleto, #nomeEmergencia, #rua, #bairro, #ruaEmpresa, #bairroEmpresa, #nomeSeguradora, #razaoSocial, #nomeFantasia');
+        camposNome.forEach(campo => {
+            console.log("Aplicando máscara de nome para:", campo.id);
+            mascaraNome(campo);
+        });
+        
+        // Aplicar máscaras para campos numéricos
+        const camposNumero = document.querySelectorAll('#numero, #numeroEmpresa, #anoFabricacao, #anoModelo, #capacidadePassageiros, #lotacaoMaxima');
+        camposNumero.forEach(campo => {
+            console.log("Aplicando máscara de número para:", campo.id);
+            mascaraNumero(campo);
+        });
+        
+        // Aplicar máscara para campo de cor
+        const camposCor = document.querySelectorAll('#cor, #corVeiculo');
+        camposCor.forEach(campo => {
+            console.log("Aplicando máscara de cor para:", campo.id);
+            mascaraCor(campo);
+        });
+        
         // Aplicar máscaras para campos de data
-        const camposData = document.querySelectorAll('input[type="date"], #dataNascimento, #validadeApolice, #validadeCNH');
+        const camposData = document.querySelectorAll('input[type="date"], #dataNascimento, #validadeApolice, #validadeCNH, #validadeSeguro');
         camposData.forEach(campo => {
             // Alterar o tipo para text para permitir a aplicação da máscara
             campo.type = 'text';
@@ -325,7 +504,24 @@ function inicializarMascaras() {
             { selector: '#numeroEmpresa', maxLength: 10 },
             { selector: '#placa', maxLength: 7 },
             { selector: '#renavam', maxLength: 11 },
-            { selector: '#cnhMotorista', maxLength: 11 }
+            { selector: '#cnhMotorista', maxLength: 11 },
+            { selector: '#numeroApolice', maxLength: 20 },
+            { selector: '#anoFabricacao', maxLength: 4 },
+            { selector: '#anoModelo', maxLength: 4 },
+            { selector: '#lotacaoMaxima', maxLength: 3 },
+            { selector: '#nomeCompleto', maxLength: 100 },
+            { selector: '#nomeEmergencia', maxLength: 100 },
+            { selector: '#nomeSeguradora', maxLength: 100 },
+            { selector: '#razaoSocial', maxLength: 100 },
+            { selector: '#nomeFantasia', maxLength: 100 },
+            { selector: '#rua', maxLength: 100 },
+            { selector: '#bairro', maxLength: 50 },
+            { selector: '#ruaEmpresa', maxLength: 100 },
+            { selector: '#bairroEmpresa', maxLength: 50 },
+            { selector: '#complemento', maxLength: 50 },
+            { selector: '#complementoEmpresa', maxLength: 50 },
+            { selector: '#corVeiculo', maxLength: 30 },
+            { selector: '#email', maxLength: 100 }
         ];
         
         camposLimitados.forEach(campo => {
@@ -343,4 +539,14 @@ function inicializarMascaras() {
 }
 
 // Inicializar as máscaras quando o DOM estiver carregado
-document.addEventListener('DOMContentLoaded', inicializarMascaras);
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("DOMContentLoaded disparado");
+    // Aguardar um pouco para garantir que todos os elementos estejam prontos
+    setTimeout(inicializarMascaras, 100);
+});
+
+// Também tentar inicializar quando a página estiver completamente carregada
+window.addEventListener('load', function() {
+    console.log("Window load disparado");
+    setTimeout(inicializarMascaras, 100);
+});
