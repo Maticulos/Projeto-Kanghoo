@@ -1,0 +1,132 @@
+# ========================================
+# DOCKERIGNORE - SISTEMA DE TRANSPORTE ESCOLAR
+# ========================================
+# Arquivos e diretórios a serem ignorados durante o build
+
+# ========================================
+# NODE.JS
+# ========================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn-integrity
+
+# ========================================
+# LOGS
+# ========================================
+logs/
+*.log
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# ========================================
+# ARQUIVOS DE AMBIENTE
+# ========================================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ========================================
+# CONTROLE DE VERSÃO
+# ========================================
+.git/
+.gitignore
+.gitattributes
+.github/
+
+# ========================================
+# DOCKER
+# ========================================
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# ========================================
+# DOCUMENTAÇÃO
+# ========================================
+README.md
+DEVELOPER_GUIDE.md
+docs/
+*.md
+
+# ========================================
+# TESTES
+# ========================================
+test/
+tests/
+__tests__/
+*.test.js
+*.spec.js
+coverage/
+.nyc_output/
+
+# ========================================
+# FERRAMENTAS DE DESENVOLVIMENTO
+# ========================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ========================================
+# ARQUIVOS TEMPORÁRIOS
+# ========================================
+tmp/
+temp/
+.tmp/
+.cache/
+
+# ========================================
+# UPLOADS E DADOS LOCAIS
+# ========================================
+uploads/
+data/
+backups/
+
+# ========================================
+# CONFIGURAÇÕES DE EDITOR
+# ========================================
+.editorconfig
+.eslintrc*
+.prettierrc*
+.stylelintrc*
+
+# ========================================
+# ARQUIVOS DE SISTEMA
+# ========================================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ========================================
+# CERTIFICADOS E CHAVES
+# ========================================
+*.pem
+*.key
+*.crt
+ssl/
+
+# ========================================
+# MONITORAMENTO
+# ========================================
+monitoring/
+
+# ========================================
+# SCRIPTS DE DESENVOLVIMENTO
+# ========================================
+scripts/dev/
+scripts/test/
+
+# ========================================
+# ARQUIVOS DE EXEMPLO
+# ========================================
+*.example
+*.sample
+exemplo-*

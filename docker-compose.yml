@@ -1,0 +1,187 @@
+# ========================================
+# DOCKER COMPOSE - SISTEMA DE TRANSPORTE ESCOLAR
+# ========================================
+# Orquestração completa dos serviços da aplicação
+
+version: '3.8'
+
+services:
+  # ========================================
+  # APLICAÇÃO PRINCIPAL
+  # ========================================
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: transporte-escolar-app
+    ports:
+      - "${PORT:-5000}:5000"
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - PORT=5000
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=${DB_NAME:-transporte_escolar}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - RATE_LIMIT_WINDOW_MS=${RATE_LIMIT_WINDOW_MS:-900000}
+      - RATE_LIMIT_MAX_REQUESTS=${RATE_LIMIT_MAX_REQUESTS:-100}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+    networks:
+      - transporte-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ========================================
+  # BANCO DE DADOS POSTGRESQL
+  # ========================================
+  postgres:
+    image: postgres:14-alpine
+    container_name: transporte-escolar-db
+    environment:
+      POSTGRES_DB: ${DB_NAME:-transporte_escolar}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=pt_BR.UTF-8 --lc-ctype=pt_BR.UTF-8"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    networks:
+      - transporte-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-transporte_escolar}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ========================================
+  # REDIS PARA CACHE E SESSÕES
+  # ========================================
+  redis:
+    image: redis:7-alpine
+    container_name: transporte-escolar-redis
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis123}
+    volumes:
+      - redis_data:/data
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    networks:
+      - transporte-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # ========================================
+  # NGINX REVERSE PROXY
+  # ========================================
+  nginx:
+    image: nginx:alpine
+    container_name: transporte-escolar-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./logs/nginx:/var/log/nginx
+    depends_on:
+      - app
+    networks:
+      - transporte-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ========================================
+  # MONITORAMENTO COM PROMETHEUS
+  # ========================================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: transporte-escolar-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - transporte-network
+    restart: unless-stopped
+    profiles:
+      - monitoring
+
+  # ========================================
+  # GRAFANA PARA DASHBOARDS
+  # ========================================
+  grafana:
+    image: grafana/grafana:latest
+    container_name: transporte-escolar-grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin123}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    depends_on:
+      - prometheus
+    networks:
+      - transporte-network
+    restart: unless-stopped
+    profiles:
+      - monitoring
+
+# ========================================
+# VOLUMES PERSISTENTES
+# ========================================
+volumes:
+  postgres_data:
+    driver: local
+    name: transporte_postgres_data
+  redis_data:
+    driver: local
+    name: transporte_redis_data
+  prometheus_data:
+    driver: local
+    name: transporte_prometheus_data
+  grafana_data:
+    driver: local
+    name: transporte_grafana_data
+
+# ========================================
+# REDE PERSONALIZADA
+# ========================================
+networks:
+  transporte-network:
+    driver: bridge
+    name: transporte-escolar-network
