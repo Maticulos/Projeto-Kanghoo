@@ -3,3 +3,40 @@
 
 # Arquivos de ambiente
 .env
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Relatórios de teste
+*-test-report-*.json
+verification-report-*.json
+complete-test-report-*.json
+
+# Arquivos temporários
+*.tmp
+*.temp
+.tmp/
+.temp/
+
+# Arquivos de debug
+debug-*.js
+test-*.js
+check-*.js
+fix-*.js
+
+# Cache
+.cache/
+.npm/
+.eslintcache
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+
+# Arquivos de backup
+*.bak
+*.backup

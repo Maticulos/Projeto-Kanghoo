@@ -1,7 +1,7 @@
 const Router = require('koa-router');
-const pool = require('../config/database');
+const db = require('../config/db');
 
-const router = new Router();
+const router = new Router({ prefix: '/api/transportes' });
 
 /**
  * Busca unificada de transportes (escolar e excursão)
@@ -33,7 +33,7 @@ router.get('/buscar', async (ctx) => {
         let query = `
             SELECT DISTINCT
                 u.id,
-                u.nome,
+                u.nome_completo as nome,
                 u.email,
                 u.celular,
                 u.tipo_usuario,
@@ -77,6 +77,13 @@ router.get('/buscar', async (ctx) => {
                 pe.vagas_disponiveis as vagas_excursao,
                 pe.data_inicio,
                 pe.data_fim
+            `;
+        }
+
+        // Para tipo 'todos', adicionar colunas de preço para ORDER BY
+        if (tipo === 'todos') {
+            query += `,
+                COALESCE(re.preco_mensal, pe.preco_por_pessoa) as preco_ordenacao
             `;
         }
 
@@ -233,21 +240,21 @@ router.get('/buscar', async (ctx) => {
             case 'preco-menor':
                 orderBy = tipo === 'escolar' ? 're.preco_mensal ASC' : 
                          tipo === 'excursao' ? 'pe.preco_por_pessoa ASC' : 
-                         'COALESCE(re.preco_mensal, pe.preco_por_pessoa) ASC';
+                         'preco_ordenacao ASC';
                 break;
             case 'preco-maior':
                 orderBy = tipo === 'escolar' ? 're.preco_mensal DESC' : 
                          tipo === 'excursao' ? 'pe.preco_por_pessoa DESC' : 
-                         'COALESCE(re.preco_mensal, pe.preco_por_pessoa) DESC';
+                         'preco_ordenacao DESC';
                 break;
             case 'avaliacao':
-                orderBy = 'avg_aval.media_avaliacao DESC NULLS LAST';
+                orderBy = 'avaliacao DESC NULLS LAST';
                 break;
             case 'distancia':
                 orderBy = 'u.id ASC'; // Placeholder - implementar cálculo de distância real
                 break;
             default:
-                orderBy = 'avg_aval.media_avaliacao DESC NULLS LAST, u.id ASC';
+                orderBy = 'avaliacao DESC NULLS LAST, u.id ASC';
         }
 
         query += ` ORDER BY ${orderBy}`;
@@ -260,7 +267,7 @@ router.get('/buscar', async (ctx) => {
         console.log('Query SQL:', query);
         console.log('Parâmetros:', params);
 
-        const result = await pool.query(query, params);
+        const result = await db.query(query, params);
 
         // Query para contar total de resultados
         let countQuery = `
@@ -282,7 +289,7 @@ router.get('/buscar', async (ctx) => {
             countQuery += ` WHERE ${conditions.join(' AND ')}`;
         }
 
-        const countResult = await pool.query(countQuery, params.slice(0, -2)); // Remove LIMIT e OFFSET
+        const countResult = await db.query(countQuery, params.slice(0, -2)); // Remove LIMIT e OFFSET
         const total = parseInt(countResult.rows[0].total);
 
         // Formatar resultados
@@ -396,7 +403,7 @@ router.get('/:id', async (ctx) => {
             WHERE u.id = $1
         `;
 
-        const result = await pool.query(query, [id]);
+        const result = await db.query(query, [id]);
 
         if (result.rows.length === 0) {
             ctx.status = 404;
@@ -428,7 +435,7 @@ router.get('/:id', async (ctx) => {
                 GROUP BY re.id
                 ORDER BY re.nome_rota
             `;
-            const rotasResult = await pool.query(rotasQuery, [id]);
+            const rotasResult = await db.query(rotasQuery, [id]);
             rotas = rotasResult.rows;
         }
 
@@ -440,7 +447,7 @@ router.get('/:id', async (ctx) => {
                 WHERE usuario_id = $1 AND ativo = true
                 ORDER BY nome_pacote
             `;
-            const pacotesResult = await pool.query(pacotesQuery, [id]);
+            const pacotesResult = await db.query(pacotesQuery, [id]);
             pacotes = pacotesResult.rows;
         }
 
@@ -450,7 +457,7 @@ router.get('/:id', async (ctx) => {
                 a.*,
                 CASE 
                     WHEN a.anonimo = true THEN 'Usuário Anônimo'
-                    ELSE u.nome
+                    ELSE u.nome_completo
                 END as nome_avaliador
             FROM avaliacoes a
             LEFT JOIN usuarios u ON a.avaliador_id = u.id
@@ -458,7 +465,7 @@ router.get('/:id', async (ctx) => {
             ORDER BY a.created_at DESC
             LIMIT 10
         `;
-        const avaliacoesResult = await pool.query(avaliacoesQuery, [id]);
+        const avaliacoesResult = await db.query(avaliacoesQuery, [id]);
 
         ctx.body = {
             success: true,
@@ -549,7 +556,7 @@ router.post('/cotacao', async (ctx) => {
             RETURNING id
         `;
 
-        const result = await pool.query(query, [
+        const result = await db.query(query, [
             ctx.state.user?.id || null, // Se houver autenticação
             prestadorId,
             tipoServico,

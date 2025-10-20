@@ -26,7 +26,7 @@
 const Koa = require('koa');                    // Framework principal
 const KoaRouter = require('koa-router');       // Sistema de rotas
 const json = require('koa-json');              // Formatação de JSON
-const koaBody = require('koa-bodyparser');     // Parser do corpo das requisições
+const bodyParser = require('koa-bodyparser');     // Parser do corpo das requisições
 const serve = require('koa-static');           // Servir arquivos estáticos
 const cors = require('@koa/cors');             // Cross-Origin Resource Sharing
 
@@ -134,7 +134,7 @@ app.use(serve(path.join(__dirname, '../frontend')));
  * e disponibiliza os dados em ctx.request.body.
  * Essencial para rotas de API que recebem dados do cliente.
  */
-app.use(koaBody());
+app.use(bodyParser());
 
 /**
  * MIDDLEWARE 6: FORMATAÇÃO DE JSON
@@ -346,16 +346,21 @@ router.get('/api/cep/:cep', async (ctx) => {
 });
 
 router.post('/cadastrar', async (ctx) => {
+    console.log('[DEBUG] Iniciando cadastro via API...');
+    
     const { 
         tipoCadastro, nomeCompleto, email, senha, celular, dataNascimento, 
         placa, renavam, lotacaoMaxima,
         razaoSocial, cnpj, nomeFantasia
     } = ctx.request.body;
 
+    console.log('[DEBUG] Dados recebidos:', { tipoCadastro, nomeCompleto, email: email?.substring(0, 5) + '***' });
+
     // Validação usando configuração centralizada
     const validationResult = validateCadastroData(ctx.request.body);
     
     if (!validationResult.isValid) {
+        console.log('[DEBUG] Validação falhou:', validationResult.errors);
         ctx.status = 400;
         ctx.body = { 
             error: 'Dados inválidos', 
@@ -364,20 +369,28 @@ router.post('/cadastrar', async (ctx) => {
         return;
     }
 
+    console.log('[DEBUG] Validação passou');
+    
     // Usar dados sanitizados da validação
     const sanitizedData = validationResult.sanitizedData;
 
+    console.log('[DEBUG] Iniciando transação...');
     await db.query('BEGIN');
     try {
+        console.log('[DEBUG] Verificando email duplicado...');
         const userExists = await db.query('SELECT * FROM usuarios WHERE email = $1', [sanitizedData.email]);
         if (userExists.rows.length > 0) {
+            console.log('[DEBUG] Email já existe, fazendo rollback');
             ctx.status = 409;
             ctx.body = { message: 'Este e-mail já está em uso.' };
             await db.query('ROLLBACK');
             return;
         }
 
+        console.log('[DEBUG] Gerando hash da senha...');
         const senhaCrypt = await bcrypt.hash(sanitizedData.senha, securityConfig.bcrypt.saltRounds);
+        
+        console.log('[DEBUG] Inserindo usuário...');
         const novoUsuarioQuery = `
             INSERT INTO usuarios (nome_completo, email, senha, celular, data_nascimento, tipo_cadastro) 
             VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`;
@@ -385,22 +398,37 @@ router.post('/cadastrar', async (ctx) => {
             sanitizedData.nomeCompleto, sanitizedData.email, senhaCrypt, sanitizedData.celular, sanitizedData.dataNascimento, sanitizedData.tipoCadastro
         ]);
         const novoUsuarioId = resUsuario.rows[0].id;
+        console.log('[DEBUG] Usuário inserido com ID:', novoUsuarioId);
 
         if (sanitizedData.placa && sanitizedData.renavam) {
+            console.log('[DEBUG] Inserindo veículo...');
             const novoVeiculoQuery = `
                 INSERT INTO veiculos (usuario_id, placa, renavam, lotacao_maxima) 
                 VALUES ($1, $2, $3, $4)`;
             await db.query(novoVeiculoQuery, [novoUsuarioId, sanitizedData.placa, sanitizedData.renavam, sanitizedData.lotacaoMaxima]);
+            console.log('[DEBUG] Veículo inserido');
         }
 
         if (sanitizedData.razaoSocial && sanitizedData.cnpj) {
+            console.log('[DEBUG] Inserindo empresa...');
             const novaEmpresaQuery = `
                 INSERT INTO empresas (usuario_id, razao_social, nome_fantasia, cnpj)
                 VALUES ($1, $2, $3, $4)`;
             await db.query(novaEmpresaQuery, [novoUsuarioId, sanitizedData.razaoSocial, sanitizedData.nomeFantasia, sanitizedData.cnpj]);
+            console.log('[DEBUG] Empresa inserida');
         }
 
-        await db.query('COMMIT');
+        console.log('[DEBUG] Fazendo COMMIT...');
+        const commitResult = await db.query('COMMIT');
+        console.log('[DEBUG] COMMIT realizado com sucesso', commitResult);
+        
+        // Verificação imediata após commit
+        console.log('[DEBUG] Verificando se usuário foi salvo...');
+        const verifyUser = await db.query('SELECT * FROM usuarios WHERE id = $1', [novoUsuarioId]);
+        console.log('[DEBUG] Usuário encontrado após commit:', verifyUser.rows.length > 0 ? 'SIM' : 'NÃO');
+        if (verifyUser.rows.length > 0) {
+            console.log('[DEBUG] Dados do usuário:', { id: verifyUser.rows[0].id, nome: verifyUser.rows[0].nome_completo, email: verifyUser.rows[0].email });
+        }
         
         // Log de segurança para novo usuário
         const logData = sanitizeForLog({
@@ -660,9 +688,10 @@ app.use(rastreamentoRoutes.routes());
 app.use(rastreamentoRoutes.allowedMethods());
 app.use(trackingApiRoutes.routes());
 app.use(trackingApiRoutes.allowedMethods());
-app.use(cadastroCriancasRoutes.routes());
-app.use(cadastroCriancasRoutes.allowedMethods());
-app.use('/api/transportes', transportesRoutes.routes(), transportesRoutes.allowedMethods());
+// app.use(cadastroCriancasRoutes.routes());
+// app.use(cadastroCriancasRoutes.allowedMethods());
+app.use(transportesRoutes.routes());
+app.use(transportesRoutes.allowedMethods());
 // app.use('/api/responsavel', responsavelRoutes.routes(), responsavelRoutes.allowedMethods());
 // app.use('/api/rastreamento', rastreamentoRoutes.routes(), rastreamentoRoutes.allowedMethods());
 

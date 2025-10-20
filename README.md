@@ -1,19 +1,28 @@
-# 🚌 Sistema de Transporte Escolar
+# 🚌 Sistema Kanghoo - Transporte Escolar
 
-Uma aplicação web completa para gerenciamento de transporte escolar, conectando motoristas, responsáveis e crianças em uma plataforma segura e eficiente.
+[![Status](https://img.shields.io/badge/Status-Operacional-green)](https://github.com)
+[![Testes](https://img.shields.io/badge/Testes-77%25-yellow)](https://github.com)
+[![Node.js](https://img.shields.io/badge/Node.js-18+-green)](https://nodejs.org)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-13+-blue)](https://postgresql.org)
+
+Sistema completo para gestão de transporte escolar e excursões, desenvolvido com tecnologias modernas e foco em segurança, performance e usabilidade.
 
 ## 📋 Índice
 
 - [Visão Geral](#-visão-geral)
-- [Funcionalidades](#-funcionalidades)
 - [Tecnologias Utilizadas](#-tecnologias-utilizadas)
 - [Estrutura do Projeto](#-estrutura-do-projeto)
 - [Instalação e Configuração](#-instalação-e-configuração)
-- [Uso da Aplicação](#-uso-da-aplicação)
-- [API Documentation](#-api-documentation)
+- [Testes e Qualidade](#-testes-e-qualidade)
+- [Funcionalidades](#-funcionalidades)
+- [Comandos Úteis](#-comandos-úteis)
+- [Monitoramento](#-monitoramento)
 - [Segurança](#-segurança)
+- [Documentação](#-documentação)
 - [Contribuição](#-contribuição)
+- [Suporte](#-suporte)
 - [Licença](#-licença)
+- [Status do Projeto](#-status-do-projeto)
 
 ## 🎯 Visão Geral
 

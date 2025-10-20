@@ -1,6 +1,6 @@
 const Router = require('koa-router');
 const db = require('../config/db');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 
 const router = new Router();

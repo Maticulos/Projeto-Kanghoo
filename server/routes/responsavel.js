@@ -147,7 +147,7 @@ router.get('/criancas/:id', authenticateToken, requireRole('responsavel'), async
                 r.descricao as descricao_rota,
                 c.ativo,
                 c.criado_em,
-                u.nome as nome_motorista,
+                u.nome_completo as nome_motorista,
                 u.telefone as telefone_motorista,
                 u.email as email_motorista
             FROM criancas c
@@ -301,7 +301,7 @@ router.get('/criancas/:id/localizacao', authenticateToken, requireRole('responsa
                 v.tipo_viagem,
                 v.status,
                 r.nome as nome_rota,
-                u.nome as nome_motorista,
+                u.nome_completo as nome_motorista,
                 l.latitude,
                 l.longitude,
                 l.timestamp as ultima_localizacao
