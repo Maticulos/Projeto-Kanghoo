@@ -42,7 +42,16 @@ const authenticateToken = async (ctx, next) => {
 
         await next();
     } catch (error) {
-        console.error('Erro na autenticação:', error.message);
+        // Log mais detalhado para debug (apenas em desenvolvimento)
+        if (process.env.NODE_ENV === 'development') {
+            console.error('🔐 Erro na autenticação:', {
+                tipo: error.name,
+                mensagem: error.message,
+                rota: ctx.path,
+                metodo: ctx.method,
+                ip: ctx.ip
+            });
+        }
         
         if (error.name === 'TokenExpiredError') {
             ctx.status = 401;

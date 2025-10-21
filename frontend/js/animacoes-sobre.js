@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Success state
         img.addEventListener('load', function() {
             this.style.opacity = '1';
-            console.log('Team image loaded successfully:', this.src);
+            
             
             // Special handling for SVG files
             if (this.src.endsWith('.svg')) {
@@ -211,5 +211,5 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelector('.about-hero')?.classList.add('animate');
     }, 100);
 
-    console.log('🎨 Animações da página Sobre carregadas com sucesso!');
+
 });

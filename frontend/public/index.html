@@ -38,6 +38,7 @@
     <!-- Fontes otimizadas -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/realtime-notifications.css">
     
     <!-- Dados estruturados JSON-LD -->
     <script type="application/ld+json">
@@ -377,12 +378,31 @@
     </div>
 </footer>
 
+<script src="../js/realtime-client.js"></script>
+<script src="../js/rastreamento-api.js"></script>
 <script src="../js/app.js"></script>
 <script src="../js/animacoes-index.js"></script>
     <script>
         function setTransportType(type) {
             localStorage.setItem('transportType', type);
         }
+        
+        // Inicializar sistema de notificações em tempo real
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verificar se o usuário está logado
+            const token = localStorage.getItem('authToken');
+            if (token) {
+                try {
+                    // Inicializar cliente de notificações
+                    const rastreamentoAPI = new RastreamentoAPI();
+                    rastreamentoAPI.inicializarRealtimeClient();
+                    
+                    console.log('✅ Sistema de notificações inicializado');
+                } catch (error) {
+                    console.error('❌ Erro ao inicializar notificações:', error);
+                }
+            }
+        });
     </script>
 </body>
 </html>

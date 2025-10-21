@@ -4,6 +4,15 @@ const { authenticateToken, requireRole } = require('../middleware/auth-utils');
 const { validateInput, sanitizeForLog } = require('../config/security-config');
 const notificationService = require('../utils/notification-service');
 
+// Integração com sistema de notificações em tempo real
+let trackingIntegration = null;
+
+// Função para definir a integração (será chamada pelo servidor principal)
+function setTrackingIntegration(integration) {
+    trackingIntegration = integration;
+    console.log('[RASTREAMENTO] Integração de notificações em tempo real configurada');
+}
+
 const router = new KoaRouter({ prefix: '/api/rastreamento' });
 
 // Rota de teste básica
@@ -301,6 +310,22 @@ router.post('/localizacao', authenticateToken, requireRole('motorista_escolar'),
             }
         }
 
+        // Integrar com sistema de notificações em tempo real
+        if (trackingIntegration) {
+            try {
+                await trackingIntegration.processarLocalizacao({
+                    viagem_id: viagemAtiva.id,
+                    latitude,
+                    longitude,
+                    velocidade,
+                    timestamp: new Date(),
+                    dados_completos: dadosRastreamento
+                });
+            } catch (error) {
+                console.error('[RASTREAMENTO] Erro na integração de notificações:', error);
+            }
+        }
+
         // Simular armazenamento dos dados
         console.log(`[RASTREAMENTO] Dados coletados:`, {
             viagem: viagemAtiva.id,
@@ -592,4 +617,161 @@ router.get('/viagens/:id', authenticateToken, requireRole('motorista_escolar'), 
     }
 });
 
+// Rota para registrar embarque de criança
+router.post('/embarque', authenticateToken, requireRole('motorista_escolar'), async (ctx) => {
+    try {
+        const motoristaId = ctx.user.id;
+        const { viagem_id, crianca_id } = ctx.request.body;
+
+        // Validação de entrada
+        const validacoes = [
+            validateInput(viagem_id, { type: 'number' }),
+            validateInput(crianca_id, { type: 'number' })
+        ];
+
+        for (const validacao of validacoes) {
+            if (!validacao.valid) {
+                ctx.status = 400;
+                ctx.body = {
+                    sucesso: false,
+                    mensagem: validacao.error
+                };
+                return;
+            }
+        }
+
+        // Verificar se a viagem pertence ao motorista e está ativa
+        const viagemExistente = await db.query(
+            'SELECT id FROM viagens WHERE id = $1 AND motorista_id = $2 AND status IN (\'iniciada\', \'em_andamento\')',
+            [viagem_id, motoristaId]
+        );
+
+        if (viagemExistente.rows.length === 0) {
+            ctx.status = 404;
+            ctx.body = {
+                sucesso: false,
+                mensagem: 'Viagem não encontrada ou não está ativa'
+            };
+            return;
+        }
+
+        // Registrar embarque
+        await db.query(
+            'UPDATE criancas_viagens SET embarcada = true, horario_embarque = NOW() WHERE viagem_id = $1 AND crianca_id = $2',
+            [viagem_id, crianca_id]
+        );
+
+        // Integrar com sistema de notificações em tempo real
+        if (trackingIntegration) {
+            try {
+                await trackingIntegration.processarEmbarque({
+                    viagem_id,
+                    crianca_id,
+                    timestamp: new Date()
+                });
+            } catch (error) {
+                console.error('[RASTREAMENTO] Erro na integração de embarque:', error);
+            }
+        }
+
+        console.log(JSON.stringify(sanitizeForLog({
+            acao: 'embarque_crianca',
+            motorista_id: motoristaId,
+            viagem_id,
+            crianca_id
+        })));
+
+        ctx.body = {
+            sucesso: true,
+            mensagem: 'Embarque registrado com sucesso'
+        };
+    } catch (error) {
+        console.error('Erro ao registrar embarque:', error);
+        ctx.status = 500;
+        ctx.body = {
+            sucesso: false,
+            mensagem: 'Erro interno do servidor'
+        };
+    }
+});
+
+// Rota para registrar desembarque de criança
+router.post('/desembarque', authenticateToken, requireRole('motorista_escolar'), async (ctx) => {
+    try {
+        const motoristaId = ctx.user.id;
+        const { viagem_id, crianca_id } = ctx.request.body;
+
+        // Validação de entrada
+        const validacoes = [
+            validateInput(viagem_id, { type: 'number' }),
+            validateInput(crianca_id, { type: 'number' })
+        ];
+
+        for (const validacao of validacoes) {
+            if (!validacao.valid) {
+                ctx.status = 400;
+                ctx.body = {
+                    sucesso: false,
+                    mensagem: validacao.error
+                };
+                return;
+            }
+        }
+
+        // Verificar se a viagem pertence ao motorista e está ativa
+        const viagemExistente = await db.query(
+            'SELECT id FROM viagens WHERE id = $1 AND motorista_id = $2 AND status IN (\'iniciada\', \'em_andamento\')',
+            [viagem_id, motoristaId]
+        );
+
+        if (viagemExistente.rows.length === 0) {
+            ctx.status = 404;
+            ctx.body = {
+                sucesso: false,
+                mensagem: 'Viagem não encontrada ou não está ativa'
+            };
+            return;
+        }
+
+        // Registrar desembarque
+        await db.query(
+            'UPDATE criancas_viagens SET embarcada = false, horario_desembarque = NOW() WHERE viagem_id = $1 AND crianca_id = $2',
+            [viagem_id, crianca_id]
+        );
+
+        // Integrar com sistema de notificações em tempo real
+        if (trackingIntegration) {
+            try {
+                await trackingIntegration.processarDesembarque({
+                    viagem_id,
+                    crianca_id,
+                    timestamp: new Date()
+                });
+            } catch (error) {
+                console.error('[RASTREAMENTO] Erro na integração de desembarque:', error);
+            }
+        }
+
+        console.log(JSON.stringify(sanitizeForLog({
+            acao: 'desembarque_crianca',
+            motorista_id: motoristaId,
+            viagem_id,
+            crianca_id
+        })));
+
+        ctx.body = {
+            sucesso: true,
+            mensagem: 'Desembarque registrado com sucesso'
+        };
+    } catch (error) {
+        console.error('Erro ao registrar desembarque:', error);
+        ctx.status = 500;
+        ctx.body = {
+            sucesso: false,
+            mensagem: 'Erro interno do servidor'
+        };
+    }
+});
+
 module.exports = router;
+module.exports.setTrackingIntegration = setTrackingIntegration;

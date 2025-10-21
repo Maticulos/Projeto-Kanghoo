@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste WebSocket - Sistema de Notificações</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .connected { background-color: #d4edda; color: #155724; }
+        .disconnected { background-color: #f8d7da; color: #721c24; }
+        .connecting { background-color: #fff3cd; color: #856404; }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔌 Teste de Conexão WebSocket</h1>
+        
+        <div id="status" class="status disconnected">
+            ❌ Desconectado
+        </div>
+        
+        <div>
+            <button id="connectBtn" onclick="connect()">Conectar</button>
+            <button id="disconnectBtn" onclick="disconnect()" disabled>Desconectar</button>
+            <button onclick="clearLog()">Limpar Log</button>
+        </div>
+        
+        <h3>📋 Log de Eventos:</h3>
+        <div id="log" class="log"></div>
+    </div>
+
+    <script>
+        let ws = null;
+        let reconnectAttempts = 0;
+        const maxReconnectAttempts = 5;
+
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `<span style="color: #666;">[${timestamp}]</span> ${message}`;
+            
+            if (type === 'error') logEntry.style.color = '#dc3545';
+            if (type === 'success') logEntry.style.color = '#28a745';
+            if (type === 'warning') logEntry.style.color = '#ffc107';
+            
+            logDiv.appendChild(logEntry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function updateStatus(status, message) {
+            const statusDiv = document.getElementById('status');
+            const connectBtn = document.getElementById('connectBtn');
+            const disconnectBtn = document.getElementById('disconnectBtn');
+            
+            statusDiv.className = `status ${status}`;
+            
+            switch(status) {
+                case 'connected':
+                    statusDiv.innerHTML = '✅ ' + message;
+                    connectBtn.disabled = true;
+                    disconnectBtn.disabled = false;
+                    break;
+                case 'connecting':
+                    statusDiv.innerHTML = '🔄 ' + message;
+                    connectBtn.disabled = true;
+                    disconnectBtn.disabled = true;
+                    break;
+                case 'disconnected':
+                    statusDiv.innerHTML = '❌ ' + message;
+                    connectBtn.disabled = false;
+                    disconnectBtn.disabled = true;
+                    break;
+            }
+        }
+
+        function connect() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                log('⚠️ Já conectado ao WebSocket', 'warning');
+                return;
+            }
+
+            updateStatus('connecting', 'Conectando...');
+            log('🔄 Tentando conectar ao WebSocket em ws://localhost:5000');
+
+            try {
+                ws = new WebSocket('ws://localhost:5000');
+
+                ws.onopen = function(event) {
+                    log('✅ Conexão WebSocket estabelecida com sucesso!', 'success');
+                    updateStatus('connected', 'Conectado');
+                    reconnectAttempts = 0;
+                };
+
+                ws.onmessage = function(event) {
+                    try {
+                        const data = JSON.parse(event.data);
+                        log(`📨 Mensagem recebida: ${JSON.stringify(data, null, 2)}`, 'success');
+                    } catch (e) {
+                        log(`📨 Mensagem recebida (texto): ${event.data}`, 'success');
+                    }
+                };
+
+                ws.onclose = function(event) {
+                    log(`🔌 Conexão fechada. Código: ${event.code}, Motivo: ${event.reason || 'Não especificado'}`, 'warning');
+                    updateStatus('disconnected', 'Desconectado');
+                    
+                    // Tentar reconectar automaticamente
+                    if (reconnectAttempts < maxReconnectAttempts) {
+                        reconnectAttempts++;
+                        log(`🔄 Tentativa de reconexão ${reconnectAttempts}/${maxReconnectAttempts} em 3 segundos...`, 'warning');
+                        setTimeout(connect, 3000);
+                    } else {
+                        log('❌ Máximo de tentativas de reconexão atingido', 'error');
+                    }
+                };
+
+                ws.onerror = function(error) {
+                    log('❌ Erro na conexão WebSocket: ' + error.message, 'error');
+                    updateStatus('disconnected', 'Erro de conexão');
+                };
+
+            } catch (error) {
+                log('❌ Erro ao criar conexão WebSocket: ' + error.message, 'error');
+                updateStatus('disconnected', 'Erro de conexão');
+            }
+        }
+
+        function disconnect() {
+            if (ws) {
+                log('🔌 Desconectando WebSocket...');
+                ws.close(1000, 'Desconexão manual');
+                ws = null;
+                reconnectAttempts = maxReconnectAttempts; // Impedir reconexão automática
+            }
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+
+        // Conectar automaticamente ao carregar a página
+        window.onload = function() {
+            log('🚀 Página carregada. Iniciando teste de WebSocket...');
+            connect();
+        };
+
+        // Limpar conexão ao fechar a página
+        window.onbeforeunload = function() {
+            if (ws) {
+                ws.close();
+            }
+        };
+    </script>
+</body>
+</html>

@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
         initProgressBar();
         initBillingToggle();
         initImageErrorHandling();
-        console.log('Kanghoo App inicializado com sucesso');
+        
     }
 
     /**

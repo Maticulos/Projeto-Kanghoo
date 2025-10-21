@@ -2018,7 +2018,6 @@ function inicializarMascaras() {
         camposLimitados.forEach(campo => {
             const elementos = document.querySelectorAll(campo.selector);
             elementos.forEach(elemento => {
-                console.log("Limitando caracteres para:", elemento.id, "max:", campo.maxLength);
                 limitarCaracteres(elemento, campo.maxLength);
             });
         });
@@ -2041,44 +2040,36 @@ function inicializarMascaras() {
         camposComTooltips.forEach(campo => {
              const elementos = document.querySelectorAll(campo.selector);
              elementos.forEach(elemento => {
-                 console.log("Adicionando tooltip para:", elemento.id, "tipo:", campo.tipo);
                  adicionarTooltipInformativo(elemento, campo.tipo);
              });
          });
          
          // Inicializar indicadores visuais de campos obrigatórios vs opcionais
-         console.log("Adicionando indicadores de campos obrigatórios/opcionais...");
          adicionarIndicadoresCampos();
          
          // ===== INICIALIZAR FUNCIONALIDADES AVANÇADAS =====
          
          // Auto-preenchimento de CEP
-         console.log("Inicializando auto-preenchimento de CEP...");
          camposCEP.forEach(campo => {
              aplicarAutoPreenchimentoCEP(campo);
          });
          
          // Máscara inteligente de telefone
-         console.log("Inicializando máscara inteligente de telefone...");
          camposTelefone.forEach(campo => {
              aplicarMascaraTelefoneInteligente(campo);
          });
          
          // Validação completa de CPF
-         console.log("Inicializando validação completa de CPF...");
          const camposCPF = document.querySelectorAll('#cpf, #cpfMotorista');
          camposCPF.forEach(campo => {
              aplicarValidacaoCPFCompleta(campo);
          });
          
          // Validação de CNH
-         console.log("Inicializando validação de CNH...");
          const camposCNH = document.querySelectorAll('#cnhMotorista, #cnh');
          camposCNH.forEach(campo => {
              aplicarMascaraCNH(campo);
          });
-         
-         console.log("Máscaras, tooltips, indicadores e funcionalidades avançadas inicializados com sucesso!");
     } catch (erro) {
         console.error("Erro ao inicializar máscaras:", erro);
     }

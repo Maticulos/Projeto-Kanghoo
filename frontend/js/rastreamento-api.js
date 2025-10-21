@@ -5,8 +5,16 @@
 
 class RastreamentoAPI {
     constructor() {
-        this.baseURL = '';
-        this.token = localStorage.getItem('authToken');
+        this.baseURL = '/api';
+        this.token = null;
+        this.viagemAtiva = null;
+        this.intervalos = new Map();
+        this.callbacks = new Map();
+        
+        // Cliente WebSocket para notificações em tempo real
+        this.realtimeClient = null;
+        this.isRealtimeEnabled = false;
+        this.fallbackToPolling = false;
     }
 
     // Obter token de autenticação
@@ -161,6 +169,266 @@ class RastreamentoAPI {
         }
     }
 
+    /**
+     * Inicializa o cliente WebSocket para notificações em tempo real
+     */
+    async inicializarRealtimeClient() {
+        try {
+            // Verificar se já está inicializado
+            if (this.realtimeClient && this.isRealtimeEnabled) {
+                return true;
+            }
+
+            // Obter token de autenticação
+            const token = this.obterToken();
+            if (!token) {
+                console.warn('[RASTREAMENTO-API] Token não encontrado, usando fallback');
+                this.fallbackToPolling = true;
+                return false;
+            }
+
+            // Criar cliente WebSocket
+            this.realtimeClient = new RealtimeClient({
+                serverUrl: 'ws://localhost:5000/ws',
+                enableFallback: true,
+                debug: false
+            });
+
+            // Configurar listeners de eventos
+            this.configurarEventListeners();
+
+            // Inicializar cliente
+            const success = await this.realtimeClient.initialize(token);
+            
+            if (success) {
+                this.isRealtimeEnabled = true;
+                console.log('[RASTREAMENTO-API] Cliente WebSocket inicializado com sucesso');
+                return true;
+            } else {
+                console.warn('[RASTREAMENTO-API] Falha ao inicializar WebSocket, usando polling');
+                this.fallbackToPolling = true;
+                return false;
+            }
+
+        } catch (error) {
+            console.error('[RASTREAMENTO-API] Erro ao inicializar cliente WebSocket:', error);
+            this.fallbackToPolling = true;
+            return false;
+        }
+    }
+
+    /**
+     * Configura listeners para eventos de notificação
+     */
+    configurarEventListeners() {
+        if (!this.realtimeClient) return;
+
+        // Evento de conexão estabelecida
+        this.realtimeClient.on('connected', () => {
+            console.log('[RASTREAMENTO-API] Conectado ao servidor de notificações');
+            this.atualizarStatusConexao('connected');
+        });
+
+        // Evento de desconexão
+        this.realtimeClient.on('disconnected', () => {
+            console.log('[RASTREAMENTO-API] Desconectado do servidor de notificações');
+            this.atualizarStatusConexao('disconnected');
+        });
+
+        // Notificações de embarque/desembarque
+        this.realtimeClient.on('notification:crianca_embarcou', (notification) => {
+            this.processarNotificacaoEmbarque(notification);
+        });
+
+        this.realtimeClient.on('notification:crianca_desembarcou', (notification) => {
+            this.processarNotificacaoDesembarque(notification);
+        });
+
+        // Notificações de localização
+        this.realtimeClient.on('notification:localizacao_atualizada', (notification) => {
+            this.processarNotificacaoLocalizacao(notification);
+        });
+
+        // Notificações de chegada
+        this.realtimeClient.on('notification:veiculo_chegando', (notification) => {
+            this.processarNotificacaoChegada(notification);
+        });
+
+        // Notificações de atraso
+        this.realtimeClient.on('notification:atraso_detectado', (notification) => {
+            this.processarNotificacaoAtraso(notification);
+        });
+
+        // Notificações de emergência
+        this.realtimeClient.on('notification:emergencia', (notification) => {
+            this.processarNotificacaoEmergencia(notification);
+        });
+
+        // Fallback ativado
+        this.realtimeClient.on('fallback_started', () => {
+            console.log('[RASTREAMENTO-API] Fallback para polling ativado');
+            this.atualizarStatusConexao('fallback');
+        });
+
+        // Fallback desativado
+        this.realtimeClient.on('fallback_stopped', () => {
+            console.log('[RASTREAMENTO-API] Fallback para polling desativado');
+            this.atualizarStatusConexao('connected');
+        });
+    }
+
+    /**
+     * Processa notificação de embarque
+     */
+    processarNotificacaoEmbarque(notification) {
+        console.log('[RASTREAMENTO-API] Criança embarcou:', notification);
+        
+        // Atualizar interface
+        this.atualizarStatusCrianca(notification.data.criancaId, 'embarcada');
+        
+        // Executar callbacks registrados
+        this.executarCallbacks('embarque', notification.data);
+    }
+
+    /**
+     * Processa notificação de desembarque
+     */
+    processarNotificacaoDesembarque(notification) {
+        console.log('[RASTREAMENTO-API] Criança desembarcou:', notification);
+        
+        // Atualizar interface
+        this.atualizarStatusCrianca(notification.data.criancaId, 'desembarcada');
+        
+        // Executar callbacks registrados
+        this.executarCallbacks('desembarque', notification.data);
+    }
+
+    /**
+     * Processa notificação de localização
+     */
+    processarNotificacaoLocalizacao(notification) {
+        console.log('[RASTREAMENTO-API] Localização atualizada:', notification);
+        
+        // Atualizar mapa se estiver visível
+        this.atualizarLocalizacaoMapa(notification.data);
+        
+        // Executar callbacks registrados
+        this.executarCallbacks('localizacao', notification.data);
+    }
+
+    /**
+     * Processa notificação de chegada
+     */
+    processarNotificacaoChegada(notification) {
+        console.log('[RASTREAMENTO-API] Veículo chegando:', notification);
+        
+        // Executar callbacks registrados
+        this.executarCallbacks('chegada', notification.data);
+    }
+
+    /**
+     * Processa notificação de atraso
+     */
+    processarNotificacaoAtraso(notification) {
+        console.log('[RASTREAMENTO-API] Atraso detectado:', notification);
+        
+        // Executar callbacks registrados
+        this.executarCallbacks('atraso', notification.data);
+    }
+
+    /**
+     * Processa notificação de emergência
+     */
+    processarNotificacaoEmergencia(notification) {
+        console.log('[RASTREAMENTO-API] Emergência:', notification);
+        
+        // Executar callbacks registrados
+        this.executarCallbacks('emergencia', notification.data);
+    }
+
+    /**
+     * Atualiza status da conexão na interface
+     */
+    atualizarStatusConexao(status) {
+        const statusElement = document.querySelector('.connection-status');
+        if (statusElement) {
+            statusElement.className = `connection-status ${status}`;
+            
+            const statusText = {
+                'connected': 'Conectado',
+                'connecting': 'Conectando...',
+                'disconnected': 'Desconectado',
+                'fallback': 'Modo Offline'
+            };
+            
+            statusElement.textContent = statusText[status] || status;
+        }
+    }
+
+    /**
+     * Atualiza status de uma criança na interface
+     */
+    atualizarStatusCrianca(criancaId, status) {
+        const criancaElement = document.querySelector(`[data-crianca-id="${criancaId}"]`);
+        if (criancaElement) {
+            criancaElement.setAttribute('data-status', status);
+            
+            const statusElement = criancaElement.querySelector('.status-crianca');
+            if (statusElement) {
+                statusElement.textContent = status === 'embarcada' ? 'No Ônibus' : 'Fora do Ônibus';
+                statusElement.className = `status-crianca status-${status}`;
+            }
+        }
+    }
+
+    /**
+     * Atualiza localização no mapa
+     */
+    atualizarLocalizacaoMapa(dados) {
+        // Verificar se existe mapa na página
+        if (typeof window.atualizarMapa === 'function') {
+            window.atualizarMapa(dados.latitude, dados.longitude, dados.velocidade);
+        }
+    }
+
+    /**
+     * Executa callbacks registrados para um tipo de evento
+     */
+    executarCallbacks(tipo, dados) {
+        if (this.callbacks.has(tipo)) {
+            this.callbacks.get(tipo).forEach(callback => {
+                try {
+                    callback(dados);
+                } catch (error) {
+                    console.error(`[RASTREAMENTO-API] Erro no callback de ${tipo}:`, error);
+                }
+            });
+        }
+    }
+
+    /**
+     * Registra callback para um tipo de evento
+     */
+    registrarCallback(tipo, callback) {
+        if (!this.callbacks.has(tipo)) {
+            this.callbacks.set(tipo, []);
+        }
+        this.callbacks.get(tipo).push(callback);
+    }
+
+    /**
+     * Remove callback de um tipo de evento
+     */
+    removerCallback(tipo, callback) {
+        if (this.callbacks.has(tipo)) {
+            const callbacks = this.callbacks.get(tipo);
+            const index = callbacks.indexOf(callback);
+            if (index > -1) {
+                callbacks.splice(index, 1);
+            }
+        }
+    }
+
     // Inicializar monitoramento automático
     iniciarMonitoramento() {
         // Atualizar status inicial
@@ -170,6 +438,46 @@ class RastreamentoAPI {
         setInterval(() => {
             this.atualizarStatusViagem();
         }, 30000);
+    }
+
+    pararMonitoramento() {
+        console.log('Parando monitoramento...');
+        
+        // Parar todos os intervalos
+        this.intervalos.forEach((intervalo, viagemId) => {
+            clearInterval(intervalo);
+            console.log(`Intervalo parado para viagem: ${viagemId}`);
+        });
+        
+        // Limpar mapa de intervalos
+        this.intervalos.clear();
+        
+        // Desconectar cliente WebSocket se estiver ativo
+        if (this.realtimeClient && this.isRealtimeEnabled) {
+            this.realtimeClient.disconnect();
+            this.isRealtimeEnabled = false;
+            console.log('[RASTREAMENTO-API] Cliente WebSocket desconectado');
+        }
+        
+        // Limpar callbacks
+        this.callbacks.clear();
+        
+        this.viagemAtiva = null;
+        
+        console.log('Monitoramento parado');
+    }
+
+    /**
+     * Obtém o token de autenticação do localStorage
+     * @returns {string|null} Token de autenticação
+     */
+    obterToken() {
+        try {
+            return localStorage.getItem('token') || sessionStorage.getItem('token');
+        } catch (error) {
+            console.error('[RASTREAMENTO-API] Erro ao obter token:', error);
+            return null;
+        }
     }
 }
 

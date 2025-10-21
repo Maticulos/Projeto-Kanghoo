@@ -672,12 +672,17 @@ router.get('/api/motorista/profile', autenticar, async ctx => {
 
 // --- ROTAS DA API ---
 // Importar rotas
-const motoristaEscolarRoutes = require('./routes/motorista-escolar-simple');
+const motoristaEscolarRoutes = require('./routes/motorista-escolar');
 const responsavelRoutes = require('./routes/responsavel');
 const rastreamentoRoutes = require('./routes/rastreamento');
 const trackingApiRoutes = require('./routes/tracking-api');
-const cadastroCriancasRoutes = require('./routes/cadastro-criancas');
+// const cadastroCriancasRoutes = require('./routes/cadastro-criancas');
 const transportesRoutes = require('./routes/transportes');
+
+// Importar sistema de notificações em tempo real
+const RealtimeServer = require('./realtime/realtime-server');
+const TrackingIntegration = require('./realtime/tracking-integration');
+const NotificationHub = require('./realtime/notification-hub');
 
 // Registrar rotas
 app.use(motoristaEscolarRoutes.routes());
@@ -700,13 +705,80 @@ app.use(router.routes()).use(router.allowedMethods());
 
 const iniciarServidor = async () => {
     try {
+        // Inicializar banco de dados
         await db.criarTabelas();
-        app.listen(PORT, () => {
-            console.log(`Servidor rodando na porta ${PORT}`);
-            console.log(`Acesse a aplicação em http://localhost:${PORT}`);
+        
+        // Inicializar servidor HTTP
+        const server = app.listen(PORT, () => {
+            console.log(`🚀 Servidor HTTP rodando na porta ${PORT}`);
+            console.log(`📱 Acesse a aplicação em http://localhost:${PORT}`);
         });
+
+        // Inicializar sistema de notificações em tempo real
+        console.log('🔄 Inicializando sistema de notificações em tempo real...');
+        
+        // Criar instâncias dos componentes
+        const notificationHub = new NotificationHub();
+        const trackingIntegration = new TrackingIntegration(notificationHub);
+        
+        // Configurar servidor de WebSocket
+        const realtimeServer = new RealtimeServer({
+            server,
+            jwtSecret: JWT_SECRET,
+            notificationHub,
+            enableAuditLogs: true,
+            maxConnectionsPerIP: 10,
+            maxMessagesPerMinute: 60,
+            allowedOrigins: [
+                'http://localhost:3000',
+                'http://localhost:5000',
+                `http://localhost:${PORT}`
+            ]
+        });
+
+        // Inicializar componentes
+        await realtimeServer.initialize();
+        await trackingIntegration.initialize();
+        
+        // Configurar integração com rotas de rastreamento
+        rastreamentoRoutes.setTrackingIntegration(trackingIntegration);
+        
+        console.log('✅ Sistema de notificações em tempo real inicializado');
+        console.log('🔌 WebSocket disponível em ws://localhost:' + PORT);
+        
+        // Configurar shutdown gracioso
+        const gracefulShutdown = async (signal) => {
+            console.log(`\n📡 Recebido sinal ${signal}, iniciando shutdown gracioso...`);
+            
+            try {
+                // Parar servidor de WebSocket
+                await realtimeServer.shutdown();
+                
+                // Fechar servidor HTTP
+                server.close(() => {
+                    console.log('✅ Servidor HTTP fechado');
+                    process.exit(0);
+                });
+                
+                // Timeout de segurança
+                setTimeout(() => {
+                    console.log('⚠️  Forçando encerramento após timeout');
+                    process.exit(1);
+                }, 10000);
+                
+            } catch (error) {
+                console.error('❌ Erro durante shutdown:', error);
+                process.exit(1);
+            }
+        };
+
+        // Registrar handlers de shutdown
+        process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+        process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+        
     } catch (error) {
-        console.error("Erro ao iniciar o servidor:", error);
+        console.error("❌ Erro ao iniciar o servidor:", error);
+        process.exit(1);
     }
 };
 
