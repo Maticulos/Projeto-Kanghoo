@@ -2,6 +2,7 @@ const Router = require('koa-router');
 const db = require('../config/db');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
+const logger = require('../utils/logger');
 
 const router = new Router();
 
@@ -138,14 +139,14 @@ async function enviarEmailBoasVindas(emailResponsavel, nomeResponsavel, nomeCria
         });
         */
         
-        console.log(`📧 Email enviado para: ${emailResponsavel}`);
-        console.log(`👤 Responsável: ${nomeResponsavel}`);
-        console.log(`👶 Criança: ${nomeCrianca}`);
-        console.log(`🔐 Credenciais: ${email} / ${senha}`);
+        logger.info(`📧 Email enviado para: ${emailResponsavel}`);
+        logger.info(`👤 Responsável: ${nomeResponsavel}`);
+        logger.info(`👶 Criança: ${nomeCrianca}`);
+        logger.info(`🔐 Credenciais: ${email} / ${senha}`);
         
         return true;
     } catch (error) {
-        console.error('Erro ao enviar email:', error);
+        logger.error('Erro ao enviar email:', error);
         return false;
     }
 }
@@ -179,12 +180,12 @@ Em caso de dúvidas: (11) 99999-9999
 
     try {
         // Simulação de envio WhatsApp (em produção, integrar com API do WhatsApp)
-        console.log(`📱 WhatsApp enviado para: ${telefone}`);
-        console.log(`Mensagem: ${mensagem}`);
+        logger.info(`📱 WhatsApp enviado para: ${telefone}`);
+        logger.debug(`Mensagem: ${mensagem}`);
         
         return true;
     } catch (error) {
-        console.error('Erro ao enviar WhatsApp:', error);
+        logger.error('Erro ao enviar WhatsApp:', error);
         return false;
     }
 }
@@ -323,7 +324,7 @@ router.post('/api/criancas/cadastrar', async (ctx) => {
         };
 
     } catch (error) {
-        console.error('Erro ao cadastrar criança:', error);
+        logger.error('Erro ao cadastrar criança:', error);
         ctx.status = 500;
         ctx.body = {
             success: false,
@@ -350,7 +351,7 @@ router.get('/api/criancas', async (ctx) => {
             total: resultado.rows.length
         };
     } catch (error) {
-        console.error('Erro ao listar crianças:', error);
+        logger.error('Erro ao listar crianças:', error);
         ctx.status = 500;
         ctx.body = {
             success: false,
@@ -386,7 +387,7 @@ router.get('/api/criancas/cpf/:cpf', async (ctx) => {
             data: crianca
         };
     } catch (error) {
-        console.error('Erro ao buscar criança:', error);
+        logger.error('Erro ao buscar criança:', error);
         ctx.status = 500;
         ctx.body = {
             success: false,

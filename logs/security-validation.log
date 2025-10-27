@@ -1,0 +1,118 @@
+[2025-10-26 17:19:45] [INFO] ========================================
+[2025-10-26 17:19:45] [INFO] INICIANDO VALIDACAO DE SEGURANCA
+[2025-10-26 17:19:45] [INFO] ========================================
+[2025-10-26 17:19:45] [INFO] Verificando configuracoes do firewall...
+[2025-10-26 17:19:51] [INFO] Verificando usuarios do sistema...
+[2025-10-26 17:19:52] [INFO] Verificando servicos criticos...
+[2025-10-26 17:19:52] [INFO] Verificando arquivos de configuracao...
+[2025-10-26 17:19:52] [INFO] Verificando Docker...
+[2025-10-26 17:20:03] [INFO] Verificando configuracoes de rede...
+[2025-10-26 17:20:09] [INFO] ----------------------------------------
+[2025-10-26 17:20:09] [INFO] TESTE - Firewall
+[2025-10-26 17:20:09] [INFO] ----------------------------------------
+[2025-10-26 17:20:09] [INFO] Firewall Domain - ATIVO
+[2025-10-26 17:20:09] [INFO] Firewall Private - ATIVO
+[2025-10-26 17:20:09] [INFO] Firewall Public - ATIVO
+[2025-10-26 17:20:09] [INFO] 
+[2025-10-26 17:20:09] [INFO] ----------------------------------------
+[2025-10-26 17:20:09] [INFO] TESTE - Servicos
+[2025-10-26 17:20:09] [INFO] ----------------------------------------
+[2025-10-26 17:20:09] [INFO] Servico Winmgmt - RODANDO
+[2025-10-26 17:20:09] [INFO] Servico EventLog - RODANDO
+[2025-10-26 17:20:09] [INFO] 
+[2025-10-26 17:20:09] [INFO] ----------------------------------------
+[2025-10-26 17:20:09] [INFO] TESTE - Docker
+[2025-10-26 17:20:09] [INFO] ----------------------------------------
+[2025-10-26 17:20:09] [INFO] Docker - INSTALADO - Docker version 28.4.0, build d8eb465
+[2025-10-26 17:20:09] [INFO] Docker Compose - INSTALADO - Docker Compose version v2.39.2-desktop.1
+[2025-10-26 17:20:09] [INFO] 
+[2025-10-26 17:20:09] [INFO] ----------------------------------------
+[2025-10-26 17:20:09] [INFO] TESTE - Arquivos de Configuracao
+[2025-10-26 17:20:09] [INFO] ----------------------------------------
+[2025-10-26 17:20:09] [INFO] Arquivo .env.security - ENCONTRADO
+[2025-10-26 17:20:10] [INFO] Arquivo docker-compose.prod.yml - ENCONTRADO
+[2025-10-26 17:20:10] [INFO] Arquivo Dockerfile.prod - ENCONTRADO
+[2025-10-26 17:20:10] [INFO] Arquivo nginx\nginx.prod.conf - ENCONTRADO
+[2025-10-26 17:20:10] [INFO] 
+[2025-10-26 17:20:10] [INFO] ----------------------------------------
+[2025-10-26 17:20:10] [INFO] TESTE - Rede
+[2025-10-26 17:20:10] [INFO] ----------------------------------------
+[2025-10-26 17:20:10] [INFO] Conectividade de rede - OK
+[2025-10-26 17:20:10] [INFO] Porta 80 - LIVRE
+[2025-10-26 17:20:10] [INFO] Porta 443 - LIVRE
+[2025-10-26 17:20:10] [INFO] Porta 5000 - LIVRE
+[2025-10-26 17:20:10] [INFO] Porta 5432 - EM USO
+[2025-10-26 17:20:10] [INFO] Porta 6379 - LIVRE
+[2025-10-26 17:20:10] [INFO] 
+[2025-10-26 17:20:10] [INFO] ----------------------------------------
+[2025-10-26 17:20:10] [INFO] TESTE - Usuarios
+[2025-10-26 17:20:10] [INFO] ----------------------------------------
+[2025-10-26 17:20:10] [INFO] Nenhum usuario administrador encontrado
+[2025-10-26 17:20:10] [INFO] 
+[2025-10-26 17:20:10] [INFO] ========================================
+[2025-10-26 17:20:10] [INFO] RELATORIO FINAL
+[2025-10-26 17:20:10] [INFO] ========================================
+[2025-10-26 17:20:10] [SUCCESS] STATUS GERAL - APROVADO PARA PRODUCAO
+[2025-10-26 17:20:10] [SUCCESS] Nenhum problema critico encontrado.
+[2025-10-26 17:20:10] [INFO] ========================================
+[2025-10-26 17:20:10] [INFO] Log salvo em - logs\security-validation.log
+[2025-10-26 17:20:10] [INFO] ========================================
+[2025-10-27 14:30:43] [INFO] ========================================
+[2025-10-27 14:30:43] [INFO] INICIANDO VALIDACAO DE SEGURANCA
+[2025-10-27 14:30:43] [INFO] ========================================
+[2025-10-27 14:30:43] [INFO] Verificando configuracoes do firewall...
+[2025-10-27 14:30:45] [INFO] Verificando usuarios do sistema...
+[2025-10-27 14:30:45] [INFO] Verificando servicos criticos...
+[2025-10-27 14:30:45] [INFO] Verificando arquivos de configuracao...
+[2025-10-27 14:30:45] [INFO] Verificando Docker...
+[2025-10-27 14:30:46] [INFO] Verificando configuracoes de rede...
+[2025-10-27 14:30:51] [INFO] ----------------------------------------
+[2025-10-27 14:30:51] [INFO] TESTE - Firewall
+[2025-10-27 14:30:51] [INFO] ----------------------------------------
+[2025-10-27 14:30:51] [INFO] Firewall Domain - ATIVO
+[2025-10-27 14:30:51] [INFO] Firewall Private - ATIVO
+[2025-10-27 14:30:51] [INFO] Firewall Public - ATIVO
+[2025-10-27 14:30:51] [INFO] 
+[2025-10-27 14:30:51] [INFO] ----------------------------------------
+[2025-10-27 14:30:51] [INFO] TESTE - Servicos
+[2025-10-27 14:30:51] [INFO] ----------------------------------------
+[2025-10-27 14:30:51] [INFO] Servico Winmgmt - RODANDO
+[2025-10-27 14:30:51] [INFO] Servico EventLog - RODANDO
+[2025-10-27 14:30:51] [INFO] 
+[2025-10-27 14:30:51] [INFO] ----------------------------------------
+[2025-10-27 14:30:51] [INFO] TESTE - Docker
+[2025-10-27 14:30:51] [INFO] ----------------------------------------
+[2025-10-27 14:30:51] [INFO] Docker - INSTALADO - Docker version 28.4.0, build d8eb465
+[2025-10-27 14:30:51] [INFO] Docker Compose - INSTALADO - Docker Compose version v2.39.2-desktop.1
+[2025-10-27 14:30:51] [INFO] 
+[2025-10-27 14:30:51] [INFO] ----------------------------------------
+[2025-10-27 14:30:51] [INFO] TESTE - Arquivos de Configuracao
+[2025-10-27 14:30:51] [INFO] ----------------------------------------
+[2025-10-27 14:30:51] [INFO] Arquivo .env.security - ENCONTRADO
+[2025-10-27 14:30:51] [INFO] Arquivo docker-compose.prod.yml - ENCONTRADO
+[2025-10-27 14:30:51] [INFO] Arquivo Dockerfile.prod - ENCONTRADO
+[2025-10-27 14:30:51] [INFO] Arquivo nginx\nginx.prod.conf - ENCONTRADO
+[2025-10-27 14:30:51] [INFO] 
+[2025-10-27 14:30:51] [INFO] ----------------------------------------
+[2025-10-27 14:30:52] [INFO] TESTE - Rede
+[2025-10-27 14:30:52] [INFO] ----------------------------------------
+[2025-10-27 14:30:52] [INFO] Conectividade de rede - OK
+[2025-10-27 14:30:52] [INFO] Porta 80 - LIVRE
+[2025-10-27 14:30:52] [INFO] Porta 443 - LIVRE
+[2025-10-27 14:30:52] [INFO] Porta 5000 - LIVRE
+[2025-10-27 14:30:52] [INFO] Porta 5432 - EM USO
+[2025-10-27 14:30:52] [INFO] Porta 6379 - LIVRE
+[2025-10-27 14:30:52] [INFO] 
+[2025-10-27 14:30:52] [INFO] ----------------------------------------
+[2025-10-27 14:30:52] [INFO] TESTE - Usuarios
+[2025-10-27 14:30:52] [INFO] ----------------------------------------
+[2025-10-27 14:30:52] [INFO] Nenhum usuario administrador encontrado
+[2025-10-27 14:30:52] [INFO] 
+[2025-10-27 14:30:52] [INFO] ========================================
+[2025-10-27 14:30:52] [INFO] RELATORIO FINAL
+[2025-10-27 14:30:52] [INFO] ========================================
+[2025-10-27 14:30:52] [SUCCESS] STATUS GERAL - APROVADO PARA PRODUCAO
+[2025-10-27 14:30:52] [SUCCESS] Nenhum problema critico encontrado.
+[2025-10-27 14:30:52] [INFO] ========================================
+[2025-10-27 14:30:52] [INFO] Log salvo em - logs\security-validation.log
+[2025-10-27 14:30:52] [INFO] ========================================

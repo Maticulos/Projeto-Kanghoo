@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rastreamento GPS - Transporte Escolar</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #333;
+            border: 1px solid #dee2e6;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #28a745;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            min-height: 0;
+        }
+
+        .map-container {
+            flex: 1;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+            min-height: 500px;
+        }
+
+        .sidebar {
+            width: 350px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            overflow-y: auto;
+            max-height: calc(100vh - 140px);
+        }
+
+        .sidebar h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .vehicle-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .vehicle-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .vehicle-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .vehicle-card.active {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .vehicle-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .vehicle-id {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .vehicle-status {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-moving {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-stopped {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-speeding {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .vehicle-info {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .vehicle-info div {
+            margin-bottom: 0.25rem;
+        }
+
+        .route-controls {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .route-controls h4 {
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #e9ecef;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                max-height: 300px;
+            }
+
+            .header {
+                padding: 1rem;
+            }
+
+            .controls {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚌 Rastreamento GPS - Transporte Escolar</h1>
+        <div class="controls">
+            <div class="status-indicator">
+                <div class="status-dot"></div>
+                <span id="connection-status">Conectado</span>
+            </div>
+            <button class="btn btn-primary" onclick="refreshData()">
+                🔄 Atualizar
+            </button>
+            <button class="btn btn-secondary" onclick="toggleAutoRefresh()">
+                ⏱️ Auto-refresh: <span id="auto-refresh-status">ON</span>
+            </button>
+            <button class="btn btn-success" onclick="startSimulation()">
+                ▶️ Simular
+            </button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="map-container">
+            <div id="map"></div>
+            <div class="loading" id="map-loading">
+                <div>Carregando mapa...</div>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <div class="error-message" id="error-message"></div>
+
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="active-vehicles">0</div>
+                    <div class="stat-label">Veículos Ativos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="total-distance">0 km</div>
+                    <div class="stat-label">Distância Total</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="avg-speed">0 km/h</div>
+                    <div class="stat-label">Velocidade Média</div>
+                </div>
+            </div>
+
+            <div class="route-controls">
+                <h4>Calcular Rota</h4>
+                <div class="input-group">
+                    <input type="text" id="origin-input" placeholder="Origem">
+                    <input type="text" id="destination-input" placeholder="Destino">
+                </div>
+                <button class="btn btn-primary" onclick="calculateRoute()" style="width: 100%;">
+                    🗺️ Calcular Rota
+                </button>
+            </div>
+
+            <h3>Veículos Ativos</h3>
+            <div class="vehicle-list" id="vehicle-list">
+                <div class="loading show">
+                    Carregando veículos...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configurações globais
+        const CONFIG = {
+            API_BASE: window.location.origin + '/api',
+            WEBSOCKET_URL: `ws://${window.location.host}`,
+            AUTO_REFRESH_INTERVAL: 30000, // 30 segundos
+            GOOGLE_MAPS_CONFIG: null // Será carregado dinamicamente
+        };
+
+        // Estado da aplicação
+        let map = null;
+        let markers = new Map();
+        let routes = new Map();
+        let websocket = null;
+        let autoRefreshInterval = null;
+        let isAutoRefreshEnabled = true;
+        let selectedVehicle = null;
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+
+        async function initializeApp() {
+            try {
+                showLoading(true);
+                await loadGoogleMapsConfig();
+                await loadGoogleMapsAPI();
+                await initializeMap();
+                await connectWebSocket();
+                await loadActiveVehicles();
+                startAutoRefresh();
+                showLoading(false);
+            } catch (error) {
+                console.error('Erro na inicialização:', error);
+                showError('Erro ao inicializar aplicação: ' + error.message);
+                showLoading(false);
+            }
+        }
+
+        async function loadGoogleMapsConfig() {
+            try {
+                const response = await fetch(`${CONFIG.API_BASE}/maps/config`);
+                const result = await response.json();
+
+                if (result.success) {
+                    CONFIG.GOOGLE_MAPS_CONFIG = result.data;
+                } else {
+                    throw new Error(result.message || 'Erro ao carregar configurações do Google Maps');
+                }
+            } catch (error) {
+                console.error('Erro ao carregar configurações:', error);
+                throw new Error('Google Maps não configurado. Verifique as configurações do servidor.');
+            }
+        }
+
+        async function loadGoogleMapsAPI() {
+            return new Promise((resolve, reject) => {
+                if (typeof google !== 'undefined') {
+                    resolve();
+                    return;
+                }
+
+                const script = document.createElement('script');
+                script.src = `https://maps.googleapis.com/maps/api/js?key=${CONFIG.GOOGLE_MAPS_CONFIG.apiKey}&libraries=${CONFIG.GOOGLE_MAPS_CONFIG.libraries.join(',')}&region=${CONFIG.GOOGLE_MAPS_CONFIG.region}&language=${CONFIG.GOOGLE_MAPS_CONFIG.language}`;
+                script.async = true;
+                script.defer = true;
+                
+                script.onload = () => resolve();
+                script.onerror = () => reject(new Error('Erro ao carregar Google Maps API'));
+                
+                document.head.appendChild(script);
+            });
+        }
+
+        async function initializeMap() {
+            // Verificar se o Google Maps está disponível
+            if (typeof google === 'undefined') {
+                throw new Error('Google Maps API não carregada');
+            }
+
+            // Usar configurações carregadas dinamicamente
+            const mapOptions = {
+                zoom: CONFIG.GOOGLE_MAPS_CONFIG.mapDefaults.zoom,
+                center: CONFIG.GOOGLE_MAPS_CONFIG.mapDefaults.center,
+                mapTypeId: google.maps.MapTypeId[CONFIG.GOOGLE_MAPS_CONFIG.mapDefaults.mapTypeId.toUpperCase()],
+                styles: CONFIG.GOOGLE_MAPS_CONFIG.styles
+            };
+
+            map = new google.maps.Map(document.getElementById('map'), mapOptions);
+
+            // Adicionar controles personalizados
+            addMapControls();
+        }
+
+        function addMapControls() {
+            // Controle de centralizar no usuário
+            const centerControlDiv = document.createElement('div');
+            centerControlDiv.style.margin = '10px';
+            
+            const centerControl = document.createElement('button');
+            centerControl.style.backgroundColor = 'white';
+            centerControl.style.border = '2px solid #fff';
+            centerControl.style.borderRadius = '3px';
+            centerControl.style.boxShadow = '0 2px 6px rgba(0,0,0,.3)';
+            centerControl.style.cursor = 'pointer';
+            centerControl.style.marginBottom = '22px';
+            centerControl.style.textAlign = 'center';
+            centerControl.title = 'Centralizar na minha localização';
+            centerControl.innerHTML = '📍';
+            centerControl.style.padding = '8px';
+            
+            centerControl.addEventListener('click', () => {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition((position) => {
+                        const pos = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+                        map.setCenter(pos);
+                        map.setZoom(15);
+                    });
+                }
+            });
+
+            centerControlDiv.appendChild(centerControl);
+            map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(centerControlDiv);
+        }
+
+        async function connectWebSocket() {
+            try {
+                websocket = new WebSocket(CONFIG.WEBSOCKET_URL);
+                
+                websocket.onopen = function() {
+                    console.log('WebSocket conectado');
+                    updateConnectionStatus(true);
+                };
+
+                websocket.onmessage = function(event) {
+                    try {
+                        const data = JSON.parse(event.data);
+                        handleWebSocketMessage(data);
+                    } catch (error) {
+                        console.error('Erro ao processar mensagem WebSocket:', error);
+                    }
+                };
+
+                websocket.onclose = function() {
+                    console.log('WebSocket desconectado');
+                    updateConnectionStatus(false);
+                    // Tentar reconectar após 5 segundos
+                    setTimeout(connectWebSocket, 5000);
+                };
+
+                websocket.onerror = function(error) {
+                    console.error('Erro WebSocket:', error);
+                    updateConnectionStatus(false);
+                };
+
+            } catch (error) {
+                console.error('Erro ao conectar WebSocket:', error);
+                updateConnectionStatus(false);
+            }
+        }
+
+        function handleWebSocketMessage(data) {
+            switch (data.type) {
+                case 'position_update':
+                    updateVehiclePosition(data.vehicleId, data.data);
+                    break;
+                case 'tracking_started':
+                    addVehicleToMap(data.vehicleId, data.data);
+                    break;
+                case 'tracking_stopped':
+                    removeVehicleFromMap(data.vehicleId);
+                    break;
+                case 'eta_update':
+                    updateVehicleETA(data.vehicleId, data.data);
+                    break;
+                case 'proximity_alert':
+                    showProximityAlert(data.vehicleId, data.data);
+                    break;
+                default:
+                    console.log('Mensagem WebSocket não tratada:', data);
+            }
+        }
+
+        async function loadActiveVehicles() {
+            try {
+                const response = await fetch(`${CONFIG.API_BASE}/gps/active-vehicles`, {
+                    headers: {
+                        'Authorization': `Bearer ${getAuthToken()}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erro ao carregar veículos ativos');
+                }
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    displayVehicles(result.data.vehicles);
+                    updateStats(result.data.vehicles);
+                } else {
+                    throw new Error(result.message);
+                }
+
+            } catch (error) {
+                console.error('Erro ao carregar veículos:', error);
+                showError('Erro ao carregar veículos: ' + error.message);
+            }
+        }
+
+        function displayVehicles(vehicles) {
+            const vehicleList = document.getElementById('vehicle-list');
+            
+            if (vehicles.length === 0) {
+                vehicleList.innerHTML = '<div style="text-align: center; color: #666; padding: 2rem;">Nenhum veículo ativo</div>';
+                return;
+            }
+
+            vehicleList.innerHTML = vehicles.map(vehicle => `
+                <div class="vehicle-card" onclick="selectVehicle('${vehicle.vehicleId}')" data-vehicle-id="${vehicle.vehicleId}">
+                    <div class="vehicle-header">
+                        <div class="vehicle-id">🚌 ${vehicle.vehicleId}</div>
+                        <div class="vehicle-status status-${vehicle.status}">${getStatusText(vehicle.status)}</div>
+                    </div>
+                    <div class="vehicle-info">
+                        <div><strong>Velocidade:</strong> ${vehicle.speed} km/h</div>
+                        <div><strong>Última atualização:</strong> ${formatTime(vehicle.lastUpdate)}</div>
+                        ${vehicle.eta ? `<div><strong>ETA:</strong> ${vehicle.eta.duration.text}</div>` : ''}
+                        ${vehicle.currentPosition ? `<div><strong>Posição:</strong> ${vehicle.currentPosition.latitude.toFixed(4)}, ${vehicle.currentPosition.longitude.toFixed(4)}</div>` : ''}
+                    </div>
+                </div>
+            `).join('');
+
+            // Adicionar veículos ao mapa
+            vehicles.forEach(vehicle => {
+                if (vehicle.currentPosition) {
+                    addVehicleToMap(vehicle.vehicleId, vehicle);
+                }
+            });
+        }
+
+        function addVehicleToMap(vehicleId, vehicleData) {
+            if (!vehicleData.currentPosition) return;
+
+            const position = {
+                lat: vehicleData.currentPosition.latitude,
+                lng: vehicleData.currentPosition.longitude
+            };
+
+            // Remover marcador existente se houver
+            if (markers.has(vehicleId)) {
+                markers.get(vehicleId).setMap(null);
+            }
+
+            // Criar novo marcador
+            const marker = new google.maps.Marker({
+                position: position,
+                map: map,
+                title: `Veículo ${vehicleId}`,
+                icon: {
+                    url: getVehicleIcon(vehicleData.status),
+                    scaledSize: new google.maps.Size(32, 32),
+                    anchor: new google.maps.Point(16, 16)
+                }
+            });
+
+            // Info window
+            const infoWindow = new google.maps.InfoWindow({
+                content: `
+                    <div style="padding: 10px;">
+                        <h4>🚌 Veículo ${vehicleId}</h4>
+                        <p><strong>Status:</strong> ${getStatusText(vehicleData.status)}</p>
+                        <p><strong>Velocidade:</strong> ${vehicleData.speed} km/h</p>
+                        <p><strong>Última atualização:</strong> ${formatTime(vehicleData.lastUpdate)}</p>
+                        ${vehicleData.eta ? `<p><strong>ETA:</strong> ${vehicleData.eta.duration.text}</p>` : ''}
+                    </div>
+                `
+            });
+
+            marker.addListener('click', () => {
+                infoWindow.open(map, marker);
+                selectVehicle(vehicleId);
+            });
+
+            markers.set(vehicleId, marker);
+        }
+
+        function updateVehiclePosition(vehicleId, data) {
+            const marker = markers.get(vehicleId);
+            if (marker && data.position) {
+                const newPosition = {
+                    lat: data.position.latitude,
+                    lng: data.position.longitude
+                };
+                
+                marker.setPosition(newPosition);
+                
+                // Atualizar ícone baseado no status
+                marker.setIcon({
+                    url: getVehicleIcon(data.status),
+                    scaledSize: new google.maps.Size(32, 32),
+                    anchor: new google.maps.Point(16, 16)
+                });
+
+                // Atualizar lista de veículos
+                updateVehicleInList(vehicleId, data);
+            }
+        }
+
+        function updateVehicleInList(vehicleId, data) {
+            const vehicleCard = document.querySelector(`[data-vehicle-id="${vehicleId}"]`);
+            if (vehicleCard) {
+                const statusElement = vehicleCard.querySelector('.vehicle-status');
+                const infoElement = vehicleCard.querySelector('.vehicle-info');
+                
+                if (statusElement) {
+                    statusElement.className = `vehicle-status status-${data.status}`;
+                    statusElement.textContent = getStatusText(data.status);
+                }
+
+                if (infoElement && data.position) {
+                    infoElement.innerHTML = `
+                        <div><strong>Velocidade:</strong> ${data.speed || 0} km/h</div>
+                        <div><strong>Última atualização:</strong> ${formatTime(new Date().toISOString())}</div>
+                        ${data.eta ? `<div><strong>ETA:</strong> ${data.eta.duration.text}</div>` : ''}
+                        <div><strong>Posição:</strong> ${data.position.latitude.toFixed(4)}, ${data.position.longitude.toFixed(4)}</div>
+                    `;
+                }
+            }
+        }
+
+        function selectVehicle(vehicleId) {
+            // Remover seleção anterior
+            document.querySelectorAll('.vehicle-card').forEach(card => {
+                card.classList.remove('active');
+            });
+
+            // Adicionar seleção atual
+            const vehicleCard = document.querySelector(`[data-vehicle-id="${vehicleId}"]`);
+            if (vehicleCard) {
+                vehicleCard.classList.add('active');
+                selectedVehicle = vehicleId;
+
+                // Centralizar mapa no veículo
+                const marker = markers.get(vehicleId);
+                if (marker) {
+                    map.setCenter(marker.getPosition());
+                    map.setZoom(15);
+                }
+            }
+        }
+
+        async function calculateRoute() {
+            const origin = document.getElementById('origin-input').value.trim();
+            const destination = document.getElementById('destination-input').value.trim();
+
+            if (!origin || !destination) {
+                showError('Por favor, preencha origem e destino');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${CONFIG.API_BASE}/maps/route`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getAuthToken()}`
+                    },
+                    body: JSON.stringify({
+                        origin: origin,
+                        destination: destination,
+                        options: {
+                            mode: 'driving',
+                            traffic_model: 'best_guess'
+                        }
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    displayRoute(result.data);
+                } else {
+                    throw new Error(result.message);
+                }
+
+            } catch (error) {
+                console.error('Erro ao calcular rota:', error);
+                showError('Erro ao calcular rota: ' + error.message);
+            }
+        }
+
+        function displayRoute(routeData) {
+            // Limpar rotas anteriores
+            routes.forEach(route => route.setMap(null));
+            routes.clear();
+
+            if (routeData.polyline) {
+                const decodedPath = google.maps.geometry.encoding.decodePath(routeData.polyline);
+                
+                const routePath = new google.maps.Polyline({
+                    path: decodedPath,
+                    geodesic: true,
+                    strokeColor: '#667eea',
+                    strokeOpacity: 1.0,
+                    strokeWeight: 4
+                });
+
+                routePath.setMap(map);
+                routes.set('calculated-route', routePath);
+
+                // Ajustar zoom para mostrar toda a rota
+                const bounds = new google.maps.LatLngBounds();
+                decodedPath.forEach(point => bounds.extend(point));
+                map.fitBounds(bounds);
+
+                // Mostrar informações da rota
+                showRouteInfo(routeData);
+            }
+        }
+
+        function showRouteInfo(routeData) {
+            const infoWindow = new google.maps.InfoWindow({
+                content: `
+                    <div style="padding: 10px;">
+                        <h4>📍 Informações da Rota</h4>
+                        <p><strong>Distância:</strong> ${routeData.distance.text}</p>
+                        <p><strong>Duração:</strong> ${routeData.duration.text}</p>
+                        <p><strong>Duração no trânsito:</strong> ${routeData.duration_in_traffic ? routeData.duration_in_traffic.text : 'N/A'}</p>
+                    </div>
+                `,
+                position: map.getCenter()
+            });
+
+            infoWindow.open(map);
+        }
+
+        async function startSimulation() {
+            try {
+                // Rota de exemplo (São Paulo)
+                const exampleRoute = [
+                    { lat: -23.5505, lng: -46.6333 },
+                    { lat: -23.5515, lng: -46.6343 },
+                    { lat: -23.5525, lng: -46.6353 },
+                    { lat: -23.5535, lng: -46.6363 },
+                    { lat: -23.5545, lng: -46.6373 }
+                ];
+
+                const response = await fetch(`${CONFIG.API_BASE}/gps/simulate-position`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getAuthToken()}`
+                    },
+                    body: JSON.stringify({
+                        vehicleId: 'DEMO-001',
+                        route: exampleRoute,
+                        speed: 45
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showSuccess('Simulação iniciada com sucesso!');
+                } else {
+                    throw new Error(result.message);
+                }
+
+            } catch (error) {
+                console.error('Erro ao iniciar simulação:', error);
+                showError('Erro ao iniciar simulação: ' + error.message);
+            }
+        }
+
+        function updateStats(vehicles) {
+            const activeCount = vehicles.length;
+            const totalDistance = vehicles.reduce((sum, v) => sum + (v.route?.distance?.value || 0), 0) / 1000;
+            const avgSpeed = vehicles.length > 0 ? 
+                vehicles.reduce((sum, v) => sum + (v.speed || 0), 0) / vehicles.length : 0;
+
+            document.getElementById('active-vehicles').textContent = activeCount;
+            document.getElementById('total-distance').textContent = `${totalDistance.toFixed(1)} km`;
+            document.getElementById('avg-speed').textContent = `${avgSpeed.toFixed(1)} km/h`;
+        }
+
+        function startAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+            }
+
+            if (isAutoRefreshEnabled) {
+                autoRefreshInterval = setInterval(refreshData, CONFIG.AUTO_REFRESH_INTERVAL);
+            }
+        }
+
+        function toggleAutoRefresh() {
+            isAutoRefreshEnabled = !isAutoRefreshEnabled;
+            document.getElementById('auto-refresh-status').textContent = isAutoRefreshEnabled ? 'ON' : 'OFF';
+            
+            if (isAutoRefreshEnabled) {
+                startAutoRefresh();
+            } else {
+                clearInterval(autoRefreshInterval);
+            }
+        }
+
+        async function refreshData() {
+            try {
+                await loadActiveVehicles();
+            } catch (error) {
+                console.error('Erro ao atualizar dados:', error);
+            }
+        }
+
+        // Funções utilitárias
+        function getVehicleIcon(status) {
+            const icons = {
+                moving: 'data:image/svg+xml;base64,' + btoa(`
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+                        <circle cx="16" cy="16" r="14" fill="#28a745" stroke="white" stroke-width="2"/>
+                        <text x="16" y="20" text-anchor="middle" fill="white" font-size="16">🚌</text>
+                    </svg>
+                `),
+                stopped: 'data:image/svg+xml;base64,' + btoa(`
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+                        <circle cx="16" cy="16" r="14" fill="#dc3545" stroke="white" stroke-width="2"/>
+                        <text x="16" y="20" text-anchor="middle" fill="white" font-size="16">🚌</text>
+                    </svg>
+                `),
+                speeding: 'data:image/svg+xml;base64=' + btoa(`
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+                        <circle cx="16" cy="16" r="14" fill="#ffc107" stroke="white" stroke-width="2"/>
+                        <text x="16" y="20" text-anchor="middle" fill="white" font-size="16">🚌</text>
+                    </svg>
+                `)
+            };
+
+            return icons[status] || icons.stopped;
+        }
+
+        function getStatusText(status) {
+            const statusTexts = {
+                moving: 'Em movimento',
+                stopped: 'Parado',
+                speeding: 'Excesso de velocidade',
+                started: 'Iniciado'
+            };
+
+            return statusTexts[status] || status;
+        }
+
+        function formatTime(timestamp) {
+            if (!timestamp) return 'N/A';
+            
+            const date = new Date(timestamp);
+            return date.toLocaleTimeString('pt-BR');
+        }
+
+        function updateConnectionStatus(connected) {
+            const statusElement = document.getElementById('connection-status');
+            const statusDot = document.querySelector('.status-dot');
+            
+            if (connected) {
+                statusElement.textContent = 'Conectado';
+                statusDot.style.background = '#28a745';
+            } else {
+                statusElement.textContent = 'Desconectado';
+                statusDot.style.background = '#dc3545';
+            }
+        }
+
+        function showLoading(show) {
+            const loading = document.getElementById('map-loading');
+            if (show) {
+                loading.classList.add('show');
+            } else {
+                loading.classList.remove('show');
+            }
+        }
+
+        function showError(message) {
+            const errorElement = document.getElementById('error-message');
+            errorElement.textContent = message;
+            errorElement.classList.add('show');
+            
+            setTimeout(() => {
+                errorElement.classList.remove('show');
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            // Implementar notificação de sucesso se necessário
+            console.log('Sucesso:', message);
+        }
+
+        function showProximityAlert(vehicleId, data) {
+            // Implementar alerta de proximidade
+            console.log('Alerta de proximidade:', vehicleId, data);
+        }
+
+        function getAuthToken() {
+            // Implementar obtenção do token de autenticação
+            return localStorage.getItem('authToken') || 'demo-token';
+        }
+    </script>
+
+    <!-- Google Maps API será carregado dinamicamente -->
+</body>
+</html>

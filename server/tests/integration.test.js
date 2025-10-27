@@ -77,12 +77,15 @@ describe('Testes de Integração - Sistema de Notificações', function() {
             wsClient.on('open', () => {
                 console.log('Cliente WebSocket conectado');
                 
-                // Simular notificação de embarque
+                // Simular notificação de teste (broadcast para todos)
                 setTimeout(() => {
-                    notificationHub.emit('crianca_embarcou', {
-                        crianca: { id: 1, nome: 'João' },
-                        motorista: { id: 1, nome: 'Carlos' },
-                        localizacao: { latitude: -23.5505, longitude: -46.6333 },
+                    notificationHub.sendNotification({
+                        tipo: 'teste_integracao',
+                        dados: {
+                            crianca: { id: 1, nome: 'João' },
+                            motorista: { id: 1, nome: 'Carlos' },
+                            localizacao: { latitude: -23.5505, longitude: -46.6333 }
+                        },
                         timestamp: new Date()
                     });
                 }, 100);
@@ -92,6 +95,11 @@ describe('Testes de Integração - Sistema de Notificações', function() {
                 try {
                     const notification = JSON.parse(data);
                     console.log('Notificação recebida:', notification);
+                    
+                    // Ignorar mensagem de connection_established
+                    if (notification.type === 'connection_established') {
+                        return;
+                    }
                     
                     expect(notification).to.have.property('tipo');
                     expect(notification).to.have.property('dados');
@@ -113,15 +121,14 @@ describe('Testes de Integração - Sistema de Notificações', function() {
             // Spy no método de broadcast do WebSocketManager
             const broadcastSpy = sinon.spy(webSocketManager, 'broadcast');
 
-            // Criar notificação de teste
+            // Criar notificação de teste (sem destinatários para forçar broadcast)
             const notification = {
                 tipo: 'teste_integracao',
                 dados: {
                     mensagem: 'Teste de integração funcionando',
                     timestamp: new Date()
                 },
-                prioridade: 'medium',
-                destinatarios: ['user123']
+                prioridade: 'medium'
             };
 
             // Enviar notificação
@@ -137,8 +144,8 @@ describe('Testes de Integração - Sistema de Notificações', function() {
         });
 
         it('deve processar eventos do NotificationHub', async () => {
-            // Spy no método de envio de notificação
-            const sendSpy = sinon.spy(notificationHub, 'sendNotification');
+            // Spy no método de envio para responsáveis
+            const sendSpy = sinon.spy(notificationHub, 'sendToResponsaveis');
 
             // Emitir evento de criança embarcou
             notificationHub.emit('crianca_embarcou', {

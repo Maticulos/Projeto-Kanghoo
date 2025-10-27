@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conferência de Crianças - Kanghoo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/bundle.min.css">
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --info-color: #17a2b8;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --white: #ffffff;
+            --border-color: #e9ecef;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1);
+            --shadow-hover: 0 4px 20px rgba(0,0,0,0.15);
+            --border-radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #0d6efd;
+            --secondary-color: #6c757d;
+            --success-color: #198754;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --info-color: #0dcaf0;
+            --light-color: #212529;
+            --dark-color: #f8f9fa;
+            --white: #1a1a1a;
+            --border-color: #495057;
+            --shadow: 0 2px 10px rgba(0,0,0,0.3);
+            --shadow-hover: 0 4px 20px rgba(0,0,0,0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--light-color);
+            color: var(--dark-color);
+            line-height: 1.6;
+            transition: var(--transition);
+        }
+
+        /* Header */
+        .header {
+            background: var(--white);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #1e7e34;
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-warning {
+            background: var(--warning-color);
+            color: var(--dark-color);
+        }
+
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+
+        /* Container Principal */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        /* Status da Viagem */
+        .viagem-status {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .status-ativa {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .status-inativa {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .viagem-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .info-item {
+            text-align: center;
+        }
+
+        .info-label {
+            font-size: 0.8rem;
+            color: var(--secondary-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .info-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        /* Lista de Crianças */
+        .criancas-section {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .crianca-card {
+            background: var(--light-color);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--secondary-color);
+            transition: var(--transition);
+        }
+
+        .crianca-card.embarcada {
+            border-left-color: var(--success-color);
+            background: #f8fff9;
+        }
+
+        .crianca-card.pendente {
+            border-left-color: var(--warning-color);
+            background: #fffdf8;
+        }
+
+        .crianca-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .crianca-nome {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .crianca-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-embarcada {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .status-pendente {
+            background: var(--warning-color);
+            color: var(--dark-color);
+        }
+
+        .crianca-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .crianca-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
+
+        /* Estatísticas */
+        .estatisticas {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+        }
+
+        .stat-embarcadas .stat-number {
+            color: var(--success-color);
+        }
+
+        .stat-pendentes .stat-number {
+            color: var(--warning-color);
+        }
+
+        .stat-total .stat-number {
+            color: var(--primary-color);
+        }
+
+        /* Loading e Estados */
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--secondary-color);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--secondary-color);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Responsivo */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .viagem-info {
+                grid-template-columns: 1fr;
+            }
+
+            .crianca-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .crianca-actions {
+                justify-content: flex-start;
+            }
+
+            .estatisticas {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animações */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: var(--border-radius);
+            color: white;
+            font-weight: 500;
+            z-index: 9999;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            background: var(--success-color);
+        }
+
+        .toast.error {
+            background: var(--danger-color);
+        }
+
+        .toast.warning {
+            background: var(--warning-color);
+            color: var(--dark-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <a href="area-motorista-escolar.html" class="logo">
+                <i class="fas fa-bus"></i>
+                Kanghoo
+            </a>
+            <div class="header-actions">
+                <a href="area-motorista-escolar.html" class="btn btn-primary">
+                    <i class="fas fa-arrow-left"></i>
+                    Voltar ao Dashboard
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Container Principal -->
+    <div class="container">
+        <!-- Status da Viagem -->
+        <div class="viagem-status" id="viagem-status">
+            <div class="loading">
+                <i class="fas fa-spinner fa-spin"></i>
+                Carregando informações da viagem...
+            </div>
+        </div>
+
+        <!-- Estatísticas -->
+        <div class="estatisticas" id="estatisticas" style="display: none;">
+            <div class="stat-card stat-total">
+                <div class="stat-number" id="total-criancas">0</div>
+                <div class="stat-label">Total de Crianças</div>
+            </div>
+            <div class="stat-card stat-embarcadas">
+                <div class="stat-number" id="criancas-embarcadas">0</div>
+                <div class="stat-label">Embarcadas</div>
+            </div>
+            <div class="stat-card stat-pendentes">
+                <div class="stat-number" id="criancas-pendentes">0</div>
+                <div class="stat-label">Pendentes</div>
+            </div>
+        </div>
+
+        <!-- Lista de Crianças -->
+        <div class="criancas-section">
+            <div class="section-header">
+                <h2 class="section-title">Conferência de Crianças</h2>
+                <div>
+                    <button class="btn btn-success" id="btn-iniciar-viagem" style="display: none;">
+                        <i class="fas fa-play"></i>
+                        Iniciar Viagem
+                    </button>
+                    <button class="btn btn-danger" id="btn-finalizar-viagem" style="display: none;">
+                        <i class="fas fa-stop"></i>
+                        Finalizar Viagem
+                    </button>
+                </div>
+            </div>
+            
+            <div id="criancas-lista">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    Carregando lista de crianças...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+
+    <script>
+        // Configuração da API
+        const API_BASE_URL = 'http://localhost:3001/api';
+        const WS_URL = 'ws://localhost:3001';
+        let viagemAtiva = null;
+        let criancasList = [];
+        let websocket = null;
+
+        // Função para obter token de autenticação
+        function getAuthToken() {
+            return localStorage.getItem('authToken');
+        }
+
+        // Função para fazer requisições autenticadas
+        async function apiRequest(endpoint, options = {}) {
+            const token = getAuthToken();
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                ...options
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Erro na requisição');
+                }
+
+                return data;
+            } catch (error) {
+                console.error('Erro na API:', error);
+                showToast(error.message, 'error');
+                throw error;
+            }
+        }
+
+        // Função para mostrar notificações
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => toast.classList.add('show'), 100);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 3000);
+        }
+
+        // Função para conectar WebSocket
+        function conectarWebSocket() {
+            const token = getAuthToken();
+            if (!token) return;
+
+            try {
+                websocket = new WebSocket(`${WS_URL}?token=${token}`);
+                
+                websocket.onopen = function() {
+                    console.log('🔌 WebSocket conectado');
+                    showToast('Notificações em tempo real ativadas', 'info');
+                };
+
+                websocket.onmessage = function(event) {
+                    try {
+                        const data = JSON.parse(event.data);
+                        console.log('📨 Notificação recebida:', data);
+                        
+                        if (data.type === 'notification') {
+                            processarNotificacao(data.data);
+                        }
+                    } catch (error) {
+                        console.error('Erro ao processar mensagem WebSocket:', error);
+                    }
+                };
+
+                websocket.onclose = function() {
+                    console.log('🔌 WebSocket desconectado');
+                    // Tentar reconectar após 5 segundos
+                    setTimeout(conectarWebSocket, 5000);
+                };
+
+                websocket.onerror = function(error) {
+                    console.error('❌ Erro no WebSocket:', error);
+                };
+            } catch (error) {
+                console.error('Erro ao conectar WebSocket:', error);
+            }
+        }
+
+        // Função para processar notificações recebidas
+        function processarNotificacao(notificacao) {
+            const { tipo, crianca_nome, viagem_id, timestamp } = notificacao;
+            
+            if (viagemAtiva && viagem_id === viagemAtiva.id) {
+                let mensagem = '';
+                let tipoToast = 'info';
+                
+                switch (tipo) {
+                    case 'embarque':
+                        mensagem = `🚌 ${crianca_nome} embarcou no veículo`;
+                        tipoToast = 'success';
+                        break;
+                    case 'desembarque':
+                        mensagem = `🏠 ${crianca_nome} desembarcou do veículo`;
+                        tipoToast = 'info';
+                        break;
+                    default:
+                        mensagem = `📢 Atualização: ${crianca_nome}`;
+                }
+                
+                showToast(mensagem, tipoToast);
+                
+                // Atualizar lista de crianças
+                setTimeout(() => {
+                    if (viagemAtiva) {
+                        carregarCriancasViagem(viagemAtiva.id);
+                    }
+                }, 1000);
+            }
+        }
+
+        // Função para desconectar WebSocket
+        function desconectarWebSocket() {
+            if (websocket) {
+                websocket.close();
+                websocket = null;
+            }
+        }
+
+        // Função para carregar viagens ativas
+        async function carregarViagensAtivas() {
+            try {
+                const response = await apiRequest('/conferencia/viagens-ativas');
+                const viagens = response.data;
+
+                if (viagens.length > 0) {
+                    viagemAtiva = viagens[0];
+                    await carregarCriancasViagem(viagemAtiva.id);
+                    atualizarStatusViagem();
+                    document.getElementById('btn-finalizar-viagem').style.display = 'block';
+                } else {
+                    mostrarEstadoSemViagem();
+                }
+            } catch (error) {
+                console.error('Erro ao carregar viagens:', error);
+                mostrarErroCarregamento();
+            }
+        }
+
+        // Função para carregar crianças da viagem
+        async function carregarCriancasViagem(viagemId) {
+            try {
+                const response = await apiRequest(`/conferencia/viagens/${viagemId}/criancas`);
+                criancasList = response.data;
+                renderizarCriancas();
+                atualizarEstatisticas();
+            } catch (error) {
+                console.error('Erro ao carregar crianças:', error);
+                document.getElementById('criancas-lista').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Erro ao carregar crianças</h3>
+                        <p>Tente novamente em alguns instantes</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Função para renderizar lista de crianças
+        function renderizarCriancas() {
+            const container = document.getElementById('criancas-lista');
+            
+            if (criancasList.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-child"></i>
+                        <h3>Nenhuma criança encontrada</h3>
+                        <p>Não há crianças cadastradas para esta viagem</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = criancasList.map(crianca => `
+                <div class="crianca-card ${crianca.status_embarque || 'pendente'} fade-in">
+                    <div class="crianca-header">
+                        <div class="crianca-nome">${crianca.nome_crianca}</div>
+                        <div class="crianca-status status-${crianca.status_embarque || 'pendente'}">
+                            ${crianca.status_embarque === 'embarcada' ? 'Embarcada' : 'Pendente'}
+                        </div>
+                    </div>
+                    <div class="crianca-info">
+                        <div>
+                            <div class="info-label">Responsável</div>
+                            <div class="info-value">${crianca.nome_responsavel || 'N/A'}</div>
+                        </div>
+                        <div>
+                            <div class="info-label">Telefone</div>
+                            <div class="info-value">${crianca.telefone_responsavel || 'N/A'}</div>
+                        </div>
+                        <div>
+                            <div class="info-label">Endereço</div>
+                            <div class="info-value">${crianca.endereco || 'N/A'}</div>
+                        </div>
+                        ${crianca.horario_embarque ? `
+                        <div>
+                            <div class="info-label">Horário Embarque</div>
+                            <div class="info-value">${new Date(crianca.horario_embarque).toLocaleTimeString()}</div>
+                        </div>
+                        ` : ''}
+                    </div>
+                    <div class="crianca-actions">
+                        ${crianca.status_embarque !== 'embarcada' ? `
+                            <button class="btn btn-success btn-sm" onclick="registrarEmbarque(${crianca.id})">
+                                <i class="fas fa-sign-in-alt"></i>
+                                Embarcar
+                            </button>
+                        ` : `
+                            <button class="btn btn-warning btn-sm" onclick="registrarDesembarque(${crianca.id})">
+                                <i class="fas fa-sign-out-alt"></i>
+                                Desembarcar
+                            </button>
+                        `}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Função para atualizar estatísticas
+        function atualizarEstatisticas() {
+            const total = criancasList.length;
+            const embarcadas = criancasList.filter(c => c.status_embarque === 'embarcada').length;
+            const pendentes = total - embarcadas;
+
+            document.getElementById('total-criancas').textContent = total;
+            document.getElementById('criancas-embarcadas').textContent = embarcadas;
+            document.getElementById('criancas-pendentes').textContent = pendentes;
+            document.getElementById('estatisticas').style.display = 'grid';
+        }
+
+        // Função para atualizar status da viagem
+        function atualizarStatusViagem() {
+            const statusContainer = document.getElementById('viagem-status');
+            
+            if (viagemAtiva) {
+                statusContainer.innerHTML = `
+                    <div class="status-badge status-ativa">Viagem Ativa</div>
+                    <h2>Rota: ${viagemAtiva.nome_rota}</h2>
+                    <div class="viagem-info">
+                        <div class="info-item">
+                            <div class="info-label">Veículo</div>
+                            <div class="info-value">${viagemAtiva.veiculo_placa || 'N/A'}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Início</div>
+                            <div class="info-value">${new Date(viagemAtiva.data_inicio).toLocaleTimeString()}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Escola Destino</div>
+                            <div class="info-value">${viagemAtiva.escola_destino || 'N/A'}</div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Função para mostrar estado sem viagem
+        function mostrarEstadoSemViagem() {
+            document.getElementById('viagem-status').innerHTML = `
+                <div class="status-badge status-inativa">Nenhuma Viagem Ativa</div>
+                <h2>Iniciar Nova Viagem</h2>
+                <p>Clique no botão abaixo para iniciar uma nova viagem</p>
+            `;
+            document.getElementById('btn-iniciar-viagem').style.display = 'block';
+            
+            document.getElementById('criancas-lista').innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-route"></i>
+                    <h3>Nenhuma viagem ativa</h3>
+                    <p>Inicie uma viagem para começar a conferência de crianças</p>
+                </div>
+            `;
+        }
+
+        // Função para mostrar erro de carregamento
+        function mostrarErroCarregamento() {
+            document.getElementById('viagem-status').innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h3>Erro ao carregar dados</h3>
+                    <p>Verifique sua conexão e tente novamente</p>
+                    <button class="btn btn-primary" onclick="location.reload()">
+                        <i class="fas fa-refresh"></i>
+                        Tentar Novamente
+                    </button>
+                </div>
+            `;
+        }
+
+        // Função para iniciar viagem
+        async function iniciarViagem() {
+            try {
+                const response = await apiRequest('/conferencia/viagens/iniciar', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        // Aqui você pode adicionar dados específicos da viagem
+                        // Por exemplo, rota_id se necessário
+                    })
+                });
+
+                viagemAtiva = response.data;
+                showToast('Viagem iniciada com sucesso!', 'success');
+                await carregarCriancasViagem(viagemAtiva.id);
+                atualizarStatusViagem();
+                
+                document.getElementById('btn-iniciar-viagem').style.display = 'none';
+                document.getElementById('btn-finalizar-viagem').style.display = 'block';
+            } catch (error) {
+                console.error('Erro ao iniciar viagem:', error);
+            }
+        }
+
+        // Função para finalizar viagem
+        async function finalizarViagem() {
+            if (!viagemAtiva) return;
+
+            if (!confirm('Tem certeza que deseja finalizar esta viagem?')) {
+                return;
+            }
+
+            try {
+                await apiRequest(`/conferencia/viagens/${viagemAtiva.id}/finalizar`, {
+                    method: 'PUT'
+                });
+
+                showToast('Viagem finalizada com sucesso!', 'success');
+                viagemAtiva = null;
+                criancasList = [];
+                
+                document.getElementById('btn-finalizar-viagem').style.display = 'none';
+                document.getElementById('estatisticas').style.display = 'none';
+                mostrarEstadoSemViagem();
+            } catch (error) {
+                console.error('Erro ao finalizar viagem:', error);
+            }
+        }
+
+        // Função para registrar embarque
+        async function registrarEmbarque(criancaId) {
+            if (!viagemAtiva) return;
+
+            try {
+                // Obter localização atual
+                const position = await getCurrentPosition();
+                
+                await apiRequest('/conferencia/embarque', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        viagem_id: viagemAtiva.id,
+                        crianca_id: criancaId,
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude
+                    })
+                });
+
+                showToast('Embarque registrado com sucesso!', 'success');
+                await carregarCriancasViagem(viagemAtiva.id);
+            } catch (error) {
+                console.error('Erro ao registrar embarque:', error);
+            }
+        }
+
+        // Função para registrar desembarque
+        async function registrarDesembarque(criancaId) {
+            if (!viagemAtiva) return;
+
+            try {
+                // Obter localização atual
+                const position = await getCurrentPosition();
+                
+                await apiRequest('/conferencia/desembarque', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        viagem_id: viagemAtiva.id,
+                        crianca_id: criancaId,
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude
+                    })
+                });
+
+                showToast('Desembarque registrado com sucesso!', 'success');
+                await carregarCriancasViagem(viagemAtiva.id);
+            } catch (error) {
+                console.error('Erro ao registrar desembarque:', error);
+            }
+        }
+
+        // Função para obter localização atual
+        function getCurrentPosition() {
+            return new Promise((resolve, reject) => {
+                if (!navigator.geolocation) {
+                    reject(new Error('Geolocalização não suportada'));
+                    return;
+                }
+
+                navigator.geolocation.getCurrentPosition(resolve, reject, {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 60000
+                });
+            });
+        }
+
+        // Event Listeners
+        document.getElementById('btn-iniciar-viagem').addEventListener('click', iniciarViagem);
+        document.getElementById('btn-finalizar-viagem').addEventListener('click', finalizarViagem);
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            carregarViagensAtivas();
+            conectarWebSocket();
+            
+            // Atualizar dados a cada 30 segundos
+            setInterval(() => {
+                if (viagemAtiva) {
+                    carregarCriancasViagem(viagemAtiva.id);
+                }
+            }, 30000);
+        });
+
+        // Desconectar WebSocket quando a página for fechada
+        window.addEventListener('beforeunload', function() {
+            desconectarWebSocket();
+        });
+    </script>
+</body>
+</html>

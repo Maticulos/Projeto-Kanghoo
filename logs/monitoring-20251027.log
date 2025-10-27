@@ -1,0 +1,9 @@
+[2025-10-27 14:36:51] [INFO] === GERENCIAMENTO DO STACK DE MONITORAMENTO ===
+[2025-10-27 14:36:51] [INFO] Ação: start
+[2025-10-27 14:36:51] [INFO] Verificando pré-requisitos...
+[2025-10-27 14:36:52] [INFO] Docker encontrado: Docker version 28.4.0, build d8eb465
+[2025-10-27 14:36:54] [INFO] Docker Compose encontrado: Docker Compose version v2.39.2-desktop.1
+[2025-10-27 14:36:54] [SUCCESS] Pré-requisitos verificados com sucesso.
+[2025-10-27 14:36:54] [INFO] Iniciando stack de monitoramento...
+[2025-10-27 14:36:54] [INFO] Iniciando Prometheus, Grafana e Exporters...
+[2025-10-27 14:42:08] [ERROR] ERRO: Falha ao iniciar stack de monitoramento.

@@ -2,7 +2,7 @@
 process.env.NODE_ENV = 'test';
 process.env.JWT_SECRET = 'test-jwt-secret-key';
 
-// Configurar console para testes (reduzir logs)
+// Desabilitar logs durante os testes
 console.log = () => {};
 console.warn = () => {};
 console.error = () => {};

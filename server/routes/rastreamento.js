@@ -3,6 +3,7 @@ const db = require('../config/db');
 const { authenticateToken, requireRole } = require('../middleware/auth-utils');
 const { validateInput, sanitizeForLog } = require('../config/security-config');
 const notificationService = require('../utils/notification-service');
+const logger = require('../utils/logger');
 
 // Integração com sistema de notificações em tempo real
 let trackingIntegration = null;
@@ -10,7 +11,7 @@ let trackingIntegration = null;
 // Função para definir a integração (será chamada pelo servidor principal)
 function setTrackingIntegration(integration) {
     trackingIntegration = integration;
-    console.log('[RASTREAMENTO] Integração de notificações em tempo real configurada');
+    logger.info('[RASTREAMENTO] Integração de notificações em tempo real configurada');
 }
 
 const router = new KoaRouter({ prefix: '/api/rastreamento' });
@@ -40,7 +41,7 @@ router.post('/viagens/iniciar', authenticateToken, requireRole('motorista_escola
                 ctx.status = 400;
                 ctx.body = {
                     sucesso: false,
-                    mensagem: validacao.error
+                    mensagem: validacao.error || 'Erro de validação'
                 };
                 return;
             }
@@ -95,7 +96,7 @@ router.post('/viagens/iniciar', authenticateToken, requireRole('motorista_escola
             }
         }
 
-        console.log(JSON.stringify(sanitizeForLog({
+        logger.info(JSON.stringify(sanitizeForLog({
             acao: 'iniciar_viagem',
             motorista_id: motoristaId,
             viagem_id: viagemId,
@@ -110,7 +111,7 @@ router.post('/viagens/iniciar', authenticateToken, requireRole('motorista_escola
             viagem: viagem.rows[0]
         };
     } catch (error) {
-        console.error('Erro ao iniciar viagem:', error);
+        logger.error('Erro ao iniciar viagem:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -159,7 +160,7 @@ router.put('/viagens/:id/finalizar', authenticateToken, requireRole('motorista_e
             RETURNING id, horario_inicio, horario_fim
         `, [viagemId]);
 
-        console.log(JSON.stringify(sanitizeForLog({
+        logger.info(JSON.stringify(sanitizeForLog({
             acao: 'finalizar_viagem',
             motorista_id: motoristaId,
             viagem_id: viagemId
@@ -171,7 +172,7 @@ router.put('/viagens/:id/finalizar', authenticateToken, requireRole('motorista_e
             viagem: resultado.rows[0]
         };
     } catch (error) {
-        console.error('Erro ao finalizar viagem:', error);
+        logger.error('Erro ao finalizar viagem:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -322,12 +323,12 @@ router.post('/localizacao', authenticateToken, requireRole('motorista_escolar'),
                     dados_completos: dadosRastreamento
                 });
             } catch (error) {
-                console.error('[RASTREAMENTO] Erro na integração de notificações:', error);
+                logger.error('[RASTREAMENTO] Erro na integração de notificações:', error);
             }
         }
 
         // Simular armazenamento dos dados
-        console.log(`[RASTREAMENTO] Dados coletados:`, {
+        logger.debug(`[RASTREAMENTO] Dados coletados:`, {
             viagem: viagemAtiva.id,
             localizacao: `${latitude}, ${longitude}`,
             velocidade: `${velocidade} km/h`,
@@ -353,7 +354,7 @@ router.post('/localizacao', authenticateToken, requireRole('motorista_escolar'),
         };
 
     } catch (error) {
-        console.error('[ERRO] Rastreamento:', error);
+        logger.error('[ERRO] Rastreamento:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -376,7 +377,7 @@ router.get('/viagem-ativa', authenticateToken, requireRole('motorista_escolar'),
                     v.horario_inicio,
                     v.tipo_viagem,
                     v.status,
-                    r.nome as nome_rota,
+                    r.nome_rota as nome_rota,
                     r.descricao as descricao_rota,
                     COUNT(cv.crianca_id) as total_criancas
                 FROM viagens v
@@ -385,7 +386,7 @@ router.get('/viagem-ativa', authenticateToken, requireRole('motorista_escolar'),
                 WHERE v.motorista_id = $1 
                 AND v.status IN ('iniciada', 'em_andamento')
                 AND v.data_viagem = CURRENT_DATE
-                GROUP BY v.id, r.nome, r.descricao
+                GROUP BY v.id, r.nome_rota, r.descricao
             `, [motoristaId]);
 
             if (viagemAtiva.rows.length > 0) {
@@ -396,7 +397,7 @@ router.get('/viagem-ativa', authenticateToken, requireRole('motorista_escolar'),
                 return;
             }
         } catch (dbError) {
-            console.log('Tabelas de viagem não encontradas, usando dados simulados');
+            logger.debug('Tabelas de viagem não encontradas, usando dados simulados');
         }
 
         // Se não há viagem ativa ou erro na query, retornar dados simulados para demonstração
@@ -417,7 +418,7 @@ router.get('/viagem-ativa', authenticateToken, requireRole('motorista_escolar'),
             }
         };
     } catch (error) {
-        console.error('Erro ao buscar viagem ativa:', error);
+        logger.error('Erro ao buscar viagem ativa:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -444,13 +445,13 @@ router.get('/historico', authenticateToken, requireRole('motorista_escolar'), as
                     v.horario_fim,
                     v.tipo_viagem,
                     v.status,
-                    r.nome as nome_rota,
+                    r.nome_rota as nome_rota,
                     COUNT(cv.crianca_id) as total_criancas
                 FROM viagens v
                 JOIN rotas r ON v.rota_id = r.id
                 LEFT JOIN criancas_viagens cv ON v.id = cv.viagem_id
                 WHERE v.motorista_id = $1
-                GROUP BY v.id, r.nome
+                GROUP BY v.id, r.nome_rota
                 ORDER BY v.data_viagem DESC, v.horario_inicio DESC
                 LIMIT $2 OFFSET $3
             `, [motoristaId, limite, offset]);
@@ -475,7 +476,7 @@ router.get('/historico', authenticateToken, requireRole('motorista_escolar'), as
                 return;
             }
         } catch (dbError) {
-            console.log('Tabelas de histórico não encontradas, usando dados simulados');
+            logger.debug('Tabelas de histórico não encontradas, usando dados simulados');
         }
 
         // Dados simulados para demonstração
@@ -524,7 +525,7 @@ router.get('/historico', authenticateToken, requireRole('motorista_escolar'), as
             }
         };
     } catch (error) {
-        console.error('Erro ao buscar histórico de viagens:', error);
+        logger.error('Erro ao buscar histórico de viagens:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -559,7 +560,7 @@ router.get('/viagens/:id', authenticateToken, requireRole('motorista_escolar'), 
                 v.horario_fim,
                 v.tipo_viagem,
                 v.status,
-                r.nome as nome_rota,
+                r.nome_rota as nome_rota,
                 r.descricao as descricao_rota
             FROM viagens v
             JOIN rotas r ON v.rota_id = r.id
@@ -608,7 +609,7 @@ router.get('/viagens/:id', authenticateToken, requireRole('motorista_escolar'), 
             }
         };
     } catch (error) {
-        console.error('Erro ao buscar detalhes da viagem:', error);
+        logger.error('Erro ao buscar detalhes da viagem:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -634,7 +635,7 @@ router.post('/embarque', authenticateToken, requireRole('motorista_escolar'), as
                 ctx.status = 400;
                 ctx.body = {
                     sucesso: false,
-                    mensagem: validacao.error
+                    mensagem: validacao.error || 'Erro de validação'
                 };
                 return;
             }
@@ -670,11 +671,11 @@ router.post('/embarque', authenticateToken, requireRole('motorista_escolar'), as
                     timestamp: new Date()
                 });
             } catch (error) {
-                console.error('[RASTREAMENTO] Erro na integração de embarque:', error);
+                logger.error('[RASTREAMENTO] Erro na integração de embarque:', error);
             }
         }
 
-        console.log(JSON.stringify(sanitizeForLog({
+        logger.info(JSON.stringify(sanitizeForLog({
             acao: 'embarque_crianca',
             motorista_id: motoristaId,
             viagem_id,
@@ -686,7 +687,7 @@ router.post('/embarque', authenticateToken, requireRole('motorista_escolar'), as
             mensagem: 'Embarque registrado com sucesso'
         };
     } catch (error) {
-        console.error('Erro ao registrar embarque:', error);
+        logger.error('Erro ao registrar embarque:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -712,7 +713,7 @@ router.post('/desembarque', authenticateToken, requireRole('motorista_escolar'),
                 ctx.status = 400;
                 ctx.body = {
                     sucesso: false,
-                    mensagem: validacao.error
+                    mensagem: validacao.error || 'Erro de validação'
                 };
                 return;
             }
@@ -748,11 +749,11 @@ router.post('/desembarque', authenticateToken, requireRole('motorista_escolar'),
                     timestamp: new Date()
                 });
             } catch (error) {
-                console.error('[RASTREAMENTO] Erro na integração de desembarque:', error);
+                logger.error('[RASTREAMENTO] Erro na integração de desembarque:', error);
             }
         }
 
-        console.log(JSON.stringify(sanitizeForLog({
+        logger.debug(JSON.stringify(sanitizeForLog({
             acao: 'desembarque_crianca',
             motorista_id: motoristaId,
             viagem_id,
@@ -764,7 +765,7 @@ router.post('/desembarque', authenticateToken, requireRole('motorista_escolar'),
             mensagem: 'Desembarque registrado com sucesso'
         };
     } catch (error) {
-        console.error('Erro ao registrar desembarque:', error);
+        logger.error('Erro ao registrar desembarque:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,

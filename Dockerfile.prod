@@ -1,0 +1,108 @@
+# ========================================
+# DOCKERFILE OTIMIZADO PARA PRODUÇÃO
+# Sistema de Transporte Escolar
+# ========================================
+# Multi-stage build para imagem mínima e segura
+
+# ========================================
+# ESTÁGIO 1: DEPENDÊNCIAS
+# ========================================
+FROM node:18-alpine AS dependencies
+
+# Instalar dependências do sistema
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    postgresql-client \
+    curl \
+    && rm -rf /var/cache/apk/*
+
+WORKDIR /app
+
+# Copiar arquivos de dependências
+COPY server/package*.json ./
+
+# Instalar todas as dependências (incluindo dev para build)
+RUN npm ci --include=dev && npm cache clean --force
+
+# ========================================
+# ESTÁGIO 2: BUILD
+# ========================================
+FROM dependencies AS builder
+
+WORKDIR /app
+
+# Copiar código fonte
+COPY server/ ./
+
+# Executar build se necessário (transpilação, minificação, etc.)
+RUN npm run build 2>/dev/null || echo "No build script found"
+
+# Remover dependências de desenvolvimento
+RUN npm prune --production
+
+# ========================================
+# ESTÁGIO 3: PRODUÇÃO
+# ========================================
+FROM node:18-alpine AS production
+
+# Metadados da imagem
+LABEL maintainer="Sistema de Transporte Escolar" \
+      version="1.0.0" \
+      description="Sistema completo de gestão de transporte escolar - Produção" \
+      org.opencontainers.image.source="https://github.com/seu-usuario/transporte-escolar" \
+      org.opencontainers.image.documentation="https://github.com/seu-usuario/transporte-escolar/blob/main/README.md"
+
+# Instalar apenas dependências essenciais
+RUN apk add --no-cache \
+    postgresql-client \
+    curl \
+    dumb-init \
+    && rm -rf /var/cache/apk/* \
+    && rm -rf /tmp/*
+
+# Criar usuário não-root para segurança
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001 -G nodejs
+
+# Definir diretório de trabalho
+WORKDIR /app
+
+# Copiar dependências de produção
+COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
+
+# Copiar código da aplicação
+COPY --from=builder --chown=nodejs:nodejs /app/ ./
+
+# Copiar frontend
+COPY --chown=nodejs:nodejs frontend/ ./frontend/
+
+# Criar diretórios necessários com permissões corretas
+RUN mkdir -p logs uploads temp && \
+    chown -R nodejs:nodejs /app && \
+    chmod -R 755 /app && \
+    chmod -R 777 logs uploads temp
+
+# Configurar variáveis de ambiente para produção
+ENV NODE_ENV=production \
+    PORT=5000 \
+    NPM_CONFIG_LOGLEVEL=warn \
+    NODE_OPTIONS="--max-old-space-size=1024" \
+    UV_THREADPOOL_SIZE=4
+
+# Mudar para usuário não-root
+USER nodejs
+
+# Expor porta da aplicação
+EXPOSE 5000
+
+# Health check otimizado
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:5000/api/health || exit 1
+
+# Usar dumb-init para gerenciamento de processos
+ENTRYPOINT ["dumb-init", "--"]
+
+# Comando para iniciar a aplicação
+CMD ["node", "server.js"]

@@ -85,7 +85,7 @@ describe('SecurityManager', () => {
             
             // Enviar 9 mensagens (dentro do limite de 10 por minuto)
             for (let i = 0; i < 9; i++) {
-                const result = await securityManager.checkMessage(userId, 'test message', 100);
+                const result = await securityManager.checkMessage(userId, `test message ${i}`, 100);
                 expect(result).to.be.true;
             }
         });
@@ -95,11 +95,11 @@ describe('SecurityManager', () => {
             
             // Enviar 10 mensagens (limite máximo)
             for (let i = 0; i < 10; i++) {
-                await securityManager.checkMessage(userId, 'test message', 100);
+                await securityManager.checkMessage(userId, `test message ${i}`, 100);
             }
             
             // Tentar enviar a 11ª mensagem
-            const result = await securityManager.checkMessage(userId, 'test message', 100);
+            const result = await securityManager.checkMessage(userId, 'test message 11', 100);
             expect(result).to.be.false;
         });
 
@@ -108,14 +108,14 @@ describe('SecurityManager', () => {
             
             // Enviar 10 mensagens
             for (let i = 0; i < 10; i++) {
-                await securityManager.checkMessage(userId, 'test message', 100);
+                await securityManager.checkMessage(userId, `test message ${i}`, 100);
             }
             
             // Avançar 1 minuto
             clock.tick(60000);
             
             // Deve permitir nova mensagem
-            const result = await securityManager.checkMessage(userId, 'test message', 100);
+            const result = await securityManager.checkMessage(userId, 'test message after reset', 100);
             expect(result).to.be.true;
         });
     });
@@ -144,7 +144,7 @@ describe('SecurityManager', () => {
     describe('Detecção de Spam', () => {
         it('deve detectar mensagens muito grandes', async () => {
             const userId = 'user123';
-            const largeMessage = 'x'.repeat(10001); // Acima do limite de 10KB
+            const largeMessage = 'x'.repeat(10241); // Acima do limite de 10KB (10240 bytes)
             
             const result = await securityManager.checkMessage(userId, largeMessage, largeMessage.length);
             expect(result).to.be.false;

@@ -53,13 +53,13 @@ class TrackingIntegration {
                     v.tipo_viagem,
                     v.status,
                     v.horario_inicio,
-                    r.nome as nome_rota,
+                    r.nome_rota,
                     array_agg(
                         json_build_object(
                             'id', c.id,
                             'nome', c.nome_completo,
                             'responsavel_id', c.responsavel_id,
-                            'embarcada', COALESCE(cv.embarcada, false)
+                            'embarcada', COALESCE(cv.status = 'embarcada', false)
                         )
                     ) as criancas
                 FROM viagens v
@@ -68,7 +68,7 @@ class TrackingIntegration {
                 LEFT JOIN criancas c ON cv.crianca_id = c.id
                 WHERE v.status IN ('iniciada', 'em_andamento')
                 AND v.data_viagem = CURRENT_DATE
-                GROUP BY v.id, r.nome
+                GROUP BY v.id, r.nome_rota
             `);
 
             for (const viagem of viagens.rows) {

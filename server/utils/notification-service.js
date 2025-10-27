@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const logger = require('./logger');
 
 // Configuração do sistema de notificações
 class NotificationService {
@@ -25,12 +26,12 @@ class NotificationService {
             try {
                 const twilio = require('twilio');
                 this.twilioClient = twilio(this.twilioConfig.accountSid, this.twilioConfig.authToken);
-                console.log('[WHATSAPP] Cliente Twilio inicializado com sucesso');
+                logger.info('Cliente Twilio inicializado com sucesso');
             } catch (error) {
-                console.warn('[WHATSAPP] Erro ao inicializar Twilio:', error.message);
+                logger.warn('Erro ao inicializar Twilio:', error.message);
             }
         } else {
-            console.warn('[WHATSAPP] Credenciais do Twilio não configuradas - usando modo simulação');
+            logger.warn('Credenciais do Twilio não configuradas - usando modo simulação');
         }
 
         // Templates de mensagem para WhatsApp
@@ -63,10 +64,10 @@ class NotificationService {
             };
 
             const resultado = await this.emailTransporter.sendMail(mailOptions);
-            console.log(`[EMAIL] Enviado para ${destinatario}: ${assunto}`);
+            logger.info(`[EMAIL] Enviado para ${destinatario}: ${assunto}`);
             return { sucesso: true, messageId: resultado.messageId };
         } catch (error) {
-            console.error(`[EMAIL] Erro ao enviar para ${destinatario}:`, error);
+            logger.error(`[EMAIL] Erro ao enviar para ${destinatario}:`, error);
             return { sucesso: false, erro: error.message };
         }
     }
@@ -98,7 +99,7 @@ class NotificationService {
                 throw new Error('Número de telefone inválido');
             }
 
-            console.log(`[WHATSAPP] Enviando para ${telefoneFormatado}: ${mensagem.substring(0, 50)}...`);
+            logger.debug(`Enviando WhatsApp para ${telefoneFormatado}: ${mensagem.substring(0, 50)}...`);
             
             // Se o cliente Twilio estiver configurado, usar a API real
             if (this.twilioClient) {
@@ -108,7 +109,7 @@ class NotificationService {
                     to: telefoneFormatado
                 });
 
-                console.log(`[WHATSAPP] Mensagem enviada com sucesso. SID: ${message.sid}`);
+                logger.info(`Mensagem WhatsApp enviada com sucesso. SID: ${message.sid}`);
                 return { 
                     sucesso: true, 
                     messageId: message.sid,
@@ -117,8 +118,8 @@ class NotificationService {
                 };
             } else {
                 // Modo simulação melhorado para desenvolvimento
-                console.log(`[WHATSAPP] SIMULAÇÃO - Mensagem para ${telefoneFormatado}`);
-                console.log(`[WHATSAPP] SIMULAÇÃO - Conteúdo: ${mensagem}`);
+                logger.debug(`SIMULAÇÃO WhatsApp - Mensagem para ${telefoneFormatado}`);
+                logger.debug(`SIMULAÇÃO WhatsApp - Conteúdo: ${mensagem}`);
                 
                 // Simular diferentes cenários
                 const random = Math.random();
@@ -128,7 +129,7 @@ class NotificationService {
                     throw new Error('Limite de mensagens excedido');
                 } else {
                     const messageId = `sim_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-                    console.log(`[WHATSAPP] SIMULAÇÃO - Mensagem enviada com sucesso. ID: ${messageId}`);
+                    logger.info(`SIMULAÇÃO WhatsApp - Mensagem enviada com sucesso. ID: ${messageId}`);
                     return { 
                         sucesso: true, 
                         messageId: messageId,
@@ -139,7 +140,7 @@ class NotificationService {
                 }
             }
         } catch (error) {
-            console.error(`[WHATSAPP] Erro ao enviar para ${telefone}:`, error);
+            logger.error(`Erro ao enviar WhatsApp para ${telefone}:`, error);
             
             // Categorizar tipos de erro
             let tipoErro = 'unknown';
@@ -346,7 +347,7 @@ class NotificationService {
                 dateUpdated: message.dateUpdated
             };
         } catch (error) {
-            console.error(`[WHATSAPP] Erro ao verificar status da mensagem ${messageId}:`, error);
+            logger.error(`[WHATSAPP] Erro ao verificar status da mensagem ${messageId}:`, error);
             return { 
                 status: 'error', 
                 erro: error.message 
@@ -370,7 +371,7 @@ class NotificationService {
 
         // Aqui você implementaria a lógica para buscar estatísticas do banco de dados
         // Por enquanto, retornamos estatísticas simuladas
-        console.log(`[STATS] Obtendo estatísticas de ${dataInicio} até ${dataFim}`);
+        logger.debug(`[STATS] Obtendo estatísticas de ${dataInicio} até ${dataFim}`);
         
         return stats;
     }

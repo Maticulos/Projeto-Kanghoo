@@ -100,7 +100,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/ssl:/etc/nginx/ssl:ro
       - ./logs/nginx:/var/log/nginx
     depends_on:
@@ -153,8 +153,68 @@ services:
       - grafana_data:/var/lib/grafana
       - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
       - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./monitoring/grafana/grafana.ini:/etc/grafana/grafana.ini:ro
     depends_on:
       - prometheus
+    networks:
+      - transporte-network
+    restart: unless-stopped
+    profiles:
+      - monitoring
+
+  # ========================================
+  # NODE EXPORTER - MÉTRICAS DO SISTEMA
+  # ========================================
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: transporte-escolar-node-exporter
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    networks:
+      - transporte-network
+    restart: unless-stopped
+    profiles:
+      - monitoring
+
+  # ========================================
+  # POSTGRES EXPORTER - MÉTRICAS DO BANCO
+  # ========================================
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: transporte-escolar-postgres-exporter
+    ports:
+      - "9187:9187"
+    environment:
+      - DATA_SOURCE_NAME=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres123}@postgres:5432/${POSTGRES_DB:-transporte_escolar}?sslmode=disable
+    depends_on:
+      - postgres
+    networks:
+      - transporte-network
+    restart: unless-stopped
+    profiles:
+      - monitoring
+
+  # ========================================
+  # REDIS EXPORTER - MÉTRICAS DO CACHE
+  # ========================================
+  redis-exporter:
+    image: oliver006/redis_exporter:latest
+    container_name: transporte-escolar-redis-exporter
+    ports:
+      - "9121:9121"
+    environment:
+      - REDIS_ADDR=redis://redis:6379
+    depends_on:
+      - redis
     networks:
       - transporte-network
     restart: unless-stopped

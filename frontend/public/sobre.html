@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="assets/css/bundle.min.css">
 </head>
 <body>
 <!-- HEADER COM A ANIMAÇÃO CORRIGIDA -->
@@ -15,20 +15,20 @@
     <div class="container">
         <!-- O link principal volta para o index.html -->
         <a href="index.html" class="logo-link" aria-label="Kanghoo - Página inicial">
-            <img src="../imagens/logo.png" alt="Ícone Kanghoo" class="logo-icon">
+            <img src="assets/images/logo.png" alt="Ícone Kanghoo" class="logo-icon">
             <span class="logo-text-full">Kanghoo</span>
         </a>
         
         <nav class="nav" aria-label="Navegação principal">
             <a href="planos.html" class="nav-link">Planos</a>
-            <a href="index.html#contact" class="nav-link">Fale Conosco</a>
-            <a href="#" class="nav-link" id="open-transport-modal">Encontrar Transporte</a>
+            <a href="contato.html" class="nav-link">Fale Conosco</a>
+            <a href="encontrar-transporte.html" class="nav-link" id="open-transport-modal">Encontrar Transporte</a>
             <a href="sobre.html" class="nav-link">Sobre Nós</a>
         </nav>
         
         <div class="auth-buttons">
             <!-- Caminho corrigido para a pasta auth -->
-            <a href="../auth/login.html" class="btn btn-blue">Login</a>
+            <a href="auth/login.html" class="btn btn-blue">Login</a>
             <button class="btn btn-primary" id="btn-cadastro-modal" aria-haspopup="dialog">Cadastro</button>
         </div>
     </div>
@@ -45,7 +45,7 @@
                 <a href="cadastro-excursao.html" class="btn btn-blue">Excursão e Fretamento</a>
             </div>
             <div class="modal-footer">
-                <p>Não tem certeza? <a href="index.html#contact">Fale conosco</a></p>
+                <p>Não tem certeza? <a href="contato.html">Fale conosco</a></p>
             </div>
         </div>
     </div>
@@ -140,8 +140,8 @@
                 <p class="section-subtitle">Conheça as pessoas por trás da Kanghoo que trabalham todos os dias para tornar suas viagens mais seguras e eficientes.</p>
                 <div class="team-grid">
                     <div class="team-member">
-                        <div class="member-photo">
-                            <img src="../imagens/joao-silva.svg" 
+                         <div class="member-photo">
+                            <img src="assets/images/joao-silva.svg" 
                                  alt="João Silva - CEO & Fundador" 
                                  loading="lazy"
                                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
@@ -155,7 +155,7 @@
                     </div>
                     <div class="team-member">
                         <div class="member-photo">
-                            <img src="../imagens/maria-santos.svg" 
+                            <img src="assets/images/maria-santos.svg" 
                                  alt="Maria Santos - CTO" 
                                  loading="lazy"
                                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
@@ -169,7 +169,7 @@
                     </div>
                     <div class="team-member">
                         <div class="member-photo">
-                            <img src="../imagens/carlos-oliveira.svg" 
+                            <img src="assets/images/carlos-oliveira.svg" 
                                  alt="Carlos Oliveira - Head de Operações" 
                                  loading="lazy"
                                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
@@ -183,7 +183,7 @@
                     </div>
                     <div class="team-member">
                         <div class="member-photo">
-                            <img src="../imagens/ana-costa.svg" 
+                            <img src="assets/images/ana-costa.svg" 
                                  alt="Ana Costa - Head de Segurança" 
                                  loading="lazy"
                                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
@@ -304,9 +304,9 @@
                 <a href="index.html" class="logo">Kanghoo</a>
                 <p class="footer-tagline">Soluções de viagem sem esforço.</p>
                 <div class="footer-social-media">
-                    <a href="#" aria-label="Facebook"><img src="../imagens/face.png" alt="Facebook"></a>
-                    <a href="#" aria-label="Instagram"><img src="../imagens/insta.png" alt="Instagram"></a>
-                    <a href="#" aria-label="LinkedIn"><img src="../imagens/linkedin.png" alt="LinkedIn"></a>
+                    <a href="#" aria-label="Facebook"><img src="assets/images/face.png" alt="Facebook"></a>
+                    <a href="#" aria-label="Instagram"><img src="assets/images/insta.png" alt="Instagram"></a>
+                    <a href="#" aria-label="LinkedIn"><img src="assets/images/linkedin.png" alt="LinkedIn"></a>
                 </div>
             </div>
             <div class="footer-links-group">
@@ -331,7 +331,7 @@
                 <h4>Empresa</h4>
                 <ul>
                     <li><a href="sobre.html">Sobre Nós</a></li>
-                    <li><a href="#contact">Contato</a></li>
+                    <li><a href="contato.html">Contato</a></li>
                     <li><a href="#">Termos de Uso</a></li>
                     <li><a href="#">Privacidade</a></li>
                 </ul>
@@ -343,8 +343,8 @@
     </div>
 </footer>
 </body>
-<script src="../js/app.js"></script>
-<script src="../js/animacoes-sobre.js"></script>
+<script src="assets/js/bundle.min.js"></script>
+<script src="assets/js/animations/animacoes-sobre.js"></script>
 <script>
     function setTransportType(type) {
         localStorage.setItem('transportType', type);

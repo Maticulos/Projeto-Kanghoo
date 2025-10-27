@@ -10,7 +10,7 @@
     <meta property="og:description" content="Veja recursos e preços dos planos Kanghoo para transporte escolar e excursões.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://kanghoo.example/planos">
-    <meta property="og:image" content="../imagens/logo.png">
+    <meta property="og:image" content="assets/images/logo.png">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Planos - Kanghoo">
     <meta name="twitter:description" content="Planos flexíveis com recursos essenciais e avançados.">
@@ -18,220 +18,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../css/style.css">
-    <style>
-        /* ESTILOS ESPECÍFICOS PARA PLANOS */
-        .plans-page {
-            padding: 100px 0 50px;
-        }
-
-        .plans-header {
-            text-align: center;
-            margin-bottom: 40px;
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.6s ease, transform 0.6s ease;
-        }
-
-        .plans-title {
-            font-size: 32px;
-            font-weight: 700;
-            color: var(--cor-azul-texto);
-            margin-bottom: 15px;
-        }
-
-        .plans-subtitle {
-            font-size: 18px;
-            margin-bottom: 20px;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-            color: var(--cor-texto-geral);
-        }
-
-        .plans-disclaimer {
-            background-color: var(--cor-branco);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            margin-bottom: 30px;
-            font-size: 14px;
-            line-height: 1.6;
-        }
-
-        .plans-disclaimer strong {
-            color: var(--cor-azul-texto);
-        }
-
-        .plans-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            max-width: 1000px;
-            margin: 0 auto;
-            align-items: stretch;
-        }
-
-        .plan-card {
-            background: var(--cor-branco);
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-            padding: 35px;
-            position: relative;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .plan-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
-        }
-
-        .plan-header {
-            border-bottom: 2px solid var(--cor-fundo-claro);
-            padding-bottom: 20px;
-            margin-bottom: 25px;
-        }
-
-        .plan-pricing {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .monthly-price {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--cor-azul-texto);
-        }
-
-        .annual-option {
-            font-size: 16px;
-            color: var(--cor-texto-geral);
-            font-weight: 500;
-        }
-
-        .equivalent-price {
-            background-color: var(--cor-fundo-claro);
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .equivalent-price strong {
-            font-size: 22px;
-            color: var(--cor-azul-texto);
-            display: block;
-            margin-bottom: 8px;
-        }
-
-        .savings {
-            color: var(--cor-sucesso);
-            font-weight: 700;
-            font-size: 16px;
-        }
-
-        .plan-name {
-            font-size: 26px;
-            font-weight: 700;
-            color: var(--cor-azul-texto);
-            margin-bottom: 12px;
-        }
-
-        .plan-description {
-            font-size: 16px;
-            color: var(--cor-texto-geral);
-            margin-bottom: 20px;
-            line-height: 1.5;
-        }
-
-        .plan-features {
-            margin-bottom: 30px;
-        }
-
-        .feature-item {
-            display: flex;
-            align-items: flex-start;
-            margin-bottom: 14px;
-        }
-
-        .feature-icon {
-            color: var(--cor-amarelo-destaque);
-            font-weight: bold;
-            margin-right: 12px;
-            flex-shrink: 0;
-            font-size: 18px;
-        }
-
-        .feature-text {
-            flex: 1;
-            font-size: 15px;
-            line-height: 1.5;
-        }
-
-        .plan-divider {
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--cor-cinza-borda), transparent);
-            margin: 25px 0;
-            border: none;
-        }
-
-        .plan-cta {
-            text-align: center;
-            margin-top: auto;
-            padding-top: 20px;
-        }
-
-        .plan-btn {
-            display: inline-block;
-            padding: 16px 32px;
-            background-color: var(--cor-amarelo-destaque);
-            color: var(--cor-azul-texto);
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            width: 100%;
-            text-align: center;
-            margin-top: 1rem;
-        }
-
-        .plan-btn:hover {
-            background-color: #e6c02a;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(247, 210, 47, 0.3);
-        }
-
-        @media (min-width: 768px) {
-            .plans-title {
-                font-size: 42px;
-            }
-
-            .plans-page {
-                padding: 120px 0 60px;
-            }
-        }
-
-        @media (max-width: 767px) {
-            .plan-pricing {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .plan-card {
-                padding: 25px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="assets/css/bundle.min.css">
+    <link rel="stylesheet" href="assets/css/planos.css">
 </head>
 
 <body>
@@ -240,13 +28,13 @@
     <div class="container">
         <!-- O link principal volta para o index.html -->
         <a href="index.html" class="logo-link" aria-label="Kanghoo - Página inicial">
-            <img src="../imagens/logo.png" alt="Ícone Kanghoo" class="logo-icon">
+            <img src="assets/images/logo.png" alt="Ícone Kanghoo" class="logo-icon">
             <span class="logo-text-full">Kanghoo</span>
         </a>
         
         <nav class="nav" aria-label="Navegação principal">
             <a href="planos.html" class="nav-link">Planos</a>
-            <a href="index.html#contact" class="nav-link">Fale Conosco</a>
+            <a href="contato.html" class="nav-link">Fale Conosco</a>
             <a href="#" class="nav-link" id="open-transport-modal">Encontrar Transporte</a>
             <a href="sobre.html" class="nav-link">Sobre Nós</a>
         </nav>
@@ -270,7 +58,7 @@
                 <a href="cadastro-excursao.html" class="btn btn-blue">Excursão e Fretamento</a>
             </div>
             <div class="modal-footer">
-                <p>Não tem certeza? <a href="index.html#contact">Fale conosco</a></p>
+                <p>Não tem certeza? <a href="contato.html">Fale conosco</a></p>
             </div>
         </div>
     </div>
@@ -289,166 +77,296 @@
         </div>
     </div>
 
-    <main class="plans-page">
+    <main class="plans-page animated-section">
         <div class="container">
             <div class="plans-header">
-                <h1 class="plans-title">Planos de Assinatura – Transporte Escolar</h1>
-                <p class="plans-subtitle">Escolha o plano ideal para suas necessidades de transporte escolar</p>
-
+                <h1 class="plans-title">Escolha o Plano Ideal</h1>
+                <p class="plans-subtitle">
+                    Oferecemos soluções flexíveis para atender às necessidades do seu negócio de transporte escolar.
+                    Escolha o plano que melhor se adapta ao tamanho da sua operação.
+                </p>
                 <div class="plans-disclaimer">
-                    <p>Sem letras miúdas: todos os planos podem ser cancelados a qualquer momento. O plano anual oferece
-                        desconto equivalente a 1 mês grátis em relação ao plano mensal. <strong>Preços válidos até
-                            31/12/2025.</strong></p>
+                    <strong>Importante:</strong> Todos os planos incluem suporte técnico, atualizações automáticas e backup seguro dos seus dados.
+                    Você pode alterar seu plano a qualquer momento conforme sua necessidade.
                 </div>
-                <div class="billing-toggle" aria-label="Alternar cobrança">
-                    <button class="toggle-btn active" data-billing="monthly">Mensal</button>
-                    <button class="toggle-btn" data-billing="annual">Anual</button>
+                
+                <!-- Toggle de Cobrança -->
+                <div class="billing-toggle" role="tablist" aria-label="Opções de cobrança">
+                    <button class="toggle-btn active" data-billing="monthly" role="tab" aria-selected="true" aria-controls="monthly-pricing">
+                        Mensal
+                    </button>
+                    <button class="toggle-btn" data-billing="annual" role="tab" aria-selected="false" aria-controls="annual-pricing">
+                        Anual
+                        <span class="sr-only">com desconto</span>
+                    </button>
                 </div>
             </div>
 
             <div class="plans-grid">
                 <!-- Plano Basic -->
-                <div class="plan-card" data-plan="basic">
+                <article class="plan-card" data-plan="basic" role="article" aria-labelledby="plan-basic-title">
                     <div class="plan-header">
                         <div class="plan-pricing">
-                            <div class="monthly-price">Plano Basic</div>
-                            <div class="annual-option">ou opte pelo Plano Anual</div>
+                            <div class="monthly-price">$ 35,00/mês</div>
+                            <div class="annual-option">ou R$ 1875,00/ano</div>
                         </div>
-
-                        <div class="equivalent-price">
-                            <strong>Equivalente a R$ 166,66/mês</strong>
-                            <div class="savings">Economize R$ 254,80!</div>
+                        <div class="equivalent-price" style="display: none;">
+                            <strong>R$ 166,60/mês</strong>
+                            <div class="savings">Economize 17% pagando anualmente</div>
                         </div>
-
-                        <h2 class="plan-name">R$ 187,90/mês</h2>
-                        <p class="plan-description">Perfeito para profissionais autônomos</p>
+                        <h2 id="plan-basic-title" class="plan-name">Basic</h2>
+                        <div class="plan-price">
+                            <span class="currency">R$</span>R$ 187,90<span class="period">/mês</span>
+                        </div>
+                        <p class="plan-description">Ideal para pequenas operações de transporte escolar</p>
                     </div>
 
                     <div class="plan-features">
                         <div class="feature-item">
-                            <span class="feature-icon">✓</span>
-                            <span class="feature-text">Rastreamento GPS ao vivo incluído</span>
+                            <span class="feature-icon" aria-hidden="true">✓</span>
+                            <span class="feature-text">Até 5 usuários</span>
                         </div>
                         <div class="feature-item">
-                            <span class="feature-icon">✓</span>
-                            <span class="feature-text">Alertas instantâneos para os pais</span>
+                            <span class="feature-icon" aria-hidden="true">✓</span>
+                            <span class="feature-text">Até 10 rotas simultâneas</span>
                         </div>
                         <div class="feature-item">
-                            <span class="feature-icon">✓</span>
-                            <span class="feature-text">Agendamento fácil de viagens</span>
+                            <span class="feature-icon" aria-hidden="true">✓</span>
+                            <span class="feature-text">Suporte técnico por email</span>
                         </div>
                         <div class="feature-item">
-                            <span class="feature-icon">✓</span>
-                            <span class="feature-text">Registros de presença digitais</span>
+                            <span class="feature-icon" aria-hidden="true">✓</span>
+                            <span class="feature-text">Relatórios básicos</span>
                         </div>
+                        <div class="feature-item">
+                            <span class="feature-icon" aria-hidden="true">✓</span>
+                            <span class="feature-text">Backup automático</span>
+                        </div>
+                    </div>
 
-                        <div class="feature-item">
-                            <span class="feature-icon">✓</span>
-                            <span class="feature-text">Sugestões de rotas de IA</span>
-                        </div>
-                        <div class="feature-item">
-                            <span class="feature-icon">✓</span>
-                            <span class="feature-text">Histórico de viagens ilimitado</span>
-                        </div>
-                        <div class="feature-item">
-                            <span class="feature-icon">✓</span>
-                            <span class="feature-text">Suporte básico</span>
-                        </div>
-                        <div class="feature-item">
-                            <span class="feature-icon">✓</span>
-                            <span class="feature-text">Preferências personalizadas</span>
-                        </div>
-                        <div class="feature-item">
-                            <span class="feature-icon">✓</span>
-                            <span class="feature-text">Validação automatica do horário de entrada e saída</span>
-                        </div>
-                        <div class="feature-item">
-                            <span class="feature-icon">✓</span>
-                            <span class="feature-text">Relatório de presença, custos e gastos diários</span>
-                        </div>
-                        <div class="feature-item">
-                            <span class="feature-icon">✓</span>
-                            <span class="feature-text">Limitado a um veículo</span>
-                        </div>
-                    </div>
+                    <hr class="plan-divider" role="separator">
+
                     <div class="plan-cta">
-                        <a href="#" class="plan-btn">Junte-se a nós</a>
+                        <a href="#" class="plan-btn" aria-describedby="plan-basic-title">
+                            Começar Agora
+                        </a>
+                        <p class="cta-note">Sem compromisso • Cancele quando quiser</p>
                     </div>
-                </div>
+                </article>
 
                 <!-- Plano Premium -->
-                <div class="plan-card popular" data-plan="premium">
+                <article class="plan-card popular" data-plan="premium" role="article" aria-labelledby="plan-premium-title">
+                    <div class="popular-badge" aria-label="Plano mais popular">Mais Popular</div>
                     <div class="plan-header">
-                        <div class="popular-badge">Mais popular</div>
                         <div class="plan-pricing">
-                            <div class="monthly-price">Plano Premium</div>
-                            <div class="annual-option">ou opte pelo Plano Anual</div>
+                            <div class="monthly-price">$ 55,65/mês</div>
+                            <div class="annual-option">ou R$ 2990,00/ano</div>
                         </div>
-
-                        <div class="equivalent-price">
-                            <strong>Equivalente a R$ 266,66/mês</strong>
-                            <div class="savings">Economize R$ 323,30!</div>
+                        <div class="equivalent-price" style="display: none;">
+                            <strong>R$ 249,99/mês</strong>
+                            <div class="savings">Economize 17% pagando anualmente</div>
                         </div>
-
-                        <h2 class="plan-name">R$ 293,60/mês</h2>
-                        <p class="plan-description">Todos os recursos, além de controles avançados</p>
+                        <h2 id="plan-premium-title" class="plan-name">Premium</h2>
+                        <div class="plan-price">
+                            <span class="currency">R$</span>R$ 249,99<span class="period">/mês</span>
+                        </div>
+                        <p class="plan-description">Para operações médias que precisam de mais recursos</p>
                     </div>
 
                     <div class="plan-features">
                         <div class="feature-item">
-                            <span class="feature-icon">✓</span>
-                            <span class="feature-text">Gestão de grupos em tempo real</span>
+                            <span class="feature-icon" aria-hidden="true">✓</span>
+                            <span class="feature-text">Até 15 usuários</span>
                         </div>
                         <div class="feature-item">
-                            <span class="feature-icon">✓</span>
-                            <span class="feature-text">Construtor de viagens dinâmico</span>
+                            <span class="feature-icon" aria-hidden="true">✓</span>
+                            <span class="feature-text">Até 50 rotas simultâneas</span>
                         </div>
                         <div class="feature-item">
-                            <span class="feature-icon">✓</span>
-                            <span class="feature-text">Pagamentos integrados</span>
+                            <span class="feature-icon" aria-hidden="true">✓</span>
+                            <span class="feature-text">Suporte técnico prioritário</span>
                         </div>
                         <div class="feature-item">
-                            <span class="feature-icon">✓</span>
-                            <span class="feature-text">Ferramentas de comissão inteligentes</span>
+                            <span class="feature-icon" aria-hidden="true">✓</span>
+                            <span class="feature-text">Relatórios avançados</span>
                         </div>
                         <div class="feature-item">
-                            <span class="feature-icon">✓</span>
-                            <span class="feature-text">Suporte prioritário</span>
+                            <span class="feature-icon" aria-hidden="true">✓</span>
+                            <span class="feature-text">API personalizada</span>
                         </div>
                         <div class="feature-item">
-                            <span class="feature-icon">✓</span>
-                            <span class="feature-text">Marca personalizada</span>
-                        </div>
-
-                        <div class="feature-item">
-                            <span class="feature-icon">✓</span>
-                            <span class="feature-text">Atribuições de assentos em massa</span>
+                            <span class="feature-icon" aria-hidden="true">✓</span>
+                            <span class="feature-text">Integração WhatsApp</span>
                         </div>
                         <div class="feature-item">
-                            <span class="feature-icon">✓</span>
-                            <span class="feature-text">Análise avançada</span>
+                            <span class="feature-icon" aria-hidden="true">✓</span>
+                            <span class="feature-text">Backup automático</span>
                         </div>
-                        <div class="feature-item">
-                            <span class="feature-icon">✓</span>
-                            <span class="feature-text">Integrações de API</span>
-                        </div>
-                        <div class="feature-item">
-                            <span class="feature-icon">✓</span>
-                            <span class="feature-text">Calculadora de receita</span>
-                        </div>
-                        <div class="feature-item">
-                            <span class="feature-icon">✓</span>
-                            <span class="feature-text">Rastreamento e relatório de frota</span>
-                        </div>
-
                     </div>
+
+                    <hr class="plan-divider" role="separator">
 
                     <div class="plan-cta">
-                        <a href="#" class="plan-btn btn-premium">Junte-se a nós</a>
-                        <p class="cta-note">Cancelamento a qualquer momento</p>
+                        <a href="#" class="plan-btn btn-premium" aria-describedby="plan-premium-title">
+                            Começar Agora
+                        </a>
+                        <p class="cta-note">Teste grátis por 14 dias</p>
+                    </div>
+                </article>
+
+                <!-- Plano Empresarial -->
+                <article class="plan-card" data-plan="enterprise" role="article" aria-labelledby="plan-enterprise-title">
+                    <div class="plan-header">
+                        <div class="plan-pricing">
+                            <div class="monthly-price"> A combinar</div>
+                            <div class="annual-option">A combinar</div>
+                        </div>
+                        <div class="equivalent-price" style="display: none;">
+                            <strong>A combinar</strong>
+                            <div class="savings">A combinar</div>
+                        </div>
+                        <h2 id="plan-enterprise-title" class="plan-name">Empresarial</h2>
+                        <div class="plan-price">
+                            <span class="currency">A</span>combinar<span class="period">o valor</span>
+                        </div>
+                        <p class="plan-description">Para grandes operações que precisam de recursos ilimitados</p>
+                    </div>
+
+                    <div class="plan-features">
+                        <div class="feature-item">
+                            <span class="feature-icon" aria-hidden="true">✓</span>
+                            <span class="feature-text">Usuários ilimitados</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon" aria-hidden="true">✓</span>
+                            <span class="feature-text">Rotas ilimitadas</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon" aria-hidden="true">✓</span>
+                            <span class="feature-text">Suporte técnico 24/7</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon" aria-hidden="true">✓</span>
+                            <span class="feature-text">Relatórios personalizados</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon" aria-hidden="true">✓</span>
+                            <span class="feature-text">API completa</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon" aria-hidden="true">✓</span>
+                            <span class="feature-text">Integração completa WhatsApp</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon" aria-hidden="true">✓</span>
+                            <span class="feature-text">Backup em tempo real</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon" aria-hidden="true">✓</span>
+                            <span class="feature-text">Gerente de conta dedicado</span>
+                        </div>
+                    </div>
+
+                    <hr class="plan-divider" role="separator">
+
+                    <div class="plan-cta">
+                        <a href="#" class="plan-btn" aria-describedby="plan-enterprise-title">
+                            Falar com Vendas
+                        </a>
+                        <p class="cta-note">Consultoria personalizada incluída</p>
+                    </div>
+                </article>
+            </div>
+
+            <!-- Comparação de Planos -->
+            <div class="plans-comparison">
+                <button class="comparison-btn" aria-label="Abrir comparação detalhada entre planos">
+                    Comparar Planos Detalhadamente
+                </button>
+            </div>
+
+            <!-- Seção FAQ -->
+            <section class="faq-section" aria-labelledby="faq-title">
+                <h2 id="faq-title" class="faq-title">Perguntas Frequentes</h2>
+                
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-1">
+                        <div class="faq-question-content">
+                            <span class="faq-question-icon">🔄</span>
+                            <span>Posso alterar meu plano a qualquer momento?</span>
+                        </div>
+                        <span class="faq-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="faq-answer-1" class="faq-answer">
+                        <p>Sim! Você pode fazer upgrade ou downgrade do seu plano a qualquer momento. As alterações entram em vigor no próximo ciclo de cobrança, e você será cobrado proporcionalmente.</p>
                     </div>
                 </div>
-            </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-2">
+                        <div class="faq-question-content">
+                            <span class="faq-question-icon">🎁</span>
+                            <span>Existe período de teste gratuito?</span>
+                        </div>
+                        <span class="faq-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="faq-answer-2" class="faq-answer">
+                        <p>Sim! Oferecemos 14 dias de teste gratuito para todos os planos. Você pode explorar todas as funcionalidades sem compromisso. Não é necessário cartão de crédito para começar.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-3">
+                        <div class="faq-question-content">
+                            <span class="faq-question-icon">🛠️</span>
+                            <span>Como funciona o suporte técnico?</span>
+                        </div>
+                        <span class="faq-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="faq-answer-3" class="faq-answer">
+                        <p>O plano Básico inclui suporte por email com resposta em até 24h. O Premium oferece suporte prioritário com resposta em até 4h. O Empresarial inclui suporte 24/7 por telefone, email e chat.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-4">
+                        <div class="faq-question-content">
+                            <span class="faq-question-icon">🔒</span>
+                            <span>Os dados ficam seguros?</span>
+                        </div>
+                        <span class="faq-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="faq-answer-4" class="faq-answer">
+                        <p>Absolutamente! Utilizamos criptografia de ponta a ponta, backup automático diário e servidores seguros certificados. Seus dados estão protegidos conforme a LGPD.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-5">
+                        <div class="faq-question-content">
+                            <span class="faq-question-icon">❌</span>
+                            <span>Posso cancelar a qualquer momento?</span>
+                        </div>
+                        <span class="faq-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="faq-answer-5" class="faq-answer">
+                        <p>Sim, não há fidelidade. Você pode cancelar sua assinatura a qualquer momento através do painel administrativo. O acesso continua até o final do período já pago.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-6">
+                        <div class="faq-question-content">
+                            <span class="faq-question-icon">💬</span>
+                            <span>Como funciona a integração com WhatsApp?</span>
+                        </div>
+                        <span class="faq-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="faq-answer-6" class="faq-answer">
+                        <p>Nos planos Premium e Empresarial, você pode enviar notificações automáticas para pais e responsáveis via WhatsApp, incluindo alertas de chegada, atrasos e confirmações de presença.</p>
+                    </div>
+                </div>
+            </section>
         </div>
     </main>
     <!-- RODAPÉ -->
@@ -459,9 +377,9 @@
                 <a href="index.html" class="logo">Kanghoo</a>
                 <p class="footer-tagline">Soluções de viagem sem esforço.</p>
                 <div class="footer-social-media">
-                    <a href="#" aria-label="Facebook"><img src="../imagens/face.png" alt="Facebook"></a>
-                    <a href="#" aria-label="Instagram"><img src="../imagens/insta.png" alt="Instagram"></a>
-                    <a href="#" aria-label="LinkedIn"><img src="../imagens/linkedin.png" alt="LinkedIn"></a>
+                    <a href="#" aria-label="Facebook"><img src="assets/images/face.png" alt="Facebook"></a>
+                <a href="#" aria-label="Instagram"><img src="assets/images/insta.png" alt="Instagram"></a>
+                <a href="#" aria-label="LinkedIn"><img src="assets/images/linkedin.png" alt="LinkedIn"></a>
                 </div>
             </div>
             <div class="footer-links-group">
@@ -486,7 +404,7 @@
                 <h4>Empresa</h4>
                 <ul>
                     <li><a href="sobre.html">Sobre Nós</a></li>
-                    <li><a href="#contact">Contato</a></li>
+                    <li><a href="index.html#contact">Contato</a></li>
                     <li><a href="#">Termos de Uso</a></li>
                     <li><a href="#">Privacidade</a></li>
                 </ul>
@@ -498,8 +416,15 @@
     </div>
 </footer>
 
-    <script src="../js/app.js"></script>
-    <script src="../js/animacoes-planos.js"></script>
+    <!-- Scripts -->
+    <script>
+        // Força o tema claro para resolver problema de visibilidade
+        document.documentElement.removeAttribute('data-theme');
+        document.body.removeAttribute('data-theme');
+    </script>
+    <script src="assets/js/bundle.min.js"></script>
+    <script src="assets/js/planos.js"></script>
+    <script src="assets/js/animations/animacoes-planos.js"></script>
     <script>
         // Inicialização específica para a página de planos
         document.addEventListener('DOMContentLoaded', function () {
@@ -514,7 +439,7 @@
                     } else {
                         // Fallback: redireciona para a página de encontrar transporte
                         localStorage.setItem('transportType', 'escolar');
-                window.location.href = '/encontrar-transporte.html';
+                window.location.href = 'encontrar-transporte.html';
                     }
                 });
             }

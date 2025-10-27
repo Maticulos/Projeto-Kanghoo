@@ -1,0 +1,1998 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Área do Motorista - Kanghoo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/bundle.min.css">
+    <!-- Sistema de Mock para APIs - Carregado primeiro -->
+    <script src="../assets/js/api/mock-api.js"></script>
+    <!-- Sistema de Cache Otimizado -->
+    <script src="../assets/js/core/cache-manager.js"></script>
+    <script src="../assets/js/vendors/chart.min.js"></script>
+    <script src="../assets/js/api/rastreamento-api.js"></script>
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --info-color: #17a2b8;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --white: #ffffff;
+            --border-color: #e9ecef;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1);
+            --shadow-hover: 0 4px 20px rgba(0,0,0,0.15);
+            --border-radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #0d6efd;
+            --secondary-color: #6c757d;
+            --success-color: #198754;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --info-color: #0dcaf0;
+            --light-color: #212529;
+            --dark-color: #f8f9fa;
+            --white: #1a1a1a;
+            --border-color: #495057;
+            --shadow: 0 2px 10px rgba(0,0,0,0.3);
+            --shadow-hover: 0 4px 20px rgba(0,0,0,0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--light-color);
+            color: var(--dark-color);
+            line-height: 1.6;
+            transition: var(--transition);
+        }
+
+        /* Header Melhorado */
+        .header {
+            background: var(--white);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .theme-toggle {
+            background: var(--light-color);
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--dark-color);
+            font-size: 1.2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background: var(--white);
+            transform: scale(1.1);
+            box-shadow: var(--shadow);
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.95);
+        }
+
+        [data-theme="dark"] .theme-toggle {
+            background: var(--dark-color);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        /* Container Principal */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        /* Dashboard Overview */
+        .dashboard-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-card {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .dashboard-card.success {
+            border-left-color: var(--success-color);
+        }
+
+        .dashboard-card.warning {
+            border-left-color: var(--warning-color);
+        }
+
+        .dashboard-card.danger {
+            border-left-color: var(--danger-color);
+        }
+
+        .dashboard-card.info {
+            border-left-color: var(--info-color);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+            font-weight: 500;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--light-color);
+            color: var(--primary-color);
+        }
+
+        .card-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .card-change {
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .card-change.positive {
+            color: var(--success-color);
+        }
+
+        .card-change.negative {
+            color: var(--danger-color);
+        }
+
+        /* Tabs Container */
+        .tabs-container {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .tabs-nav {
+            display: flex;
+            background: var(--light-color);
+            overflow-x: auto;
+            border-bottom: 2px solid var(--border-color);
+            position: relative;
+        }
+
+        .tab-button {
+            background: none;
+            border: none;
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--secondary-color);
+            transition: var(--transition);
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 3px solid transparent;
+            position: relative;
+            min-width: 120px;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+
+        .tab-button.active {
+            color: var(--primary-color);
+            background: var(--white);
+            border-bottom-color: var(--primary-color);
+            font-weight: 600;
+            box-shadow: 0 -2px 8px rgba(0, 123, 255, 0.1);
+        }
+
+        .tab-button:hover:not(.active) {
+            background: rgba(0, 123, 255, 0.1);
+            color: var(--primary-color);
+            transform: translateY(-1px);
+        }
+
+        .tab-button i {
+            font-size: 1rem;
+        }
+
+        .tab-content {
+            padding: 2rem;
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Botões */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0056b3;
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #1e7e34;
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-1px);
+        }
+
+        .btn-blue {
+            background: var(--info-color);
+            color: white;
+        }
+
+        .btn-blue:hover {
+            background: #138496;
+            transform: translateY(-1px);
+        }
+
+        .btn-logout {
+            background: var(--danger-color);
+            color: white;
+            padding: 0.5rem 1rem;
+        }
+
+        .btn-logout:hover {
+            background: #c82333;
+        }
+
+        /* Status de Viagem */
+        .trip-status-card {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .trip-status-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--danger-color);
+        }
+
+        .status-dot.active {
+            background: var(--success-color);
+            animation: pulse 2s infinite;
+        }
+
+        /* Detalhes da Viagem */
+        .viagem-detalhes-container {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .viagem-info h4 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .viagem-info p {
+            margin: 0.5rem 0;
+            color: var(--dark-color);
+        }
+
+        .viagem-info strong {
+            color: var(--secondary-color);
+            font-weight: 600;
+        }
+
+        .dados-simulados-info {
+            background: rgba(23, 162, 184, 0.1);
+            border: 1px solid var(--info-color);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .dados-simulados-info i {
+            margin-right: 0.5rem;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .status-text {
+            font-weight: 500;
+            color: var(--dark-color);
+        }
+
+        /* Lista de Passageiros */
+        .passengers-list {
+            margin-top: 2rem;
+        }
+
+        .passengers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .passenger-card {
+            background: var(--white);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .passenger-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .passenger-card.checked-in {
+            border-left: 4px solid var(--success-color);
+        }
+
+        .passenger-card.checked-out {
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .passenger-info {
+            margin-bottom: 1rem;
+        }
+
+        .passenger-name {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .passenger-details {
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+        }
+
+        .passenger-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Gráficos */
+        .chart-container {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .chart-canvas {
+            position: relative;
+            height: 300px;
+        }
+
+        /* Relatórios */
+        .report-filters {
+            display: flex;
+            gap: 1rem;
+            align-items: end;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .filter-group label {
+            font-weight: 500;
+            color: var(--dark-color);
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 0.5rem;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--white);
+            color: var(--dark-color);
+            transition: var(--transition);
+        }
+
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .report-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .report-card {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: var(--transition);
+        }
+
+        .report-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .report-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .report-icon.trips {
+            background: rgba(0, 123, 255, 0.1);
+            color: var(--primary-color);
+        }
+
+        .report-icon.distance {
+            background: rgba(40, 167, 69, 0.1);
+            color: var(--success-color);
+        }
+
+        .report-icon.fuel {
+            background: rgba(255, 193, 7, 0.1);
+            color: var(--warning-color);
+        }
+
+        .report-icon.passengers {
+            background: rgba(220, 53, 69, 0.1);
+            color: var(--danger-color);
+        }
+
+        .report-content h4 {
+            margin: 0;
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .report-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark-color);
+        }
+
+        /* Tabelas */
+        .report-table {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .table-header {
+            background: var(--light-color);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table-title {
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background: var(--light-color);
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        td {
+            color: var(--secondary-color);
+        }
+
+        /* Modal de Rotas */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-hover);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: var(--dark-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--secondary-color);
+            transition: var(--transition);
+        }
+
+        .close-modal:hover {
+            color: var(--danger-color);
+        }
+
+        .route-form {
+            padding: 1.5rem;
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--light-color);
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .form-section h3 {
+            margin: 0 0 1rem 0;
+            color: var(--dark-color);
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--dark-color);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            background: var(--white);
+            color: var(--dark-color);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .dashboard-overview {
+                grid-template-columns: 1fr;
+            }
+
+            .tabs-nav {
+                flex-direction: column;
+            }
+
+            .tab-button {
+                min-width: auto;
+                width: 100%;
+            }
+
+            .report-filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-group {
+                width: 100%;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 1rem 0.5rem;
+            }
+
+            .dashboard-card,
+            .tabs-container,
+            .chart-container,
+            .report-table {
+                margin: 0 -0.5rem 1rem -0.5rem;
+                border-radius: 0;
+            }
+
+            .tab-content {
+                padding: 1rem;
+            }
+
+            .card-value {
+                font-size: 1.5rem;
+            }
+
+            .passengers-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Estilos da Seção de Perfil */
+        .profile-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .profile-section {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: var(--light-color);
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-header h3 {
+            margin: 0;
+            color: var(--dark-color);
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .profile-photo-container {
+            padding: 2rem;
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .profile-photo {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 4px solid var(--primary-color);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .profile-photo:hover {
+            transform: scale(1.05);
+        }
+
+        .profile-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .profile-photo:hover .photo-overlay {
+            opacity: 1;
+        }
+
+        .photo-overlay i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-info h4 {
+            margin: 0 0 0.5rem 0;
+            color: var(--dark-color);
+            font-size: 1.5rem;
+        }
+
+        .profile-info p {
+            margin: 0.25rem 0;
+            color: var(--secondary-color);
+        }
+
+        .documents-grid {
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .document-card {
+            background: var(--light-color);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: var(--transition);
+            border: 2px solid transparent;
+        }
+
+        .document-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--primary-color);
+        }
+
+        .document-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .document-info {
+            flex: 1;
+        }
+
+        .document-info h4 {
+            margin: 0 0 0.5rem 0;
+            color: var(--dark-color);
+            font-size: 1.1rem;
+        }
+
+        .document-status {
+            margin: 0.25rem 0;
+            font-weight: 500;
+        }
+
+        .document-status:contains("Enviado") {
+            color: var(--success-color);
+        }
+
+        .document-status:contains("Não enviado") {
+            color: var(--danger-color);
+        }
+
+        .document-date {
+            margin: 0;
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+        }
+
+        .document-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-icon {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            font-size: 1rem;
+        }
+
+        .btn-icon.view-doc {
+            background: var(--info-color);
+            color: white;
+        }
+
+        .btn-icon.upload-doc {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-icon:hover {
+            transform: scale(1.1);
+        }
+
+        /* Responsividade para perfil */
+        @media (max-width: 768px) {
+            .profile-photo-container {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .documents-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .document-card {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <a href="../index.html" class="logo">
+                🦘 Kanghoo
+            </a>
+            <div class="header-actions">
+                <button class="theme-toggle" id="theme-toggle" title="Alternar tema">
+                    🌙
+                </button>
+                <button class="btn btn-logout" id="logout-button">
+                    Sair
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Container Principal -->
+    <div class="container">
+        <!-- Dashboard Overview -->
+        <div class="dashboard-overview">
+            <div class="dashboard-card success">
+                <div class="card-header">
+                    <span class="card-title">Excursões Ativas</span>
+                    <div class="card-icon">🚌</div>
+                </div>
+                <div class="card-value" id="active-trips">3</div>
+                <div class="card-change positive">+2 esta semana</div>
+            </div>
+
+            <div class="dashboard-card info">
+                <div class="card-header">
+                    <span class="card-title">Passageiros Hoje</span>
+                    <div class="card-icon">👥</div>
+                </div>
+                <div class="card-value" id="passengers-today">45</div>
+                <div class="card-change positive">+12 vs ontem</div>
+            </div>
+
+            <div class="dashboard-card warning">
+                <div class="card-header">
+                    <span class="card-title">Km Percorridos</span>
+                    <div class="card-icon">📍</div>
+                </div>
+                <div class="card-value" id="distance-today">287</div>
+                <div class="card-change positive">+45 km hoje</div>
+            </div>
+
+            <div class="dashboard-card danger">
+                <div class="card-header">
+                    <span class="card-title">Avaliação Média</span>
+                    <div class="card-icon">⭐</div>
+                </div>
+                <div class="card-value" id="rating">4.8</div>
+                <div class="card-change positive">+0.2 este mês</div>
+            </div>
+        </div>
+
+        <!-- Status da Excursão Atual -->
+        <div class="trip-status-card">
+            <div class="trip-status-header">
+                <h3>Status da Excursão Atual</h3>
+                <div class="status-indicator">
+                    <div class="status-dot" id="trip-status-dot"></div>
+                    <span class="status-text" id="trip-status-text">Aguardando início</span>
+                </div>
+            </div>
+            
+            <div class="viagem-detalhes-container" id="trip-details">
+                <div class="viagem-info">
+                    <h4>Detalhes da Excursão</h4>
+                    <p><strong>Destino:</strong> <span id="trip-destination">Nenhuma excursão ativa</span></p>
+                    <p><strong>Horário de Saída:</strong> <span id="trip-departure">--:--</span></p>
+                    <p><strong>Horário de Retorno:</strong> <span id="trip-return">--:--</span></p>
+                    <p><strong>Passageiros:</strong> <span id="trip-passengers">0</span></p>
+                    <p><strong>Ponto de Encontro:</strong> <span id="trip-meeting-point">--</span></p>
+                </div>
+                
+                <div class="dados-simulados-info">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Dados Simulados:</strong> Esta é uma demonstração com dados fictícios para fins de teste.
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs Container -->
+        <div class="tabs-container">
+            <div class="tabs-nav">
+                <button class="tab-button active" data-tab="passengers">
+                    <i class="fas fa-users"></i>
+                    Passageiros
+                </button>
+                <button class="tab-button" data-tab="profile">
+                    <i class="fas fa-user"></i>
+                    Perfil
+                </button>
+                <button class="tab-button" data-tab="routes">
+                    <i class="fas fa-route"></i>
+                    Rotas
+                </button>
+                <button class="tab-button" data-tab="analytics">
+                    <i class="fas fa-chart-bar"></i>
+                    Análises
+                </button>
+                <button class="tab-button" data-tab="reports">
+                    <i class="fas fa-file-alt"></i>
+                    Relatórios
+                </button>
+            </div>
+
+            <!-- Tab: Passageiros -->
+            <div class="tab-content active" id="passengers-tab">
+                <div class="passengers-list">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3>Lista de Passageiros</h3>
+                        <button class="btn btn-primary" id="add-passenger-btn">
+                            <i class="fas fa-plus"></i>
+                            Adicionar Passageiro
+                        </button>
+                    </div>
+                    
+                    <div class="passengers-grid" id="passengers-grid">
+                        <!-- Passageiros serão carregados dinamicamente -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Perfil -->
+            <div class="tab-content" id="profile-tab">
+                <div class="profile-container">
+                    <!-- Seção de Foto de Perfil -->
+                    <div class="profile-section">
+                        <div class="section-header">
+                            <h3>
+                                <i class="fas fa-camera"></i>
+                                Foto de Perfil
+                            </h3>
+                        </div>
+                        <div class="profile-photo-container">
+                            <div class="profile-photo" onclick="document.getElementById('profile-photo-input').click()">
+                                <img src="../imagens/default-avatar.png" alt="Foto de Perfil" id="profile-photo-img">
+                                <div class="photo-overlay">
+                                    <i class="fas fa-camera"></i>
+                                    <span>Alterar Foto</span>
+                                </div>
+                            </div>
+                            <div class="profile-info">
+                                <h4>João Silva</h4>
+                                <p><strong>CNH:</strong> 12345678901</p>
+                                <p><strong>Categoria:</strong> D</p>
+                                <p><strong>Telefone:</strong> (11) 99999-9999</p>
+                                <p><strong>Email:</strong> joao.silva@email.com</p>
+                                <button class="btn btn-primary" onclick="document.getElementById('profile-photo-input').click()">
+                                    <i class="fas fa-upload"></i>
+                                    Atualizar Foto
+                                </button>
+                                <input type="file" id="profile-photo-input" accept="image/*" style="display: none;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Seção de Documentos -->
+                    <div class="profile-section">
+                        <div class="section-header">
+                            <h3>
+                                <i class="fas fa-file-alt"></i>
+                                Documentos
+                            </h3>
+                        </div>
+                        <div class="documents-grid">
+                            <!-- CNH -->
+                            <div class="document-card">
+                                <div class="document-icon">
+                                    <i class="fas fa-id-card"></i>
+                                </div>
+                                <div class="document-info">
+                                    <h4>Carteira Nacional de Habilitação</h4>
+                                    <p class="document-status">Status: Enviado</p>
+                                    <p class="document-date">Enviado em: 15/03/2024</p>
+                                </div>
+                                <div class="document-actions">
+                                    <button class="btn-icon view-doc" title="Visualizar documento">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn-icon upload-doc" title="Fazer upload" onclick="document.getElementById('cnh-input').click()">
+                                        <i class="fas fa-upload"></i>
+                                    </button>
+                                    <input type="file" id="cnh-input" accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
+                                </div>
+                            </div>
+
+                            <!-- CRLV -->
+                            <div class="document-card">
+                                <div class="document-icon">
+                                    <i class="fas fa-car"></i>
+                                </div>
+                                <div class="document-info">
+                                    <h4>Certificado de Registro e Licenciamento</h4>
+                                    <p class="document-status">Status: Enviado</p>
+                                    <p class="document-date">Enviado em: 15/03/2024</p>
+                                </div>
+                                <div class="document-actions">
+                                    <button class="btn-icon view-doc" title="Visualizar documento">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn-icon upload-doc" title="Fazer upload" onclick="document.getElementById('crlv-input').click()">
+                                        <i class="fas fa-upload"></i>
+                                    </button>
+                                    <input type="file" id="crlv-input" accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
+                                </div>
+                            </div>
+
+                            <!-- Antecedentes Criminais -->
+                            <div class="document-card">
+                                <div class="document-icon">
+                                    <i class="fas fa-shield-alt"></i>
+                                </div>
+                                <div class="document-info">
+                                    <h4>Certidão de Antecedentes Criminais</h4>
+                                    <p class="document-status">Status: Não enviado</p>
+                                    <p class="document-date">-</p>
+                                </div>
+                                <div class="document-actions">
+                                    <button class="btn-icon view-doc" title="Visualizar documento" disabled>
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn-icon upload-doc" title="Fazer upload" onclick="document.getElementById('antecedentes-input').click()">
+                                        <i class="fas fa-upload"></i>
+                                    </button>
+                                    <input type="file" id="antecedentes-input" accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Rotas -->
+            <div class="tab-content" id="routes-tab">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <h3>Gerenciamento de Rotas</h3>
+                    <button class="btn btn-primary" id="create-route-btn">
+                        <i class="fas fa-plus"></i>
+                        Nova Rota
+                    </button>
+                </div>
+                
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h4 class="chart-title">Mapa de Rotas</h4>
+                    </div>
+                    <div id="map-container" style="height: 400px; background: var(--light-color); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--secondary-color);">
+                        <div style="text-align: center;">
+                            <i class="fas fa-map" style="font-size: 3rem; margin-bottom: 1rem; display: block;"></i>
+                            Mapa de rotas será carregado aqui
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Análises -->
+            <div class="tab-content" id="analytics-tab">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h4 class="chart-title">Excursões por Mês</h4>
+                        <select id="analytics-period">
+                            <option value="6months">Últimos 6 meses</option>
+                            <option value="year">Último ano</option>
+                            <option value="all">Todo período</option>
+                        </select>
+                    </div>
+                    <div class="chart-canvas">
+                        <canvas id="trips-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h4 class="chart-title">Passageiros por Destino</h4>
+                    </div>
+                    <div class="chart-canvas">
+                        <canvas id="passengers-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Relatórios -->
+            <div class="tab-content" id="reports-tab">
+                <div class="report-filters">
+                    <div class="filter-group">
+                        <label for="report-start-date">Data Início</label>
+                        <input type="date" id="report-start-date">
+                    </div>
+                    <div class="filter-group">
+                        <label for="report-end-date">Data Fim</label>
+                        <input type="date" id="report-end-date">
+                    </div>
+                    <div class="filter-group">
+                        <label for="report-type">Tipo de Relatório</label>
+                        <select id="report-type">
+                            <option value="trips">Excursões</option>
+                            <option value="passengers">Passageiros</option>
+                            <option value="revenue">Receita</option>
+                            <option value="performance">Performance</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <button class="btn btn-primary" id="generate-report">
+                            <i class="fas fa-chart-line"></i>
+                            Gerar Relatório
+                        </button>
+                    </div>
+                </div>
+
+                <div class="report-cards">
+                    <div class="report-card">
+                        <div class="report-icon trips">
+                            <i class="fas fa-bus"></i>
+                        </div>
+                        <div class="report-content">
+                            <h4>Total de Excursões</h4>
+                            <div class="report-value" id="total-trips">24</div>
+                        </div>
+                    </div>
+
+                    <div class="report-card">
+                        <div class="report-icon distance">
+                            <i class="fas fa-road"></i>
+                        </div>
+                        <div class="report-content">
+                            <h4>Distância Total</h4>
+                            <div class="report-value" id="total-distance">1,847 km</div>
+                        </div>
+                    </div>
+
+                    <div class="report-card">
+                        <div class="report-icon fuel">
+                            <i class="fas fa-gas-pump"></i>
+                        </div>
+                        <div class="report-content">
+                            <h4>Combustível</h4>
+                            <div class="report-value" id="fuel-consumption">R$ 2,340</div>
+                        </div>
+                    </div>
+
+                    <div class="report-card">
+                        <div class="report-icon passengers">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="report-content">
+                            <h4>Total Passageiros</h4>
+                            <div class="report-value" id="total-passengers">456</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-table">
+                    <div class="table-header">
+                        <h4 class="table-title">Histórico de Excursões</h4>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Destino</th>
+                                <th>Passageiros</th>
+                                <th>Distância</th>
+                                <th>Status</th>
+                                <th>Avaliação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="trips-table-body">
+                            <!-- Dados serão carregados dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Nova Rota -->
+    <div class="modal" id="route-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>
+                    <i class="fas fa-route"></i>
+                    Nova Rota de Excursão
+                </h2>
+                <button class="close-modal" id="close-route-modal">&times;</button>
+            </div>
+            <form class="route-form" id="route-form">
+                <div class="form-section">
+                    <h3>
+                        <i class="fas fa-info-circle"></i>
+                        Informações Básicas
+                    </h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="route-name">Nome da Excursão</label>
+                            <input type="text" id="route-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="route-destination">Destino</label>
+                            <input type="text" id="route-destination" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="route-date">Data da Excursão</label>
+                            <input type="date" id="route-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="route-time">Horário de Saída</label>
+                            <input type="time" id="route-time" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>
+                        <i class="fas fa-map-marker-alt"></i>
+                        Pontos de Parada
+                    </h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="meeting-point">Ponto de Encontro</label>
+                            <input type="text" id="meeting-point" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="return-time">Horário de Retorno</label>
+                            <input type="time" id="return-time" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="max-passengers">Máximo de Passageiros</label>
+                            <input type="number" id="max-passengers" min="1" max="50" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="price">Preço por Pessoa</label>
+                            <input type="number" id="price" step="0.01" min="0" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>
+                        <i class="fas fa-clipboard-list"></i>
+                        Detalhes Adicionais
+                    </h3>
+                    <div class="form-group">
+                        <label for="route-description">Descrição da Excursão</label>
+                        <textarea id="route-description" rows="4" placeholder="Descreva os detalhes da excursão..."></textarea>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
+                    <button type="button" class="btn btn-secondary" id="cancel-route">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        Salvar Rota
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Verificar se o usuário está logado
+        const token = localStorage.getItem('authToken');
+        
+        // Função para verificar autenticação com cache otimizado
+        async function checkAuthentication() {
+            if (!token) {
+                console.log('Token não encontrado, redirecionando para login');
+                window.location.href = 'login.html';
+                return false;
+            }
+
+            // Verificar cache de autenticação primeiro
+            const cachedAuth = window.cacheManager?.getUserData();
+            if (cachedAuth && cachedAuth.token === token) {
+                console.log('Usuário autenticado (cache):', cachedAuth.nome);
+                return true;
+            }
+
+            try {
+                // Verificar se é um token de teste (otimizado)
+                if (token.startsWith('test_token_')) {
+                    try {
+                        const decodedToken = JSON.parse(atob(token.replace('test_token_', '')));
+                        
+                        // Verificar expiração
+                        if (decodedToken.exp && Date.now() > decodedToken.exp) {
+                            console.log('Token de teste expirado');
+                            localStorage.removeItem('authToken');
+                            window.location.href = 'login.html';
+                            return false;
+                        }
+                        
+                        // Verificar permissão
+                        if (decodedToken.tipo !== 'motorista_excursao') {
+                            console.log('Usuário não tem permissão para esta área');
+                            alert('Você não tem permissão para acessar esta área.');
+                            window.location.href = 'login.html';
+                            return false;
+                        }
+
+                        // Cache dos dados do usuário
+                        window.cacheManager?.cacheUserData({
+                            ...decodedToken,
+                            token: token
+                        });
+
+                        console.log('Usuário autenticado (teste):', decodedToken.nome);
+                        return true;
+                    } catch (e) {
+                        console.error('Erro ao decodificar token de teste:', e);
+                        localStorage.removeItem('authToken');
+                        window.location.href = 'login.html';
+                        return false;
+                    }
+                }
+
+                // Para tokens reais, usar cache de API
+                const validationData = await window.cacheManager?.cacheApiCall('/api/validate-token', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                }, 5 * 60 * 1000); // Cache por 5 minutos
+
+                if (!validationData || !validationData.valid) {
+                    console.log('Token inválido, redirecionando para login');
+                    localStorage.removeItem('authToken');
+                    window.location.href = 'login.html';
+                    return false;
+                }
+                
+                // Verificar permissão
+                if (validationData.user.tipo !== 'motorista_excursao') {
+                    console.log('Usuário não tem permissão para esta área');
+                    alert('Você não tem permissão para acessar esta área.');
+                    window.location.href = 'login.html';
+                    return false;
+                }
+
+                console.log('Usuário autenticado:', data.user.nome);
+                return true;
+                
+            } catch (error) {
+                console.log('Erro ao validar token:', error);
+                localStorage.removeItem('authToken');
+                window.location.href = 'login.html';
+                return false;
+            }
+        }
+
+        // Função para verificação contínua de token
+        async function continuousTokenCheck() {
+            const currentToken = localStorage.getItem('authToken');
+            
+            if (!currentToken) {
+                console.log('Token removido, redirecionando para login');
+                window.location.href = 'login.html';
+                return false;
+            }
+
+            try {
+                // Verificar se é um token de teste
+                try {
+                    const decodedToken = JSON.parse(atob(currentToken));
+                    if (decodedToken.email && decodedToken.tipo && decodedToken.nome) {
+                        // É um token de teste válido
+                        if (decodedToken.exp && Date.now() > decodedToken.exp) {
+                            console.log('Token de teste expirado durante verificação contínua');
+                            localStorage.removeItem('authToken');
+                            window.location.href = 'login.html';
+                            return false;
+                        }
+                        
+                        if (decodedToken.tipo !== 'motorista_excursao') {
+                            console.log('Usuário não autorizado durante verificação contínua (teste)');
+                            localStorage.removeItem('authToken');
+                            window.location.href = 'login.html';
+                            return false;
+                        }
+
+                        return true; // Token de teste válido
+                    }
+                } catch (e) {
+                    // Não é um token de teste, tentar validação real
+                }
+
+                // Validação real com o backend
+                const response = await fetch('/api/validate-token', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    console.log('Token inválido durante verificação contínua');
+                    localStorage.removeItem('authToken');
+                    window.location.href = 'login.html';
+                    return false;
+                }
+
+                const data = await response.json();
+                
+                if (!data.valid || data.user.tipo !== 'motorista_excursao') {
+                    console.log('Usuário não autorizado durante verificação contínua');
+                    localStorage.removeItem('authToken');
+                    window.location.href = 'login.html';
+                    return false;
+                }
+
+                return true;
+                
+            } catch (error) {
+                console.log('Erro na verificação contínua de token:', error);
+                localStorage.removeItem('authToken');
+                window.location.href = 'login.html';
+                return false;
+            }
+        }
+
+        // Detectar navegação pelo botão voltar/avançar
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted) {
+                console.log('Página carregada do cache, verificando autenticação');
+                continuousTokenCheck();
+            }
+        });
+
+        // Verificar token quando a página ganha foco
+        window.addEventListener('focus', function() {
+            console.log('Página ganhou foco, verificando autenticação');
+            continuousTokenCheck();
+        });
+
+        // Verificar token quando a página se torna visível
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                console.log('Página se tornou visível, verificando autenticação');
+                continuousTokenCheck();
+            }
+        });
+
+        // Verificar autenticação ao carregar a página
+        document.addEventListener('DOMContentLoaded', async () => {
+            const isAuthenticated = await checkAuthentication();
+            if (isAuthenticated) {
+                initializeDashboard();
+                
+                // Iniciar verificação periódica de token (a cada 30 segundos)
+                setInterval(continuousTokenCheck, 30000);
+            }
+        });
+
+        // Funcionalidade do botão de logout
+        document.getElementById('logout-button').addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            // Confirmar logout
+            if (confirm('Tem certeza que deseja sair?')) {
+                // Remover token do localStorage
+                localStorage.removeItem('authToken');
+                
+                // Redirecionar para a página de login
+                window.location.href = 'login.html';
+            }
+        });
+
+        // Inicializar Dashboard
+        function initializeDashboard() {
+            // Inicializar tabs
+            initializeTabs();
+            
+            // Inicializar tema
+            initializeTheme();
+            
+            // Carregar dados simulados
+            loadSimulatedData();
+            
+            // Inicializar gráficos
+            initializeCharts();
+            
+            // Inicializar modais
+            initializeModals();
+            
+            // Simular status de viagem
+            simulateTripStatus();
+        }
+
+        // Sistema de Tabs
+        function initializeTabs() {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetTab = button.getAttribute('data-tab');
+                    
+                    // Remover classe active de todos os botões e conteúdos
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    // Adicionar classe active ao botão clicado e conteúdo correspondente
+                    button.classList.add('active');
+                    document.getElementById(targetTab + '-tab').classList.add('active');
+                });
+            });
+        }
+
+        // Sistema de Tema
+        function initializeTheme() {
+            const themeToggle = document.getElementById('theme-toggle');
+            const currentTheme = localStorage.getItem('theme') || 'light';
+            
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            themeToggle.textContent = currentTheme === 'dark' ? '☀️' : '🌙';
+            
+            themeToggle.addEventListener('click', () => {
+                const newTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+            });
+        }
+
+        // Carregar dados simulados
+        function loadSimulatedData() {
+            // Carregar passageiros
+            loadPassengers();
+            
+            // Carregar histórico de excursões
+            loadTripsHistory();
+        }
+
+        // Carregar lista de passageiros
+        function loadPassengers() {
+            const passengersGrid = document.getElementById('passengers-grid');
+            const passengers = [
+                { id: 1, name: 'Ana Silva', age: 28, phone: '(11) 99999-1111', status: 'checked-in' },
+                { id: 2, name: 'Carlos Santos', age: 35, phone: '(11) 99999-2222', status: 'checked-out' },
+                { id: 3, name: 'Maria Oliveira', age: 42, phone: '(11) 99999-3333', status: 'checked-in' },
+                { id: 4, name: 'João Costa', age: 31, phone: '(11) 99999-4444', status: 'checked-in' }
+            ];
+
+            passengersGrid.innerHTML = passengers.map(passenger => `
+                <div class="passenger-card ${passenger.status}">
+                    <div class="passenger-info">
+                        <div class="passenger-name">${passenger.name}</div>
+                        <div class="passenger-details">
+                            Idade: ${passenger.age} anos<br>
+                            Telefone: ${passenger.phone}
+                        </div>
+                    </div>
+                    <div class="passenger-actions">
+                        <button class="btn btn-success btn-sm" onclick="togglePassengerStatus(${passenger.id})">
+                            ${passenger.status === 'checked-in' ? 'Check-out' : 'Check-in'}
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Carregar histórico de excursões
+        function loadTripsHistory() {
+            const tableBody = document.getElementById('trips-table-body');
+            const trips = [
+                { date: '2025-01-15', destination: 'Campos do Jordão', passengers: 25, distance: '180 km', status: 'Concluída', rating: '4.8' },
+                { date: '2025-01-12', destination: 'Santos', passengers: 30, distance: '85 km', status: 'Concluída', rating: '4.9' },
+                { date: '2025-01-10', destination: 'Aparecida', passengers: 40, distance: '170 km', status: 'Concluída', rating: '4.7' },
+                { date: '2025-01-08', destination: 'Guarujá', passengers: 28, distance: '95 km', status: 'Concluída', rating: '4.6' }
+            ];
+
+            tableBody.innerHTML = trips.map(trip => `
+                <tr>
+                    <td>${trip.date}</td>
+                    <td>${trip.destination}</td>
+                    <td>${trip.passengers}</td>
+                    <td>${trip.distance}</td>
+                    <td><span class="badge badge-success">${trip.status}</span></td>
+                    <td>⭐ ${trip.rating}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Inicializar gráficos
+        function initializeCharts() {
+            // Gráfico de excursões por mês
+            const tripsCtx = document.getElementById('trips-chart');
+            if (tripsCtx) {
+                new Chart(tripsCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+                        datasets: [{
+                            label: 'Excursões',
+                            data: [12, 15, 18, 14, 20, 24],
+                            borderColor: '#007bff',
+                            backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            }
+
+            // Gráfico de passageiros por destino
+            const passengersCtx = document.getElementById('passengers-chart');
+            if (passengersCtx) {
+                new Chart(passengersCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Campos do Jordão', 'Santos', 'Aparecida', 'Guarujá', 'Outros'],
+                        datasets: [{
+                            data: [25, 30, 40, 28, 35],
+                            backgroundColor: [
+                                '#007bff',
+                                '#28a745',
+                                '#ffc107',
+                                '#dc3545',
+                                '#6c757d'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            }
+        }
+
+        // Inicializar modais
+        function initializeModals() {
+            const routeModal = document.getElementById('route-modal');
+            const createRouteBtn = document.getElementById('create-route-btn');
+            const closeRouteModal = document.getElementById('close-route-modal');
+            const cancelRoute = document.getElementById('cancel-route');
+
+            createRouteBtn.addEventListener('click', () => {
+                routeModal.classList.add('show');
+            });
+
+            closeRouteModal.addEventListener('click', () => {
+                routeModal.classList.remove('show');
+            });
+
+            cancelRoute.addEventListener('click', () => {
+                routeModal.classList.remove('show');
+            });
+
+            // Fechar modal clicando fora
+            routeModal.addEventListener('click', (e) => {
+                if (e.target === routeModal) {
+                    routeModal.classList.remove('show');
+                }
+            });
+
+            // Formulário de rota
+            document.getElementById('route-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                alert('Rota criada com sucesso! (Funcionalidade simulada)');
+                routeModal.classList.remove('show');
+            });
+        }
+
+        // Simular status de viagem
+        function simulateTripStatus() {
+            const statusDot = document.getElementById('trip-status-dot');
+            const statusText = document.getElementById('trip-status-text');
+            const destination = document.getElementById('trip-destination');
+            const departure = document.getElementById('trip-departure');
+            const returnTime = document.getElementById('trip-return');
+            const passengers = document.getElementById('trip-passengers');
+            const meetingPoint = document.getElementById('trip-meeting-point');
+
+            // Simular uma excursão ativa
+            setTimeout(() => {
+                statusDot.classList.add('active');
+                statusText.textContent = 'Em andamento';
+                destination.textContent = 'Campos do Jordão';
+                departure.textContent = '08:00';
+                returnTime.textContent = '18:00';
+                passengers.textContent = '25';
+                meetingPoint.textContent = 'Terminal Rodoviário - São Paulo';
+            }, 2000);
+        }
+
+        // Função para alternar status do passageiro
+        function togglePassengerStatus(passengerId) {
+            alert(`Status do passageiro ${passengerId} alterado! (Funcionalidade simulada)`);
+            loadPassengers(); // Recarregar lista
+        }
+
+        // Gerar relatório
+        document.getElementById('generate-report').addEventListener('click', () => {
+            alert('Relatório gerado com sucesso! (Funcionalidade simulada)');
+        });
+    </script>
+    
+    <!-- Script para forçar tema claro -->
+    <script>
+        // Força o tema claro para garantir visibilidade adequada
+        document.documentElement.setAttribute('data-theme', 'light');
+        document.body.classList.remove('dark-theme');
+        document.body.classList.add('light-theme');
+    </script>
+</body>
+</html>

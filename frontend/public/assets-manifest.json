@@ -1,0 +1,18 @@
+{
+  "version": 1761341980618,
+  "timestamp": "2025-10-24T21:39:41.175Z",
+  "files": {
+    "css": {
+      "bundle": "assets/css/bundle.min.css?v=1761341980618",
+      "components": "assets/css/components/",
+      "vendors": "assets/css/vendors/"
+    },
+    "js": {
+      "bundle": "assets/js/bundle.min.js?v=1761341980618",
+      "components": "assets/js/components/",
+      "animations": "assets/js/animations/",
+      "api": "assets/js/api/",
+      "vendors": "assets/js/vendors/"
+    }
+  }
+}

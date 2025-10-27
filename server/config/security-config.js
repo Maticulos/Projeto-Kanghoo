@@ -1,3 +1,8 @@
+const bcrypt = require('bcryptjs');
+const rateLimit = require('koa-ratelimit');
+const Redis = require('ioredis');
+const logger = require('../utils/logger');
+
 // Configurações de Segurança Centralizadas
 const securityConfig = {
     // Rate Limiting
@@ -29,8 +34,8 @@ const securityConfig = {
     // Configurações de JWT
     jwt: {
         secret: process.env.JWT_SECRET || (() => {
-            console.error('⚠️  AVISO DE SEGURANÇA: JWT_SECRET não definido no .env');
-            console.error('⚠️  Usando chave temporária - ALTERE IMEDIATAMENTE em produção!');
+            logger.error('⚠️  AVISO DE SEGURANÇA: JWT_SECRET não definido no .env');
+    logger.error('⚠️  Usando chave temporária - ALTERE IMEDIATAMENTE em produção!');
             return 'temp_key_' + Math.random().toString(36).substring(2, 15);
         })(),
         expiresIn: '2h',
@@ -73,6 +78,14 @@ const securityConfig = {
         lotacao: {
             min: 1,
             max: 100
+        },
+        number: {
+            min: 1,
+            max: 999999999
+        },
+        text: {
+            minLength: 1,
+            maxLength: 500
         }
     },
 
@@ -129,9 +142,19 @@ const sanitizeForLog = (data) => {
 };
 
 // Função para validar entrada baseada no tipo
-const validateInput = (value, type) => {
-    const config = securityConfig.validation[type];
-    if (!config) return { valid: false, error: 'Tipo de validação não encontrado' };
+const validateInput = (value, typeOrOptions) => {
+    // Suporte para tanto string quanto objeto como parâmetro
+    let type, customConfig;
+    if (typeof typeOrOptions === 'string') {
+        type = typeOrOptions;
+        customConfig = {};
+    } else {
+        type = typeOrOptions.type;
+        customConfig = typeOrOptions;
+    }
+    
+    const config = { ...securityConfig.validation[type], ...customConfig };
+    if (!securityConfig.validation[type]) return { valid: false, error: 'Tipo de validação não encontrado' };
     
     switch (type) {
         case 'email':
@@ -171,6 +194,19 @@ const validateInput = (value, type) => {
                 return { valid: false, error: 'CNPJ inválido' };
             }
             break;
+            
+        case 'number':
+            const numValue = parseInt(value);
+            if (isNaN(numValue) || numValue <= 0) {
+                return { valid: false, error: 'Deve ser um número válido maior que zero' };
+            }
+            break;
+            
+        case 'text':
+            if (value.length < config.minLength || value.length > config.maxLength) {
+                return { valid: false, error: `Texto deve ter entre ${config.minLength} e ${config.maxLength} caracteres` };
+            }
+            break;
     }
     
     return { valid: true };
@@ -187,7 +223,7 @@ const validateLoginData = (data) => {
     } else {
         const emailValidation = validateInput(data.email, 'email');
         if (!emailValidation.valid) {
-            errors.push(emailValidation.error);
+            errors.push(emailValidation.error || 'Email inválido');
         } else {
             sanitizedData.email = data.email.trim().toLowerCase();
         }
@@ -219,7 +255,7 @@ const validateCadastroData = (data) => {
     } else {
         const nameValidation = validateInput(data.nomeCompleto, 'name');
         if (!nameValidation.valid) {
-            errors.push(nameValidation.error);
+            errors.push(nameValidation.error || 'Nome inválido');
         } else {
             sanitizedData.nomeCompleto = data.nomeCompleto.trim();
         }
@@ -231,7 +267,7 @@ const validateCadastroData = (data) => {
     } else {
         const emailValidation = validateInput(data.email, 'email');
         if (!emailValidation.valid) {
-            errors.push(emailValidation.error);
+            errors.push(emailValidation.error || 'Email inválido');
         } else {
             sanitizedData.email = data.email.trim().toLowerCase();
         }
@@ -243,7 +279,7 @@ const validateCadastroData = (data) => {
     } else {
         const passwordValidation = validateInput(data.senha, 'password');
         if (!passwordValidation.valid) {
-            errors.push(passwordValidation.error);
+            errors.push(passwordValidation.error || 'Senha inválida');
         } else {
             sanitizedData.senha = data.senha;
         }

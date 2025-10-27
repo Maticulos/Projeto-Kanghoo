@@ -5,6 +5,7 @@ const { validateInput, sanitizeForLog } = require('../config/security-config');
 const { createSecureUpload, validateUploadedFiles } = require('../middleware/upload-security');
 const csv = require('csv-parser');
 const fs = require('fs');
+const logger = require('../utils/logger');
 
 const router = new KoaRouter();
 
@@ -38,7 +39,7 @@ router.get('/criancas', async (ctx) => {
             criancas: resultado.rows
         };
     } catch (error) {
-        console.error('Erro ao listar crianças:', error);
+        logger.error('Erro ao listar crianças:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -107,7 +108,7 @@ router.post('/criancas', async (ctx) => {
             motoristaId
         ]);
 
-        console.log('Nova criança cadastrada:', JSON.stringify(sanitizeForLog({
+        logger.info('Nova criança cadastrada:', JSON.stringify(sanitizeForLog({
             crianca_id: resultado.rows[0].id,
             motorista_id: motoristaId,
             responsavel_id: responsavelId
@@ -119,7 +120,7 @@ router.post('/criancas', async (ctx) => {
             crianca: resultado.rows[0]
         };
     } catch (error) {
-        console.error('Erro ao cadastrar criança:', error);
+        logger.error('Erro ao cadastrar criança:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -222,7 +223,7 @@ router.post('/criancas/importar-csv', csvUpload.single('arquivo_csv'), validateU
         // Remover arquivo temporário
         fs.unlinkSync(arquivo.path);
 
-        console.log('Importação CSV concluída:', JSON.stringify(sanitizeForLog({
+        logger.info('Importação CSV concluída:', JSON.stringify(sanitizeForLog({
             motorista_id: motoristaId,
             criancas_importadas: criancasImportadas.length,
             erros: erros.length
@@ -235,7 +236,7 @@ router.post('/criancas/importar-csv', csvUpload.single('arquivo_csv'), validateU
             erros: erros
         };
     } catch (error) {
-        console.error('Erro na importação CSV:', error);
+        logger.error('Erro na importação CSV:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -273,7 +274,7 @@ router.get('/rotas', async (ctx) => {
             rotas: resultado.rows
         };
     } catch (error) {
-        console.error('Erro ao listar rotas:', error);
+        logger.error('Erro ao listar rotas:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -323,7 +324,7 @@ router.post('/rotas', async (ctx) => {
             validacao.sanitizedData.dias_semana
         ]);
 
-        console.log('Nova rota criada:', JSON.stringify(sanitizeForLog({
+        logger.info('Nova rota criada:', JSON.stringify(sanitizeForLog({
             rota_id: resultado.rows[0].id,
             motorista_id: motoristaId
         })));
@@ -334,7 +335,7 @@ router.post('/rotas', async (ctx) => {
             rota: resultado.rows[0]
         };
     } catch (error) {
-        console.error('Erro ao criar rota:', error);
+        logger.error('Erro ao criar rota:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -393,7 +394,7 @@ router.put('/criancas/:id/rota', async (ctx) => {
             mensagem: 'Rota da criança atualizada com sucesso'
         };
     } catch (error) {
-        console.error('Erro ao atualizar rota da criança:', error);
+        logger.error('Erro ao atualizar rota da criança:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -448,7 +449,7 @@ router.post('/upload/documentos', documentUpload.fields([
         };
         
     } catch (error) {
-        console.error('Erro no upload de documentos:', error);
+        logger.error('Erro no upload de documentos:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -490,7 +491,7 @@ router.post('/upload/foto-perfil', imageUpload.single('fotoPerfil'), validateUpl
         };
         
     } catch (error) {
-        console.error('Erro no upload da foto de perfil:', error);
+        logger.error('Erro no upload da foto de perfil:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -529,7 +530,7 @@ router.post('/upload/multiplo', allFilesUpload.array('arquivos', 10), validateUp
         };
         
     } catch (error) {
-        console.error('Erro no upload múltiplo:', error);
+        logger.error('Erro no upload múltiplo:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,

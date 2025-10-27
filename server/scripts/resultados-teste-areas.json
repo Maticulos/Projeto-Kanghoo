@@ -1,0 +1,559 @@
+{
+  "motorista_escolar": [
+    {
+      "nome": "Dashboard motorista escolar",
+      "sucesso": true,
+      "status": 200,
+      "dados": {
+        "message": "Dados do usuário carregados com sucesso!",
+        "usuario": {}
+      }
+    },
+    {
+      "nome": "Perfil do motorista",
+      "sucesso": true,
+      "status": 200,
+      "dados": {
+        "sucesso": true,
+        "dados": {
+          "id": 56,
+          "nome_completo": "João Silva Santos",
+          "email": "joao.motorista.basic@teste.kanghoo.com",
+          "celular": "(11) 98765-4321",
+          "tipo_cadastro": "motorista_escolar",
+          "data_nascimento": null,
+          "criado_em": "2025-10-26T16:30:46.055Z"
+        }
+      }
+    },
+    {
+      "nome": "Listar rotas escolares",
+      "sucesso": true,
+      "status": 200,
+      "dados": {
+        "success": true,
+        "message": "Operação realizada com sucesso",
+        "data": {
+          "rotas": [
+            {
+              "id": 3,
+              "usuario_id": 56,
+              "nome_rota": "Rota Jardins - Colégio São Francisco",
+              "descricao": "Rota vespertina para Colégio São Francisco",
+              "horario_ida": "12:30:00",
+              "horario_volta": "13:15:00",
+              "dias_semana": "seg-sex",
+              "valor_mensal": null,
+              "ativa": true,
+              "criado_em": "2025-10-26T16:30:46.680Z",
+              "escola_destino": "Colégio São Francisco - Av. São Francisco, 789 - Jardins, SP",
+              "turno": "manha",
+              "preco_mensal": "220.00",
+              "vagas_disponiveis": 10
+            },
+            {
+              "id": 2,
+              "usuario_id": 56,
+              "nome_rota": "Rota Vila Madalena - Escola Monteiro Lobato",
+              "descricao": "Rota matutina para Escola Municipal Monteiro Lobato",
+              "horario_ida": "06:30:00",
+              "horario_volta": "07:15:00",
+              "dias_semana": "seg-sex",
+              "valor_mensal": null,
+              "ativa": true,
+              "criado_em": "2025-10-26T16:30:46.675Z",
+              "escola_destino": "Escola Municipal Monteiro Lobato - Rua da Escola, 456 - Vila Madalena, SP",
+              "turno": "manha",
+              "preco_mensal": "180.00",
+              "vagas_disponiveis": 12
+            }
+          ],
+          "pagination": {
+            "page": 1,
+            "limit": 10,
+            "total": 2,
+            "totalPages": 1,
+            "hasNext": false,
+            "hasPrev": false
+          }
+        },
+        "timestamp": "2025-10-26T17:24:33.176Z",
+        "statusCode": 200
+      }
+    },
+    {
+      "nome": "Criar nova rota escolar",
+      "sucesso": false,
+      "status": 422,
+      "erro": "Dados de entrada inválidos"
+    },
+    {
+      "nome": "Listar crianças da rota",
+      "sucesso": false,
+      "status": 403,
+      "erro": "Acesso negado. Apenas responsáveis podem acessar esta rota."
+    },
+    {
+      "nome": "Iniciar conferência",
+      "sucesso": false,
+      "status": 403,
+      "erro": "Acesso negado. Apenas motoristas podem iniciar conferência."
+    },
+    {
+      "nome": "Status GPS",
+      "sucesso": true,
+      "status": 200,
+      "dados": {
+        "success": true,
+        "data": {
+          "service_status": "active",
+          "active_vehicles": 0,
+          "total_geofences": 0,
+          "vehicles_with_history": 0,
+          "config": {
+            "updateInterval": 30000,
+            "geofenceRadius": 200,
+            "etaUpdateThreshold": 300,
+            "maxHistoryPoints": 1000,
+            "speedThreshold": {
+              "min": 5,
+              "max": 80
+            }
+          },
+          "timestamp": "2025-10-26T17:24:33.218Z"
+        }
+      }
+    },
+    {
+      "nome": "Atualizar posição",
+      "sucesso": false,
+      "status": 404,
+      "erro": "Request failed with status code 404"
+    },
+    {
+      "nome": "Buscar notificações",
+      "sucesso": true,
+      "status": 200,
+      "dados": {
+        "sucesso": true,
+        "dados": {
+          "notificacoes": [],
+          "total": 0,
+          "nao_lidas": 0,
+          "limite": 20,
+          "offset": 0
+        }
+      }
+    }
+  ],
+  "motorista_excursao": [
+    {
+      "nome": "Dashboard motorista excursão",
+      "sucesso": true,
+      "status": 200,
+      "dados": {
+        "message": "Dados do usuário carregados com sucesso!",
+        "usuario": {}
+      }
+    },
+    {
+      "nome": "Perfil do motorista",
+      "sucesso": true,
+      "status": 200,
+      "dados": {
+        "sucesso": true,
+        "dados": {
+          "id": 57,
+          "nome_completo": "Maria Oliveira Costa",
+          "email": "maria.motorista.premium@teste.kanghoo.com",
+          "celular": "(11) 91234-5678",
+          "tipo_cadastro": "motorista_excursao",
+          "data_nascimento": null,
+          "criado_em": "2025-10-26T16:30:46.342Z"
+        }
+      }
+    },
+    {
+      "nome": "Listar excursões",
+      "sucesso": false,
+      "status": 404,
+      "erro": "Request failed with status code 404"
+    },
+    {
+      "nome": "Criar nova excursão",
+      "sucesso": false,
+      "status": 404,
+      "erro": "Request failed with status code 404"
+    },
+    {
+      "nome": "Listar participantes",
+      "sucesso": false,
+      "status": 404,
+      "erro": "Request failed with status code 404"
+    },
+    {
+      "nome": "Status GPS",
+      "sucesso": true,
+      "status": 200,
+      "dados": {
+        "success": true,
+        "data": {
+          "service_status": "active",
+          "active_vehicles": 0,
+          "total_geofences": 0,
+          "vehicles_with_history": 0,
+          "config": {
+            "updateInterval": 30000,
+            "geofenceRadius": 200,
+            "etaUpdateThreshold": 300,
+            "maxHistoryPoints": 1000,
+            "speedThreshold": {
+              "min": 5,
+              "max": 80
+            }
+          },
+          "timestamp": "2025-10-26T17:24:33.275Z"
+        }
+      }
+    },
+    {
+      "nome": "Atualizar posição",
+      "sucesso": false,
+      "status": 404,
+      "erro": "Request failed with status code 404"
+    },
+    {
+      "nome": "Buscar notificações",
+      "sucesso": true,
+      "status": 200,
+      "dados": {
+        "sucesso": true,
+        "dados": {
+          "notificacoes": [],
+          "total": 0,
+          "nao_lidas": 0,
+          "limite": 20,
+          "offset": 0
+        }
+      }
+    }
+  ],
+  "responsavel_basic": [
+    {
+      "nome": "Dashboard responsável",
+      "sucesso": true,
+      "status": 200,
+      "dados": {
+        "message": "Dados do usuário carregados com sucesso!",
+        "usuario": {}
+      }
+    },
+    {
+      "nome": "Perfil do responsável",
+      "sucesso": true,
+      "status": 200,
+      "dados": {
+        "sucesso": true,
+        "dados": {
+          "id": 58,
+          "nome_completo": "Ana Costa Silva",
+          "email": "ana.responsavel@teste.kanghoo.com",
+          "celular": "(11) 99999-1111",
+          "tipo_cadastro": "responsavel",
+          "data_nascimento": null,
+          "criado_em": "2025-10-26T16:30:46.640Z"
+        }
+      }
+    },
+    {
+      "nome": "Status da assinatura",
+      "sucesso": true,
+      "status": 200,
+      "dados": {
+        "sucesso": true,
+        "dados": {
+          "status": "sem_plano",
+          "message": "Usuário não possui plano ativo",
+          "plano_atual": null,
+          "dias_restantes": 0,
+          "vencimento": null
+        }
+      }
+    },
+    {
+      "nome": "Listar planos disponíveis",
+      "sucesso": true,
+      "status": 200,
+      "dados": {
+        "sucesso": true,
+        "dados": [
+          {
+            "id": 1,
+            "nome": "basico",
+            "tipo_plano": "basico",
+            "limite_rotas": 3,
+            "limite_usuarios": 15,
+            "ativo": true,
+            "criado_em": "2025-10-26T16:30:46.661Z"
+          },
+          {
+            "id": 2,
+            "nome": "premium",
+            "tipo_plano": "premium",
+            "limite_rotas": 10,
+            "limite_usuarios": 50,
+            "ativo": true,
+            "criado_em": "2025-10-26T16:30:46.662Z"
+          }
+        ],
+        "total": 2
+      }
+    },
+    {
+      "nome": "Listar crianças cadastradas",
+      "sucesso": true,
+      "status": 200,
+      "dados": {
+        "sucesso": true,
+        "dados": [
+          {
+            "id": 6,
+            "nome_completo": "Criança Teste Basic",
+            "data_nascimento": "2015-05-15T03:00:00.000Z",
+            "cpf": "99988877766",
+            "endereco_residencial": "Rua Teste, 123",
+            "escola": "Escola Teste",
+            "endereco_escola": "Escola Teste",
+            "observacoes_medicas": null,
+            "criado_em": "2025-10-26T16:58:11.676Z",
+            "rota_nome": null,
+            "horario_ida": null,
+            "horario_volta": null,
+            "motorista_nome": null,
+            "motorista_telefone": null
+          },
+          {
+            "id": 1,
+            "nome_completo": "Sofia Costa Silva",
+            "data_nascimento": "2017-03-15T03:00:00.000Z",
+            "cpf": "12345678901",
+            "endereco_residencial": "Endereço residencial de teste",
+            "escola": "Escola Municipal Monteiro Lobato",
+            "endereco_escola": "Endereço da escola de teste",
+            "observacoes_medicas": null,
+            "criado_em": "2025-10-26T16:30:46.664Z",
+            "rota_nome": null,
+            "horario_ida": null,
+            "horario_volta": null,
+            "motorista_nome": null,
+            "motorista_telefone": null
+          }
+        ],
+        "total": 2
+      }
+    },
+    {
+      "nome": "Cadastrar nova criança",
+      "sucesso": false,
+      "status": 409,
+      "erro": "CPF já cadastrado no sistema"
+    },
+    {
+      "nome": "Posição atual das crianças",
+      "sucesso": false,
+      "status": 404,
+      "erro": "Request failed with status code 404"
+    },
+    {
+      "nome": "Preferências de notificação",
+      "sucesso": true,
+      "status": 200,
+      "dados": {
+        "sucesso": true,
+        "dados": {
+          "id": 1,
+          "usuario_id": 58,
+          "email_ativo": true,
+          "sms_ativo": true,
+          "push_ativo": true,
+          "notif_chegada": true,
+          "notif_saida": true,
+          "notif_atraso": true,
+          "notif_emergencia": true,
+          "criado_em": "2025-10-26T16:51:18.882Z",
+          "atualizado_em": "2025-10-26T16:51:18.882Z"
+        }
+      }
+    },
+    {
+      "nome": "Buscar notificações",
+      "sucesso": true,
+      "status": 200,
+      "dados": {
+        "sucesso": true,
+        "dados": {
+          "notificacoes": [],
+          "total": 0,
+          "nao_lidas": 0,
+          "limite": 20,
+          "offset": 0
+        }
+      }
+    }
+  ],
+  "responsavel_premium": [
+    {
+      "nome": "Dashboard responsável premium",
+      "sucesso": true,
+      "status": 200,
+      "dados": {
+        "message": "Dados do usuário carregados com sucesso!",
+        "usuario": {}
+      }
+    },
+    {
+      "nome": "Perfil do responsável",
+      "sucesso": true,
+      "status": 200,
+      "dados": {
+        "sucesso": true,
+        "dados": {
+          "id": 59,
+          "nome_completo": "Carlos Roberto Lima",
+          "email": "carlos.responsavel@teste.kanghoo.com",
+          "celular": "(11) 77777-3333",
+          "tipo_cadastro": "responsavel",
+          "data_nascimento": null,
+          "criado_em": "2025-10-26T16:30:46.658Z"
+        }
+      }
+    },
+    {
+      "nome": "Status da assinatura premium",
+      "sucesso": true,
+      "status": 200,
+      "dados": {
+        "sucesso": true,
+        "dados": {
+          "status": "sem_plano",
+          "message": "Usuário não possui plano ativo",
+          "plano_atual": null,
+          "dias_restantes": 0,
+          "vencimento": null
+        }
+      }
+    },
+    {
+      "nome": "Listar crianças cadastradas",
+      "sucesso": true,
+      "status": 200,
+      "dados": {
+        "sucesso": true,
+        "dados": [
+          {
+            "id": 7,
+            "nome_completo": "Criança Teste Premium",
+            "data_nascimento": "2016-08-20T03:00:00.000Z",
+            "cpf": "88877766655",
+            "endereco_residencial": "Avenida Premium, 456",
+            "escola": "Escola Premium",
+            "endereco_escola": "Escola Premium",
+            "observacoes_medicas": null,
+            "criado_em": "2025-10-26T16:58:11.883Z",
+            "rota_nome": null,
+            "horario_ida": null,
+            "horario_volta": null,
+            "motorista_nome": null,
+            "motorista_telefone": null
+          },
+          {
+            "id": 2,
+            "nome_completo": "Pedro Roberto Lima",
+            "data_nascimento": "2015-03-15T03:00:00.000Z",
+            "cpf": "98765432109",
+            "endereco_residencial": "Endereço residencial de teste",
+            "escola": "Colégio São Francisco",
+            "endereco_escola": "Endereço da escola de teste",
+            "observacoes_medicas": null,
+            "criado_em": "2025-10-26T16:30:46.668Z",
+            "rota_nome": null,
+            "horario_ida": null,
+            "horario_volta": null,
+            "motorista_nome": null,
+            "motorista_telefone": null
+          }
+        ],
+        "total": 2
+      }
+    },
+    {
+      "nome": "Cadastrar nova criança",
+      "sucesso": false,
+      "status": 409,
+      "erro": "CPF já cadastrado no sistema"
+    },
+    {
+      "nome": "Posição atual das crianças",
+      "sucesso": false,
+      "status": 404,
+      "erro": "Request failed with status code 404"
+    },
+    {
+      "nome": "Histórico de rastreamento",
+      "sucesso": false,
+      "status": 403,
+      "erro": "Acesso negado. Permissão insuficiente."
+    },
+    {
+      "nome": "Relatórios de viagem",
+      "sucesso": false,
+      "status": 404,
+      "erro": "Request failed with status code 404"
+    },
+    {
+      "nome": "Configurar geofencing",
+      "sucesso": false,
+      "status": 404,
+      "erro": "Request failed with status code 404"
+    },
+    {
+      "nome": "Preferências de notificação",
+      "sucesso": true,
+      "status": 200,
+      "dados": {
+        "sucesso": true,
+        "dados": {
+          "id": 2,
+          "usuario_id": 59,
+          "email_ativo": true,
+          "sms_ativo": true,
+          "push_ativo": true,
+          "notif_chegada": true,
+          "notif_saida": true,
+          "notif_atraso": true,
+          "notif_emergencia": true,
+          "criado_em": "2025-10-26T16:51:19.563Z",
+          "atualizado_em": "2025-10-26T16:51:19.563Z"
+        }
+      }
+    },
+    {
+      "nome": "Atualizar preferências",
+      "sucesso": false,
+      "status": 405,
+      "erro": "Request failed with status code 405"
+    },
+    {
+      "nome": "Listar excursões disponíveis",
+      "sucesso": false,
+      "status": 404,
+      "erro": "Request failed with status code 404"
+    }
+  ],
+  "resumo": {
+    "total_testes": 38,
+    "aprovados": 21,
+    "falharam": 17,
+    "taxa_sucesso": "55.26"
+  }
+}

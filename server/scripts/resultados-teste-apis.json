@@ -1,0 +1,144 @@
+{
+  "timestamp": "2025-10-26T17:33:56.886Z",
+  "totalTests": 22,
+  "passedTests": 11,
+  "failedTests": 11,
+  "tests": [
+    {
+      "name": "Registro de usuário",
+      "success": false,
+      "timestamp": "2025-10-26T17:33:56.933Z",
+      "details": {}
+    },
+    {
+      "name": "Login de usuário",
+      "success": true,
+      "timestamp": "2025-10-26T17:33:57.150Z",
+      "details": {}
+    },
+    {
+      "name": "Verificação de token",
+      "success": true,
+      "timestamp": "2025-10-26T17:33:57.156Z",
+      "details": {}
+    },
+    {
+      "name": "Listar planos disponíveis",
+      "success": true,
+      "timestamp": "2025-10-26T17:33:57.164Z",
+      "details": {}
+    },
+    {
+      "name": "Ativar plano Basic",
+      "success": true,
+      "timestamp": "2025-10-26T17:33:57.212Z",
+      "details": {}
+    },
+    {
+      "name": "Verificar status da assinatura",
+      "success": true,
+      "timestamp": "2025-10-26T17:33:57.218Z",
+      "details": {}
+    },
+    {
+      "name": "Criar rota escolar",
+      "success": true,
+      "timestamp": "2025-10-26T17:33:57.266Z",
+      "details": {}
+    },
+    {
+      "name": "Listar rotas escolares",
+      "success": true,
+      "timestamp": "2025-10-26T17:33:57.271Z",
+      "details": {}
+    },
+    {
+      "name": "Verificar status do GPS",
+      "success": true,
+      "timestamp": "2025-10-26T17:33:57.277Z",
+      "details": {}
+    },
+    {
+      "name": "Simular posição GPS",
+      "success": true,
+      "timestamp": "2025-10-26T17:33:57.280Z",
+      "details": {}
+    },
+    {
+      "name": "Buscar posições do veículo",
+      "success": false,
+      "timestamp": "2025-10-26T17:33:57.283Z",
+      "details": {}
+    },
+    {
+      "name": "Configuração do Google Maps",
+      "success": true,
+      "timestamp": "2025-10-26T17:33:57.286Z",
+      "details": {}
+    },
+    {
+      "name": "Geocodificação de endereço",
+      "success": false,
+      "timestamp": "2025-10-26T17:33:57.290Z",
+      "details": {}
+    },
+    {
+      "name": "Cálculo de rota",
+      "success": false,
+      "timestamp": "2025-10-26T17:33:57.293Z",
+      "details": {}
+    },
+    {
+      "name": "Cadastrar criança",
+      "success": false,
+      "timestamp": "2025-10-26T17:33:57.296Z",
+      "details": {}
+    },
+    {
+      "name": "Listar crianças cadastradas",
+      "success": false,
+      "timestamp": "2025-10-26T17:33:57.299Z",
+      "details": {}
+    },
+    {
+      "name": "Iniciar conferência",
+      "success": false,
+      "timestamp": "2025-10-26T17:33:57.313Z",
+      "details": {}
+    },
+    {
+      "name": "Listar conferências ativas",
+      "success": false,
+      "timestamp": "2025-10-26T17:33:57.317Z",
+      "details": {}
+    },
+    {
+      "name": "Buscar preferências de notificação",
+      "success": true,
+      "timestamp": "2025-10-26T17:33:57.364Z",
+      "details": {}
+    },
+    {
+      "name": "Atualizar preferências de notificação",
+      "success": false,
+      "timestamp": "2025-10-26T17:33:57.367Z",
+      "details": {}
+    },
+    {
+      "name": "Conexão WebSocket",
+      "success": false,
+      "timestamp": "2025-10-26T17:33:57.378Z",
+      "details": {
+        "error": "Unexpected server response: 400"
+      }
+    },
+    {
+      "name": "Conexão WebSocket",
+      "success": false,
+      "timestamp": "2025-10-26T17:33:57.379Z",
+      "details": {
+        "error": "Unexpected server response: 400"
+      }
+    }
+  ]
+}

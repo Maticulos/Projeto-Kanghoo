@@ -5,285 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Encontrar Transporte - Kanghoo</title>
     <meta name="description" content="Encontre transporte escolar e excursões na sua região. Filtros avançados, mapa interativo e contato direto com prestadores.">
-    <link rel="stylesheet" href="../css/style.css">
-    <link rel="icon" href="../imagens/favicon.ico" type="image/x-icon">
-    <style>
-        /* Estilos específicos para a página unificada de transporte */
-        .transport-type-selector {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 2rem 0;
-            margin-bottom: 2rem;
-        }
-        
-        .transport-type-tabs {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        
-        .transport-tab {
-            flex: 1;
-            padding: 1rem 2rem;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 12px;
-            color: white;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-        }
-        
-        .transport-tab:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
-        }
-        
-        .transport-tab.active {
-            background: rgba(255, 255, 255, 0.9);
-            color: #333;
-            border-color: white;
-        }
-        
-        .transport-tab h3 {
-            margin: 0 0 0.5rem 0;
-            font-size: 1.2rem;
-        }
-        
-        .transport-tab p {
-            margin: 0;
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
-        
-        .filters-section {
-            background: #f8f9fa;
-            padding: 3rem 0;
-        }
-        
-        .filters-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
-        }
-        
-        .filters-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-        
-        .filter-group {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .filter-group h3 {
-            margin: 0 0 1rem 0;
-            color: #333;
-            font-size: 1.1rem;
-        }
-        
-        .filter-options {
-            display: flex;
-            flex-direction: column;
-            gap: 0.8rem;
-        }
-        
-        .filter-option input,
-        .filter-option select {
-            width: 100%;
-            padding: 0.8rem;
-            border: 2px solid #e1e5e9;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            transition: border-color 0.3s ease;
-        }
-        
-        .filter-option input:focus,
-        .filter-option select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        
-        .checkbox-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-        
-        .checkbox-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .checkbox-item input[type="checkbox"] {
-            width: auto;
-        }
-        
-        .filter-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-        
-        .results-section {
-            padding: 3rem 0;
-        }
-        
-        .results-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
-        }
-        
-        .results-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-        }
-        
-        .results-count {
-            color: #666;
-            font-size: 0.9rem;
-        }
-        
-        .sort-options select {
-            padding: 0.5rem;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-        }
-        
-        .transport-card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .transport-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 25px rgba(0,0,0,0.15);
-        }
-        
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1rem;
-        }
-        
-        .provider-info h4 {
-            margin: 0 0 0.5rem 0;
-            color: #333;
-        }
-        
-        .provider-rating {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: #666;
-            font-size: 0.9rem;
-        }
-        
-        .transport-type-badge {
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-        
-        .badge-escolar {
-            background: #e3f2fd;
-            color: #1976d2;
-        }
-        
-        .badge-excursao {
-            background: #f3e5f5;
-            color: #7b1fa2;
-        }
-        
-        .card-details {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .detail-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: #666;
-            font-size: 0.9rem;
-        }
-        
-        .card-actions {
-            display: flex;
-            gap: 1rem;
-            justify-content: flex-end;
-        }
-        
-        .map-container {
-            height: 400px;
-            background: #f0f0f0;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 2rem 0;
-        }
-        
-        .map-placeholder {
-            text-align: center;
-            color: #666;
-        }
-        
-        @media (max-width: 768px) {
-            .transport-type-tabs {
-                flex-direction: column;
-            }
-            
-            .filters-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .filter-buttons {
-                flex-direction: column;
-            }
-            
-            .results-header {
-                flex-direction: column;
-                gap: 1rem;
-                align-items: flex-start;
-            }
-            
-            .card-actions {
-                flex-direction: column;
-            }
-        }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/bundle.min.css">
+    <link rel="stylesheet" href="assets/css/encontrar-transporte.css">
+    <link rel="icon" href="assets/images/favicon.ico" type="image/x-icon">
+    
+    <!-- Leaflet CSS (Local) -->
+    <link rel="stylesheet" href="assets/libs/leaflet/leaflet.css" />
+    
+    <!-- Leaflet JavaScript (Local) -->
+    <script src="assets/libs/leaflet/leaflet.js"></script>
+
 </head>
 <body>
     <header id="header" class="header" role="banner">
         <div class="container">
             <a href="index.html" class="logo-link" aria-label="Kanghoo - Página inicial">
-                <img src="../imagens/logo.png" alt="Ícone Kanghoo" class="logo-icon">
+                <img src="assets/images/logo.png" alt="Ícone Kanghoo" class="logo-icon">
                 <span class="logo-text-full">Kanghoo</span>
             </a>
             <nav id="main-nav" class="nav" role="navigation" aria-label="Navegação principal">
                 <a href="planos.html" class="nav-link">Planos</a>
-                <a href="index.html#contact" class="nav-link">Fale Conosco</a>
+                <a href="contato.html" class="nav-link">Fale Conosco</a>
                 <a href="encontrar-transporte.html" class="nav-link">Encontrar Transporte</a>
                 <a href="sobre.html" class="nav-link">Sobre Nós</a>
             </nav>
@@ -304,21 +49,21 @@
                 <a href="cadastro-excursao.html" class="btn btn-blue">Excursão e Fretamento</a>
             </div>
             <div class="modal-footer">
-                <p>Não tem certeza? <a href="index.html#contact">Fale conosco</a></p>
+                <p>Não tem certeza? <a href="contato.html">Fale conosco</a></p>
             </div>
         </div>
     </div>
 
     <main>
         <!-- SELETOR DE TIPO DE TRANSPORTE -->
-        <section class="transport-type-selector">
+        <section class="transport-type-selector" aria-label="Seleção de tipo de transporte">
             <div class="container">
-                <div class="transport-type-tabs">
-                    <div class="transport-tab active" data-type="escolar">
+                <div class="transport-type-tabs" role="tablist" aria-label="Tipos de transporte disponíveis">
+                    <div class="transport-tab active" data-type="escolar" role="tab" aria-selected="true" aria-controls="escolar-content" tabindex="0">
                         <h3>🚌 Transporte Escolar</h3>
                         <p>Segurança e pontualidade para o dia a dia</p>
                     </div>
-                    <div class="transport-tab" data-type="excursao">
+                    <div class="transport-tab" data-type="excursao" role="tab" aria-selected="false" aria-controls="excursao-content" tabindex="-1">
                         <h3>🚐 Excursões & Fretamento</h3>
                         <p>Viagens especiais e eventos</p>
                     </div>
@@ -327,136 +72,681 @@
         </section>
 
         <!-- SEÇÃO DE FILTROS -->
-        <section class="filters-section">
+        <section class="filters-section" aria-label="Filtros de busca">
             <div class="filters-container">
                 <h2 class="filters-title">Filtros de Busca</h2>
                 
-                <div class="filters-grid">
-                    <!-- Localização -->
-                    <div class="filter-group">
-                        <h3>📍 Localização</h3>
-                        <div class="filter-options">
-                            <div class="filter-option">
-                                <input type="text" id="endereco" placeholder="Cidade, bairro ou endereço">
-                            </div>
-                            <div class="filter-option">
-                                <input type="number" id="raio" placeholder="Raio de busca (km)" min="1" max="50" value="10">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Horários (específico para escolar) -->
-                    <div class="filter-group" id="horarios-filter">
-                        <h3>⏰ Horários</h3>
-                        <div class="filter-options">
-                            <div class="filter-option">
-                                <select id="turno">
-                                    <option value="">Todos os turnos</option>
-                                    <option value="manha">Manhã</option>
-                                    <option value="tarde">Tarde</option>
-                                    <option value="noite">Noite</option>
-                                </select>
-                            </div>
-                            <div class="filter-option">
-                                <input type="time" id="horario-ida" placeholder="Horário de ida">
-                            </div>
-                            <div class="filter-option">
-                                <input type="time" id="horario-volta" placeholder="Horário de volta">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Datas (específico para excursão) -->
-                    <div class="filter-group hidden" id="datas-filter">
-                        <h3>📅 Datas</h3>
-                        <div class="filter-options">
-                            <div class="filter-option">
-                                <input type="date" id="data-inicio" placeholder="Data de início">
-                            </div>
-                            <div class="filter-option">
-                                <input type="date" id="data-fim" placeholder="Data de fim">
-                            </div>
-                            <div class="filter-option">
-                                <select id="duracao">
-                                    <option value="">Duração</option>
-                                    <option value="1">1 dia</option>
-                                    <option value="2-3">2-3 dias</option>
-                                    <option value="4-7">4-7 dias</option>
-                                    <option value="7+">Mais de 7 dias</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Capacidade -->
-                    <div class="filter-group">
-                        <h3>👥 Capacidade</h3>
-                        <div class="filter-options">
-                            <div class="filter-option">
-                                <select id="capacidade">
-                                    <option value="">Qualquer capacidade</option>
-                                    <option value="1-15">1-15 pessoas</option>
-                                    <option value="16-30">16-30 pessoas</option>
-                                    <option value="31-50">31-50 pessoas</option>
-                                    <option value="50+">Mais de 50 pessoas</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Características do Veículo -->
-                    <div class="filter-group">
-                        <h3>🚗 Características</h3>
-                        <div class="checkbox-group">
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="ar-condicionado">
-                                <label for="ar-condicionado">Ar-condicionado</label>
-                            </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="wifi">
-                                <label for="wifi">Wi-Fi</label>
-                            </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="acessibilidade">
-                                <label for="acessibilidade">Acessibilidade PCD</label>
-                            </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="seguro">
-                                <label for="seguro">Seguro completo</label>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Preço -->
-                    <div class="filter-group">
-                        <h3>💰 Faixa de Preço</h3>
-                        <div class="filter-options">
-                            <div class="filter-option">
-                                <select id="faixa-preco">
-                                    <option value="">Qualquer preço</option>
-                                    <option value="0-100">Até R$ 100</option>
-                                    <option value="100-200">R$ 100 - R$ 200</option>
-                                    <option value="200-500">R$ 200 - R$ 500</option>
-                                    <option value="500+">Acima de R$ 500</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
+
+                
+                <!-- Botões para abrir modais de filtros -->
+                <!-- Filtros para Transporte Escolar -->
+                <div class="filter-buttons-grid" id="escolar-filters" data-transport-type="escolar">
+                    <button class="filter-modal-btn" data-modal="localizacao-modal">
+                        📍 Localização
+                    </button>
+                    <button class="filter-modal-btn" data-modal="horarios-escolar-modal">
+                        ⏰ Horários Escolares
+                    </button>
+                    <button class="filter-modal-btn" data-modal="idade-modal">
+                        👶 Idade das Crianças
+                    </button>
+                    <button class="filter-modal-btn" data-modal="escola-modal">
+                        🏫 Escola/Instituição
+                    </button>
+                    <button class="filter-modal-btn" data-modal="capacidade-modal">
+                        👥 Capacidade
+                    </button>
+                    <button class="filter-modal-btn" data-modal="caracteristicas-escolar-modal">
+                        🚗 Características
+                    </button>
+                    <button class="filter-modal-btn" data-modal="preco-modal">
+                        💰 Faixa de Preço
+                    </button>
+                </div>
+
+                <!-- Filtros para Excursões -->
+                <div class="filter-buttons-grid hidden" id="excursao-filters" data-transport-type="excursao">
+                    <button class="filter-modal-btn" data-modal="localizacao-modal">
+                        📍 Localização
+                    </button>
+                    <button class="filter-modal-btn" data-modal="destino-modal">
+                        🗺️ Destino
+                    </button>
+                    <button class="filter-modal-btn" data-modal="duracao-modal">
+                        📅 Duração da Viagem
+                    </button>
+                    <button class="filter-modal-btn" data-modal="tipo-excursao-modal">
+                        🎯 Tipo de Excursão
+                    </button>
+                    <button class="filter-modal-btn" data-modal="capacidade-modal">
+                        👥 Capacidade
+                    </button>
+                    <button class="filter-modal-btn" data-modal="caracteristicas-excursao-modal">
+                        🚗 Características
+                    </button>
+                    <button class="filter-modal-btn" data-modal="preco-modal">
+                        💰 Faixa de Preço
+                    </button>
                 </div>
                 
                 <div class="filter-buttons">
-                    <button class="btn btn-outline" onclick="limparFiltros()">Limpar Filtros</button>
-                    <button class="btn btn-primary" onclick="buscarTransportes()">🔍 Buscar Transportes</button>
+                    <button class="btn btn-outline" id="btn-limpar">Limpar Filtros</button>
+                    <button class="btn btn-primary" id="btn-buscar">🔍 Buscar Transportes</button>
+                </div>
+            </div>
+
+            <!-- Área de Filtros Aplicados -->
+            <div id="applied-filters-section" class="applied-filters-section" style="display: none;">
+                <div class="applied-filters-header">
+                    <h3>Filtros Aplicados</h3>
+                    <button id="clear-all-filters" class="clear-all-btn">
+                        <span>🗑️</span>
+                        Limpar Todos
+                    </button>
+                </div>
+                <div id="applied-filters-container" class="applied-filters-container">
+                    <!-- Tags de filtros aplicados serão inseridas aqui dinamicamente -->
                 </div>
             </div>
         </section>
 
+        <!-- MODAIS DE FILTROS -->
+        
+        <!-- Modal Localização -->
+        <div id="localizacao-modal" class="filter-modal hidden" role="dialog" aria-modal="true" aria-labelledby="localizacao-title">
+            <div class="filter-modal-content">
+                <div class="filter-modal-header">
+                    <h3 id="localizacao-title">📍 Localização</h3>
+                    <button class="close-filter-modal" aria-label="Fechar modal">&times;</button>
+                </div>
+                <div class="filter-modal-body">
+                    <div class="filter-options">
+                        <div class="filter-option">
+                            <label for="endereco">Endereço</label>
+                            <input type="text" id="endereco" placeholder="Cidade, bairro ou endereço" aria-describedby="endereco-help">
+                            <div id="endereco-help" class="help-text">Digite o endereço onde deseja buscar transporte</div>
+                        </div>
+                        <div class="filter-option">
+                            <label for="raio">Raio de busca (km)</label>
+                            <input type="number" id="raio" placeholder="Raio de busca (km)" min="1" max="50" value="10" aria-describedby="raio-help">
+                            <div id="raio-help" class="help-text">Distância máxima em quilômetros para buscar transportes</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="filter-modal-footer">
+                    <button class="btn btn-outline close-filter-modal">Cancelar</button>
+                    <button class="btn btn-primary apply-filter">Aplicar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Horários Escolares -->
+        <div id="horarios-escolar-modal" class="filter-modal hidden" role="dialog" aria-modal="true" aria-labelledby="horarios-escolar-title">
+            <div class="filter-modal-content">
+                <div class="filter-modal-header">
+                    <h3 id="horarios-escolar-title">⏰ Horários Escolares</h3>
+                    <button class="close-filter-modal" aria-label="Fechar modal">&times;</button>
+                </div>
+                <div class="filter-modal-body">
+                    <div class="filter-options">
+                        <div class="filter-option">
+                            <label for="turno-escolar">Turno escolar</label>
+                            <select id="turno-escolar" aria-describedby="turno-escolar-help">
+                                <option value="">Todos os turnos</option>
+                                <option value="manha">Manhã (7h às 12h)</option>
+                                <option value="tarde">Tarde (13h às 18h)</option>
+                                <option value="noite">Noite (19h às 23h)</option>
+                                <option value="integral">Período Integral</option>
+                            </select>
+                            <div id="turno-escolar-help" class="help-text">Selecione o turno escolar da criança</div>
+                        </div>
+                        <div class="filter-option">
+                            <label for="horario-ida-escolar">Horário de ida para escola</label>
+                            <input type="time" id="horario-ida-escolar" aria-describedby="ida-escolar-help">
+                            <div id="ida-escolar-help" class="help-text">Horário que a criança deve chegar na escola</div>
+                        </div>
+                        <div class="filter-option">
+                            <label for="horario-volta-escolar">Horário de volta da escola</label>
+                            <input type="time" id="horario-volta-escolar" aria-describedby="volta-escolar-help">
+                            <div id="volta-escolar-help" class="help-text">Horário que a criança sai da escola</div>
+                        </div>
+                        <div class="filter-option">
+                            <label for="flexibilidade-horario">Flexibilidade de horário</label>
+                            <select id="flexibilidade-horario" aria-describedby="flexibilidade-help">
+                                <option value="">Sem preferência</option>
+                                <option value="15min">±15 minutos</option>
+                                <option value="30min">±30 minutos</option>
+                                <option value="1h">±1 hora</option>
+                            </select>
+                            <div id="flexibilidade-help" class="help-text">Tolerância de atraso/antecipação aceitável</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="filter-modal-footer">
+                    <button class="btn btn-outline close-filter-modal">Cancelar</button>
+                    <button class="btn btn-primary apply-filter">Aplicar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Idade das Crianças -->
+        <div id="idade-modal" class="filter-modal hidden" role="dialog" aria-modal="true" aria-labelledby="idade-title">
+            <div class="filter-modal-content">
+                <div class="filter-modal-header">
+                    <h3 id="idade-title">👶 Idade das Crianças</h3>
+                    <button class="close-filter-modal" aria-label="Fechar modal">&times;</button>
+                </div>
+                <div class="filter-modal-body">
+                    <div class="filter-options">
+                        <div class="filter-option">
+                            <label for="faixa-etaria">Faixa etária</label>
+                            <select id="faixa-etaria" aria-describedby="faixa-etaria-help">
+                                <option value="">Todas as idades</option>
+                                <option value="infantil">Educação Infantil (3-5 anos)</option>
+                                <option value="fundamental1">Fundamental I (6-10 anos)</option>
+                                <option value="fundamental2">Fundamental II (11-14 anos)</option>
+                                <option value="medio">Ensino Médio (15-17 anos)</option>
+                                <option value="superior">Ensino Superior (18+ anos)</option>
+                            </select>
+                            <div id="faixa-etaria-help" class="help-text">Selecione a faixa etária das crianças</div>
+                        </div>
+                        <div class="filter-option">
+                            <label for="idade-minima">Idade mínima</label>
+                            <input type="number" id="idade-minima" placeholder="Idade mínima" min="3" max="18" aria-describedby="idade-min-help">
+                            <div id="idade-min-help" class="help-text">Idade mínima da criança (anos)</div>
+                        </div>
+                        <div class="filter-option">
+                            <label for="idade-maxima">Idade máxima</label>
+                            <input type="number" id="idade-maxima" placeholder="Idade máxima" min="3" max="18" aria-describedby="idade-max-help">
+                            <div id="idade-max-help" class="help-text">Idade máxima da criança (anos)</div>
+                        </div>
+                        <div class="filter-option">
+                            <label for="necessidades-especiais">Necessidades especiais</label>
+                            <select id="necessidades-especiais" aria-describedby="necessidades-help">
+                                <option value="">Sem preferência</option>
+                                <option value="sim">Atende crianças com necessidades especiais</option>
+                                <option value="nao">Apenas crianças sem necessidades especiais</option>
+                            </select>
+                            <div id="necessidades-help" class="help-text">Especifique se há necessidades especiais</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="filter-modal-footer">
+                    <button class="btn btn-outline close-filter-modal">Cancelar</button>
+                    <button class="btn btn-primary apply-filter">Aplicar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Escola/Instituição -->
+        <div id="escola-modal" class="filter-modal hidden" role="dialog" aria-modal="true" aria-labelledby="escola-title">
+            <div class="filter-modal-content">
+                <div class="filter-modal-header">
+                    <h3 id="escola-title">🏫 Escola/Instituição</h3>
+                    <button class="close-filter-modal" aria-label="Fechar modal">&times;</button>
+                </div>
+                <div class="filter-modal-body">
+                    <div class="filter-options">
+                        <div class="filter-option">
+                            <label for="nome-escola">Nome da escola</label>
+                            <input type="text" id="nome-escola" placeholder="Digite o nome da escola" aria-describedby="nome-escola-help">
+                            <div id="nome-escola-help" class="help-text">Nome da escola ou instituição de ensino</div>
+                        </div>
+                        <div class="filter-option">
+                            <label for="tipo-instituicao">Tipo de instituição</label>
+                            <select id="tipo-instituicao" aria-describedby="tipo-instituicao-help">
+                                <option value="">Todos os tipos</option>
+                                <option value="publica">Escola Pública</option>
+                                <option value="privada">Escola Privada</option>
+                                <option value="tecnica">Escola Técnica</option>
+                                <option value="universidade">Universidade</option>
+                                <option value="faculdade">Faculdade</option>
+                                <option value="curso">Curso/Instituto</option>
+                            </select>
+                            <div id="tipo-instituicao-help" class="help-text">Tipo da instituição de ensino</div>
+                        </div>
+                        <div class="filter-option">
+                            <label for="endereco-escola">Endereço da escola</label>
+                            <input type="text" id="endereco-escola" placeholder="Endereço da escola" aria-describedby="endereco-escola-help">
+                            <div id="endereco-escola-help" class="help-text">Endereço completo ou bairro da escola</div>
+                        </div>
+                        <div class="filter-option">
+                            <label for="distancia-escola">Distância máxima da escola</label>
+                            <select id="distancia-escola" aria-describedby="distancia-escola-help">
+                                <option value="">Sem preferência</option>
+                                <option value="1km">Até 1 km</option>
+                                <option value="3km">Até 3 km</option>
+                                <option value="5km">Até 5 km</option>
+                                <option value="10km">Até 10 km</option>
+                                <option value="15km">Até 15 km</option>
+                            </select>
+                            <div id="distancia-escola-help" class="help-text">Distância máxima aceitável da escola</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="filter-modal-footer">
+                    <button class="btn btn-outline close-filter-modal">Cancelar</button>
+                    <button class="btn btn-primary apply-filter">Aplicar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Datas -->
+        <div id="datas-modal" class="filter-modal hidden" role="dialog" aria-modal="true" aria-labelledby="datas-title">
+            <div class="filter-modal-content">
+                <div class="filter-modal-header">
+                    <h3 id="datas-title">📅 Datas</h3>
+                    <button class="close-filter-modal" aria-label="Fechar modal">&times;</button>
+                </div>
+                <div class="filter-modal-body">
+                    <div class="filter-options">
+                        <div class="filter-option">
+                            <label for="data-inicio">Data de início</label>
+                            <input type="date" id="data-inicio">
+                        </div>
+                        <div class="filter-option">
+                            <label for="data-fim">Data de fim</label>
+                            <input type="date" id="data-fim">
+                        </div>
+                        <div class="filter-option">
+                            <label for="duracao">Duração</label>
+                            <select id="duracao">
+                                <option value="">Duração</option>
+                                <option value="1">1 dia</option>
+                                <option value="2-3">2-3 dias</option>
+                                <option value="4-7">4-7 dias</option>
+                                <option value="7+">Mais de 7 dias</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="filter-modal-footer">
+                    <button class="btn btn-outline close-filter-modal">Cancelar</button>
+                    <button class="btn btn-primary apply-filter">Aplicar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Capacidade -->
+        <div id="capacidade-modal" class="filter-modal hidden" role="dialog" aria-modal="true" aria-labelledby="capacidade-title">
+            <div class="filter-modal-content">
+                <div class="filter-modal-header">
+                    <h3 id="capacidade-title">👥 Capacidade</h3>
+                    <button class="close-filter-modal" aria-label="Fechar modal">&times;</button>
+                </div>
+                <div class="filter-modal-body">
+                    <div class="filter-options">
+                        <div class="filter-option">
+                            <label for="capacidade">Capacidade do veículo</label>
+                            <select id="capacidade">
+                                <option value="">Qualquer capacidade</option>
+                                <option value="1-15">1-15 pessoas</option>
+                                <option value="16-30">16-30 pessoas</option>
+                                <option value="31-50">31-50 pessoas</option>
+                                <option value="50+">Mais de 50 pessoas</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="filter-modal-footer">
+                    <button class="btn btn-outline close-filter-modal">Cancelar</button>
+                    <button class="btn btn-primary apply-filter">Aplicar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Características Escolar -->
+        <div id="caracteristicas-escolar-modal" class="filter-modal hidden" role="dialog" aria-modal="true" aria-labelledby="caracteristicas-escolar-title">
+            <div class="filter-modal-content">
+                <div class="filter-modal-header">
+                    <h3 id="caracteristicas-escolar-title">🚗 Características do Transporte Escolar</h3>
+                    <button class="close-filter-modal" aria-label="Fechar modal">&times;</button>
+                </div>
+                <div class="filter-modal-body">
+                    <div class="checkbox-group" role="group" aria-label="Características do transporte escolar">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="ar-condicionado-escolar" aria-describedby="ar-escolar-help">
+                            <label for="ar-condicionado-escolar">Ar-condicionado</label>
+                            <div id="ar-escolar-help" class="help-text">Veículo com ar-condicionado para conforto das crianças</div>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="cintos-seguranca" aria-describedby="cintos-help">
+                            <label for="cintos-seguranca">Cintos de segurança</label>
+                            <div id="cintos-help" class="help-text">Cintos de segurança adequados para crianças</div>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="monitora" aria-describedby="monitora-help">
+                            <label for="monitora">Monitora/Acompanhante</label>
+                            <div id="monitora-help" class="help-text">Presença de monitora para cuidar das crianças</div>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="rastreamento-gps" aria-describedby="gps-help">
+                            <label for="rastreamento-gps">Rastreamento GPS</label>
+                            <div id="gps-help" class="help-text">Sistema de rastreamento para acompanhar a localização</div>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="acessibilidade-escolar" aria-describedby="acess-escolar-help">
+                            <label for="acessibilidade-escolar">Acessibilidade PCD</label>
+                            <div id="acess-escolar-help" class="help-text">Veículo adaptado para crianças com deficiência</div>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="seguro-escolar" aria-describedby="seguro-escolar-help">
+                            <label for="seguro-escolar">Seguro completo</label>
+                            <div id="seguro-escolar-help" class="help-text">Seguro de vida e acidentes para as crianças</div>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="cameras-seguranca" aria-describedby="cameras-help">
+                            <label for="cameras-seguranca">Câmeras de segurança</label>
+                            <div id="cameras-help" class="help-text">Sistema de câmeras para monitoramento interno</div>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="primeiros-socorros" aria-describedby="socorros-help">
+                            <label for="primeiros-socorros">Kit primeiros socorros</label>
+                            <div id="socorros-help" class="help-text">Kit de primeiros socorros disponível no veículo</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="filter-modal-footer">
+                    <button class="btn btn-outline close-filter-modal">Cancelar</button>
+                    <button class="btn btn-primary apply-filter">Aplicar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Preço -->
+        <div id="preco-modal" class="filter-modal hidden" role="dialog" aria-modal="true" aria-labelledby="preco-title">
+            <div class="filter-modal-content">
+                <div class="filter-modal-header">
+                    <h3 id="preco-title">💰 Faixa de Preço</h3>
+                    <button class="close-filter-modal" aria-label="Fechar modal">&times;</button>
+                </div>
+                <div class="filter-modal-body">
+                    <div class="filter-options">
+                        <div class="filter-option">
+                            <label for="preco-min">Preço mínimo (R$)</label>
+                            <input type="number" id="preco-min" placeholder="Preço mínimo (R$)" min="0" aria-describedby="preco-min-help">
+                            <div id="preco-min-help" class="help-text">Valor mínimo que deseja pagar pelo transporte</div>
+                        </div>
+                        <div class="filter-option">
+                            <label for="preco-max">Preço máximo (R$)</label>
+                            <input type="number" id="preco-max" placeholder="Preço máximo (R$)" min="0" aria-describedby="preco-max-help">
+                            <div id="preco-max-help" class="help-text">Valor máximo que deseja pagar pelo transporte</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="filter-modal-footer">
+                    <button class="btn btn-outline close-filter-modal">Cancelar</button>
+                    <button class="btn btn-primary apply-filter">Aplicar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Destino -->
+        <div id="destino-modal" class="filter-modal hidden" role="dialog" aria-modal="true" aria-labelledby="destino-title">
+            <div class="filter-modal-content">
+                <div class="filter-modal-header">
+                    <h3 id="destino-title">🗺️ Destino da Excursão</h3>
+                    <button class="close-filter-modal" aria-label="Fechar modal">&times;</button>
+                </div>
+                <div class="filter-modal-body">
+                    <div class="filter-options">
+                        <div class="filter-option">
+                            <label for="cidade-destino">Cidade de destino</label>
+                            <input type="text" id="cidade-destino" placeholder="Digite a cidade de destino" aria-describedby="cidade-destino-help">
+                            <div id="cidade-destino-help" class="help-text">Cidade ou região que deseja visitar</div>
+                        </div>
+                        <div class="filter-option">
+                            <label for="estado-destino">Estado/Região</label>
+                            <select id="estado-destino" aria-describedby="estado-destino-help">
+                                <option value="">Todos os estados</option>
+                                <option value="SP">São Paulo</option>
+                                <option value="RJ">Rio de Janeiro</option>
+                                <option value="MG">Minas Gerais</option>
+                                <option value="ES">Espírito Santo</option>
+                                <option value="PR">Paraná</option>
+                                <option value="SC">Santa Catarina</option>
+                                <option value="RS">Rio Grande do Sul</option>
+                                <option value="outros">Outros estados</option>
+                            </select>
+                            <div id="estado-destino-help" class="help-text">Estado ou região de destino</div>
+                        </div>
+                        <div class="filter-option">
+                            <label for="distancia-maxima">Distância máxima</label>
+                            <select id="distancia-maxima" aria-describedby="distancia-maxima-help">
+                                <option value="">Sem limite</option>
+                                <option value="50km">Até 50 km</option>
+                                <option value="100km">Até 100 km</option>
+                                <option value="200km">Até 200 km</option>
+                                <option value="500km">Até 500 km</option>
+                                <option value="1000km">Até 1000 km</option>
+                            </select>
+                            <div id="distancia-maxima-help" class="help-text">Distância máxima de viagem</div>
+                        </div>
+                        <div class="filter-option">
+                            <label for="tipo-local">Tipo de local</label>
+                            <select id="tipo-local" aria-describedby="tipo-local-help">
+                                <option value="">Todos os tipos</option>
+                                <option value="praia">Praia</option>
+                                <option value="montanha">Montanha/Serra</option>
+                                <option value="cidade-historica">Cidade Histórica</option>
+                                <option value="parque">Parque/Reserva</option>
+                                <option value="museu">Museu/Cultural</option>
+                                <option value="parque-diversoes">Parque de Diversões</option>
+                                <option value="rural">Área Rural</option>
+                            </select>
+                            <div id="tipo-local-help" class="help-text">Tipo de destino preferido</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="filter-modal-footer">
+                    <button class="btn btn-outline close-filter-modal">Cancelar</button>
+                    <button class="btn btn-primary apply-filter">Aplicar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Duração da Viagem -->
+        <div id="duracao-modal" class="filter-modal hidden" role="dialog" aria-modal="true" aria-labelledby="duracao-title">
+            <div class="filter-modal-content">
+                <div class="filter-modal-header">
+                    <h3 id="duracao-title">📅 Duração da Viagem</h3>
+                    <button class="close-filter-modal" aria-label="Fechar modal">&times;</button>
+                </div>
+                <div class="filter-modal-body">
+                    <div class="filter-options">
+                        <div class="filter-option">
+                            <label for="data-inicio-excursao">Data de início</label>
+                            <input type="date" id="data-inicio-excursao" aria-describedby="data-inicio-excursao-help">
+                            <div id="data-inicio-excursao-help" class="help-text">Data de início da excursão</div>
+                        </div>
+                        <div class="filter-option">
+                            <label for="data-fim-excursao">Data de fim</label>
+                            <input type="date" id="data-fim-excursao" aria-describedby="data-fim-excursao-help">
+                            <div id="data-fim-excursao-help" class="help-text">Data de retorno da excursão</div>
+                        </div>
+                        <div class="filter-option">
+                            <label for="duracao-viagem">Duração da viagem</label>
+                            <select id="duracao-viagem" aria-describedby="duracao-viagem-help">
+                                <option value="">Qualquer duração</option>
+                                <option value="meio-dia">Meio dia (até 6h)</option>
+                                <option value="1-dia">1 dia (bate-volta)</option>
+                                <option value="2-dias">2 dias (1 pernoite)</option>
+                                <option value="3-dias">3 dias (2 pernoites)</option>
+                                <option value="4-7-dias">4 a 7 dias</option>
+                                <option value="mais-7-dias">Mais de 7 dias</option>
+                            </select>
+                            <div id="duracao-viagem-help" class="help-text">Duração total da excursão</div>
+                        </div>
+                        <div class="filter-option">
+                            <label for="periodo-ano">Período do ano</label>
+                            <select id="periodo-ano" aria-describedby="periodo-ano-help">
+                                <option value="">Qualquer período</option>
+                                <option value="verao">Verão (Dez-Mar)</option>
+                                <option value="outono">Outono (Mar-Jun)</option>
+                                <option value="inverno">Inverno (Jun-Set)</option>
+                                <option value="primavera">Primavera (Set-Dez)</option>
+                                <option value="ferias-escolares">Férias Escolares</option>
+                                <option value="feriados">Feriados Prolongados</option>
+                            </select>
+                            <div id="periodo-ano-help" class="help-text">Época preferida para a viagem</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="filter-modal-footer">
+                    <button class="btn btn-outline close-filter-modal">Cancelar</button>
+                    <button class="btn btn-primary apply-filter">Aplicar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Tipo de Excursão -->
+        <div id="tipo-excursao-modal" class="filter-modal hidden" role="dialog" aria-modal="true" aria-labelledby="tipo-excursao-title">
+            <div class="filter-modal-content">
+                <div class="filter-modal-header">
+                    <h3 id="tipo-excursao-title">🎯 Tipo de Excursão</h3>
+                    <button class="close-filter-modal" aria-label="Fechar modal">&times;</button>
+                </div>
+                <div class="filter-modal-body">
+                    <div class="filter-options">
+                        <div class="filter-option">
+                            <label for="categoria-excursao">Categoria da excursão</label>
+                            <select id="categoria-excursao" aria-describedby="categoria-excursao-help">
+                                <option value="">Todas as categorias</option>
+                                <option value="educativa">Educativa/Pedagógica</option>
+                                <option value="lazer">Lazer/Recreativa</option>
+                                <option value="cultural">Cultural/Histórica</option>
+                                <option value="aventura">Aventura/Ecoturismo</option>
+                                <option value="religiosa">Religiosa</option>
+                                <option value="esportiva">Esportiva</option>
+                                <option value="corporativa">Corporativa/Empresarial</option>
+                            </select>
+                            <div id="categoria-excursao-help" class="help-text">Tipo de excursão desejada</div>
+                        </div>
+                        <div class="filter-option">
+                            <label for="publico-alvo">Público-alvo</label>
+                            <select id="publico-alvo" aria-describedby="publico-alvo-help">
+                                <option value="">Todos os públicos</option>
+                                <option value="criancas">Crianças (até 12 anos)</option>
+                                <option value="adolescentes">Adolescentes (13-17 anos)</option>
+                                <option value="adultos">Adultos (18+ anos)</option>
+                                <option value="terceira-idade">Terceira Idade (60+ anos)</option>
+                                <option value="familias">Famílias</option>
+                                <option value="grupos-escolares">Grupos Escolares</option>
+                            </select>
+                            <div id="publico-alvo-help" class="help-text">Faixa etária do grupo</div>
+                        </div>
+                        <div class="filter-option">
+                            <label for="nivel-atividade">Nível de atividade</label>
+                            <select id="nivel-atividade" aria-describedby="nivel-atividade-help">
+                                <option value="">Qualquer nível</option>
+                                <option value="baixo">Baixo (contemplativo)</option>
+                                <option value="moderado">Moderado (caminhadas leves)</option>
+                                <option value="alto">Alto (atividades físicas)</option>
+                                <option value="extremo">Extremo (esportes radicais)</option>
+                            </select>
+                            <div id="nivel-atividade-help" class="help-text">Intensidade das atividades</div>
+                        </div>
+                        <div class="filter-option">
+                            <label for="inclui-hospedagem">Inclui hospedagem</label>
+                            <select id="inclui-hospedagem" aria-describedby="inclui-hospedagem-help">
+                                <option value="">Sem preferência</option>
+                                <option value="sim">Sim, com hospedagem</option>
+                                <option value="nao">Não, apenas transporte</option>
+                            </select>
+                            <div id="inclui-hospedagem-help" class="help-text">Se a excursão inclui hospedagem</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="filter-modal-footer">
+                    <button class="btn btn-outline close-filter-modal">Cancelar</button>
+                    <button class="btn btn-primary apply-filter">Aplicar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Características Excursão -->
+        <div id="caracteristicas-excursao-modal" class="filter-modal hidden" role="dialog" aria-modal="true" aria-labelledby="caracteristicas-excursao-title">
+            <div class="filter-modal-content">
+                <div class="filter-modal-header">
+                    <h3 id="caracteristicas-excursao-title">🚗 Características do Transporte para Excursão</h3>
+                    <button class="close-filter-modal" aria-label="Fechar modal">&times;</button>
+                </div>
+                <div class="filter-modal-body">
+                    <div class="checkbox-group" role="group" aria-label="Características do transporte para excursão">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="ar-condicionado-excursao" aria-describedby="ar-excursao-help">
+                            <label for="ar-condicionado-excursao">Ar-condicionado</label>
+                            <div id="ar-excursao-help" class="help-text">Veículo com ar-condicionado para viagens longas</div>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="wifi-excursao" aria-describedby="wifi-excursao-help">
+                            <label for="wifi-excursao">Wi-Fi</label>
+                            <div id="wifi-excursao-help" class="help-text">Internet Wi-Fi disponível durante a viagem</div>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="entretenimento" aria-describedby="entretenimento-help">
+                            <label for="entretenimento">Sistema de entretenimento</label>
+                            <div id="entretenimento-help" class="help-text">TV, som, filmes para entretenimento</div>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="poltronas-reclinaveis" aria-describedby="poltronas-help">
+                            <label for="poltronas-reclinaveis">Poltronas reclináveis</label>
+                            <div id="poltronas-help" class="help-text">Poltronas confortáveis e reclináveis</div>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="banheiro-bordo" aria-describedby="banheiro-help">
+                            <label for="banheiro-bordo">Banheiro a bordo</label>
+                            <div id="banheiro-help" class="help-text">Banheiro disponível no veículo</div>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="frigobar" aria-describedby="frigobar-help">
+                            <label for="frigobar">Frigobar</label>
+                            <div id="frigobar-help" class="help-text">Frigobar com bebidas e lanches</div>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="guia-turismo" aria-describedby="guia-help">
+                            <label for="guia-turismo">Guia de turismo</label>
+                            <div id="guia-help" class="help-text">Guia de turismo acompanhando a excursão</div>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="seguro-viagem" aria-describedby="seguro-viagem-help">
+                            <label for="seguro-viagem">Seguro de viagem</label>
+                            <div id="seguro-viagem-help" class="help-text">Seguro completo para a excursão</div>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="acessibilidade-excursao" aria-describedby="acess-excursao-help">
+                            <label for="acessibilidade-excursao">Acessibilidade PCD</label>
+                            <div id="acess-excursao-help" class="help-text">Veículo adaptado para pessoas com deficiência</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="filter-modal-footer">
+                    <button class="btn btn-outline close-filter-modal">Cancelar</button>
+                    <button class="btn btn-primary apply-filter">Aplicar</button>
+                </div>
+            </div>
+        </div>
+
         <!-- MAPA INTERATIVO -->
-        <section class="map-container">
-            <div class="map-placeholder">
-                <h3>🗺️ Mapa Interativo</h3>
-                <p>Visualize os transportes disponíveis na sua região</p>
-                <small>Integração com API de mapas será implementada</small>
+        <section class="map-section">
+            <div class="container">
+                <h2 class="map-title">🗺️ Mapa Interativo</h2>
+                <p class="map-subtitle">Visualize os transportes disponíveis na sua região</p>
+                <div class="map-container">
+                    <div id="google-map" class="google-map"></div>
+                    <div id="map-loading" class="map-loading">
+                        <div class="loading-spinner"></div>
+                        <p>Carregando mapa...</p>
+                    </div>
+                </div>
+                <div class="map-controls">
+                    <button id="btn-minha-localizacao" class="btn btn-outline">
+                        📍 Minha Localização
+                    </button>
+                    <button id="btn-centralizar-resultados" class="btn btn-outline">
+                        🎯 Centralizar Resultados
+                    </button>
+                </div>
             </div>
         </section>
 
@@ -536,9 +826,9 @@
                     <a href="index.html" class="logo">Kanghoo</a>
                     <p class="footer-tagline">Soluções de viagem sem esforço.</p>
                     <div class="footer-social-media">
-                        <a href="#" aria-label="Facebook"><img src="../imagens/face.png" alt="Facebook"></a>
-                        <a href="#" aria-label="Instagram"><img src="../imagens/insta.png" alt="Instagram"></a>
-                        <a href="#" aria-label="LinkedIn"><img src="../imagens/linkedin.png" alt="LinkedIn"></a>
+                        <a href="#" aria-label="Facebook"><img src="assets/images/face.png" alt="Facebook"></a>
+                <a href="#" aria-label="Instagram"><img src="assets/images/insta.png" alt="Instagram"></a>
+                <a href="#" aria-label="LinkedIn"><img src="assets/images/linkedin.png" alt="LinkedIn"></a>
                     </div>
                 </div>
                 <div class="footer-links-group">
@@ -563,7 +853,7 @@
                     <h4>Empresa</h4>
                     <ul>
                         <li><a href="sobre.html">Sobre Nós</a></li>
-                        <li><a href="#contact">Contato</a></li>
+                        <li><a href="index.html#contact">Contato</a></li>
                         <li><a href="#">Termos de Uso</a></li>
                         <li><a href="#">Privacidade</a></li>
                     </ul>
@@ -575,7 +865,12 @@
         </div>
     </footer>
 
-    <script src="../js/app.js"></script>
+    <script>
+        // Força o tema claro para resolver problema de visibilidade
+        document.documentElement.removeAttribute('data-theme');
+        document.body.removeAttribute('data-theme');
+    </script>
+    <script src="assets/js/bundle.min.js"></script>
     <script>
         // JavaScript para funcionalidade da página unificada
         document.addEventListener('DOMContentLoaded', function() {
@@ -838,5 +1133,9 @@
             // Implementar lógica de ordenação
         }
     </script>
+    
+    <!-- JavaScript específico da página -->
+    <script src="assets/js/google-maps-integration.js"></script>
+    <script src="assets/js/encontrar-transporte.js"></script>
 </body>
 </html>

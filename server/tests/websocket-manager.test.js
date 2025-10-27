@@ -29,6 +29,8 @@ describe('WebSocketManager', () => {
         mockSecurityManager = {
             checkConnection: sinon.stub().resolves(true),
             checkMessage: sinon.stub().resolves(true),
+            validateConnection: sinon.stub().returns({ allowed: true }),
+            validateMessage: sinon.stub().returns({ allowed: true }),
             logActivity: sinon.stub()
         };
 
@@ -36,7 +38,7 @@ describe('WebSocketManager', () => {
         mockWss = {
             on: sinon.stub(),
             clients: new Set(),
-            close: sinon.stub()
+            close: sinon.stub().callsArg(0) // Simula o callback sendo chamado
         };
 
         // Stub do construtor WebSocket.Server
@@ -63,14 +65,17 @@ describe('WebSocketManager', () => {
         });
 
         it('deve configurar WebSocket Server', () => {
+            wsManager.initialize();
             expect(WebSocket.Server.calledOnce).to.be.true;
             expect(WebSocket.Server.calledWith({
                 server: mockServer,
+                path: '/ws',
                 verifyClient: sinon.match.func
             })).to.be.true;
         });
 
         it('deve configurar NotificationHub', () => {
+            // O NotificationHub é configurado no construtor, não no initialize
             expect(mockNotificationHub.setWebSocketManager.calledOnce).to.be.true;
             expect(mockNotificationHub.setWebSocketManager.calledWith(wsManager)).to.be.true;
         });
@@ -80,12 +85,14 @@ describe('WebSocketManager', () => {
         let verifyClient;
 
         beforeEach(() => {
-            // Capturar a função verifyClient
-            const serverCall = WebSocket.Server.getCall(0);
-            verifyClient = serverCall.args[0].verifyClient;
+            // Inicializar o WebSocketManager para criar o servidor
+            wsManager.initialize();
+            
+            // Usar diretamente o método verifyClient do WebSocketManager
+            verifyClient = (info, callback) => wsManager.verifyClient(info, callback);
         });
 
-        it('deve aceitar conexão válida', async () => {
+        it('deve aceitar conexão válida', (done) => {
             const token = jwt.sign({ userId: 'user123' }, 'test-secret');
             const info = {
                 req: {
@@ -94,17 +101,20 @@ describe('WebSocketManager', () => {
                 }
             };
 
-            mockSecurityManager.checkConnection.resolves(true);
+            mockSecurityManager.validateConnection.returns({ allowed: true });
 
-            const result = await new Promise((resolve) => {
-                verifyClient(info, resolve);
+            verifyClient(info, (result) => {
+                try {
+                    expect(result).to.be.true;
+                    expect(mockSecurityManager.validateConnection.calledOnce).to.be.true;
+                    done();
+                } catch (error) {
+                    done(error);
+                }
             });
-
-            expect(result).to.be.true;
-            expect(mockSecurityManager.checkConnection.calledOnce).to.be.true;
         });
 
-        it('deve rejeitar conexão sem token', async () => {
+        it('deve rejeitar conexão sem token', (done) => {
             const info = {
                 req: {
                     url: '/',
@@ -112,14 +122,17 @@ describe('WebSocketManager', () => {
                 }
             };
 
-            const result = await new Promise((resolve) => {
-                verifyClient(info, resolve);
+            verifyClient(info, (result) => {
+                try {
+                    expect(result).to.be.false;
+                    done();
+                } catch (error) {
+                    done(error);
+                }
             });
-
-            expect(result).to.be.false;
         });
 
-        it('deve rejeitar token inválido', async () => {
+        it('deve rejeitar token inválido', (done) => {
             const info = {
                 req: {
                     url: '/?token=invalid-token',
@@ -127,14 +140,17 @@ describe('WebSocketManager', () => {
                 }
             };
 
-            const result = await new Promise((resolve) => {
-                verifyClient(info, resolve);
+            verifyClient(info, (result) => {
+                try {
+                    expect(result).to.be.false;
+                    done();
+                } catch (error) {
+                    done(error);
+                }
             });
-
-            expect(result).to.be.false;
         });
 
-        it('deve rejeitar conexão bloqueada pelo SecurityManager', async () => {
+        it('deve rejeitar conexão bloqueada pelo SecurityManager', (done) => {
             const token = jwt.sign({ userId: 'user123' }, 'test-secret');
             const info = {
                 req: {
@@ -143,13 +159,16 @@ describe('WebSocketManager', () => {
                 }
             };
 
-            mockSecurityManager.checkConnection.resolves(false);
+            mockSecurityManager.validateConnection.returns({ allowed: false, reason: 'Blocked by security' });
 
-            const result = await new Promise((resolve) => {
-                verifyClient(info, resolve);
+            verifyClient(info, (result) => {
+                try {
+                    expect(result).to.be.false;
+                    done();
+                } catch (error) {
+                    done(error);
+                }
             });
-
-            expect(result).to.be.false;
         });
     });
 
@@ -182,7 +201,13 @@ describe('WebSocketManager', () => {
             wsManager.removeConnection('ws-123');
 
             expect(wsManager.connections.has('ws-123')).to.be.false;
-            expect(wsManager.userConnections.get('user123')).to.not.include('ws-123');
+            const userConnections = wsManager.userConnections.get('user123');
+            if (userConnections) {
+                expect(userConnections).to.not.include('ws-123');
+            } else {
+                // Usuário foi removido quando não há mais conexões, o que é esperado
+                expect(userConnections).to.be.undefined;
+            }
         });
 
         it('deve adicionar conexão a grupo', () => {
@@ -198,7 +223,13 @@ describe('WebSocketManager', () => {
             wsManager.addToGroup('ws-123', 'trip123');
             wsManager.removeFromGroup('ws-123', 'trip123');
 
-            expect(wsManager.groupConnections.get('trip123')).to.not.include('ws-123');
+            const group = wsManager.groupConnections.get('trip123');
+            if (group) {
+                expect(group).to.not.include('ws-123');
+            } else {
+                // Grupo foi deletado quando ficou vazio, o que é esperado
+                expect(group).to.be.undefined;
+            }
         });
     });
 
@@ -287,6 +318,9 @@ describe('WebSocketManager', () => {
             mockWs = {
                 id: 'ws-123',
                 userId: 'user123',
+                clientIP: '127.0.0.1',
+                user: { id: 'user123' },
+                connectionId: 'ws-123',
                 ip: '127.0.0.1',
                 send: sinon.stub(),
                 close: sinon.stub(),
@@ -303,11 +337,11 @@ describe('WebSocketManager', () => {
                 data: { groupId: 'trip123' }
             });
 
-            mockSecurityManager.checkMessage.resolves(true);
+            mockSecurityManager.validateMessage.returns({ allowed: true });
 
             await wsManager.handleMessage(mockWs, message);
 
-            expect(mockSecurityManager.checkMessage.calledOnce).to.be.true;
+            expect(mockSecurityManager.validateMessage.calledOnce).to.be.true;
             expect(wsManager.groupConnections.get('trip123')).to.include('ws-123');
         });
 
@@ -324,7 +358,7 @@ describe('WebSocketManager', () => {
         it('deve fechar conexão bloqueada pelo SecurityManager', async () => {
             const message = JSON.stringify({ type: 'spam' });
 
-            mockSecurityManager.checkMessage.resolves(false);
+            mockSecurityManager.validateMessage.returns({ allowed: false, reason: 'spam detected' });
 
             await wsManager.handleMessage(mockWs, message);
 
@@ -364,6 +398,9 @@ describe('WebSocketManager', () => {
 
     describe('Shutdown', () => {
         it('deve fechar todas as conexões', async () => {
+            // Inicializar o WebSocketManager para criar o wss
+            wsManager.initialize();
+
             const mockWs = {
                 id: 'ws-123',
                 userId: 'user123',

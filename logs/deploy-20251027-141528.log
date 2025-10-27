@@ -1,0 +1,8 @@
+[2025-10-27 14:15:28] [INFO] ========================================
+[2025-10-27 14:15:28] [INFO] INICIANDO DEPLOY PARA PRODUÇÃO
+[2025-10-27 14:15:28] [INFO] Ambiente: production
+[2025-10-27 14:15:28] [INFO] ========================================
+[2025-10-27 14:17:28] [INFO] Verificando pré-requisitos...
+[2025-10-27 14:17:40] [SUCCESS] Docker encontrado: Docker version 28.4.0, build d8eb465
+[2025-10-27 14:17:47] [SUCCESS] Docker Compose encontrado: Docker Compose version v2.39.2-desktop.1
+[2025-10-27 14:17:47] [ERROR] Arquivo .env não encontrado. Execute o setup primeiro.

@@ -6,6 +6,7 @@
 const Router = require('koa-router');
 const trackingService = require('../utils/tracking-persistence');
 const { authenticateToken } = require('../middleware/auth-utils');
+const logger = require('../utils/logger');
 
 const router = new Router({ prefix: '/api/tracking' });
 
@@ -44,7 +45,7 @@ router.post('/location', async (ctx) => {
         ctx.body = resultado;
 
     } catch (error) {
-        console.error('Erro ao salvar localização:', error);
+        logger.error('Erro ao salvar localização:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -67,7 +68,7 @@ router.get('/location/current', async (ctx) => {
         ctx.body = resultado;
 
     } catch (error) {
-        console.error('Erro ao obter localização atual:', error);
+        logger.error('Erro ao obter localização atual:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -97,7 +98,7 @@ router.get('/location/history', async (ctx) => {
         ctx.body = resultado;
 
     } catch (error) {
-        console.error('Erro ao obter histórico:', error);
+        logger.error('Erro ao obter histórico:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -135,7 +136,7 @@ router.post('/trip/start', async (ctx) => {
         ctx.body = resultado;
 
     } catch (error) {
-        console.error('Erro ao iniciar viagem:', error);
+        logger.error('Erro ao iniciar viagem:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -163,7 +164,7 @@ router.put('/trip/:id/finish', async (ctx) => {
         ctx.body = resultado;
 
     } catch (error) {
-        console.error('Erro ao finalizar viagem:', error);
+        logger.error('Erro ao finalizar viagem:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -186,7 +187,7 @@ router.get('/trip/:id', async (ctx) => {
         ctx.body = resultado;
 
     } catch (error) {
-        console.error('Erro ao obter dados da viagem:', error);
+        logger.error('Erro ao obter dados da viagem:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -224,7 +225,7 @@ router.post('/checkin', async (ctx) => {
         ctx.body = resultado;
 
     } catch (error) {
-        console.error('Erro ao registrar embarque:', error);
+        logger.error('Erro ao registrar embarque:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -262,7 +263,7 @@ router.post('/checkout', async (ctx) => {
         ctx.body = resultado;
 
     } catch (error) {
-        console.error('Erro ao registrar desembarque:', error);
+        logger.error('Erro ao registrar desembarque:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -292,7 +293,7 @@ router.get('/stats', async (ctx) => {
         };
 
     } catch (error) {
-        console.error('Erro ao obter estatísticas:', error);
+        logger.error('Erro ao obter estatísticas:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -326,7 +327,7 @@ router.post('/cache/clean', async (ctx) => {
         };
 
     } catch (error) {
-        console.error('Erro ao limpar cache:', error);
+        logger.error('Erro ao limpar cache:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,

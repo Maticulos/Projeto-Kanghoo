@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = require('../config/security-config');
+const logger = require('../utils/logger');
 
 /**
  * Middleware de autenticação unificado
@@ -10,6 +11,7 @@ const authenticateToken = async (ctx, next) => {
         const authHeader = ctx.headers.authorization;
         
         if (!authHeader) {
+            console.log('Token não encontrado ou formato inválido');
             ctx.status = 401;
             ctx.body = { 
                 success: false, 
@@ -29,22 +31,34 @@ const authenticateToken = async (ctx, next) => {
             return;
         }
 
+        // Token de desenvolvimento
+        if (token === 'dev_token_responsavel_teste' && process.env.NODE_ENV !== 'production') {
+            ctx.user = {
+                id: 1,
+                email: 'ana.responsavel@teste.kanghoo.com',
+                tipo: 'responsavel',
+                nome: 'Responsável Teste'
+            };
+            await next();
+            return;
+        }
+
         // Verificar e decodificar o token
         const decoded = jwt.verify(token, JWT_SECRET);
         
         // Adicionar informações do usuário ao contexto
         ctx.user = {
-            id: decoded.id,
+            id: decoded.userId,  // Corrigido: usar userId em vez de id
             email: decoded.email,
             tipo: decoded.tipo,
-            nome: decoded.nome
+            nome: decoded.nome || decoded.nomeCompleto  // Suporte para ambos os campos
         };
 
         await next();
     } catch (error) {
         // Log mais detalhado para debug (apenas em desenvolvimento)
         if (process.env.NODE_ENV === 'development') {
-            console.error('🔐 Erro na autenticação:', {
+            logger.error('🔐 Erro na autenticação:', {
                 tipo: error.name,
                 mensagem: error.message,
                 rota: ctx.path,
@@ -128,10 +142,82 @@ const optionalAuth = async (ctx, next) => {
         }
     } catch (error) {
         // Ignorar erros de token em autenticação opcional
-        console.log('Token opcional inválido:', error.message);
+        logger.info('Token opcional inválido:', error.message);
     }
     
     await next();
+};
+
+/**
+ * Middleware para verificar se o usuário é um responsável
+ */
+const verificarResponsavel = async (ctx, next) => {
+    try {
+        if (!ctx.user || ctx.user.tipo !== 'responsavel') {
+            ctx.status = 403;
+            ctx.body = { 
+                success: false, 
+                message: 'Acesso negado. Apenas responsáveis podem acessar este recurso.' 
+            };
+            return;
+        }
+        await next();
+    } catch (error) {
+        logger.error('Erro na verificação de responsável:', error);
+        ctx.status = 500;
+        ctx.body = { 
+            success: false, 
+            message: 'Erro interno do servidor' 
+        };
+    }
+};
+
+/**
+ * Middleware para verificar se o usuário é um motorista
+ */
+const verificarMotorista = async (ctx, next) => {
+    try {
+        if (!ctx.user || (ctx.user.tipo !== 'motorista_escolar' && ctx.user.tipo !== 'motorista_excursao')) {
+            ctx.status = 403;
+            ctx.body = { 
+                success: false, 
+                message: 'Acesso negado. Apenas motoristas podem acessar este recurso.' 
+            };
+            return;
+        }
+        await next();
+    } catch (error) {
+        logger.error('Erro na verificação de motorista:', error);
+        ctx.status = 500;
+        ctx.body = { 
+            success: false, 
+            message: 'Erro interno do servidor' 
+        };
+    }
+};
+
+/**
+ * Middleware para verificar se o usuário é um motorista de excursão
+ */
+const verificarMotoristaExcursao = async (ctx, next) => {
+    try {
+        if (!ctx.user || ctx.user.tipo !== 'motorista_excursao') {
+            ctx.status = 403;
+            ctx.body = { 
+                success: false, 
+                message: 'Acesso negado. Apenas motoristas de excursão podem acessar este recurso.' 
+            };
+            return;
+        }
+        await next();
+    } catch (error) {
+        logger.error('Erro na verificação de motorista de excursão:', error);
+        ctx.status = 500;
+        ctx.body = { 
+            success: false, 
+            message: 'Erro interno do servidor' 
+        };
+    }
 };
 
 /**
@@ -155,6 +241,9 @@ module.exports = {
     authenticateToken,
     requireRole,
     optionalAuth,
+    verificarResponsavel,
+    verificarMotorista,
+    verificarMotoristaExcursao,
     generateToken,
     verifyToken
 };

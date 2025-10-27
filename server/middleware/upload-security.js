@@ -2,6 +2,7 @@ const multer = require('@koa/multer');
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
+const logger = require('../utils/logger');
 
 /**
  * Configurações de segurança para uploads
@@ -164,7 +165,7 @@ async function verifyFileSignature(filePath, expectedMimeType) {
         
         return expectedSignatures.some(sig => hex.startsWith(sig));
     } catch (error) {
-        console.error('Erro ao verificar assinatura do arquivo:', error);
+        logger.error('Erro ao verificar assinatura do arquivo:', error);
         return false;
     }
 }
@@ -269,7 +270,7 @@ function validateUploadedFiles(category = 'all') {
                     try {
                         fs.unlinkSync(file.path);
                     } catch (cleanupError) {
-                        console.error('Erro ao limpar arquivo:', cleanupError);
+                        logger.error('Erro ao limpar arquivo:', cleanupError);
                     }
                 }
             }
@@ -297,11 +298,11 @@ function cleanupOldFiles(maxAgeHours = 24) {
             
             if (now - stats.mtime.getTime() > maxAge) {
                 fs.unlinkSync(filePath);
-                console.log(`Arquivo antigo removido: ${file}`);
+                logger.info(`Arquivo antigo removido: ${file}`);
             }
         }
     } catch (error) {
-        console.error('Erro ao limpar arquivos antigos:', error);
+        logger.error('Erro ao limpar arquivos antigos:', error);
     }
 }
 

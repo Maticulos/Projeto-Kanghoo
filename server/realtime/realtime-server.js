@@ -18,10 +18,14 @@
 
 const WebSocket = require('ws');
 const http = require('http');
+const EventEmitter = require('events');
+const logger = require('../utils/logger');
 const WebSocketManager = require('./websocket-manager');
 const ConnectionStore = require('./connection-store');
 const NotificationHub = require('./notification-hub');
 const WebSocketAuth = require('./websocket-auth');
+const SecurityManager = require('./security-manager');
+const gpsTrackingService = require('../utils/gps-tracking-service');
 const { EVENT_TYPES, PRIORITY_LEVELS } = require('./event-types');
 
 class RealtimeServer {
@@ -36,7 +40,6 @@ class RealtimeServer {
 
         // Componentes principais
         this.server = null;
-        this.wss = null;
         this.connectionStore = null;
         this.wsManager = null;
         this.notificationHub = null;
@@ -54,7 +57,7 @@ class RealtimeServer {
             errors: 0
         };
 
-        console.log('[REALTIME-SERVER] Servidor de notificações inicializado');
+        logger.info('[REALTIME-SERVER] Servidor de notificações inicializado');
     }
 
     /**
@@ -70,16 +73,13 @@ class RealtimeServer {
             // 2. Criar servidor HTTP
             this.createHttpServer();
 
-            // 3. Criar WebSocket Server
-            this.createWebSocketServer();
-
-            // 4. Configurar event listeners
-            this.setupEventListeners();
-
-            // 5. Inicializar componentes
+            // 3. Inicializar componentes (WebSocketManager criará o WebSocket server)
             await this.initializeComponents();
 
-            // 6. Configurar cleanup automático
+            // 4. Configurar listeners do processo
+            this.setupProcessListeners();
+
+            // 5. Configurar cleanup automático
             this.setupCleanupTasks();
 
             console.log(`[REALTIME-SERVER] Servidor iniciado em ws://${this.options.host}:${this.options.port}`);
@@ -110,10 +110,21 @@ class RealtimeServer {
         });
 
         // Manager de WebSocket
-        this.wsManager = new WebSocketManager(this.connectionStore, this.auth);
+        this.wsManager = new WebSocketManager(this.options.server, {
+            jwtSecret: this.options.jwtSecret,
+            securityManager: new SecurityManager({
+                maxConnectionsPerIP: 10,
+                maxMessagesPerMinute: 60,
+                allowedOrigins: ['http://localhost:3000', 'http://localhost:3001', null], // null permite conexões diretas
+                enableAuditLogs: true
+            })
+        });
 
         // Hub de notificações
         this.notificationHub = new NotificationHub(this.wsManager);
+        
+        // Conectar o NotificationHub ao WebSocketManager
+        this.wsManager.notificationHub = this.notificationHub;
 
         console.log('[REALTIME-SERVER] Componentes criados');
     }
@@ -122,73 +133,49 @@ class RealtimeServer {
      * Cria servidor HTTP básico
      */
     createHttpServer() {
-        this.server = http.createServer((req, res) => {
-            // Endpoint de health check
-            if (req.url === '/health') {
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({
-                    status: 'healthy',
-                    uptime: this.getUptime(),
-                    connections: this.connectionStore.getActiveConnectionsCount(),
-                    stats: this.getStats()
-                }));
-                return;
-            }
-
-            // Endpoint de estatísticas
-            if (req.url === '/stats') {
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify(this.getDetailedStats()));
-                return;
-            }
-
-            // Resposta padrão
-            res.writeHead(200, { 'Content-Type': 'text/plain' });
-            res.end('Kanghoo Realtime Server - WebSocket endpoint available');
-        });
-
-        console.log('[REALTIME-SERVER] Servidor HTTP criado');
-    }
-
-    /**
-     * Cria WebSocket Server
-     */
-    createWebSocketServer() {
-        this.wss = new WebSocket.Server({
-            server: this.server,
-            path: '/ws',
-            maxPayload: 16 * 1024, // 16KB max payload
-            perMessageDeflate: {
-                zlibDeflateOptions: {
-                    level: 3,
-                    chunkSize: 1024
+        // Se um servidor foi fornecido nas opções, usar ele
+        if (this.options.server) {
+            this.server = this.options.server;
+            console.log('[REALTIME-SERVER] Usando servidor HTTP existente');
+        } else {
+            // Caso contrário, criar um novo servidor
+            this.server = http.createServer((req, res) => {
+                // Endpoint de health check
+                if (req.url === '/health') {
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({
+                        status: 'healthy',
+                        uptime: this.getUptime(),
+                        connections: this.connectionStore.getActiveConnectionsCount(),
+                        stats: this.getStats()
+                    }));
+                    return;
                 }
-            }
-        });
 
-        console.log('[REALTIME-SERVER] WebSocket Server criado');
+                // Endpoint de estatísticas
+                if (req.url === '/stats') {
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify(this.getDetailedStats()));
+                    return;
+                }
+
+                // Resposta padrão
+                res.writeHead(200, { 'Content-Type': 'text/plain' });
+                res.end('Kanghoo Realtime Server - WebSocket endpoint available');
+            });
+            console.log('[REALTIME-SERVER] Servidor HTTP criado');
+        }
     }
 
     /**
-     * Configura event listeners
+     * Configura listeners do processo
      */
-    setupEventListeners() {
-        // Listener de novas conexões WebSocket
-        this.wss.on('connection', async (ws, req) => {
-            await this.handleNewConnection(ws, req);
-        });
-
-        // Listener de erros do WebSocket Server
-        this.wss.on('error', (error) => {
-            console.error('[REALTIME-SERVER] Erro no WebSocket Server:', error);
-            this.stats.errors++;
-        });
-
+    setupProcessListeners() {
         // Listeners do processo
         process.on('SIGTERM', () => this.gracefulShutdown());
         process.on('SIGINT', () => this.gracefulShutdown());
 
-        console.log('[REALTIME-SERVER] Event listeners configurados');
+        console.log('[REALTIME-SERVER] Process listeners configurados');
     }
 
     /**
@@ -207,47 +194,13 @@ class RealtimeServer {
             throw new Error('Falha ao inicializar WebSocket manager');
         }
 
+        // Inicializar serviço de rastreamento GPS
+        gpsTrackingService.initialize(this.notificationHub);
+
         console.log('[REALTIME-SERVER] Componentes inicializados');
     }
 
-    /**
-     * Manipula nova conexão WebSocket
-     */
-    async handleNewConnection(ws, req) {
-        try {
-            console.log(`[REALTIME-SERVER] Nova conexão WebSocket de ${req.socket.remoteAddress}`);
 
-            // Verificar limite de conexões
-            if (this.connectionStore.getActiveConnectionsCount() >= this.options.maxConnections) {
-                ws.close(1013, 'Servidor lotado - tente novamente mais tarde');
-                return;
-            }
-
-            // Autenticar conexão
-            const authResult = await this.auth.authenticate(ws, req);
-            if (!authResult.success) {
-                ws.close(1008, `Autenticação falhou: ${authResult.error}`);
-                return;
-            }
-
-            // Registrar conexão no manager
-            const registered = this.wsManager.handleConnection(ws, authResult.userData);
-            if (!registered) {
-                ws.close(1011, 'Falha ao registrar conexão');
-                return;
-            }
-
-            // Atualizar estatísticas
-            this.stats.totalConnections++;
-
-            console.log(`[REALTIME-SERVER] Conexão autenticada: ${authResult.userData.nome} (${authResult.userData.userType})`);
-
-        } catch (error) {
-            console.error('[REALTIME-SERVER] Erro ao processar nova conexão:', error);
-            ws.close(1011, 'Erro interno do servidor');
-            this.stats.errors++;
-        }
-    }
 
     /**
      * Configura tarefas de limpeza automática
@@ -272,13 +225,13 @@ class RealtimeServer {
     performCleanup() {
         try {
             // Limpar conexões inativas
-            this.connectionStore.cleanup();
+            this.connectionStore.cleanupInactiveConnections();
             
             // Limpar dados de autenticação
             this.auth.cleanup();
             
-            // Limpar manager
-            this.wsManager.cleanup();
+            // Limpar manager (método não implementado ainda)
+            // this.wsManager.cleanup();
 
             console.log('[REALTIME-SERVER] Limpeza automática executada');
         } catch (error) {
@@ -318,7 +271,13 @@ class RealtimeServer {
                 throw new Error('Falha na inicialização');
             }
 
-            // Iniciar servidor HTTP
+            // Se estamos usando um servidor existente, não precisamos fazer listen
+            if (this.options.server) {
+                console.log(`[REALTIME-SERVER] WebSocket anexado ao servidor existente`);
+                return true;
+            }
+
+            // Iniciar servidor HTTP (apenas se criamos um novo)
             return new Promise((resolve, reject) => {
                 this.server.listen(this.options.port, this.options.host, (error) => {
                     if (error) {
@@ -334,6 +293,13 @@ class RealtimeServer {
             console.error('[REALTIME-SERVER] Erro ao iniciar servidor:', error);
             return false;
         }
+    }
+
+    /**
+     * Método público para shutdown
+     */
+    async shutdown() {
+        return this.gracefulShutdown();
     }
 
     /**

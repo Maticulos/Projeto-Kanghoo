@@ -1,0 +1,3632 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Área do Responsavel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/bundle.min.css">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
+          crossorigin=""/>
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
+            crossorigin=""></script>
+</head>
+<body>
+<!-- HEADER SIMPLIFICADO PARA ÁREA DO RESPONSÁVEL -->
+<header class="header">
+    <div class="container">
+        <!-- Logo da empresa -->
+        <div class="logo-section">
+            <a href="../index.html" class="logo-link" aria-label="Kanghoo - Página inicial">
+                <img src="../assets/images/logo.png" alt="Ícone Kanghoo" class="logo-icon">
+                <span class="logo-text-full">Kanghoo</span>
+            </a>
+            <span class="user-area-label">Área do Responsável</span>
+        </div>
+        
+        <!-- Informações do usuário e logout -->
+        <div class="user-section">
+            <div class="user-info">
+                <span class="user-welcome">Bem-vindo(a),</span>
+                <span class="user-name" id="logged-user-name">Ana Costa</span>
+            </div>
+            <button class="btn btn-logout" id="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                Sair
+            </button>
+        </div>
+    </div>
+</header>
+    
+
+
+    <!-- Conteúdo Principal -->
+    <main class="main-content">
+        <!-- Seção de Comunicação Rápida -->
+        <div class="communication-section">
+            <div class="communication-header">
+                <h2 class="communication-title">
+                    <span class="icon">💬</span>
+                    Comunicação Rápida
+                </h2>
+                <p class="communication-subtitle">Mantenha-se conectado com quem importa</p>
+            </div>
+            
+            <div class="communication-grid">
+                <div class="comm-card emergency" onclick="openDriverChat()">
+                    <div class="comm-icon">🚨</div>
+                    <div class="comm-content">
+                        <h3>Chat com Motorista</h3>
+                        <p>Emergências e comunicação direta</p>
+                        <span class="comm-status online">Online</span>
+                    </div>
+                    <div class="comm-arrow">→</div>
+                </div>
+                
+                <div class="comm-card school" onclick="openSchoolChat()">
+                    <div class="comm-icon">🏫</div>
+                    <div class="comm-content">
+                        <h3>Falar com a Escola</h3>
+                        <p>Avisos e comunicados escolares</p>
+                        <span class="comm-badge">2 novas</span>
+                    </div>
+                    <div class="comm-arrow">→</div>
+                </div>
+                
+                <div class="comm-card parents" onclick="openParentsGroup()">
+                    <div class="comm-icon">👥</div>
+                    <div class="comm-content">
+                        <h3>Grupo de Pais</h3>
+                        <p>Rota Escolar - Zona Norte</p>
+                        <span class="comm-members">12 membros</span>
+                    </div>
+                    <div class="comm-arrow">→</div>
+                </div>
+                
+                <div class="comm-card coordination" onclick="openCoordinationCenter()">
+                    <div class="comm-icon">📢</div>
+                    <div class="comm-content">
+                        <h3>Central de Avisos</h3>
+                        <p>Coordenação de transporte</p>
+                        <span class="comm-badge urgent">Urgente</span>
+                    </div>
+                    <div class="comm-arrow">→</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Container para Dados Pessoais -->
+        <div class="personal-data-container">
+            <!-- Dados do Responsável -->
+            <div class="info-section responsavel-section">
+                <div class="form-header">
+                    <h2 class="form-title">
+                        <span class="icon">👤</span>
+                        Dados do Responsável
+                    </h2>
+                    <span class="badge">Informações Pessoais</span>
+                </div>
+                
+                <!-- Foto do Responsável -->
+                <div class="photo-section">
+                    <div class="photo-card">
+                        <div class="photo-wrapper">
+                            <img src="../assets/images/ana-costa.svg" alt="Foto do Responsável" class="profile-photo" id="responsavel-photo">
+                            <div class="photo-overlay">
+                                <button class="photo-upload-btn" onclick="uploadPhoto('responsavel')">
+                                    <i class="fas fa-camera"></i>
+                                    Alterar Foto
+                                </button>
+                            </div>
+                        </div>
+                        <div class="photo-info">
+                            <p class="photo-name" id="responsavel-name">Ana Costa</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="responsavel-nome">Nome Completo</label>
+                        <input type="text" id="responsavel-nome" name="responsavel-nome" value="" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="responsavel-telefone">Telefone</label>
+                        <input type="tel" id="responsavel-telefone" name="responsavel-telefone" value="" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="responsavel-email">E-mail</label>
+                        <input type="email" id="responsavel-email" name="responsavel-email" value="" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="responsavel-cpf">CPF</label>
+                        <input type="text" id="responsavel-cpf" name="responsavel-cpf" value="" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="responsavel-endereco">Endereço</label>
+                        <input type="text" id="responsavel-endereco" name="responsavel-endereco" value="" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="responsavel-profissao">Profissão</label>
+                        <input type="text" id="responsavel-profissao" name="responsavel-profissao" value="" readonly>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dados da Criança -->
+            <div class="info-section crianca-section">
+                <div class="form-header">
+                    <h2 class="form-title">
+                        <span class="icon">👶</span>
+                        Dados da Criança
+                    </h2>
+                    <span class="badge">Informações do Dependente</span>
+                </div>
+                
+                <!-- Foto da Criança -->
+                <div class="photo-section">
+                    <div class="photo-card">
+                        <div class="photo-wrapper">
+                            <img src="../assets/images/crianças.png" alt="Foto da Criança" class="profile-photo" id="crianca-photo">
+                            <div class="photo-overlay">
+                                <button class="photo-upload-btn" onclick="uploadPhoto('crianca')">
+                                    <i class="fas fa-camera"></i>
+                                    Alterar Foto
+                                </button>
+                            </div>
+                        </div>
+                        <div class="photo-info">
+                            <p class="photo-name" id="crianca-name">Sofia Costa</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="crianca-nome">Nome Completo</label>
+                        <input type="text" id="crianca-nome" name="crianca-nome" value="" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="crianca-idade">Idade</label>
+                        <input type="text" id="crianca-idade" name="crianca-idade" value="" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="crianca-serie">Série/Ano</label>
+                        <input type="text" id="crianca-serie" name="crianca-serie" value="" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="crianca-turno">Turno</label>
+                        <input type="text" id="crianca-turno" name="crianca-turno" value="" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="crianca-necessidades">Necessidades Especiais</label>
+                        <input type="text" id="crianca-necessidades" name="crianca-necessidades" value="" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="crianca-contato-emergencia">Contato de Emergência</label>
+                        <input type="text" id="crianca-contato-emergencia" name="crianca-contato-emergencia" value="" readonly>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-blue" id="solicitar-edicao">
+                        Solicitar Edição
+                    </button>
+                    <button type="button" class="btn btn-primary" id="exportar-dados">
+                        Exportar Dados
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-action="open-preferences">
+                        🔔 Preferências de Notificação
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Informações da Escola -->
+        <div class="info-section">
+            <h2 class="section-title">
+                <span class="icon">🏢</span>
+                Escola
+            </h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Localização</div>
+                    <div class="info-value"></div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Horário de Entrada</div>
+                    <div class="info-value"></div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Horário de Saída</div>
+                    <div class="info-value"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rota -->
+        <div class="info-section route-section">
+            <h2 class="section-title">
+                <span class="icon">🗺️</span>
+                Rota Escolar
+            </h2>
+            
+            <!-- Mapa Interativo -->
+            <div class="route-map-container">
+                <div id="route-map" class="route-map">
+                    <div class="map-placeholder">
+                        <i class="fas fa-map-marked-alt"></i>
+                        <p>Carregando mapa da rota...</p>
+                    </div>
+                </div>
+                <div class="map-controls">
+                    <button class="map-btn" id="show-full-route">
+                        <i class="fas fa-route"></i>
+                        Ver Rota Completa
+                    </button>
+                    <button class="map-btn" id="track-live">
+                        <i class="fas fa-location-arrow"></i>
+                        Rastreamento ao Vivo
+                    </button>
+                    <button class="map-btn" id="route-details">
+                        <i class="fas fa-info-circle"></i>
+                        Detalhes da Rota
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Pontos da Rota -->
+            <div class="route-points">
+                <h3 class="route-subtitle">Pontos da Rota</h3>
+                <div class="route-timeline">
+                    <div class="route-point">
+                        <div class="point-icon start">🏠</div>
+                        <div class="point-info">
+                            <div class="point-title">Ponto de Embarque</div>
+                            <div class="point-address" id="embarque-address">Carregando endereço...</div>
+                            <div class="point-time" id="embarque-time">07:30</div>
+                        </div>
+                    </div>
+                    
+                    <div class="route-point">
+                        <div class="point-icon waypoint">📍</div>
+                        <div class="point-info">
+                            <div class="point-title">Pontos Intermediários</div>
+                            <div class="point-address" id="waypoints-list">Carregando pontos...</div>
+                        </div>
+                    </div>
+                    
+                    <div class="route-point">
+                        <div class="point-icon end">🏫</div>
+                        <div class="point-info">
+                            <div class="point-title">Escola</div>
+                            <div class="point-address" id="escola-address">Carregando endereço...</div>
+                            <div class="point-time" id="chegada-time">08:15</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Informações da Rota -->
+            <div class="route-info">
+                <div class="route-stats">
+                    <div class="stat-item">
+                        <div class="stat-icon">📏</div>
+                        <div class="stat-value" id="route-distance">-</div>
+                        <div class="stat-label">Distância</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">⏱️</div>
+                        <div class="stat-value" id="route-duration">-</div>
+                        <div class="stat-label">Duração</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">🚌</div>
+                        <div class="stat-value" id="vehicle-info">-</div>
+                        <div class="stat-label">Veículo</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="edit-section">
+                <button class="edit-button" id="edit-route">
+                    <span>✏️</span> Solicitar Alteração de Rota
+                </button>
+                <button class="edit-button secondary" id="share-route">
+                    <span>📤</span> Compartilhar Rota
+                </button>
+            </div>
+        </div>
+
+        <!-- Informações Adicionais -->
+        <div class="info-section">
+            <h2 class="section-title">
+                <span class="icon">ℹ️</span>
+                Informações Adicionais
+            </h2>
+            
+            <!-- Filtros de Busca -->
+            <div class="search-filters">
+                <div class="filter-group">
+                    <button class="filter-btn" id="open-date-filter">
+                        <i class="fas fa-calendar-alt"></i>
+                        Filtrar por Data
+                    </button>
+                    <button class="filter-btn" id="open-time-filter">
+                        <i class="fas fa-clock"></i>
+                        Filtrar por Horário
+                    </button>
+                    <button class="filter-btn" id="open-route-filter">
+                        <i class="fas fa-route"></i>
+                        Filtrar por Rota
+                    </button>
+                    <button class="filter-btn clear" id="clear-filters">
+                        <i class="fas fa-times"></i>
+                        Limpar Filtros
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Resultados Filtrados -->
+            <div class="filtered-results" id="filtered-results">
+                <div class="results-header">
+                    <h3>Histórico de Viagens</h3>
+                    <span class="results-count" id="results-count">Mostrando todos os registros</span>
+                </div>
+                
+                <div class="results-list" id="results-list">
+                    <div class="result-item">
+                        <div class="result-date">
+                            <i class="fas fa-calendar"></i>
+                            <span>15/01/2024</span>
+                        </div>
+                        <div class="result-time">
+                            <i class="fas fa-clock"></i>
+                            <span>07:30 - 08:15</span>
+                        </div>
+                        <div class="result-route">
+                            <i class="fas fa-route"></i>
+                            <span>Rota Principal</span>
+                        </div>
+                        <div class="result-status completed">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Concluída</span>
+                        </div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <div class="result-date">
+                            <i class="fas fa-calendar"></i>
+                            <span>14/01/2024</span>
+                        </div>
+                        <div class="result-time">
+                            <i class="fas fa-clock"></i>
+                            <span>07:30 - 08:20</span>
+                        </div>
+                        <div class="result-route">
+                            <i class="fas fa-route"></i>
+                            <span>Rota Alternativa</span>
+                        </div>
+                        <div class="result-status delayed">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span>Atrasada</span>
+                        </div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <div class="result-date">
+                            <i class="fas fa-calendar"></i>
+                            <span>13/01/2024</span>
+                        </div>
+                        <div class="result-time">
+                            <i class="fas fa-clock"></i>
+                            <span>07:30 - 08:10</span>
+                        </div>
+                        <div class="result-route">
+                            <i class="fas fa-route"></i>
+                            <span>Rota Principal</span>
+                        </div>
+                        <div class="result-status completed">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Concluída</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Informações Gerais -->
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Horário de Chegada do veiculo para ida</div>
+                    <div class="info-value"></div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Horário de Chegada do veiculo para volta</div>
+                    <div class="info-value"></div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    </main>
+
+    <!-- MODAL DE PREFERÊNCIAS DE NOTIFICAÇÃO -->
+    <div id="preferences-modal" class="preferences-modal">
+        <div class="preferences-content">
+            <div class="preferences-header">
+                <h2 class="preferences-title">
+                    🔔 Preferências de Notificação
+                </h2>
+                <button class="close-preferences" id="close-preferences">&times;</button>
+            </div>
+
+            <div id="preferences-loading" class="preferences-loading" style="display: none;">
+                <div class="loading-spinner"></div>
+                Carregando preferências...
+            </div>
+
+            <div id="preferences-message" class="preferences-message" style="display: none;"></div>
+
+            <form id="preferences-form" class="preferences-form">
+                <!-- Notificações de Rastreamento -->
+                <div class="preference-section">
+                    <h3 class="section-title">
+                        📍 Rastreamento em Tempo Real
+                    </h3>
+                    <div class="preference-group">
+                        <div class="preference-item">
+                            <div class="preference-label">
+                                <div class="preference-name">Embarque/Desembarque</div>
+                                <div class="preference-description">Receber notificações quando a criança embarcar ou desembarcar do veículo</div>
+                            </div>
+                            <label class="preference-toggle">
+                                <input type="checkbox" id="notif-embarque" name="embarque_desembarque" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="preference-item">
+                            <div class="preference-label">
+                                <div class="preference-name">Localização em Tempo Real</div>
+                                <div class="preference-description">Atualizações da localização do veículo durante a viagem</div>
+                            </div>
+                            <label class="preference-toggle">
+                                <input type="checkbox" id="notif-localizacao" name="localizacao_tempo_real" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="preference-item">
+                            <div class="preference-label">
+                                <div class="preference-name">Chegada Próxima</div>
+                                <div class="preference-description">Aviso quando o veículo estiver se aproximando do destino</div>
+                            </div>
+                            <label class="preference-toggle">
+                                <input type="checkbox" id="notif-chegada" name="veiculo_chegando" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alertas de Segurança -->
+                <div class="preference-section">
+                    <h3 class="section-title">
+                        🚨 Alertas de Segurança
+                    </h3>
+                    <div class="preference-group">
+                        <div class="preference-item">
+                            <div class="preference-label">
+                                <div class="preference-name">Emergências</div>
+                                <div class="preference-description">Notificações imediatas em caso de emergência</div>
+                            </div>
+                            <label class="preference-toggle">
+                                <input type="checkbox" id="notif-emergencia" name="emergencia" checked disabled>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="preference-item">
+                            <div class="preference-label">
+                                <div class="preference-name">Atrasos</div>
+                                <div class="preference-description">Avisos sobre atrasos significativos na rota</div>
+                            </div>
+                            <label class="preference-toggle">
+                                <input type="checkbox" id="notif-atraso" name="atraso_detectado" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Canais de Notificação -->
+                <div class="preference-section">
+                    <h3 class="section-title">
+                        📱 Canais de Notificação
+                    </h3>
+                    <div class="notification-channels">
+                        <div class="channel-option selected">
+                            <input type="checkbox" id="channel-app" name="canais[]" value="app" class="channel-checkbox" checked disabled>
+                            <span class="channel-icon">📱</span>
+                            <label for="channel-app" class="channel-label">Notificações do App</label>
+                        </div>
+                        <div class="channel-option">
+                            <input type="checkbox" id="channel-email" name="canais[]" value="email" class="channel-checkbox">
+                            <span class="channel-icon">📧</span>
+                            <label for="channel-email" class="channel-label">E-mail</label>
+                        </div>
+                        <div class="channel-option">
+                            <input type="checkbox" id="channel-whatsapp" name="canais[]" value="whatsapp" class="channel-checkbox">
+                            <span class="channel-icon">📞</span>
+                            <label for="channel-whatsapp" class="channel-label">WhatsApp</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="preferences-actions">
+                    <button type="button" class="btn-preferences btn-cancel" id="cancel-preferences">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn-preferences btn-save" id="save-preferences">
+                        Salvar Preferências
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- RODAPÉ -->
+<footer id="fim" class="footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <a href="../index.html" class="logo">Kanghoo</a>
+                <p class="footer-tagline">Soluções de viagem sem esforço.</p>
+                <!-- Ícones de redes sociais podem ficar aqui para maior destaque -->
+                <div class="footer-social-media">
+                    <a href="#" aria-label="Facebook"><img src="../assets/images/face.png" alt="Facebook"></a>
+                <a href="#" aria-label="Instagram"><img src="../assets/images/insta.png" alt="Instagram"></a>
+                    <a href="#" aria-label="LinkedIn"><img src="../assets/images/linkedin.png" alt="LinkedIn"></a>
+                </div>
+            </div>
+
+            <div class="footer-links-group">
+                <h4>Transporte</h4>
+                <ul>
+                    <li><a href="../encontrar-transporte.html" onclick="setTransportType('escolar')">Transporte Escolar</a></li>
+                    <li><a href="#">Rotas</a></li>
+                    <li><a href="#">Monitoramento</a></li>
+                    <li><a href="../planos.html">Preços</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links-group">
+                <h4>Excursões</h4>
+                <ul>
+                    <li><a href="../encontrar-transporte.html" onclick="setTransportType('excursao')">Excursões</a></li>
+                    <li><a href="#">Fretamento</a></li>
+                    <li><a href="#">Turismo</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links-group">
+                <h4>Empresa</h4>
+                <ul>
+                    <li><a href="../sobre.html">Sobre Nós</a></li>
+                    <li><a href="../index.html#contact">Contato</a></li>
+                    <li><a href="#">Carreiras</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Kanghoo. Todos os direitos reservados.</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+// Função para verificar autenticação
+async function checkAuthentication() {
+    let token = localStorage.getItem('authToken');
+    
+    // Modo desenvolvimento: forçar uso do token de teste
+    if (window.location.hostname === 'localhost') {
+        // Token de teste para desenvolvimento (não usar em produção)
+        token = 'dev_token_responsavel_teste';
+        localStorage.setItem('authToken', token);
+    }
+    
+    if (!token) {
+        console.log('Token não encontrado, redirecionando para login');
+        window.location.href = 'login.html';
+        return false;
+    }
+
+    // Evitar múltiplas requisições simultâneas
+    if (tokenValidationInProgress) {
+        console.log('Validação de token já em andamento, aguardando...');
+        // Aguardar um pouco e tentar novamente
+        await new Promise(resolve => setTimeout(resolve, 100));
+        return tokenValidationInProgress ? true : checkAuthentication();
+    }
+
+    tokenValidationInProgress = true;
+
+    try {
+        const response = await fetch('/api/validate-token', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.log('Token inválido, redirecionando para login');
+            localStorage.removeItem('authToken');
+            window.location.href = 'login.html';
+            return false;
+        }
+
+        const data = await response.json();
+        
+        // Verificar se o usuário tem permissão para esta área
+        if (data.user.tipo !== 'responsavel') {
+            console.log('Usuário não tem permissão para esta área');
+            alert('Você não tem permissão para acessar esta área.');
+            window.location.href = 'login.html';
+            return false;
+        }
+
+        console.log('Usuário autenticado:', data.user.nome);
+        return true;
+        
+    } catch (error) {
+        console.log('Erro ao validar token:', error);
+        localStorage.removeItem('authToken');
+        window.location.href = 'login.html';
+        return false;
+    } finally {
+        tokenValidationInProgress = false;
+    }
+}
+
+// Variável para controlar requisições em andamento
+let tokenValidationInProgress = false;
+let currentAbortController = null;
+let lastValidationTime = 0;
+const VALIDATION_DEBOUNCE_MS = 1000; // 1 segundo de debounce
+
+// Função para verificação contínua de token
+async function continuousTokenCheck() {
+    const now = Date.now();
+    
+    // Debounce: evitar validações muito frequentes
+    if (now - lastValidationTime < VALIDATION_DEBOUNCE_MS) {
+        console.log('⏱️ Debounce ativo, pulando validação');
+        return true;
+    }
+    
+    // Evitar múltiplas requisições simultâneas
+    if (tokenValidationInProgress) {
+        console.log('Validação de token já em andamento, pulando...');
+        return true;
+    }
+    
+    const currentToken = localStorage.getItem('authToken');
+    
+    if (!currentToken) {
+        console.log('Token removido, redirecionando para login');
+        window.location.href = 'login.html';
+        return false;
+    }
+
+    lastValidationTime = now;
+    tokenValidationInProgress = true;
+    
+    // Cancelar requisição anterior se existir
+    if (currentAbortController) {
+        currentAbortController.abort();
+    }
+    
+    currentAbortController = new AbortController();
+    
+    try {
+        console.log('🔄 Iniciando requisição de validação de token...');
+        
+        const response = await fetch('/api/validate-token', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${currentToken}`,
+                'Content-Type': 'application/json'
+            },
+            signal: currentAbortController.signal
+        });
+
+        console.log('✅ Resposta recebida:', response.status, response.statusText);
+
+        if (!response.ok) {
+            console.log('❌ Token inválido durante verificação contínua');
+            localStorage.removeItem('authToken');
+            window.location.href = 'login.html';
+            return false;
+        }
+
+        const data = await response.json();
+        console.log('📄 Dados da resposta:', data);
+        
+        if (!data.valid || data.user.tipo !== 'responsavel') {
+            console.log('Usuário não autorizado durante verificação contínua');
+            localStorage.removeItem('authToken');
+            window.location.href = 'login.html';
+            return false;
+        }
+
+        return true;
+        
+    } catch (error) {
+        console.error('❌ Erro na verificação contínua de token:', {
+            name: error.name,
+            message: error.message,
+            stack: error.stack
+        });
+        
+        // Se a requisição foi cancelada, não fazer nada
+        if (error.name === 'AbortError') {
+            console.log('🔄 Requisição cancelada (AbortError)');
+            return true;
+        }
+        
+        // Se for um erro de rede, não redirecionar imediatamente
+        if (error.name === 'TypeError' && error.message.includes('fetch')) {
+            console.warn('⚠️ Erro de rede detectado, mantendo usuário logado');
+            return true; // Manter usuário logado em caso de erro de rede
+        }
+        
+        localStorage.removeItem('authToken');
+        window.location.href = 'login.html';
+        return false;
+    } finally {
+        tokenValidationInProgress = false;
+        currentAbortController = null;
+    }
+}
+
+// Detectar navegação pelo botão voltar/avançar
+window.addEventListener('pageshow', function(event) {
+    if (event.persisted) {
+        console.log('Página carregada do cache, verificando autenticação');
+        setTimeout(continuousTokenCheck, 1000); // Delay para evitar conflitos
+    }
+});
+
+// Verificar token quando a página se torna visível (removido focus para evitar duplicação)
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) {
+        console.log('Página se tornou visível, verificando autenticação');
+        setTimeout(continuousTokenCheck, 1000); // Delay para evitar conflitos
+    }
+});
+
+// Verificar autenticação e carregar dados
+document.addEventListener('DOMContentLoaded', async function() {
+    try {
+        const isAuthenticated = await checkAuthentication();
+        
+        if (!isAuthenticated) {
+            return;
+        }
+    } catch (error) {
+        console.error('Erro durante verificação de autenticação:', error);
+        return;
+    }
+
+    const token = localStorage.getItem('authToken');
+
+    // Iniciar verificação periódica de token (a cada 60 segundos) com delay inicial
+    setTimeout(() => {
+        setInterval(continuousTokenCheck, 60000);
+    }, 2000);
+
+    try {
+        // Carregar dados da criança
+        const response = await fetch('/api/responsavel/crianca', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            
+            if (result.success) {
+                preencherDadosCrianca(result.data);
+            } else {
+                console.error('Erro ao carregar dados:', result.message);
+                mostrarErro('Erro ao carregar dados da criança');
+            }
+        } else if (response.status === 401) {
+            // Token inválido, redirecionar para login
+            localStorage.removeItem('authToken');
+            window.location.href = 'login.html';
+        } else {
+            console.error('Erro na requisição:', response.status, response.statusText);
+            mostrarErro('Erro ao carregar dados da criança');
+        }
+    } catch (error) {
+        console.error('Erro de conexão:', error);
+        mostrarErro('Erro de conexão. Verifique sua internet.');
+    }
+    
+    // Inicializar mapa e funcionalidades após carregar Leaflet
+    setTimeout(() => {
+        if (typeof L !== 'undefined') {
+            initializeMap();
+            initializeMapControls();
+        } else {
+            console.error('Leaflet não carregado');
+            // Tentar novamente após um tempo
+            setTimeout(() => {
+                if (typeof L !== 'undefined') {
+                    initializeMap();
+                    initializeMapControls();
+                }
+            }, 1000);
+        }
+    }, 500);
+});
+
+// Variável global para o mapa
+let routeMap = null;
+
+// Função para inicializar o mapa
+function initializeMap() {
+    // Remover placeholder
+    const mapContainer = document.getElementById('route-map');
+    if (mapContainer) {
+        mapContainer.innerHTML = '';
+        
+        // Inicializar mapa Leaflet
+        routeMap = L.map('route-map').setView([-23.5505, -46.6333], 13); // São Paulo como exemplo
+        
+        // Adicionar camada de tiles do OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(routeMap);
+        
+        // Adicionar marcadores de exemplo
+        const schoolMarker = L.marker([-23.5505, -46.6333]).addTo(routeMap)
+            .bindPopup('<b>Escola</b><br>Ponto de destino');
+        
+        const homeMarker = L.marker([-23.5605, -46.6433]).addTo(routeMap)
+            .bindPopup('<b>Casa</b><br>Ponto de embarque');
+        
+        // Adicionar linha da rota
+        const routeLine = L.polyline([
+            [-23.5605, -46.6433],
+            [-23.5555, -46.6383],
+            [-23.5505, -46.6333]
+        ], {color: '#4299e1', weight: 4}).addTo(routeMap);
+        
+        // Ajustar visualização para mostrar toda a rota
+        routeMap.fitBounds(routeLine.getBounds(), {padding: [20, 20]});
+        
+        console.log('Mapa inicializado com sucesso');
+    }
+}
+
+// Função para inicializar os controles do mapa
+function initializeMapControls() {
+    const showFullRouteBtn = document.getElementById('show-full-route');
+    const trackLiveBtn = document.getElementById('track-live');
+    const routeDetailsBtn = document.getElementById('route-details');
+    
+    if (showFullRouteBtn) {
+        showFullRouteBtn.addEventListener('click', function() {
+            showNotification('Exibindo rota completa...', 'info');
+            if (routeMap) {
+                // Ajustar zoom para mostrar toda a rota
+                const routeLine = L.polyline([
+                    [-23.5605, -46.6433],
+                    [-23.5555, -46.6383],
+                    [-23.5505, -46.6333]
+                ]);
+                routeMap.fitBounds(routeLine.getBounds(), {padding: [20, 20]});
+            }
+        });
+    }
+    
+    if (trackLiveBtn) {
+        trackLiveBtn.addEventListener('click', function() {
+            showNotification('Iniciando rastreamento ao vivo...', 'info');
+            if (routeMap) {
+                // Simular posição atual do ônibus
+                const busMarker = L.marker([-23.5555, -46.6383]).addTo(routeMap)
+                    .bindPopup('<b>Ônibus Escolar</b><br>Posição atual')
+                    .openPopup();
+                routeMap.setView([-23.5555, -46.6383], 15);
+            }
+        });
+    }
+    
+    if (routeDetailsBtn) {
+        routeDetailsBtn.addEventListener('click', function() {
+            showNotification('Carregando detalhes da rota...', 'info');
+            // Mostrar informações detalhadas da rota
+            alert('Rota: Casa → Escola\nDistância: 2.5 km\nTempo estimado: 15 minutos\nParadas: 3');
+        });
+    }
+}
+
+// Função para preencher os dados da criança na página
+function preencherDadosCrianca(dados) {
+    // Preencher informações pessoais usando IDs corretos
+    const nomeCompleto = document.getElementById('nome-completo');
+    if (nomeCompleto) nomeCompleto.value = dados.nome_responsavel || '';
+
+    const dependente = document.getElementById('dependente');
+    if (dependente) dependente.value = dados.nome_completo || '';
+
+    const telefone = document.getElementById('telefone');
+    if (telefone) telefone.value = dados.telefone_responsavel || '';
+
+    const email = document.getElementById('email');
+    if (email) email.value = dados.email_responsavel || '';
+
+    const endereco = document.getElementById('endereco');
+    if (endereco) endereco.value = dados.endereco_residencial || '';
+
+    const cpf = document.getElementById('cpf');
+    if (cpf) cpf.value = formatarCPF(dados.cpf) || '';
+
+    // Preencher informações do transporte
+    const infoValues = document.querySelectorAll('.info-value');
+    if (infoValues.length >= 3) {
+        infoValues[0].textContent = dados.nome_motorista || 'Não atribuído';
+        infoValues[1].textContent = 'Em movimento'; // Status padrão
+        infoValues[2].textContent = dados.escola || '';
+    }
+
+    // Preencher informações adicionais se existirem
+    if (infoValues.length >= 5) {
+        infoValues[3].textContent = '07:30'; // Horário padrão de entrada
+        infoValues[4].textContent = '17:30'; // Horário padrão de saída
+    }
+
+    // Atualizar título da página com nome da criança
+    if (dados.nome_completo) {
+        document.title = `Área do Responsável - ${dados.nome_completo}`;
+    }
+}
+
+// Função para formatar CPF
+function formatarCPF(cpf) {
+    if (!cpf) return '';
+    const numeros = cpf.replace(/\D/g, '');
+    return numeros.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+}
+
+// Função para mostrar erros
+function mostrarErro(mensagem) {
+    // Criar elemento de erro se não existir
+    let errorDiv = document.getElementById('error-message');
+    if (!errorDiv) {
+        errorDiv = document.createElement('div');
+        errorDiv.id = 'error-message';
+        errorDiv.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #f5c6cb;
+            z-index: 1000;
+            max-width: 300px;
+        `;
+        document.body.appendChild(errorDiv);
+    }
+    
+    errorDiv.textContent = mensagem;
+    errorDiv.style.display = 'block';
+    
+    // Auto-remover após 5 segundos
+    setTimeout(() => {
+        errorDiv.style.display = 'none';
+    }, 5000);
+}
+
+// Função para logout
+function logout() {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('responsavel_data');
+    window.location.href = 'login.html';
+}
+
+// Adicionar evento de logout se existir botão
+</script>
+
+<!-- Modais de Comunicação -->
+
+<!-- Modal de Chat com Motorista -->
+<div id="driverChatModal" class="modal">
+    <div class="modal-content chat-modal">
+        <div class="modal-header emergency-header">
+            <div class="modal-title">
+                <span class="modal-icon">🚨</span>
+                <div>
+                    <h3>Chat com Motorista</h3>
+                    <p>João Silva - Van Escolar 001</p>
+                </div>
+            </div>
+            <div class="modal-status">
+                <span class="status-indicator online"></span>
+                <span>Online</span>
+            </div>
+            <button class="close-btn" onclick="closeModal('driverChatModal')">&times;</button>
+        </div>
+        
+        <div class="chat-container">
+            <div class="chat-messages" id="driverMessages">
+                <div class="message received">
+                    <div class="message-avatar">🚗</div>
+                    <div class="message-content">
+                        <p>Boa tarde! Estou a caminho da escola. Previsão de chegada: 15:30</p>
+                        <span class="message-time">14:25</span>
+                    </div>
+                </div>
+                <div class="message sent">
+                    <div class="message-content">
+                        <p>Obrigada! Minha filha já está pronta.</p>
+                        <span class="message-time">14:26</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="emergency-actions">
+                <button class="emergency-btn" onclick="sendEmergencyAlert()">
+                    🚨 Emergência
+                </button>
+                <button class="location-btn" onclick="requestLocation()">
+                    📍 Localização
+                </button>
+            </div>
+            
+            <div class="chat-input">
+                <input type="text" placeholder="Digite sua mensagem..." id="driverMessageInput">
+                <button onclick="sendDriverMessage()">Enviar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Comunicação com Escola -->
+<div id="schoolChatModal" class="modal">
+    <div class="modal-content chat-modal">
+        <div class="modal-header school-header">
+            <div class="modal-title">
+                <span class="modal-icon">🏫</span>
+                <div>
+                    <h3>Comunicação Escolar</h3>
+                    <p>Colégio São José - Secretaria</p>
+                </div>
+            </div>
+            <div class="notification-badge">2 novas</div>
+            <button class="close-btn" onclick="closeModal('schoolChatModal')">&times;</button>
+        </div>
+        
+        <div class="chat-container">
+            <div class="announcements-section">
+                <h4>📢 Avisos Recentes</h4>
+                <div class="announcement-item new">
+                    <div class="announcement-header">
+                        <strong>Reunião de Pais</strong>
+                        <span class="announcement-date">Hoje, 10:30</span>
+                    </div>
+                    <p>Reunião marcada para sexta-feira, 15/12, às 19h no auditório.</p>
+                </div>
+                <div class="announcement-item new">
+                    <div class="announcement-header">
+                        <strong>Alteração de Horário</strong>
+                        <span class="announcement-date">Ontem, 16:45</span>
+                    </div>
+                    <p>Aulas de educação física serão às 14h devido à reforma da quadra.</p>
+                </div>
+            </div>
+            
+            <div class="chat-messages" id="schoolMessages">
+                <div class="message received">
+                    <div class="message-avatar">🏫</div>
+                    <div class="message-content">
+                        <p>Boa tarde! Como podemos ajudá-la hoje?</p>
+                        <span class="message-time">13:45</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chat-input">
+                <input type="text" placeholder="Digite sua mensagem para a escola..." id="schoolMessageInput">
+                <button onclick="sendSchoolMessage()">Enviar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Grupo de Pais -->
+<div id="parentsGroupModal" class="modal">
+    <div class="modal-content chat-modal">
+        <div class="modal-header parents-header">
+            <div class="modal-title">
+                <span class="modal-icon">👥</span>
+                <div>
+                    <h3>Grupo de Pais</h3>
+                    <p>Rota Escolar - Zona Norte (12 membros)</p>
+                </div>
+            </div>
+            <div class="group-actions">
+                <button class="group-info-btn" onclick="showGroupInfo()">ℹ️</button>
+            </div>
+            <button class="close-btn" onclick="closeModal('parentsGroupModal')">&times;</button>
+        </div>
+        
+        <div class="chat-container">
+            <div class="group-members">
+                <div class="member-list">
+                    <div class="member online">
+                        <div class="member-avatar">👩</div>
+                        <span>Maria Silva</span>
+                    </div>
+                    <div class="member online">
+                        <div class="member-avatar">👨</div>
+                        <span>João Santos</span>
+                    </div>
+                    <div class="member">
+                        <div class="member-avatar">👩</div>
+                        <span>Ana Costa</span>
+                    </div>
+                    <div class="member-count">+9 outros</div>
+                </div>
+            </div>
+            
+            <div class="chat-messages" id="parentsMessages">
+                <div class="message received">
+                    <div class="message-avatar">👩</div>
+                    <div class="message-content">
+                        <div class="message-sender">Maria Silva</div>
+                        <p>Pessoal, alguém sabe se haverá transporte amanhã com a chuva?</p>
+                        <span class="message-time">12:30</span>
+                    </div>
+                </div>
+                <div class="message received">
+                    <div class="message-avatar">👨</div>
+                    <div class="message-content">
+                        <div class="message-sender">João Santos</div>
+                        <p>Sim, o motorista confirmou que vai funcionar normalmente!</p>
+                        <span class="message-time">12:35</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chat-input">
+                <input type="text" placeholder="Mensagem para o grupo..." id="parentsMessageInput">
+                <button onclick="sendParentsMessage()">Enviar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Central de Avisos -->
+<div id="coordinationModal" class="modal">
+    <div class="modal-content notification-modal">
+        <div class="modal-header coordination-header">
+            <div class="modal-title">
+                <span class="modal-icon">📢</span>
+                <div>
+                    <h3>Central de Avisos</h3>
+                    <p>Coordenação de Transporte Escolar</p>
+                </div>
+            </div>
+            <div class="urgent-badge">Urgente</div>
+            <button class="close-btn" onclick="closeModal('coordinationModal')">&times;</button>
+        </div>
+        
+        <div class="notifications-container">
+            <div class="notification-filters">
+                <button class="filter-btn active" onclick="filterNotifications('all')">Todos</button>
+                <button class="filter-btn" onclick="filterNotifications('urgent')">Urgentes</button>
+                <button class="filter-btn" onclick="filterNotifications('info')">Informativos</button>
+                <button class="filter-btn" onclick="filterNotifications('route')">Rota</button>
+            </div>
+            
+            <div class="notifications-list">
+                <div class="notification-item urgent">
+                    <div class="notification-icon">🚨</div>
+                    <div class="notification-content">
+                        <div class="notification-header">
+                            <strong>Alteração de Rota - URGENTE</strong>
+                            <span class="notification-time">Há 15 min</span>
+                        </div>
+                        <p>Devido a obras na Rua Principal, a rota será alterada temporariamente. Nova rota: Av. Central → Rua das Flores → Escola.</p>
+                        <div class="notification-actions">
+                            <button class="action-btn primary">Ver Nova Rota</button>
+                            <button class="action-btn">Marcar como Lida</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="notification-item info">
+                    <div class="notification-icon">ℹ️</div>
+                    <div class="notification-content">
+                        <div class="notification-header">
+                            <strong>Manutenção Preventiva</strong>
+                            <span class="notification-time">2h atrás</span>
+                        </div>
+                        <p>O veículo passará por manutenção preventiva no sábado. Não haverá alteração nos horários da semana.</p>
+                        <div class="notification-actions">
+                            <button class="action-btn">Marcar como Lida</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="notification-item route">
+                    <div class="notification-icon">🗺️</div>
+                    <div class="notification-content">
+                        <div class="notification-header">
+                            <strong>Otimização de Rota</strong>
+                            <span class="notification-time">1 dia atrás</span>
+                        </div>
+                        <p>Nova rota otimizada reduz tempo de viagem em 8 minutos. Implementação na próxima segunda-feira.</p>
+                        <div class="notification-actions">
+                            <button class="action-btn primary">Ver Detalhes</button>
+                            <button class="action-btn">Marcar como Lida</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="notification-settings">
+                <h4>Preferências de Notificação</h4>
+                <div class="setting-item">
+                    <label>
+                        <input type="checkbox" checked> Notificações de emergência
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <label>
+                        <input type="checkbox" checked> Alterações de rota
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <label>
+                        <input type="checkbox"> Avisos informativos
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const logoutBtn = document.querySelector('[onclick*="logout"]') || document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', logout);
+    }
+});
+</script>
+
+    <!-- Modais de Filtro -->
+    
+    <!-- Modal de Filtro por Data -->
+    <div id="date-filter-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Filtrar por Data</h3>
+                <span class="close" id="close-date-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="date-filter-options">
+                    <div class="filter-option">
+                        <label for="date-from">Data Inicial:</label>
+                        <input type="date" id="date-from" name="date-from">
+                    </div>
+                    <div class="filter-option">
+                        <label for="date-to">Data Final:</label>
+                        <input type="date" id="date-to" name="date-to">
+                    </div>
+                    <div class="filter-option">
+                        <label>Períodos Predefinidos:</label>
+                        <div class="preset-buttons">
+                            <button class="preset-btn" data-period="today">Hoje</button>
+                            <button class="preset-btn" data-period="week">Esta Semana</button>
+                            <button class="preset-btn" data-period="month">Este Mês</button>
+                            <button class="preset-btn" data-period="last-month">Mês Passado</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="cancel-date-filter">Cancelar</button>
+                <button class="btn-primary" id="apply-date-filter">Aplicar Filtro</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Filtro por Horário -->
+    <div id="time-filter-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Filtrar por Horário</h3>
+                <span class="close" id="close-time-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="time-filter-options">
+                    <div class="filter-option">
+                        <label for="time-from">Horário Inicial:</label>
+                        <input type="time" id="time-from" name="time-from">
+                    </div>
+                    <div class="filter-option">
+                        <label for="time-to">Horário Final:</label>
+                        <input type="time" id="time-to" name="time-to">
+                    </div>
+                    <div class="filter-option">
+                        <label>Períodos do Dia:</label>
+                        <div class="preset-buttons">
+                            <button class="preset-btn" data-time="morning">Manhã (06:00-12:00)</button>
+                            <button class="preset-btn" data-time="afternoon">Tarde (12:00-18:00)</button>
+                            <button class="preset-btn" data-time="evening">Noite (18:00-00:00)</button>
+                        </div>
+                    </div>
+                    <div class="filter-option">
+                        <label>Tipo de Viagem:</label>
+                        <div class="trip-type-buttons">
+                            <button class="preset-btn" data-trip="ida">Ida</button>
+                            <button class="preset-btn" data-trip="volta">Volta</button>
+                            <button class="preset-btn" data-trip="both">Ambas</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="cancel-time-filter">Cancelar</button>
+                <button class="btn-primary" id="apply-time-filter">Aplicar Filtro</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Filtro por Rota -->
+    <div id="route-filter-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Filtrar por Rota</h3>
+                <span class="close" id="close-route-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="route-filter-options">
+                    <div class="filter-option">
+                        <label>Selecionar Rota:</label>
+                        <div class="route-list">
+                            <div class="route-option">
+                                <input type="checkbox" id="route-principal" value="principal">
+                                <label for="route-principal">
+                                    <i class="fas fa-route"></i>
+                                    Rota Principal
+                                    <span class="route-info">Via Centro - 45min</span>
+                                </label>
+                            </div>
+                            <div class="route-option">
+                                <input type="checkbox" id="route-alternativa" value="alternativa">
+                                <label for="route-alternativa">
+                                    <i class="fas fa-route"></i>
+                                    Rota Alternativa
+                                    <span class="route-info">Via Marginal - 50min</span>
+                                </label>
+                            </div>
+                            <div class="route-option">
+                                <input type="checkbox" id="route-expressa" value="expressa">
+                                <label for="route-expressa">
+                                    <i class="fas fa-route"></i>
+                                    Rota Expressa
+                                    <span class="route-info">Via Rodovia - 35min</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="filter-option">
+                        <label>Status da Viagem:</label>
+                        <div class="status-buttons">
+                            <button class="preset-btn" data-status="completed">Concluídas</button>
+                            <button class="preset-btn" data-status="delayed">Atrasadas</button>
+                            <button class="preset-btn" data-status="cancelled">Canceladas</button>
+                            <button class="preset-btn" data-status="all">Todas</button>
+                        </div>
+                    </div>
+                    <div class="filter-option">
+                        <label for="vehicle-filter">Veículo:</label>
+                        <select id="vehicle-filter" name="vehicle-filter">
+                            <option value="">Todos os veículos</option>
+                            <option value="van-001">Van 001 - ABC-1234</option>
+                            <option value="van-002">Van 002 - DEF-5678</option>
+                            <option value="onibus-001">Ônibus 001 - GHI-9012</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="cancel-route-filter">Cancelar</button>
+                <button class="btn-primary" id="apply-route-filter">Aplicar Filtro</button>
+            </div>
+        </div>
+    </div>
+
+<script src="../assets/js/components/ui-utils.js"></script>
+<script>
+// Função mostrarErro já definida anteriormente no arquivo
+
+// Melhorar a função de carregamento de dados
+document.addEventListener('DOMContentLoaded', async function() {
+    // Mostrar loading da página
+    const pageLoader = showPageLoading('Carregando dados...');
+    
+    try {
+        // Código de carregamento existente...
+        await new Promise(resolve => setTimeout(resolve, 500)); // Simular delay mínimo
+        
+        // Parar loading
+        pageLoader.stop();
+        
+        // Mostrar sucesso
+        showSuccess('Dados carregados com sucesso!', 3000);
+        
+    } catch (error) {
+        pageLoader.stop();
+        showError('Erro ao carregar dados: ' + error.message);
+    }
+});
+
+function setTransportType(type) {
+    localStorage.setItem('transportType', type);
+}
+
+// ===== MODAL DE PREFERÊNCIAS DE NOTIFICAÇÃO =====
+class NotificationPreferences {
+    constructor() {
+        this.modal = document.getElementById('preferences-modal');
+        this.form = document.getElementById('preferences-form');
+        this.loadingElement = document.getElementById('preferences-loading');
+        this.messageElement = document.getElementById('preferences-message');
+        
+        this.initEventListeners();
+        this.loadPreferences();
+    }
+
+    initEventListeners() {
+        // Botão para abrir modal
+        const openButton = document.querySelector('[data-action="open-preferences"]');
+        if (openButton) {
+            openButton.addEventListener('click', () => this.openModal());
+        }
+
+        // Botões para fechar modal
+        document.getElementById('close-preferences').addEventListener('click', () => this.closeModal());
+        document.getElementById('cancel-preferences').addEventListener('click', () => this.closeModal());
+
+        // Fechar modal clicando fora
+        this.modal.addEventListener('click', (e) => {
+            if (e.target === this.modal) {
+                this.closeModal();
+            }
+        });
+
+        // Fechar modal com ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && this.modal.classList.contains('active')) {
+                this.closeModal();
+            }
+        });
+
+        // Submit do formulário
+        this.form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.savePreferences();
+        });
+
+        // Toggle dos canais de notificação
+        const channelCheckboxes = document.querySelectorAll('.channel-checkbox');
+        channelCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                const channelOption = e.target.closest('.channel-option');
+                if (e.target.checked) {
+                    channelOption.classList.add('selected');
+                } else {
+                    channelOption.classList.remove('selected');
+                }
+            });
+        });
+    }
+
+    openModal() {
+        this.modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        this.loadPreferences();
+    }
+
+    closeModal() {
+        this.modal.classList.remove('active');
+        document.body.style.overflow = '';
+        this.hideMessage();
+    }
+
+    showLoading(show = true) {
+        this.loadingElement.style.display = show ? 'flex' : 'none';
+        this.form.style.display = show ? 'none' : 'block';
+    }
+
+    showMessage(message, type = 'success') {
+        this.messageElement.textContent = message;
+        this.messageElement.className = `preferences-message ${type}`;
+        this.messageElement.style.display = 'block';
+        
+        setTimeout(() => {
+            this.hideMessage();
+        }, 5000);
+    }
+
+    hideMessage() {
+        this.messageElement.style.display = 'none';
+    }
+
+    async loadPreferences() {
+        this.showLoading(true);
+        
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                throw new Error('Token de autenticação não encontrado');
+            }
+
+            const response = await fetch('/api/notification-preferences', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Erro ${response.status}: ${response.statusText}`);
+            }
+
+            const result = await response.json();
+            if (result.success) {
+                this.populateForm(result.data);
+            } else {
+                throw new Error(result.error || 'Erro ao carregar preferências');
+            }
+            
+            this.showLoading(false);
+        } catch (error) {
+            this.showLoading(false);
+            console.warn('Erro ao carregar preferências (modo desenvolvimento):', error.message);
+            
+            // Usar preferências padrão em caso de erro
+            const defaultPreferences = this.getDefaultPreferences();
+            this.populateForm(defaultPreferences);
+            
+            // Não mostrar mensagem de erro se for problema de token (modo desenvolvimento)
+            if (!error.message.includes('Token de autenticação não encontrado')) {
+                this.showMessage('Usando configurações padrão. ' + error.message, 'warning');
+            }
+        }
+    }
+
+    getDefaultPreferences() {
+        return {
+            embarque_desembarque: true,
+            localizacao_tempo_real: true,
+            veiculo_chegando: true,
+            emergencia: true,
+            atraso_detectado: true,
+            canais: ['app']
+        };
+    }
+
+    populateForm(preferences) {
+        // Preencher checkboxes de tipos de notificação
+        Object.keys(preferences).forEach(key => {
+            if (key !== 'canais') {
+                const checkbox = document.querySelector(`[name="${key}"]`);
+                if (checkbox) {
+                    checkbox.checked = preferences[key];
+                }
+            }
+        });
+
+        // Preencher canais de notificação
+        const channelCheckboxes = document.querySelectorAll('.channel-checkbox');
+        channelCheckboxes.forEach(checkbox => {
+            const isSelected = preferences.canais.includes(checkbox.value);
+            checkbox.checked = isSelected;
+            
+            const channelOption = checkbox.closest('.channel-option');
+            if (isSelected) {
+                channelOption.classList.add('selected');
+            } else {
+                channelOption.classList.remove('selected');
+            }
+        });
+    }
+
+    async savePreferences() {
+        const saveButton = document.getElementById('save-preferences');
+        const originalText = saveButton.textContent;
+        
+        try {
+            saveButton.textContent = 'Salvando...';
+            saveButton.disabled = true;
+            
+            const token = localStorage.getItem('token');
+            if (!token) {
+                throw new Error('Token de autenticação não encontrado');
+            }
+            
+            // Coletar dados do formulário
+            const formData = new FormData(this.form);
+            const preferences = {};
+            
+            // Processar checkboxes de notificação
+            const notificationTypes = ['embarque_desembarque', 'localizacao_tempo_real', 'veiculo_chegando', 'emergencia', 'atraso_detectado'];
+            notificationTypes.forEach(type => {
+                preferences[type] = formData.has(type);
+            });
+            
+            // Processar canais
+            preferences.canais = formData.getAll('canais[]');
+            
+            // Enviar para a API
+            const response = await fetch('/api/notification-preferences', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(preferences)
+            });
+
+            if (!response.ok) {
+                throw new Error(`Erro ${response.status}: ${response.statusText}`);
+            }
+
+            const result = await response.json();
+            if (result.success) {
+                this.showMessage('Preferências salvas com sucesso!', 'success');
+                
+                // Fechar modal após 2 segundos
+                setTimeout(() => {
+                    this.closeModal();
+                }, 2000);
+            } else {
+                throw new Error(result.error || 'Erro ao salvar preferências');
+            }
+            
+        } catch (error) {
+            console.error('Erro ao salvar preferências:', error);
+            this.showMessage('Erro ao salvar preferências: ' + error.message, 'error');
+        } finally {
+            saveButton.textContent = originalText;
+            saveButton.disabled = false;
+        }
+    }
+}
+
+// Inicializar quando a página carregar
+document.addEventListener('DOMContentLoaded', function() {
+    new NotificationPreferences();
+});
+</script>
+
+<style>
+/* Reset e Variáveis CSS */
+:root {
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    --warning-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    --danger-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    --dark-gradient: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    
+    --shadow-light: 0 4px 15px rgba(0, 0, 0, 0.1);
+    --shadow-medium: 0 8px 25px rgba(0, 0, 0, 0.15);
+    --shadow-heavy: 0 15px 35px rgba(0, 0, 0, 0.2);
+    
+    --border-radius: 20px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.main-content {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Estilos para Header Simplificado */
+.header {
+    background: var(--primary-gradient);
+    box-shadow: var(--shadow-medium);
+    border-radius: 0 0 var(--border-radius) var(--border-radius);
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    pointer-events: none;
+}
+
+.header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    position: relative;
+    z-index: 1;
+}
+
+.logo-section {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.logo-link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 190px;
+    height: 50px;
+    text-decoration: none;
+}
+
+.logo-icon, .logo-text-full {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: opacity 0.4s ease-in-out;
+}
+
+.logo-icon {
+    height: 48px;
+    width: 48px;
+    object-fit: contain;
+    opacity: 1;
+}
+
+.logo-text-full {
+    opacity: 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: white;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    pointer-events: none;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.logo-link:hover .logo-icon { opacity: 0; }
+.logo-link:hover .logo-text-full { opacity: 1; }
+
+.user-area-label {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin-left: 1.5rem;
+    padding-left: 1.5rem;
+    border-left: 2px solid rgba(255, 255, 255, 0.3);
+    font-weight: 500;
+}
+
+.user-section {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
+}
+
+.user-welcome {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 0.25rem;
+    font-weight: 400;
+}
+
+.user-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.btn-logout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 0.8rem 2rem;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-logout:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.btn-logout i {
+    font-size: 1rem;
+}
+
+/* Responsividade para o header */
+@media (max-width: 768px) {
+    .header .container {
+        flex-direction: column;
+        gap: 1.5rem;
+        text-align: center;
+        padding: 1rem;
+    }
+
+    .logo-text-full {
+        font-size: 1.4rem;
+    }
+
+    .user-area-label {
+        display: none;
+    }
+
+    .user-info {
+        flex-direction: row;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .btn-logout {
+        padding: 0.7rem 1.5rem;
+        font-size: 0.85rem;
+    }
+
+    .btn-logout span {
+        display: none;
+    }
+}
+
+/* Estilos para Seção de Comunicação Rápida */
+.communication-section {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-light);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.communication-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--primary-gradient);
+}
+
+.communication-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.communication-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.communication-title .icon {
+    font-size: 2.2rem;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.communication-subtitle {
+    color: #64748b;
+    font-size: 1.1rem;
+    font-weight: 400;
+}
+
+.communication-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.comm-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-light);
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.comm-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.1) 100%);
+    opacity: 0;
+    transition: var(--transition);
+}
+
+.comm-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-heavy);
+}
+
+.comm-card:hover::before {
+    opacity: 1;
+}
+
+.comm-card.emergency {
+    border-color: #ef4444;
+    background: linear-gradient(135deg, #fef2f2 0%, #ffffff 100%);
+}
+
+.comm-card.emergency:hover {
+    border-color: #dc2626;
+    box-shadow: 0 15px 35px rgba(239, 68, 68, 0.3);
+}
+
+.comm-card.school {
+    border-color: #3b82f6;
+    background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);
+}
+
+.comm-card.school:hover {
+    border-color: #2563eb;
+    box-shadow: 0 15px 35px rgba(59, 130, 246, 0.3);
+}
+
+.comm-card.parents {
+    border-color: #10b981;
+    background: linear-gradient(135deg, #ecfdf5 0%, #ffffff 100%);
+}
+
+.comm-card.parents:hover {
+    border-color: #059669;
+    box-shadow: 0 15px 35px rgba(16, 185, 129, 0.3);
+}
+
+.comm-card.coordination {
+    border-color: #f59e0b;
+    background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);
+}
+
+.comm-card.coordination:hover {
+    border-color: #d97706;
+    box-shadow: 0 15px 35px rgba(245, 158, 11, 0.3);
+}
+
+.comm-icon {
+    font-size: 2.5rem;
+    min-width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.comm-content {
+    flex: 1;
+}
+
+.comm-content h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0 0 0.5rem 0;
+}
+
+.comm-content p {
+    color: #6b7280;
+    font-size: 0.9rem;
+    margin: 0 0 0.75rem 0;
+    line-height: 1.4;
+}
+
+.comm-status, .comm-badge, .comm-members {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.comm-status.online {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.comm-badge {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.comm-badge.urgent {
+    background: #fef2f2;
+    color: #dc2626;
+    animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.comm-members {
+    background: #f0fdf4;
+    color: #166534;
+}
+
+.comm-arrow {
+    font-size: 1.5rem;
+    color: #9ca3af;
+    transition: var(--transition);
+}
+
+.comm-card:hover .comm-arrow {
+    color: #4b5563;
+    transform: translateX(4px);
+}
+
+@media (max-width: 768px) {
+    .communication-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .comm-card {
+        padding: 1.25rem;
+    }
+    
+    .communication-title {
+        font-size: 1.6rem;
+    }
+    
+    .comm-icon {
+        font-size: 2rem;
+        min-width: 50px;
+        height: 50px;
+    }
+}
+
+/* Estilos para Seção de Fotos */
+.photos-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 30px;
+    color: white;
+}
+
+.photos-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.photo-item {
+    text-align: center;
+}
+
+.photo-frame {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    margin: 0 auto 15px;
+    overflow: hidden;
+    position: relative;
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.photo-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.photo-placeholder {
+    font-size: 48px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.photo-label {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.change-photo-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.change-photo-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+}
+
+/* Estilos para Container de Dados Pessoais */
+.personal-data-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.info-section {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    box-shadow: var(--shadow-light);
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition);
+}
+
+.info-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--primary-gradient);
+}
+
+.info-section:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-medium);
+    border-color: rgba(102, 126, 234, 0.2);
+}
+
+.info-section.responsavel-section::before {
+    background: var(--success-gradient);
+}
+
+.info-section.crianca-section::before {
+    background: var(--secondary-gradient);
+}
+
+/* Estilos para Seção de Fotos */
+.photo-section {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.photo-card {
+    display: inline-block;
+    position: relative;
+}
+
+.photo-wrapper {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 1rem;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid #e3f2fd;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: var(--transition);
+}
+
+.photo-wrapper:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.profile-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: var(--transition);
+}
+
+.photo-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: var(--transition);
+    border-radius: 50%;
+}
+
+.photo-wrapper:hover .photo-overlay {
+    opacity: 1;
+}
+
+.photo-upload-btn {
+    background: transparent;
+    border: 2px solid white;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.photo-upload-btn:hover {
+    background: white;
+    color: #333;
+}
+
+.photo-info {
+    text-align: center;
+}
+
+.photo-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0;
+}
+
+/* Estilos para Seções de Dados Separadas */
+.data-sections {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.data-section {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    box-shadow: var(--shadow-light);
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition);
+}
+
+.data-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--primary-gradient);
+}
+
+.data-section:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-medium);
+    border-color: rgba(102, 126, 234, 0.2);
+}
+
+.data-section.responsavel-section::before {
+    background: var(--success-gradient);
+}
+
+.data-section.crianca-section::before {
+    background: var(--secondary-gradient);
+}
+
+.data-section h3 {
+    color: #2c3e50;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.data-section .icon {
+    font-size: 1.8rem;
+    padding: 0.5rem;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+}
+
+.data-section.responsavel-section .icon {
+    background: linear-gradient(135deg, rgba(79, 172, 254, 0.1) 0%, rgba(0, 242, 254, 0.1) 100%);
+}
+
+.data-section.crianca-section .icon {
+    background: linear-gradient(135deg, rgba(240, 147, 251, 0.1) 0%, rgba(245, 87, 108, 0.1) 100%);
+}
+
+@media (max-width: 768px) {
+    .data-sections {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .data-section {
+        padding: 1.5rem;
+    }
+    
+    .data-section h3 {
+        font-size: 1.3rem;
+    }
+}
+
+/* Estilos para Seção de Rota */
+.route-section {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    box-shadow: var(--shadow-light);
+    border: 2px solid transparent;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition);
+}
+
+.route-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--warning-gradient);
+}
+
+.route-section:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-medium);
+    border-color: rgba(67, 233, 123, 0.2);
+}
+
+.route-section h3 {
+    color: #2c3e50;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.route-section .icon {
+    font-size: 2rem;
+    padding: 0.5rem;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(67, 233, 123, 0.1) 0%, rgba(56, 249, 215, 0.1) 100%);
+}
+
+.route-map-container {
+    margin: 1.5rem 0;
+}
+
+.route-map {
+    height: 350px;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border: 2px solid #e2e8f0;
+    margin-bottom: 1rem;
+    position: relative;
+    transition: var(--transition);
+}
+
+.route-map:hover {
+    border-color: #cbd5e0;
+    box-shadow: var(--shadow-light);
+}
+
+.map-placeholder {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #718096;
+    font-size: 18px;
+}
+
+.map-placeholder i {
+    font-size: 48px;
+    margin-bottom: 15px;
+    color: #4299e1;
+}
+
+.map-controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.map-btn {
+    background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.map-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(66, 153, 225, 0.3);
+}
+
+.route-points {
+    margin: 30px 0;
+}
+
+.route-subtitle {
+    color: #2d3748;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.route-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.route-point {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 15px;
+    background: #f7fafc;
+    border-radius: 15px;
+    border-left: 4px solid #4299e1;
+}
+
+.point-icon {
+    font-size: 24px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.point-icon.start {
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+}
+
+.point-icon.waypoint {
+    background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+}
+
+.point-icon.end {
+    background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+}
+
+.point-info {
+    flex: 1;
+}
+
+.point-title {
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 5px;
+}
+
+.point-address {
+    color: #718096;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.point-time {
+    color: #4299e1;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.route-info {
+    margin: 30px 0;
+}
+
+.route-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 20px;
+    background: #f7fafc;
+    border-radius: 15px;
+    border: 1px solid #e2e8f0;
+}
+
+.stat-icon {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.stat-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    color: #718096;
+    font-size: 14px;
+}
+
+.edit-button.secondary {
+    background: linear-gradient(135deg, #718096 0%, #4a5568 100%);
+}
+
+.edit-button.secondary:hover {
+    background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+}
+
+/* Estilos para Filtros de Busca */
+.search-filters {
+    margin: 20px 0;
+}
+
+.filter-group {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.filter-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.filter-btn.clear {
+    background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+}
+
+.filter-btn.clear:hover {
+    box-shadow: 0 8px 25px rgba(229, 62, 62, 0.3);
+}
+
+/* Estilos para Resultados Filtrados */
+.filtered-results {
+    margin: 30px 0;
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    border: 1px solid #e2e8f0;
+}
+
+.results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.results-header h3 {
+    color: #2d3748;
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.results-count {
+    color: #718096;
+    font-size: 14px;
+}
+
+.results-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.result-item {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 20px;
+    padding: 20px;
+    background: #f7fafc;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+.result-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.result-date,
+.result-time,
+.result-route {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #4a5568;
+}
+
+.result-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+}
+
+.result-status.completed {
+    color: #38a169;
+}
+
+.result-status.delayed {
+    color: #ed8936;
+}
+
+.result-status.cancelled {
+    color: #e53e3e;
+}
+
+/* Estilos para Modais */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 5% auto;
+    padding: 0;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-header {
+    padding: 25px 30px;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: #2d3748;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.close {
+    color: #718096;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.close:hover {
+    color: #e53e3e;
+}
+
+.modal-body {
+    padding: 30px;
+}
+
+.filter-option {
+    margin-bottom: 25px;
+}
+
+.filter-option label {
+    display: block;
+    margin-bottom: 10px;
+    color: #2d3748;
+    font-weight: 600;
+}
+
+.filter-option input[type="date"],
+.filter-option input[type="time"],
+.filter-option select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+.filter-option input:focus,
+.filter-option select:focus {
+    outline: none;
+    border-color: #4299e1;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
+.preset-buttons,
+.status-buttons,
+.trip-type-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.preset-btn {
+    background: #f7fafc;
+    border: 2px solid #e2e8f0;
+    color: #4a5568;
+    padding: 10px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.preset-btn:hover,
+.preset-btn.active {
+    background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+    color: white;
+    border-color: #3182ce;
+}
+
+.route-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.route-option {
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 15px;
+    transition: all 0.3s ease;
+}
+
+.route-option:hover {
+    border-color: #4299e1;
+    background: #f7fafc;
+}
+
+.route-option input[type="checkbox"] {
+    margin-right: 12px;
+}
+
+.route-option label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    margin: 0;
+}
+
+.route-info {
+    margin-left: auto;
+    color: #718096;
+    font-size: 12px;
+}
+
+.modal-footer {
+    padding: 20px 30px;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+}
+
+.btn-primary,
+.btn-secondary {
+    padding: 12px 25px;
+    border-radius: 25px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(66, 153, 225, 0.3);
+}
+
+.btn-secondary {
+    background: #f7fafc;
+    color: #4a5568;
+    border: 2px solid #e2e8f0;
+}
+
+.btn-secondary:hover {
+    background: #e2e8f0;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .photos-container,
+    .data-sections {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .result-item {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .route-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .filter-group,
+    .map-controls {
+        flex-direction: column;
+    }
+
+    .modal-content {
+        width: 95%;
+        margin: 10% auto;
+    }
+}
+
+/* Estilos específicos para modais de comunicação */
+.communication-modal .modal-content {
+    max-width: 500px;
+    height: 80vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 20px 20px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header.emergency {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+}
+
+.modal-header.school {
+    background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+}
+
+.modal-header.parents {
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    color: #2d3748;
+}
+
+.modal-header.coordination {
+    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+    color: #2d3748;
+}
+
+.modal-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: inherit;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.close-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: rotate(90deg);
+}
+
+.modal-body {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.chat-container {
+    flex: 1;
+    background: #f8fafc;
+    border-radius: 15px;
+    padding: 15px;
+    margin-bottom: 15px;
+    overflow-y: auto;
+    border: 2px solid #e2e8f0;
+}
+
+.message {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.message.sent {
+    flex-direction: row-reverse;
+}
+
+.message-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.message.sent .message-avatar {
+    background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+}
+
+.message-content {
+    background: white;
+    padding: 12px 16px;
+    border-radius: 18px;
+    max-width: 70%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+}
+
+.message.sent .message-content {
+    background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+    color: white;
+    border-color: #3182ce;
+}
+
+.message-text {
+    margin: 0;
+    line-height: 1.4;
+}
+
+.message-time {
+    font-size: 11px;
+    opacity: 0.7;
+    margin-top: 4px;
+}
+
+.message-input-container {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+}
+
+.message-input {
+    flex: 1;
+    border: 2px solid #e2e8f0;
+    border-radius: 25px;
+    padding: 12px 20px;
+    font-size: 14px;
+    resize: none;
+    min-height: 20px;
+    max-height: 100px;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.message-input:focus {
+    outline: none;
+    border-color: #4299e1;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
+.send-btn {
+    background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+    border: none;
+    color: white;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.send-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(66, 153, 225, 0.4);
+}
+
+.send-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.notices-container {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.notice-item {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 15px;
+    border-left: 4px solid #4299e1;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.notice-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+.notice-item.urgent {
+    border-left-color: #f56565;
+    background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+}
+
+.notice-item.info {
+    border-left-color: #4299e1;
+    background: linear-gradient(135deg, #ebf8ff 0%, #bee3f8 100%);
+}
+
+.notice-item.success {
+    border-left-color: #48bb78;
+    background: linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%);
+}
+
+.notice-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.notice-title {
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0;
+}
+
+.notice-date {
+    font-size: 12px;
+    color: #718096;
+}
+
+.notice-content {
+    color: #4a5568;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.status-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.status-indicator.online {
+    background: #48bb78;
+    box-shadow: 0 0 0 2px rgba(72, 187, 120, 0.3);
+}
+
+.status-indicator.offline {
+    background: #a0aec0;
+}
+
+.status-indicator.busy {
+    background: #f56565;
+    box-shadow: 0 0 0 2px rgba(245, 101, 101, 0.3);
+}
+
+@media (max-width: 768px) {
+    .communication-modal .modal-content {
+        width: 95%;
+        height: 90vh;
+        margin: 5% auto;
+    }
+    
+    .modal-header {
+        padding: 15px;
+    }
+    
+    .modal-title {
+        font-size: 16px;
+    }
+    
+    .message-content {
+        max-width: 85%;
+    }
+    
+    .notice-item {
+        padding: 15px;
+    }
+    
+    /* Responsividade para Container de Dados Pessoais */
+    .personal-data-container {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .info-section {
+        padding: 1.5rem;
+    }
+    
+    .photo-wrapper {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .personal-data-container {
+        gap: 1rem;
+    }
+    
+    .info-section {
+        padding: 1rem;
+    }
+    
+    .photo-wrapper {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .photo-upload-btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.7rem;
+    }
+    
+    .form-header {
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+    
+    .form-title {
+        font-size: 1.2rem;
+    }
+}
+</style>
+
+<script>
+// Função de logout
+function logout() {
+    // Confirmar logout
+    if (confirm('Tem certeza que deseja sair?')) {
+        // Limpar dados de sessão
+        localStorage.removeItem('userToken');
+        localStorage.removeItem('userData');
+        sessionStorage.clear();
+        
+        // Redirecionar para a página de login
+        window.location.href = 'login.html';
+    }
+}
+
+// Carregar nome do usuário logado
+document.addEventListener('DOMContentLoaded', function() {
+    const userData = localStorage.getItem('userData');
+    if (userData) {
+        try {
+            const user = JSON.parse(userData);
+            const userNameElement = document.getElementById('logged-user-name');
+            if (userNameElement && user.nome) {
+                userNameElement.textContent = user.nome;
+            }
+        } catch (error) {
+            console.error('Erro ao carregar dados do usuário:', error);
+        }
+    }
+});
+
+// Função para upload de fotos
+function uploadPhoto(type) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    
+    input.onchange = function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const photoElement = document.getElementById(type + '-photo');
+                if (photoElement) {
+                    photoElement.src = e.target.result;
+                }
+                
+                // Simular salvamento da foto
+                console.log(`Foto do ${type} atualizada:`, file.name);
+                
+                // Mostrar feedback visual
+                const photoWrapper = photoElement.closest('.photo-wrapper');
+                if (photoWrapper) {
+                    photoWrapper.style.transform = 'scale(1.1)';
+                    setTimeout(() => {
+                        photoWrapper.style.transform = 'scale(1)';
+                    }, 300);
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+    
+    input.click();
+}
+
+// Funções para controlar os modais de comunicação
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        
+        // Auto-focus no campo de input se existir
+        const input = modal.querySelector('.message-input');
+        if (input) {
+            setTimeout(() => input.focus(), 300);
+        }
+    }
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+}
+
+// Fechar modal ao clicar fora dele
+window.onclick = function(event) {
+    if (event.target.classList.contains('modal')) {
+        event.target.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+}
+
+// Função para enviar mensagem
+function sendMessage(modalId) {
+    const modal = document.getElementById(modalId);
+    const input = modal.querySelector('.message-input');
+    const chatContainer = modal.querySelector('.chat-container');
+    
+    if (input && input.value.trim()) {
+        const messageText = input.value.trim();
+        const currentTime = new Date().toLocaleTimeString('pt-BR', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
+        
+        // Criar elemento da mensagem
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message sent';
+        messageDiv.innerHTML = `
+            <div class="message-avatar">EU</div>
+            <div class="message-content">
+                <p class="message-text">${messageText}</p>
+                <div class="message-time">${currentTime}</div>
+            </div>
+        `;
+        
+        // Adicionar mensagem ao chat
+        chatContainer.appendChild(messageDiv);
+        
+        // Limpar input
+        input.value = '';
+        
+        // Scroll para baixo
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+        
+        // Simular resposta automática (apenas para demonstração)
+        setTimeout(() => {
+            simulateResponse(modalId, messageText);
+        }, 1000 + Math.random() * 2000);
+    }
+}
+
+// Função para simular resposta automática
+function simulateResponse(modalId, originalMessage) {
+    const modal = document.getElementById(modalId);
+    const chatContainer = modal.querySelector('.chat-container');
+    const currentTime = new Date().toLocaleTimeString('pt-BR', { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+    });
+    
+    let responseText = '';
+    let avatarText = '';
+    
+    // Respostas baseadas no tipo de modal
+    if (modalId === 'driverChatModal') {
+        avatarText = 'MT';
+        const responses = [
+            'Recebido! Estou a caminho.',
+            'Tudo bem, já estou ciente.',
+            'Ok, obrigado pela informação.',
+            'Entendido, vou verificar.',
+            'Certo, já estou resolvendo.'
+        ];
+        responseText = responses[Math.floor(Math.random() * responses.length)];
+    } else if (modalId === 'schoolChatModal') {
+        avatarText = 'ES';
+        const responses = [
+            'Obrigado pela mensagem. Vamos verificar.',
+            'Recebemos sua solicitação.',
+            'Entraremos em contato em breve.',
+            'Informação registrada com sucesso.',
+            'Agradecemos o contato.'
+        ];
+        responseText = responses[Math.floor(Math.random() * responses.length)];
+    } else if (modalId === 'parentsChatModal') {
+        avatarText = 'GP';
+        const responses = [
+            'Também estou preocupado(a) com isso.',
+            'Vamos nos organizar para resolver.',
+            'Boa ideia! Concordo plenamente.',
+            'Obrigado(a) por compartilhar.',
+            'Vamos conversar mais sobre isso.'
+        ];
+        responseText = responses[Math.floor(Math.random() * responses.length)];
+    }
+    
+    if (responseText) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message';
+        messageDiv.innerHTML = `
+            <div class="message-avatar">${avatarText}</div>
+            <div class="message-content">
+                <p class="message-text">${responseText}</p>
+                <div class="message-time">${currentTime}</div>
+            </div>
+        `;
+        
+        chatContainer.appendChild(messageDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+}
+
+// Permitir envio com Enter
+document.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter' && e.target.classList.contains('message-input')) {
+        e.preventDefault();
+        const modal = e.target.closest('.modal');
+        if (modal) {
+            sendMessage(modal.id);
+        }
+    }
+});
+
+// Auto-resize do textarea
+document.addEventListener('input', function(e) {
+    if (e.target.classList.contains('message-input')) {
+        e.target.style.height = 'auto';
+        e.target.style.height = Math.min(e.target.scrollHeight, 100) + 'px';
+    }
+});
+
+// Funções de comunicação
+function openSchoolChat() {
+    notifications.info('Abrindo chat com a escola...');
+    // Implementar lógica do chat com a escola
+    console.log('Chat com escola aberto');
+}
+
+function openParentsGroup() {
+    notifications.info('Abrindo grupo de pais...');
+    // Implementar lógica do grupo de pais
+    console.log('Grupo de pais aberto');
+}
+
+function openDriverChat() {
+    notifications.info('Abrindo chat com motorista...');
+    // Implementar lógica do chat com motorista
+    console.log('Chat com motorista aberto');
+}
+
+// Adicionar indicadores de status online/offline (simulado)
+document.addEventListener('DOMContentLoaded', function() {
+    // Simular status online para demonstração
+    const statusIndicators = document.querySelectorAll('.status-indicator');
+    statusIndicators.forEach(indicator => {
+        const statuses = ['online', 'offline', 'busy'];
+        const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
+        indicator.className = `status-indicator ${randomStatus}`;
+    });
+});
+</script>
+
+<!-- Script para forçar tema claro -->
+<script>
+    // Força o tema claro para garantir visibilidade adequada
+    document.documentElement.setAttribute('data-theme', 'light');
+    document.body.classList.remove('dark-theme');
+    document.body.classList.add('light-theme');
+</script>
+
+</body>
+</html>

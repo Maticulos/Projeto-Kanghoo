@@ -12,9 +12,10 @@ yarn-debug.log*
 yarn-error.log*
 .npm
 .yarn-integrity
+.pnpm-debug.log*
 
 # ========================================
-# LOGS
+# LOGS E TEMPORÁRIOS
 # ========================================
 logs/
 *.log
@@ -22,11 +23,26 @@ pids/
 *.pid
 *.seed
 *.pid.lock
+lib-cov/
+coverage/
+.nyc_output/
+.grunt/
+.lock-wscript/
+build/Release/
+.cache/
+.parcel-cache/
+.next/
+out/
+.nuxt/
+dist/
+.tmp/
+.temp/
 
 # ========================================
-# ARQUIVOS DE AMBIENTE
+# ARQUIVOS DE AMBIENTE E CONFIGURAÇÃO
 # ========================================
-.env
+.env*
+!.env.example
 .env.local
 .env.development.local
 .env.test.local
@@ -39,13 +55,92 @@ pids/
 .gitignore
 .gitattributes
 .github/
+.svn/
 
 # ========================================
-# DOCKER
+# DOCKER E DEPLOY
 # ========================================
 Dockerfile*
 docker-compose*.yml
 .dockerignore
+scripts/
+backups/
+monitoring/
+
+# ========================================
+# DESENVOLVIMENTO
+# ========================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ========================================
+# TESTES
+# ========================================
+test/
+tests/
+spec/
+__tests__/
+*.test.js
+*.spec.js
+.mocharc.*
+jest.config.*
+.nyc_output/
+coverage/
+test-report.json
+
+# ========================================
+# DOCUMENTAÇÃO
+# ========================================
+*.md
+!README.md
+docs/
+documentation/
+
+# ========================================
+# UPLOADS E DADOS TEMPORÁRIOS
+# ========================================
+uploads/
+temp/
+tmp/
+*.tmp
+*.bak
+*.backup
+
+# ========================================
+# CERTIFICADOS E CHAVES (SEGURANÇA)
+# ========================================
+*.pem
+*.key
+*.crt
+*.csr
+*.p12
+*.pfx
+ssl/
+certs/
+
+# ========================================
+# BANCO DE DADOS LOCAL
+# ========================================
+*.sqlite
+*.sqlite3
+*.db
+database/backups/
+
+# ========================================
+# ARQUIVOS DE SISTEMA
+# ========================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 
 # ========================================
 # DOCUMENTAÇÃO

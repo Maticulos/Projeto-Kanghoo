@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Leaflet</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        
+        #map {
+            height: 400px;
+            width: 100%;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+        }
+        
+        .status {
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <h1>Teste de Carregamento do Leaflet</h1>
+    
+    <div id="status" class="status">Carregando...</div>
+    
+    <div id="map"></div>
+    
+    <div id="debug-info">
+        <h3>Informações de Debug:</h3>
+        <ul id="debug-list"></ul>
+    </div>
+
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        function addDebugInfo(message) {
+            const debugList = document.getElementById('debug-list');
+            const li = document.createElement('li');
+            li.textContent = message;
+            debugList.appendChild(li);
+            console.log(message);
+        }
+        
+        function updateStatus(message, isError = false) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = 'status ' + (isError ? 'error' : 'success');
+        }
+        
+        // Verificar se Leaflet carregou
+        addDebugInfo('Verificando carregamento do Leaflet...');
+        
+        if (typeof L === 'undefined') {
+            updateStatus('❌ Erro: Leaflet não carregou', true);
+            addDebugInfo('Leaflet não está disponível');
+        } else {
+            updateStatus('✅ Leaflet carregado com sucesso');
+            addDebugInfo('Leaflet versão: ' + L.version);
+            
+            try {
+                // Criar o mapa
+                addDebugInfo('Criando mapa...');
+                const map = L.map('map').setView([-23.5505, -46.6333], 13);
+                
+                // Adicionar tiles
+                addDebugInfo('Adicionando tiles do OpenStreetMap...');
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(map);
+                
+                // Adicionar marcador de teste
+                addDebugInfo('Adicionando marcador de teste...');
+                const marker = L.marker([-23.5505, -46.6333]).addTo(map);
+                marker.bindPopup('<b>Teste!</b><br>Mapa funcionando.').openPopup();
+                
+                updateStatus('✅ Mapa criado e funcionando perfeitamente!');
+                addDebugInfo('Mapa inicializado com sucesso');
+                
+            } catch (error) {
+                updateStatus('❌ Erro ao criar mapa: ' + error.message, true);
+                addDebugInfo('Erro: ' + error.message);
+                console.error('Erro detalhado:', error);
+            }
+        }
+        
+        // Verificar se há erros no console
+        window.addEventListener('error', function(e) {
+            addDebugInfo('Erro JavaScript: ' + e.message);
+            console.error('Erro capturado:', e);
+        });
+        
+        // Log de carregamento da página
+        document.addEventListener('DOMContentLoaded', function() {
+            addDebugInfo('DOM carregado completamente');
+        });
+        
+        window.addEventListener('load', function() {
+            addDebugInfo('Página carregada completamente');
+        });
+    </script>
+</body>
+</html>

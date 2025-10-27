@@ -1,0 +1,289 @@
+# ========================================
+# DOCKER COMPOSE - PRODUÇÃO
+# Sistema de Transporte Escolar
+# ========================================
+# Configuração otimizada para ambiente de produção
+
+version: '3.8'
+
+services:
+  # ========================================
+  # APLICAÇÃO PRINCIPAL
+  # ========================================
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    image: transporte-escolar:latest
+    container_name: transporte-escolar-app-prod
+    ports:
+      - "${PORT:-5000}:5000"
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+      - RATE_LIMIT_WINDOW_MS=${RATE_LIMIT_WINDOW_MS}
+      - RATE_LIMIT_MAX_REQUESTS=${RATE_LIMIT_MAX_REQUESTS}
+      - LOG_LEVEL=${LOG_LEVEL}
+      - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
+      - EMAIL_HOST=${EMAIL_HOST}
+      - EMAIL_PORT=${EMAIL_PORT}
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASS=${EMAIL_PASS}
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
+      - TWILIO_PHONE_NUMBER=${TWILIO_PHONE_NUMBER}
+      - CORS_ORIGIN=${CORS_ORIGIN}
+      - SSL_ENABLED=${SSL_ENABLED}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - app_uploads:/app/uploads
+      - app_logs:/app/logs
+    networks:
+      - transporte-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ========================================
+  # BANCO DE DADOS POSTGRESQL
+  # ========================================
+  postgres:
+    image: postgres:15-alpine
+    container_name: transporte-escolar-db-prod
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
+      # Configurações de performance para produção
+      POSTGRES_SHARED_PRELOAD_LIBRARIES: "pg_stat_statements"
+      POSTGRES_MAX_CONNECTIONS: "200"
+      POSTGRES_SHARED_BUFFERS: "256MB"
+      POSTGRES_EFFECTIVE_CACHE_SIZE: "1GB"
+      POSTGRES_WORK_MEM: "4MB"
+      POSTGRES_MAINTENANCE_WORK_MEM: "64MB"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./database/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+      - postgres_backups:/backups
+    ports:
+      - "127.0.0.1:${DB_PORT:-5432}:5432"  # Bind apenas ao localhost
+    networks:
+      - transporte-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ========================================
+  # REDIS PARA CACHE E SESSÕES
+  # ========================================
+  redis:
+    image: redis:7-alpine
+    container_name: transporte-escolar-redis-prod
+    command: >
+      redis-server 
+      --appendonly yes 
+      --requirepass ${REDIS_PASSWORD}
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      --save 900 1
+      --save 300 10
+      --save 60 10000
+    volumes:
+      - redis_data:/data
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    ports:
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"  # Bind apenas ao localhost
+    networks:
+      - transporte-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  # ========================================
+  # NGINX REVERSE PROXY
+  # ========================================
+  nginx:
+    image: nginx:alpine
+    container_name: transporte-escolar-nginx-prod
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOMAIN_NAME=${DOMAIN_NAME}
+    volumes:
+      - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - nginx_logs:/var/log/nginx
+      - ./nginx/cache:/var/cache/nginx
+    depends_on:
+      - app
+    networks:
+      - transporte-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ========================================
+  # BACKUP AUTOMÁTICO
+  # ========================================
+  backup:
+    image: postgres:15-alpine
+    container_name: transporte-escolar-backup-prod
+    environment:
+      PGPASSWORD: ${DB_PASSWORD}
+      DB_HOST: postgres
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-30}
+    volumes:
+      - postgres_backups:/backups
+      - ./scripts/backup-cron.sh:/backup-cron.sh:ro
+    depends_on:
+      - postgres
+    networks:
+      - transporte-network
+    restart: unless-stopped
+    command: >
+      sh -c "
+        echo '0 2 * * * /backup-cron.sh' | crontab - &&
+        crond -f
+      "
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+# ========================================
+# VOLUMES PERSISTENTES
+# ========================================
+volumes:
+  postgres_data:
+    driver: local
+    name: transporte_postgres_data_prod
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/lib/docker/volumes/transporte_postgres_data_prod
+  
+  redis_data:
+    driver: local
+    name: transporte_redis_data_prod
+  
+  postgres_backups:
+    driver: local
+    name: transporte_postgres_backups_prod
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/backups/transporte-escolar
+  
+  app_uploads:
+    driver: local
+    name: transporte_app_uploads_prod
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/uploads/transporte-escolar
+  
+  app_logs:
+    driver: local
+    name: transporte_app_logs_prod
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/log/transporte-escolar
+  
+  nginx_logs:
+    driver: local
+    name: transporte_nginx_logs_prod
+
+# ========================================
+# REDE PERSONALIZADA
+# ========================================
+networks:
+  transporte-network:
+    driver: bridge
+    name: transporte-escolar-network-prod
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

@@ -1,5 +1,6 @@
 const { Pool } = require('pg');
 const path = require('path');
+const logger = require('../utils/logger');
 
 // Configuração do pool de conexões
 let poolConfig;
@@ -269,9 +270,9 @@ const criarTabelas = async () => {
     await pool.query(criarTabelaPontosParadaQuery);
     await pool.query(criarTabelaHistoricoTransportesQuery);
     await pool.query(criarTabelaRastreamentoQuery);
-    console.log('Tabelas verificadas/criadas com sucesso.');
+    logger.info('Tabelas verificadas/criadas com sucesso.');
   } catch (error) {
-    console.error('Erro ao criar as tabelas:', error);
+    logger.error('Erro ao criar as tabelas:', error);
   }
 };
 

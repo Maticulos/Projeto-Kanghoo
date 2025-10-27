@@ -1,0 +1,57 @@
+# Configuração do Prometheus para Sistema de Transporte Escolar
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+# Regras de alertas (opcional)
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+# Configuração de scraping
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Node Exporter (métricas do sistema)
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 30s
+
+  # Aplicação Node.js (se tiver métricas expostas)
+  - job_name: 'transporte-app'
+    static_configs:
+      - targets: ['app:5000']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  # PostgreSQL Exporter (métricas do banco)
+  - job_name: 'postgres-exporter'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+    scrape_interval: 30s
+
+  # Redis Exporter (métricas do cache)
+  - job_name: 'redis-exporter'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+    scrape_interval: 30s
+
+  # Nginx (se tiver stub_status habilitado)
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['nginx:80']
+    metrics_path: '/nginx_status'
+    scrape_interval: 30s
+
+# Configuração de alertas (Alertmanager)
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # - alertmanager:9093
+
+# Configuração de armazenamento é feita via command line args no docker-compose

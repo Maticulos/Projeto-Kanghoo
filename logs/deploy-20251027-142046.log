@@ -1,0 +1,14 @@
+[2025-10-27 14:20:46] [INFO] ========================================
+[2025-10-27 14:20:46] [INFO] INICIANDO DEPLOY PARA PRODUÇÃO
+[2025-10-27 14:20:46] [INFO] Ambiente: production
+[2025-10-27 14:20:46] [INFO] ========================================
+[2025-10-27 14:21:27] [INFO] Verificando pré-requisitos...
+[2025-10-27 14:21:27] [SUCCESS] Docker encontrado: Docker version 28.4.0, build d8eb465
+[2025-10-27 14:21:27] [SUCCESS] Docker Compose encontrado: Docker Compose version v2.39.2-desktop.1
+[2025-10-27 14:21:27] [SUCCESS] Pré-requisitos verificados com sucesso!
+[2025-10-27 14:21:28] [INFO] Executando testes...
+[2025-10-27 14:21:32] [INFO] Criando backup antes do deploy...
+[2025-10-27 14:21:33] [SUCCESS] Backup de uploads criado!
+[2025-10-27 14:21:33] [SUCCESS] Backup de logs criado!
+[2025-10-27 14:21:33] [INFO] Construindo imagem Docker para produção...
+[2025-10-27 14:22:17] [ERROR] Falha no build da imagem Docker!

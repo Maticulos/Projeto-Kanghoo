@@ -1,0 +1,83 @@
+/* Correção para visibilidade de texto em inputs */
+/* Esta correção garante que o texto digitado seja sempre visível nos formulários */
+
+/* Seletores com alta especificidade para garantir que sobrescrevam outros estilos */
+body .contact-form input,
+body .contact-form textarea,
+body .contact-form select,
+body input[type="text"],
+body input[type="email"],
+body input[type="tel"],
+body input[type="password"],
+body input[type="number"],
+body input[type="date"],
+body input[type="time"],
+body textarea,
+body select,
+.container input,
+.container textarea,
+.container select {
+    /* Garantir que o texto seja sempre visível */
+    -webkit-text-fill-color: currentColor !important;
+    color: #333 !important;
+    
+    /* Remover qualquer efeito de gradiente de texto que possa interferir */
+    -webkit-background-clip: initial !important;
+    background-clip: initial !important;
+    
+    /* Garantir que o texto seja legível */
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Garantir visibilidade em todos os estados com alta especificidade */
+body .contact-form input:focus,
+body .contact-form input:active,
+body .contact-form input:hover,
+body .contact-form textarea:focus,
+body .contact-form textarea:active,
+body .contact-form textarea:hover,
+body .contact-form select:focus,
+body .contact-form select:active,
+body .contact-form select:hover,
+body input[type="text"]:focus,
+body input[type="text"]:active,
+body input[type="text"]:hover,
+body input[type="email"]:focus,
+body input[type="email"]:active,
+body input[type="email"]:hover,
+body input[type="tel"]:focus,
+body input[type="tel"]:active,
+body input[type="tel"]:hover,
+body input[type="password"]:focus,
+body input[type="password"]:active,
+body input[type="password"]:hover,
+body input[type="number"]:focus,
+body input[type="number"]:active,
+body input[type="number"]:hover,
+body input[type="date"]:focus,
+body input[type="date"]:active,
+body input[type="date"]:hover,
+body input[type="time"]:focus,
+body input[type="time"]:active,
+body input[type="time"]:hover,
+body textarea:focus,
+body textarea:active,
+body textarea:hover,
+body select:focus,
+body select:active,
+body select:hover,
+.container input:focus,
+.container input:active,
+.container input:hover,
+.container textarea:focus,
+.container textarea:active,
+.container textarea:hover,
+.container select:focus,
+.container select:active,
+.container select:hover {
+    -webkit-text-fill-color: currentColor !important;
+    color: #333 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}

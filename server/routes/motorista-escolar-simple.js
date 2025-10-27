@@ -3,6 +3,7 @@ const db = require('../config/db');
 const { authenticateToken, requireRole } = require('../middleware/auth-utils');
 const { validateInput, sanitizeForLog } = require('../config/security-config');
 const notificationService = require('../utils/notification-service');
+const logger = require('../utils/logger');
 
 const router = new KoaRouter({ prefix: '/api/motorista-escolar' });
 
@@ -33,7 +34,7 @@ router.get('/profile', authenticateToken, requireRole('motorista_escolar'), asyn
             WHERE usuario_id = $1
         `, [motoristaId]);
 
-        console.log(JSON.stringify(sanitizeForLog({
+        logger.debug(JSON.stringify(sanitizeForLog({
             acao: 'buscar_profile',
             motorista_id: motoristaId
         })));
@@ -44,7 +45,7 @@ router.get('/profile', authenticateToken, requireRole('motorista_escolar'), asyn
             veiculo: veiculo.rows[0] || null
         };
     } catch (error) {
-        console.error('Erro ao buscar perfil:', error);
+        logger.error('Erro ao buscar perfil:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -76,7 +77,7 @@ router.get('/criancas', authenticateToken, requireRole('motorista_escolar'), asy
             ORDER BY c.nome_completo
         `, [motoristaId]);
 
-        console.log(JSON.stringify(sanitizeForLog({
+        logger.debug(JSON.stringify(sanitizeForLog({
             acao: 'listar_criancas',
             motorista_id: motoristaId,
             total_criancas: criancas.rows.length
@@ -87,7 +88,7 @@ router.get('/criancas', authenticateToken, requireRole('motorista_escolar'), asy
             criancas: criancas.rows
         };
     } catch (error) {
-        console.error('Erro ao listar crianças:', error);
+        logger.error('Erro ao listar crianças:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -117,7 +118,7 @@ router.post('/criancas', authenticateToken, requireRole('motorista_escolar'), as
                 ctx.status = 400;
                 ctx.body = {
                     sucesso: false,
-                    mensagem: validacao.error
+                    mensagem: validacao.error || 'Erro de validação'
                 };
                 return;
             }
@@ -147,7 +148,7 @@ router.post('/criancas', authenticateToken, requireRole('motorista_escolar'), as
             RETURNING id, nome_completo
         `, [nome_completo, data_nascimento, endereco_residencial, escola, endereco_escola, responsavel_email, motoristaId]);
 
-        console.log(JSON.stringify(sanitizeForLog({
+        logger.info(JSON.stringify(sanitizeForLog({
             acao: 'adicionar_crianca',
             motorista_id: motoristaId,
             crianca_id: resultado.rows[0].id,
@@ -161,7 +162,7 @@ router.post('/criancas', authenticateToken, requireRole('motorista_escolar'), as
             crianca: resultado.rows[0]
         };
     } catch (error) {
-        console.error('Erro ao adicionar criança:', error);
+        logger.error('Erro ao adicionar criança:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -195,7 +196,7 @@ router.get('/rotas', authenticateToken, requireRole('motorista_escolar'), async 
             rotas: rotas.rows
         };
     } catch (error) {
-        console.error('Erro ao listar rotas:', error);
+        logger.error('Erro ao listar rotas:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -221,7 +222,7 @@ router.post('/rotas', authenticateToken, requireRole('motorista_escolar'), async
                 ctx.status = 400;
                 ctx.body = {
                     sucesso: false,
-                    mensagem: validacao.error
+                    mensagem: validacao.error || 'Erro de validação'
                 };
                 return;
             }
@@ -249,7 +250,7 @@ router.post('/rotas', authenticateToken, requireRole('motorista_escolar'), async
             RETURNING id, nome, descricao
         `, [nome, descricao, motoristaId]);
 
-        console.log(JSON.stringify(sanitizeForLog({
+        logger.info(JSON.stringify(sanitizeForLog({
             acao: 'criar_rota',
             motorista_id: motoristaId,
             rota_id: resultado.rows[0].id,
@@ -263,7 +264,7 @@ router.post('/rotas', authenticateToken, requireRole('motorista_escolar'), async
             rota: resultado.rows[0]
         };
     } catch (error) {
-        console.error('Erro ao criar rota:', error);
+        logger.error('Erro ao criar rota:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -314,7 +315,7 @@ router.get('/viagem-atual/criancas', authenticateToken, requireRole('motorista_e
             }
         ];
         
-        console.log(`[${new Date().toISOString()}] Lista de crianças da viagem consultada por usuário ${ctx.user.id}`);
+        logger.info(`Lista de crianças da viagem consultada por usuário ${ctx.user.id}`);
         
         ctx.body = {
             sucesso: true,
@@ -322,7 +323,7 @@ router.get('/viagem-atual/criancas', authenticateToken, requireRole('motorista_e
             dados: criancasViagem
         };
     } catch (error) {
-        console.error('Erro ao listar crianças da viagem:', error);
+        logger.error('Erro ao listar crianças da viagem:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -381,8 +382,8 @@ router.post('/checkin/:crianca_id', authenticateToken, requireRole('motorista_es
             { latitude, longitude }
         );
 
-        console.log(`[CHECK-IN] Criança ${crianca.nome} embarcou às ${checkin.timestamp.toLocaleString('pt-BR')}`);
-        console.log(`[NOTIFICAÇÃO] Resultados:`, resultadosNotificacao);
+        logger.info(`[CHECK-IN] Criança ${crianca.nome} embarcou às ${checkin.timestamp.toLocaleString('pt-BR')}`);
+        logger.debug(`[NOTIFICAÇÃO] Resultados:`, resultadosNotificacao);
 
         ctx.body = {
             sucesso: true,
@@ -395,7 +396,7 @@ router.post('/checkin/:crianca_id', authenticateToken, requireRole('motorista_es
         };
 
     } catch (error) {
-        console.error('[ERRO] Check-in:', error);
+        logger.error('[ERRO] Check-in:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -454,8 +455,8 @@ router.post('/checkout/:crianca_id', authenticateToken, requireRole('motorista_e
             { latitude, longitude }
         );
 
-        console.log(`[CHECK-OUT] Criança ${crianca.nome} desembarcou às ${checkout.timestamp.toLocaleString('pt-BR')}`);
-        console.log(`[NOTIFICAÇÃO] Resultados:`, resultadosNotificacao);
+        logger.info(`[CHECK-OUT] Criança ${crianca.nome} desembarcou às ${checkout.timestamp.toLocaleString('pt-BR')}`);
+        logger.debug(`[NOTIFICAÇÃO] Resultados:`, resultadosNotificacao);
 
         ctx.body = {
             sucesso: true,
@@ -468,7 +469,7 @@ router.post('/checkout/:crianca_id', authenticateToken, requireRole('motorista_e
         };
 
     } catch (error) {
-        console.error('[ERRO] Check-out:', error);
+        logger.error('[ERRO] Check-out:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -525,7 +526,7 @@ router.get('/relatorios/rastreamento', authenticateToken, requireRole('motorista
             ]
         };
         
-        console.log(`[${new Date().toISOString()}] Relatório de rastreamento consultado - Período: ${periodo}, Usuário: ${ctx.user.id}`);
+        logger.debug(`[${new Date().toISOString()}] Relatório de rastreamento consultado - Período: ${periodo}, Usuário: ${ctx.user.id}`);
         
         ctx.body = {
             sucesso: true,
@@ -533,7 +534,7 @@ router.get('/relatorios/rastreamento', authenticateToken, requireRole('motorista
             dados: dadosRastreamento
         };
     } catch (error) {
-        console.error('Erro ao obter dados de rastreamento:', error);
+        logger.error('Erro ao obter dados de rastreamento:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -565,7 +566,7 @@ router.get('/relatorios/financeiro', authenticateToken, requireRole('motorista_e
             }
         };
         
-        console.log(`[${new Date().toISOString()}] Relatório financeiro consultado - Período: ${periodo}, Usuário: ${ctx.user.id}`);
+        logger.debug(`[${new Date().toISOString()}] Relatório financeiro consultado - Período: ${periodo}, Usuário: ${ctx.user.id}`);
         
         ctx.body = {
             sucesso: true,
@@ -573,7 +574,7 @@ router.get('/relatorios/financeiro', authenticateToken, requireRole('motorista_e
             dados: relatorioFinanceiro
         };
     } catch (error) {
-        console.error('Erro ao obter relatório financeiro:', error);
+        logger.error('Erro ao obter relatório financeiro:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -656,7 +657,7 @@ router.get('/rotas', authenticateToken, requireRole('motorista_escolar'), async 
             children: rota.stops.reduce((total, stop) => total + stop.children.length, 0)
         }));
 
-        console.log(`[${new Date().toISOString()}] Rotas listadas - Motorista: ${motoristaId}, Total: ${rotasComEstatisticas.length}`);
+        logger.info(`Rotas listadas - Motorista: ${motoristaId}, Total: ${rotasComEstatisticas.length}`);
 
         ctx.body = {
             sucesso: true,
@@ -664,7 +665,7 @@ router.get('/rotas', authenticateToken, requireRole('motorista_escolar'), async 
             dados: rotasComEstatisticas
         };
     } catch (error) {
-        console.error('Erro ao listar rotas:', error);
+        logger.error('Erro ao listar rotas:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -742,7 +743,7 @@ router.post('/rotas', authenticateToken, requireRole('motorista_escolar'), async
 
         rotasTransporte.push(novaRota);
 
-        console.log(`[${new Date().toISOString()}] Nova rota criada - ID: ${novaRota.id}, Motorista: ${motoristaId}, Nome: ${novaRota.name}`);
+        logger.info(`[${new Date().toISOString()}] Nova rota criada - ID: ${novaRota.id}, Motorista: ${motoristaId}, Nome: ${novaRota.name}`);
 
         ctx.status = 201;
         ctx.body = {
@@ -751,7 +752,7 @@ router.post('/rotas', authenticateToken, requireRole('motorista_escolar'), async
             dados: novaRota
         };
     } catch (error) {
-        console.error('Erro ao criar rota:', error);
+        logger.error('Erro ao criar rota:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -827,7 +828,7 @@ router.put('/rotas/:id', authenticateToken, requireRole('motorista_escolar'), as
 
         rotasTransporte[rotaIndex] = rotaAtualizada;
 
-        console.log(`[${new Date().toISOString()}] Rota atualizada - ID: ${rotaId}, Motorista: ${motoristaId}`);
+        logger.info(`[${new Date().toISOString()}] Rota atualizada - ID: ${rotaId}, Motorista: ${motoristaId}`);
 
         ctx.body = {
             sucesso: true,
@@ -835,7 +836,7 @@ router.put('/rotas/:id', authenticateToken, requireRole('motorista_escolar'), as
             dados: rotaAtualizada
         };
     } catch (error) {
-        console.error('Erro ao atualizar rota:', error);
+        logger.error('Erro ao atualizar rota:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -869,7 +870,7 @@ router.post('/rotas/:id/iniciar', authenticateToken, requireRole('motorista_esco
         rotasTransporte[rotaIndex].active = true;
         rotasTransporte[rotaIndex].started_at = new Date();
 
-        console.log(`[${new Date().toISOString()}] Rota iniciada - ID: ${rotaId}, Motorista: ${motoristaId}, Rastreamento ativo`);
+        logger.info(`[${new Date().toISOString()}] Rota iniciada - ID: ${rotaId}, Motorista: ${motoristaId}, Rastreamento ativo`);
 
         ctx.body = {
             sucesso: true,
@@ -881,7 +882,7 @@ router.post('/rotas/:id/iniciar', authenticateToken, requireRole('motorista_esco
             }
         };
     } catch (error) {
-        console.error('Erro ao iniciar rota:', error);
+        logger.error('Erro ao iniciar rota:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -913,7 +914,7 @@ router.post('/rotas/:id/finalizar', authenticateToken, requireRole('motorista_es
         rotasTransporte[rotaIndex].tracking = false;
         rotasTransporte[rotaIndex].finished_at = new Date();
 
-        console.log(`[${new Date().toISOString()}] Rota finalizada - ID: ${rotaId}, Motorista: ${motoristaId}`);
+        logger.info(`[${new Date().toISOString()}] Rota finalizada - ID: ${rotaId}, Motorista: ${motoristaId}`);
 
         ctx.body = {
             sucesso: true,
@@ -924,7 +925,7 @@ router.post('/rotas/:id/finalizar', authenticateToken, requireRole('motorista_es
             }
         };
     } catch (error) {
-        console.error('Erro ao finalizar rota:', error);
+        logger.error('Erro ao finalizar rota:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -964,14 +965,14 @@ router.delete('/rotas/:id', authenticateToken, requireRole('motorista_escolar'),
 
         rotasTransporte.splice(rotaIndex, 1);
 
-        console.log(`[${new Date().toISOString()}] Rota deletada - ID: ${rotaId}, Motorista: ${motoristaId}`);
+        logger.info(`[${new Date().toISOString()}] Rota deletada - ID: ${rotaId}, Motorista: ${motoristaId}`);
 
         ctx.body = {
             sucesso: true,
             mensagem: 'Rota deletada com sucesso'
         };
     } catch (error) {
-        console.error('Erro ao deletar rota:', error);
+        logger.error('Erro ao deletar rota:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,

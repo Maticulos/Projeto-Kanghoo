@@ -1,0 +1,37 @@
+{
+  "total": 6,
+  "passed": 6,
+  "failed": 0,
+  "tests": [
+    {
+      "nome": "Query de perfil sem atualizado_em",
+      "sucesso": true,
+      "detalhes": "Usuário encontrado: Maria Silva"
+    },
+    {
+      "nome": "Query de rotas sem view vw_rotas_completas",
+      "sucesso": true,
+      "detalhes": "2 rotas encontradas"
+    },
+    {
+      "nome": "Busca rota específica por ID",
+      "sucesso": true,
+      "detalhes": "Rota encontrada: Rota Vila Madalena - Escola Monteiro Lobato"
+    },
+    {
+      "nome": "Verificar ausência de coluna atualizado_em",
+      "sucesso": true,
+      "detalhes": "Coluna atualizado_em não existe (correto)"
+    },
+    {
+      "nome": "Query direta na tabela rotas_escolares funciona",
+      "sucesso": true,
+      "detalhes": "2 rotas ativas encontradas sem usar view"
+    },
+    {
+      "nome": "Query planos_assinatura com atualizado_em",
+      "sucesso": true,
+      "detalhes": "2 assinaturas ativas encontradas"
+    }
+  ]
+}

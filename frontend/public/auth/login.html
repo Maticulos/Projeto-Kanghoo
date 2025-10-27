@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Kanghoo</title>
+    
+    <!-- Preconnect para recursos externos -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Fontes otimizadas -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/bundle.min.css">
+    <!-- Sistema de Mock para APIs - Carregado antes de outros scripts -->
+    <script src="../assets/js/api/mock-api.js"></script>
+    <!-- Sistema de Cache Otimizado -->
+    <script src="../assets/js/core/cache-manager.js"></script>
+    <!-- Utilitários de UI -->
+    <script src="../assets/js/core/ui-utils.js"></script>
+</head>
+<body class="form-page">
+<!-- HEADER COM A ANIMAÇÃO CORRIGIDA -->
+<header class="header">
+    <div class="container">
+        <!-- O link principal volta para o index.html na pasta public -->
+        <a href="../index.html" class="logo-link" aria-label="Kanghoo - Página inicial">
+            <img src="../assets/images/logo.png" alt="Ícone Kanghoo" class="logo-icon">
+            <span class="logo-text-full">Kanghoo</span>
+        </a>
+        
+        <nav class="nav" aria-label="Navegação principal">
+            <a href="../planos.html" class="nav-link">Planos</a>
+            <a href="../index.html#contact" class="nav-link">Fale Conosco</a>
+            <a href="#" class="nav-link" id="open-transport-modal">Encontrar Transporte</a>
+            <a href="../sobre.html" class="nav-link">Sobre Nós</a>
+        </nav>
+        
+        <div class="auth-buttons">
+            <!-- Estando na pasta auth, o link para login é direto -->
+            <a href="login.html" class="btn btn-blue">Login</a>
+            <button class="btn btn-primary" id="btn-cadastro-modal" aria-haspopup="dialog">Cadastro</button>
+        </div>
+    </div>
+</header>
+
+    <!-- Modal de Cadastro -->
+    <div id="cadastroModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal-content">
+            <button class="close-modal-btn" id="close-modal" aria-label="Fechar modal">&times;</button>
+            <h3 id="modal-title">Qual tipo de cadastro?</h3>
+            <p>Escolha a opção que melhor descreve seu serviço para começar.</p>
+            <div class="modal-options">
+                <a href="../cadastro-escolar.html" class="btn btn-primary">Transporte Escolar</a>
+                <a href="../cadastro-excursao.html" class="btn btn-blue">Excursão e Fretamento</a>
+            </div>
+            <div class="modal-footer">
+                <p>Não tem certeza? <a href="../index.html#contact">Fale conosco</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Transporte -->
+    <div id="transportModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="transport-modal-title">
+        <div class="modal-content">
+            <button class="close-modal-btn" id="close-transport-modal" aria-label="Fechar modal">&times;</button>
+            <h3 id="transport-modal-title">Que tipo de transporte precisa?</h3>
+            <p>Selecione a opção que melhor atende sua necessidade.</p>
+            <div class="modal-options">
+                <a href="../encontrar-transporte.html" class="btn btn-primary" onclick="setTransportType('escolar')">Transporte Escolar</a>
+                <a href="../encontrar-transporte.html" class="btn btn-blue" onclick="setTransportType('excursao')">Excursões e Fretamento</a>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Conteúdo Principal -->
+    <main class="form-container login-container">
+        <div class="login-logo-container">
+            <a href="../index.html" class="logo-link" aria-label="Kanghoo - Página inicial">
+            <img src="../assets/images/logo.png" alt="Ícone Kanghoo" class="logo-icon">
+            <span class="logo-text-full">Kanghoo</span>
+             </a>
+        </div>
+        <h1>Acessar sua Conta</h1>
+        <p class="subtitulo">Que bom te ver por aqui!</p>
+        
+        <form id="login-form" action="#" method="POST">
+            <div class="campo-grupo">
+                <div>
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" name="email" placeholder="seuemail@exemplo.com" required>
+                </div>
+            </div>
+            <div class="campo-grupo">
+                <div>
+                    <label for="senha">Senha</label>
+                    <input type="password" id="senha" name="senha" placeholder="Sua senha" required>
+                </div>
+            </div>
+            <div class="opcoes-form">
+                <a href="#" id="esqueci-senha">Esqueceu sua senha?</a>
+            </div>
+            <div class="botoes-acao">
+                <button type="submit" class="btn btn-primary">Entrar</button>
+            </div>
+            <hr>
+            <div class="link-externo">
+                <p>Ainda não tem uma conta? <a href="#" id="btn-cadastro-modal-link">Cadastre-se</a></p>
+            </div>
+        </form>
+    </main>
+ <!-- RODAPÉ -->
+<footer class="footer">
+    <div class="container">
+        <!-- Grade principal do footer com a marca e os links -->
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <a href="../index.html" class="logo">Kanghoo</a>
+                <p class="footer-tagline">Soluções de viagem sem esforço.</p>
+                <!-- Ícones de redes sociais podem ficar aqui para maior destaque -->
+                <div class="footer-social-media">
+                    <a href="#" aria-label="Facebook"><img src="../assets/images/face.png" alt="Facebook"></a>
+                    <a href="#" aria-label="Instagram"><img src="../assets/images/insta.png" alt="Instagram"></a>
+                    <a href="#" aria-label="LinkedIn"><img src="../assets/images/linkedin.png" alt="LinkedIn"></a>
+                </div>
+            </div>
+
+            <div class="footer-links-group">
+                <h4>Transporte</h4>
+                <ul>
+                    <li><a href="../encontrar-transporte.html" onclick="setTransportType('escolar')">Transporte Escolar</a></li>
+                    <li><a href="#">Rotas</a></li>
+                    <li><a href="#">Monitoramento</a></li>
+                    <li><a href="#pricing">Preços</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links-group">
+                <h4>Excursões</h4>
+                <ul>
+                    <li><a href="../cadastro-excursao.html">Excursões</a></li>
+                    <li><a href="#">Viagens</a></li>
+                    <li><a href="#">Reserva</a></li>
+                    <li><a href="#">Eventos</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links-group">
+                <h4>Empresa</h4>
+                <ul>
+                    <li><a href="../sobre.html">Sobre Nós</a></li>
+                    <li><a href="#contact">Contato</a></li>
+                    <li><a href="#">Termos de Uso</a></li>
+                    <li><a href="#">Privacidade</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Linha inferior com o copyright -->
+        <div class="footer-bottom">
+            <p>&copy; 2025 Kanghoo. Todos os direitos reservados.</p>
+        </div>
+    </div>
+</footer>
+    
+<script src="../assets/js/core/app.js"></script>
+<script src="../assets/js/core/ui-utils.js"></script>
+    <script>
+        // Debug para verificar se os modais estão funcionando
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM carregado - verificando modais');
+            
+            const cadastroModal = document.getElementById('cadastroModal');
+            const closeBtn = document.getElementById('close-modal');
+            const openBtn = document.getElementById('btn-cadastro-modal-link');
+            
+            console.log('Modal encontrado:', !!cadastroModal);
+            console.log('Botão fechar encontrado:', !!closeBtn);
+            console.log('Botão abrir encontrado:', !!openBtn);
+            
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function() {
+                    console.log('Botão fechar clicado');
+                    if (cadastroModal) {
+                        cadastroModal.classList.add('hidden');
+                        document.body.classList.remove('modal-open');
+                        console.log('Modal fechado');
+                    }
+                });
+            }
+            
+            if (openBtn) {
+                openBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('Botão abrir clicado');
+                    if (cadastroModal) {
+                        cadastroModal.classList.remove('hidden');
+                        document.body.classList.add('modal-open');
+                        console.log('Modal aberto');
+                    }
+                });
+            }
+            
+            // Fechar modal clicando fora
+            if (cadastroModal) {
+                cadastroModal.addEventListener('click', function(e) {
+                    if (e.target === cadastroModal) {
+                        console.log('Clicou fora do modal');
+                        cadastroModal.classList.add('hidden');
+                        document.body.classList.remove('modal-open');
+                        console.log('Modal fechado');
+                    }
+                });
+            }
+        });
+        
+        // Função para verificar se o usuário já está autenticado
+        async function checkExistingAuth() {
+            const token = localStorage.getItem('authToken');
+            
+            if (!token) {
+                return false; // Não há token, usuário não está logado
+            }
+
+            try {
+                const response = await fetch('http://localhost:3000/api/validate-token', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    if (data.valid && data.user) {
+                        // Token válido, redirecionar para a área correspondente
+                        const redirectUrl = getRedirectUrlByUserType(data.user.tipo);
+                        
+                        console.log(`Usuário já autenticado (${data.user.tipo}), redirecionando para: ${redirectUrl}`);
+                        
+                        // Mostrar mensagem de redirecionamento
+                        showSuccess(`Bem-vindo de volta, ${data.user.nome}! Redirecionando...`, 1500);
+                        
+                        setTimeout(() => {
+                            window.location.href = redirectUrl;
+                        }, 1000);
+                        
+                        return true; // Usuário está autenticado
+                    }
+                }
+            } catch (error) {
+                console.log('Token inválido ou expirado, removendo do localStorage');
+                localStorage.removeItem('authToken');
+            }
+            
+            return false; // Token inválido ou erro
+        }
+
+        // Função para determinar URL de redirecionamento baseado no tipo de usuário
+        function getRedirectUrlByUserType(userType) {
+            switch (userType) {
+                case 'motorista_escolar':
+                    return 'area-motorista-escolar.html';
+                case 'motorista_excursao':
+                    return 'area-motorista-excursao.html';
+                case 'responsavel':
+                    return 'area-responsavel.html';
+                default:
+                    return 'dashboard.html';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Verificar se o usuário já está autenticado antes de mostrar o formulário
+            const isAuthenticated = await checkExistingAuth();
+            
+            if (isAuthenticated) {
+                // Se já está autenticado, não precisa configurar o formulário de login
+                return;
+            }
+
+            const loginForm = document.getElementById('login-form');
+
+            if(loginForm) {
+                loginForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+
+                    const email = document.getElementById('email').value;
+                    const senha = document.getElementById('senha').value;
+                    const submitButton = loginForm.querySelector('button[type="submit"]');
+
+                    // Mostrar loading no botão
+                    const buttonLoader = showButtonLoading(submitButton, 'Entrando...');
+                    
+                    try {
+                        // Conectar com o backend real na porta 3000
+                        const response = await fetch('http://localhost:3000/login', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email: email, senha: senha })
+                        });
+
+                        const data = await response.json();
+
+                        if (!response.ok) {
+                            throw new Error(data.message || 'Credenciais inválidas');
+                        }
+                        
+                        localStorage.setItem('authToken', data.token);
+                        
+                        // Mostrar sucesso
+                        showSuccess(`Login realizado com sucesso! Bem-vindo, ${data.user.nome}!`, 2000);
+
+                        // Redirecionar baseado no tipo de usuário
+                        const redirectUrl = getRedirectUrlByUserType(data.user.tipo);
+                        
+                        // Aguardar um pouco para mostrar a notificação antes de redirecionar
+                        setTimeout(() => {
+                            window.location.href = redirectUrl;
+                        }, 1500);
+
+                    } catch (error) {
+                        // Parar loading e mostrar erro
+                        buttonLoader.stop();
+                        showError(`Falha no login: ${error.message}`);
+                    }
+                });
+            }
+        });
+        
+        function setTransportType(type) {
+            localStorage.setItem('transportType', type);
+        }
+    </script>
+    
+    <!-- Script para forçar tema claro -->
+    <script>
+        // Força o tema claro para garantir visibilidade adequada
+        document.documentElement.setAttribute('data-theme', 'light');
+        document.body.classList.remove('dark-theme');
+        document.body.classList.add('light-theme');
+    </script>
+</body>
+</html>

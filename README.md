@@ -1,11 +1,59 @@
-# 🚌 Sistema Kanghoo - Transporte Escolar
+# 🚌 Sistema de Transporte Escolar
 
-[![Status](https://img.shields.io/badge/Status-Operacional-green)](https://github.com)
-[![Testes](https://img.shields.io/badge/Testes-77%25-yellow)](https://github.com)
-[![Node.js](https://img.shields.io/badge/Node.js-18+-green)](https://nodejs.org)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-13+-blue)](https://postgresql.org)
+Sistema completo de transporte escolar com rastreamento em tempo real, desenvolvido com Node.js, Koa.js e PostgreSQL.
 
-Sistema completo para gestão de transporte escolar e excursões, desenvolvido com tecnologias modernas e foco em segurança, performance e usabilidade.
+## 🚀 Início Rápido
+
+### 📋 Pré-requisitos
+- Node.js >= 16.0.0
+- PostgreSQL >= 12.0
+- npm ou yarn
+
+### 🔧 Instalação
+```bash
+cd server
+npm install
+cp .env.example .env
+# Configure suas variáveis de ambiente no .env
+```
+
+### 🧪 Testes e Debug
+```bash
+# Suite completa de testes
+node test-suite.js
+
+# Ferramentas de debug (modo interativo)
+node debug-tools.js
+
+# Verificação rápida do sistema
+node debug-tools.js check
+```
+
+### 🏃‍♂️ Executar
+```bash
+npm start
+```
+
+## 📚 Documentação Completa
+Consulte: [`DOCUMENTACAO_SISTEMA_COMPLETA.md`](./DOCUMENTACAO_SISTEMA_COMPLETA.md)
+
+## 🛠️ Scripts Centralizados
+
+### 🧪 `test-suite.js`
+Script centralizado que executa todos os testes do sistema:
+- Testes de conexão com banco
+- Verificação de tabelas
+- Testes de funcionalidade
+- Testes de performance
+- Testes de segurança
+
+### 🔍 `debug-tools.js`
+Ferramentas centralizadas de debug e diagnóstico:
+- Verificação de conexão
+- Análise de tabelas
+- Criação de dados de teste
+- Limpeza de dados
+- Otimização do banco
 
 ## 📋 Índice
 
@@ -39,24 +87,66 @@ O Sistema de Transporte Escolar é uma plataforma web que facilita a comunicaç�
 
 ### Para Motoristas
 - 📝 Cadastro completo com dados pessoais e do veículo
-- 🗺️ Criação e gerenciamento de rotas
-- 📍 Sistema de rastreamento GPS
-- 👥 Gestão de lista de crianças
-- 📊 Relatórios de viagens
+- 🗺️ **Criação e gerenciamento avançado de rotas escolares**
+  - Interface completa para criar novas rotas
+  - Gestão de capacidade por plano de assinatura
+  - Validação automática de limites de rotas
+  - Visualização de rotas existentes com filtros
+- 📍 Sistema de rastreamento GPS em tempo real
+- 👥 **Gestão completa de crianças nas rotas**
+  - Adicionar/remover crianças das rotas
+  - Controle de capacidade do veículo
+  - Pontos de embarque e desembarque personalizados
+- 📊 Relatórios detalhados de viagens
+- 🔔 **Sistema de notificações em tempo real**
+- 💼 **Gerenciamento de interesses recebidos**
 
 ### Para Responsáveis
-- 👶 Cadastro de crianças
-- 🔍 Busca por motoristas disponíveis
-- 📱 Rastreamento em tempo real
-- 💬 Comunicação direta com motoristas
-- 📈 Histórico de transportes
+- 👶 Cadastro completo de crianças
+- 🔍 **Busca avançada por transportes escolares**
+  - Filtros por localização, horários e características
+  - Visualização de rotas disponíveis em tempo real
+- 📱 **Rastreamento ao vivo da rota da criança**
+  - Mapa interativo com posição atual do transporte
+  - Visualização completa da rota escolar
+  - Pontos de embarque e desembarque detalhados
+- 💬 **Comunicação integrada**
+  - Chat direto com motorista
+  - Grupo de pais da rota
+  - Contato com a escola
+- 📈 Histórico completo de transportes
+- 🔔 **Notificações em tempo real**
+  - Status de embarque/desembarque
+  - Atualizações da rota
+  - Comunicações importantes
 
 ### Funcionalidades Gerais
-- 🔐 Sistema de autenticação seguro
-- 📱 Interface responsiva
-- 🌙 Modo escuro/claro
-- 🔔 Sistema de notificações
-- 📧 Formulário de contato
+- 🔐 **Sistema de autenticação e autorização robusto**
+  - JWT tokens com refresh automático
+  - Controle de acesso baseado em roles
+  - Validação de segurança em tempo real
+- 📱 **Interface responsiva e moderna**
+  - Design adaptativo para todos os dispositivos
+  - Componentes interativos e intuitivos
+  - Experiência de usuário otimizada
+- 🌙 **Modo escuro/claro personalizado**
+- 🔔 **Sistema completo de notificações**
+  - WebSocket para notificações em tempo real
+  - Preferências personalizáveis de notificação
+  - Histórico de notificações
+- 📧 **Formulário de contato integrado**
+- 🗺️ **Integração com mapas interativos**
+  - Visualização de rotas em tempo real
+  - Rastreamento GPS preciso
+  - Pontos de interesse personalizados
+- 💳 **Sistema de planos e assinaturas**
+  - Diferentes níveis de acesso
+  - Controle de limites por plano
+  - Upgrade automático de funcionalidades
+- 🔍 **Busca avançada e filtros inteligentes**
+  - Múltiplos critérios de busca
+  - Resultados em tempo real
+  - Geolocalização integrada
 
 ## 🛠️ Tecnologias Utilizadas
 
@@ -321,6 +411,54 @@ const viagensResponse = await fetch('/api/rastreamento/viagens', {
 - Configure CORS adequadamente
 - Use variáveis de ambiente para secrets
 - Implemente logging de segurança
+
+## 🔧 Debug e Resolução de Problemas
+
+### 🐛 Problemas Conhecidos e Soluções
+
+#### Formulário de Contato - Texto Invisível nos Inputs
+**Problema**: Texto digitado não aparece nos campos do formulário  
+**Causa**: Propriedade CSS `-webkit-text-fill-color: transparent`  
+**Solução**: Arquivo `frontend/css/input-fix.css` aplicado automaticamente  
+**Documentação**: Ver `frontend/DEBUG_FORMULARIO_INPUTS.md`
+
+### 🛠️ Ferramentas de Debug
+
+#### Debug Tools Interativo
+```bash
+node debug-tools.js
+```
+- Verificação de conexão com banco
+- Análise de tabelas e dados
+- Criação/limpeza de dados de teste
+- Otimização do banco
+
+#### Suite de Testes
+```bash
+node test-suite.js
+```
+- Testes de conectividade
+- Validação de funcionalidades
+- Testes de performance
+- Verificação de segurança
+
+### 📋 Checklist de Troubleshooting
+
+1. **Problemas de Conexão**
+   - Verificar variáveis de ambiente (.env)
+   - Testar conexão com banco: `node debug-tools.js check`
+   - Verificar logs do servidor
+
+2. **Problemas de Interface**
+   - Verificar console do navegador
+   - Testar em modo incógnito
+   - Limpar cache do navegador
+   - Verificar arquivos CSS/JS carregados
+
+3. **Problemas de Autenticação**
+   - Verificar tokens JWT
+   - Testar com usuários de teste
+   - Verificar configurações de CORS
 
 ## 🤝 Contribuição
 

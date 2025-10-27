@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contato - Kanghoo</title>
+    <meta name="description" content="Entre em contato conosco. Suporte técnico, vendas, parcerias e mais. Estamos aqui para ajudar você.">
+    <meta property="og:title" content="Contato - Kanghoo">
+    <meta property="og:description" content="Entre em contato conosco. Suporte técnico, vendas, parcerias e mais. Estamos aqui para ajudar você.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://kanghoo.example/contato.html">
+    <meta property="og:image" content="assets/images/logo.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Contato - Kanghoo">
+    <meta name="twitter:description" content="Entre em contato conosco. Suporte técnico, vendas, parcerias e mais.">
+    <link rel="canonical" href="https://kanghoo.example/contato.html">
+    
+    <!-- Favicons e ícones -->
+    <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/images/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="assets/images/icon-512.png">
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Meta tags de segurança -->
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    
+    <!-- Preconnect para recursos externos -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Preload de recursos críticos -->
+    <link rel="preload" href="assets/css/bundle.min.css" as="style">
+    <link rel="preload" href="assets/js/core/app.js" as="script">
+    
+    <!-- Fontes otimizadas -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/bundle.min.css">
+
+    
+    <!-- Dados estruturados JSON-LD -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "ContactPage",
+        "name": "Contato - Kanghoo",
+        "description": "Entre em contato conosco. Suporte técnico, vendas, parcerias e mais.",
+        "url": "https://kanghoo.example/contato.html",
+        "mainEntity": {
+            "@type": "Organization",
+            "name": "Kanghoo",
+            "contactPoint": {
+                "@type": "ContactPoint",
+                "contactType": "customer service",
+                "availableLanguage": "Portuguese",
+                "email": "contato@kanghoo.com.br",
+                "telephone": "(11) 9999-9999"
+            }
+        }
+    }
+    </script>
+</head>
+<body>
+<!-- Skip links para acessibilidade -->
+<a href="#main-content" class="skip-link">Pular para o conteúdo principal</a>
+<a href="#main-nav" class="skip-link">Pular para a navegação</a>
+
+<header id="header" class="header" role="banner">
+    <div class="container">
+        <a href="index.html" class="logo-link" aria-label="Kanghoo - Página inicial">
+            <img src="assets/images/logo.png" alt="Ícone Kanghoo" class="logo-icon">
+            <span class="logo-text-full">Kanghoo</span>
+        </a>
+        <nav id="main-nav" class="nav" role="navigation" aria-label="Navegação principal">
+            <a href="planos.html" class="nav-link">Planos</a>
+            <a href="contato.html" class="nav-link active">Fale Conosco</a>
+            <a href="encontrar-transporte.html" class="nav-link">Encontrar Transporte</a>
+            <a href="sobre.html" class="nav-link">Sobre Nós</a>
+        </nav>
+        <div class="auth-buttons">
+            <a href="../auth/login.html" class="btn btn-blue">Login</a>
+            <button class="btn btn-primary" id="btn-cadastro-modal" aria-haspopup="dialog">Cadastro</button>
+        </div>
+    </div>
+</header>
+
+<div class="scroll-progress-bar-container">
+    <div class="scroll-progress-bar"></div>
+</div>
+
+<div class="scroll-nav">
+    <a href="#head" class="nav-btn">
+        <button class="btn-arrow" aria-label="Ir para o topo">&#9650;</button>
+    </a>
+    <a href="#fim" class="nav-btn">
+        <button class="btn-arrow" aria-label="Ir para o final">&#9660;</button>
+    </a>
+</div>
+
+<div id="cadastroModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-content">
+        <button class="close-modal-btn" id="close-modal" aria-label="Fechar modal">&times;</button>
+        <h3 id="modal-title">Qual tipo de cadastro?</h3>
+        <p>Escolha a opção que melhor descreve seu serviço para começar.</p>
+        <div class="modal-options">
+            <a href="cadastro-escolar.html" class="btn btn-primary">Transporte Escolar</a>
+            <a href="cadastro-excursao.html" class="btn btn-blue">Excursão e Fretamento</a>
+        </div>
+        <div class="modal-footer">
+            <p>Não tem certeza? <a href="contato.html">Fale conosco</a></p>
+        </div>
+    </div>
+</div>
+
+<main id="main-content" role="main">
+    <section class="hero-section contact-hero">
+        <div class="container">
+            <h1 class="hero-title">Entre em Contato</h1>
+            <p class="hero-subtitle">Estamos aqui para ajudar você. Escolha a melhor forma de entrar em contato conosco.</p>
+        </div>
+    </section>
+
+    <section class="contact-methods-section animated-section">
+        <div class="container">
+            <h2 class="section-title">Como Podemos Ajudar?</h2>
+            <div class="contact-methods-grid">
+                <div class="contact-method">
+                    <div class="contact-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <h3>Suporte Técnico</h3>
+                    <p>Problemas com a plataforma? Nossa equipe técnica está pronta para ajudar.</p>
+                    <div class="contact-info">
+                        <p><strong>Horário:</strong> Segunda a Sexta, 8h às 18h</p>
+                        <p><strong>Tempo de resposta:</strong> Até 2 horas</p>
+                    </div>
+                </div>
+
+                <div class="contact-method">
+                    <div class="contact-icon">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <h3>Vendas e Parcerias</h3>
+                    <p>Interessado em nossos serviços ou quer se tornar um parceiro?</p>
+                    <div class="contact-info">
+                        <p><strong>Horário:</strong> Segunda a Sexta, 9h às 17h</p>
+                        <p><strong>Tempo de resposta:</strong> Até 4 horas</p>
+                    </div>
+                </div>
+
+                <div class="contact-method">
+                    <div class="contact-icon">
+                        <i class="fas fa-question-circle"></i>
+                    </div>
+                    <h3>Dúvidas Gerais</h3>
+                    <p>Tem alguma dúvida sobre como funciona nossa plataforma?</p>
+                    <div class="contact-info">
+                        <p><strong>Horário:</strong> Segunda a Sexta, 8h às 18h</p>
+                        <p><strong>Tempo de resposta:</strong> Até 6 horas</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="contact-form-section animated-section">
+        <div class="container">
+            <div class="section-header text-center">
+                <h2>Envie sua Mensagem</h2>
+                <p>Preencha o formulário abaixo e entraremos em contato o mais breve possível.</p>
+            </div>
+            
+            <div class="contact-form-wrapper">
+                <div class="contact-form-info">
+                    <div class="info-card">
+                        <div class="info-header">
+                            <i class="fas fa-comments"></i>
+                            <h3>Vamos Conversar</h3>
+                        </div>
+                        <p>Nossa equipe está pronta para ajudar você com qualquer dúvida ou necessidade.</p>
+                        
+                        <div class="contact-stats">
+                            <div class="stat-item">
+                                <div class="stat-number">24h</div>
+                                <div class="stat-label">Tempo de resposta</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">98%</div>
+                                <div class="stat-label">Satisfação</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-channels">
+                        <h4>Outros Canais de Contato</h4>
+                        <div class="channel">
+                            <div class="channel-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="channel-info">
+                                <span class="channel-label">E-mail</span>
+                                <span class="channel-value">contato@kanghoo.com.br</span>
+                            </div>
+                        </div>
+                        <div class="channel">
+                            <div class="channel-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div class="channel-info">
+                                <span class="channel-label">Telefone</span>
+                                <span class="channel-value">(11) 9999-9999</span>
+                            </div>
+                        </div>
+                        <div class="channel">
+                            <div class="channel-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="channel-info">
+                                <span class="channel-label">Horário</span>
+                                <span class="channel-value">Segunda a Sexta, 8h às 18h</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-form-container">
+                    <form action="/api/contact" method="post" class="contact-form" id="contact-form" novalidate>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="nome">Nome Completo</label>
+                                <div class="input-wrapper">
+                                    <i class="fas fa-user"></i>
+                                    <input type="text" id="nome" name="nome" placeholder="Digite seu nome completo" required aria-label="Nome completo" aria-describedby="nome-error">
+                                </div>
+                                <div id="nome-error" class="error-message" aria-live="polite"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="email">E-mail</label>
+                                <div class="input-wrapper">
+                                    <i class="fas fa-envelope"></i>
+                                    <input type="email" id="email" name="email" placeholder="seu@email.com" required aria-label="E-mail" aria-describedby="email-error">
+                                </div>
+                                <div id="email-error" class="error-message" aria-live="polite"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="telefone">Telefone</label>
+                                <div class="input-wrapper">
+                                    <i class="fas fa-phone"></i>
+                                    <input type="tel" id="telefone" name="telefone" placeholder="(11) 99999-9999" aria-label="Telefone" aria-describedby="telefone-error">
+                                </div>
+                                <div id="telefone-error" class="error-message" aria-live="polite"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="assunto">Assunto</label>
+                                <div class="input-wrapper">
+                                    <i class="fas fa-tag"></i>
+                                    <select id="assunto" name="assunto" aria-label="Tipo de consulta" aria-describedby="assunto-error">
+                                        <option value="">Selecione o assunto</option>
+                                        <option value="suporte">Suporte Técnico</option>
+                                        <option value="vendas">Informações de Vendas</option>
+                                        <option value="parceria">Proposta de Parceria</option>
+                                        <option value="seguranca">Segurança e Privacidade</option>
+                                        <option value="duvidas">Dúvidas Gerais</option>
+                                        <option value="outro">Outro</option>
+                                    </select>
+                                </div>
+                                <div id="assunto-error" class="error-message" aria-live="polite"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="mensagem">Mensagem</label>
+                            <div class="input-wrapper">
+                                <i class="fas fa-comment-alt"></i>
+                                <textarea id="mensagem" name="mensagem" placeholder="Descreva sua dúvida ou necessidade..." required aria-label="Sua mensagem" aria-describedby="mensagem-error"></textarea>
+                            </div>
+                            <div id="mensagem-error" class="error-message" aria-live="polite"></div>
+                        </div>
+                        
+                        <input type="text" name="website" aria-hidden="true" hidden>
+                        <button type="submit" class="btn btn-primary btn-submit">
+                            <i class="fas fa-paper-plane"></i>
+                            Enviar Mensagem
+                            <span class="loading-spinner" aria-hidden="true"></span>
+                        </button>
+                        <div id="contact-feedback" aria-live="polite"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="faq-section animated-section">
+        <div class="container">
+            <h2 class="section-title">Perguntas Frequentes</h2>
+            <div class="faq-grid">
+                <div class="faq-item">
+                    <h3>Como funciona a plataforma Kanghoo?</h3>
+                    <p>A Kanghoo conecta responsáveis que precisam de transporte escolar ou excursões com prestadores de serviço qualificados em sua região.</p>
+                </div>
+                <div class="faq-item">
+                    <h3>É seguro usar a plataforma?</h3>
+                    <p>Sim! Todos os prestadores passam por verificação de documentos e avaliações de outros usuários.</p>
+                </div>
+                <div class="faq-item">
+                    <h3>Como posso me cadastrar como prestador?</h3>
+                    <p>Clique em "Cadastro" no menu principal e escolha o tipo de serviço que você oferece.</p>
+                </div>
+                <div class="faq-item">
+                    <h3>Qual o custo para usar a plataforma?</h3>
+                    <p>Para responsáveis, o uso é gratuito. Para prestadores, temos planos acessíveis. Veja nossa página de planos.</p>
+                </div>
+                <div class="faq-item">
+                    <h3>Como funciona o sistema de avaliações?</h3>
+                    <p>Após cada viagem, responsáveis e prestadores podem avaliar uns aos outros, criando um sistema de confiança mútua na plataforma.</p>
+                </div>
+                <div class="faq-item">
+                    <h3>Posso cancelar um serviço agendado?</h3>
+                    <p>Sim, você pode cancelar com até 24 horas de antecedência sem custos. Cancelamentos de última hora podem ter taxas aplicadas.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer id="fim" class="footer" role="contentinfo">
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <a href="index.html" class="logo">Kanghoo</a>
+                <p class="footer-tagline">Soluções de viagem sem esforço.</p>
+                <div class="footer-social-media">
+                    <a href="#" aria-label="Facebook"><img src="assets/images/face.png" alt="Facebook" loading="lazy" decoding="async"></a>
+                <a href="#" aria-label="Instagram"><img src="assets/images/insta.png" alt="Instagram" loading="lazy" decoding="async"></a>
+                <a href="#" aria-label="LinkedIn"><img src="assets/images/linkedin.png" alt="LinkedIn" loading="lazy" decoding="async"></a>
+                </div>
+            </div>
+            <div class="footer-links-group">
+                <h4>Transporte</h4>
+                <ul>
+                    <li><a href="encontrar-transporte.html" onclick="setTransportType('escolar')">Transporte Escolar</a></li>
+                    <li><a href="#">Rotas</a></li>
+                    <li><a href="#">Monitoramento</a></li>
+                    <li><a href="planos.html">Preços</a></li>
+                </ul>
+            </div>
+            <div class="footer-links-group">
+                <h4>Excursões</h4>
+                <ul>
+                    <li><a href="encontrar-transporte.html" onclick="setTransportType('excursao')">Excursões</a></li>
+                    <li><a href="#">Viagens</a></li>
+                    <li><a href="#">Reserva</a></li>
+                    <li><a href="#">Eventos</a></li>
+                </ul>
+            </div>
+            <div class="footer-links-group">
+                <h4>Empresa</h4>
+                <ul>
+                    <li><a href="sobre.html">Sobre Nós</a></li>
+                    <li><a href="index.html#contact">Contato</a></li>
+                    <li><a href="#">Termos de Uso</a></li>
+                    <li><a href="#">Privacidade</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Kanghoo. Todos os direitos reservados.</p>
+        </div>
+    </div>
+</footer>
+
+<!-- Scripts -->
+<script>
+    // Força o tema claro para resolver problema de visibilidade
+    document.documentElement.removeAttribute('data-theme');
+    document.body.removeAttribute('data-theme');
+</script>
+<script src="assets/js/bundle.min.js"></script>
+<script src="assets/js/animations/animacoes-index.js"></script>
+<script>
+    function setTransportType(type) {
+        localStorage.setItem('transportType', type);
+    }
+    
+    // Inicializar sistema de notificações em tempo real
+    document.addEventListener('DOMContentLoaded', function() {
+        const token = localStorage.getItem('authToken');
+        if (token) {
+            try {
+                // Inicializar cliente de notificações
+                const rastreamentoAPI = new RastreamentoAPI();
+                rastreamentoAPI.inicializarRealtimeClient();
+                
+                console.log('✅ Sistema de notificações inicializado');
+            } catch (error) {
+                console.error('❌ Erro ao inicializar notificações:', error);
+            }
+        }
+    });
+</script>
+</body>
+</html>

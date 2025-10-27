@@ -1,0 +1,300 @@
+{
+  "timestamp": "2025-10-26T16:19:29.114Z",
+  "totalTests": 33,
+  "passedTests": 14,
+  "failedTests": 19,
+  "pages": [
+    {
+      "url": "/",
+      "name": "Página inicial",
+      "type": "public",
+      "success": true,
+      "status": 200,
+      "responseTime": 184,
+      "timestamp": "2025-10-26T16:19:29.485Z",
+      "validation": {
+        "valid": true,
+        "checks": {
+          "hasTitle": true,
+          "hasCharset": true,
+          "hasViewport": true,
+          "hasBody": true,
+          "hasHead": true,
+          "scriptsCount": 5,
+          "stylesCount": 2
+        },
+        "issues": []
+      }
+    },
+    {
+      "url": "/login.html",
+      "name": "Página de login",
+      "type": "public",
+      "success": false,
+      "status": 404,
+      "responseTime": 17,
+      "timestamp": "2025-10-26T16:19:30.129Z"
+    },
+    {
+      "url": "/register.html",
+      "name": "Página de registro",
+      "type": "public",
+      "success": false,
+      "status": 404,
+      "responseTime": 7,
+      "timestamp": "2025-10-26T16:19:30.137Z"
+    },
+    {
+      "url": "/maps.html",
+      "name": "Interface Google Maps",
+      "type": "public",
+      "success": false,
+      "status": 404,
+      "responseTime": 8,
+      "timestamp": "2025-10-26T16:19:30.147Z"
+    },
+    {
+      "url": "/auth/area-motorista-escolar.html",
+      "name": "Área do motorista escolar",
+      "type": "auth",
+      "success": true,
+      "status": 200,
+      "responseTime": 13,
+      "timestamp": "2025-10-26T16:19:30.162Z",
+      "validation": {
+        "valid": true,
+        "checks": {
+          "hasTitle": true,
+          "hasCharset": true,
+          "hasViewport": true,
+          "hasBody": true,
+          "hasHead": true,
+          "scriptsCount": 4,
+          "stylesCount": 2
+        },
+        "issues": []
+      }
+    },
+    {
+      "url": "/auth/area-motorista-excursao.html",
+      "name": "Área do motorista de excursão",
+      "type": "auth",
+      "success": true,
+      "status": 200,
+      "responseTime": 15,
+      "timestamp": "2025-10-26T16:19:30.675Z",
+      "validation": {
+        "valid": true,
+        "checks": {
+          "hasTitle": true,
+          "hasCharset": true,
+          "hasViewport": true,
+          "hasBody": true,
+          "hasHead": true,
+          "scriptsCount": 7,
+          "stylesCount": 2
+        },
+        "issues": []
+      }
+    },
+    {
+      "url": "/auth/area-responsavel.html",
+      "name": "Área do responsável",
+      "type": "auth",
+      "success": true,
+      "status": 200,
+      "responseTime": 14,
+      "timestamp": "2025-10-26T16:19:30.801Z",
+      "validation": {
+        "valid": true,
+        "checks": {
+          "hasTitle": true,
+          "hasCharset": true,
+          "hasViewport": true,
+          "hasBody": true,
+          "hasHead": true,
+          "scriptsCount": 7,
+          "stylesCount": 3
+        },
+        "issues": []
+      }
+    },
+    {
+      "url": "/auth/dashboard.html",
+      "name": "Dashboard principal",
+      "type": "auth",
+      "success": true,
+      "status": 200,
+      "responseTime": 6,
+      "timestamp": "2025-10-26T16:19:30.997Z",
+      "validation": {
+        "valid": true,
+        "checks": {
+          "hasTitle": true,
+          "hasCharset": true,
+          "hasViewport": true,
+          "hasBody": true,
+          "hasHead": true,
+          "scriptsCount": 2,
+          "stylesCount": 1
+        },
+        "issues": []
+      }
+    },
+    {
+      "url": "/auth/profile.html",
+      "name": "Perfil do usuário",
+      "type": "auth",
+      "success": false,
+      "status": 404,
+      "responseTime": 8,
+      "timestamp": "2025-10-26T16:19:31.022Z"
+    },
+    {
+      "url": "/auth/rotas-escolares.html",
+      "name": "Gestão de rotas escolares",
+      "type": "auth",
+      "success": false,
+      "status": 404,
+      "responseTime": 5,
+      "timestamp": "2025-10-26T16:19:31.031Z"
+    },
+    {
+      "url": "/auth/cadastro-criancas.html",
+      "name": "Cadastro de crianças",
+      "type": "auth",
+      "success": false,
+      "status": 404,
+      "responseTime": 5,
+      "timestamp": "2025-10-26T16:19:31.043Z"
+    },
+    {
+      "url": "/auth/conferencia-criancas.html",
+      "name": "Conferência de crianças",
+      "type": "auth",
+      "success": true,
+      "status": 200,
+      "responseTime": 10,
+      "timestamp": "2025-10-26T16:19:31.055Z",
+      "validation": {
+        "valid": true,
+        "checks": {
+          "hasTitle": true,
+          "hasCharset": true,
+          "hasViewport": true,
+          "hasBody": true,
+          "hasHead": true,
+          "scriptsCount": 2,
+          "stylesCount": 2
+        },
+        "issues": []
+      }
+    },
+    {
+      "url": "/auth/rastreamento.html",
+      "name": "Rastreamento GPS",
+      "type": "auth",
+      "success": false,
+      "status": 404,
+      "responseTime": 11,
+      "timestamp": "2025-10-26T16:19:31.094Z"
+    },
+    {
+      "url": "/auth/notificacoes.html",
+      "name": "Configurações de notificações",
+      "type": "auth",
+      "success": false,
+      "status": 404,
+      "responseTime": 5,
+      "timestamp": "2025-10-26T16:19:31.101Z"
+    }
+  ],
+  "resources": [
+    {
+      "url": "/css/style.css",
+      "success": false,
+      "status": 404,
+      "responseTime": 5,
+      "contentType": "text/plain; charset=utf-8",
+      "timestamp": "2025-10-26T16:19:31.109Z"
+    },
+    {
+      "url": "/css/auth.css",
+      "success": false,
+      "status": 404,
+      "responseTime": 4,
+      "contentType": "text/plain; charset=utf-8",
+      "timestamp": "2025-10-26T16:19:31.114Z"
+    },
+    {
+      "url": "/css/dashboard.css",
+      "success": false,
+      "status": 404,
+      "responseTime": 14,
+      "contentType": "text/plain; charset=utf-8",
+      "timestamp": "2025-10-26T16:19:31.129Z"
+    },
+    {
+      "url": "/js/main.js",
+      "success": false,
+      "status": 404,
+      "responseTime": 4,
+      "contentType": "text/plain; charset=utf-8",
+      "timestamp": "2025-10-26T16:19:31.133Z"
+    },
+    {
+      "url": "/js/auth.js",
+      "success": false,
+      "status": 404,
+      "responseTime": 4,
+      "contentType": "text/plain; charset=utf-8",
+      "timestamp": "2025-10-26T16:19:31.140Z"
+    },
+    {
+      "url": "/js/dashboard.js",
+      "success": false,
+      "status": 404,
+      "responseTime": 6,
+      "contentType": "text/plain; charset=utf-8",
+      "timestamp": "2025-10-26T16:19:31.150Z"
+    },
+    {
+      "url": "/js/maps.js",
+      "success": false,
+      "status": 404,
+      "responseTime": 19,
+      "contentType": "text/plain; charset=utf-8",
+      "timestamp": "2025-10-26T16:19:31.170Z"
+    },
+    {
+      "url": "/js/gps-tracking.js",
+      "success": false,
+      "status": 404,
+      "responseTime": 7,
+      "contentType": "text/plain; charset=utf-8",
+      "timestamp": "2025-10-26T16:19:31.178Z"
+    },
+    {
+      "url": "/images/logo.png",
+      "success": false,
+      "status": 404,
+      "responseTime": 4,
+      "contentType": "text/plain; charset=utf-8",
+      "timestamp": "2025-10-26T16:19:31.183Z"
+    },
+    {
+      "url": "/favicon.ico",
+      "success": false,
+      "status": 404,
+      "responseTime": 10,
+      "contentType": "text/plain; charset=utf-8",
+      "timestamp": "2025-10-26T16:19:31.201Z"
+    }
+  ],
+  "performance": {
+    "averageResponseTime": 8.2,
+    "minResponseTime": 7,
+    "maxResponseTime": 9,
+    "testCount": 5
+  }
+}

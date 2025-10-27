@@ -1,0 +1,367 @@
+/**
+ * ESTILOS PARA PREFERÊNCIAS DE NOTIFICAÇÃO
+ * 
+ * Estilos para o modal e formulário de configuração
+ * de preferências de notificação dos usuários.
+ */
+
+/* Modal de Preferências */
+.preferences-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+}
+
+.preferences-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.preferences-content {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    animation: slideUp 0.3s ease-out;
+}
+
+/* Cabeçalho do Modal */
+.preferences-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.preferences-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.close-preferences {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+    padding: 5px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.close-preferences:hover {
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+/* Formulário de Preferências */
+.preferences-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.preference-section {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    border-left: 4px solid #007bff;
+}
+
+.notification-section-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 15px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.preference-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.preference-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.preference-item:last-child {
+    border-bottom: none;
+}
+
+.preference-label {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.preference-name {
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.preference-description {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.4;
+}
+
+/* Toggle Switch */
+.preference-toggle {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+
+.preference-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.3s;
+    border-radius: 24px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+input:checked + .toggle-slider {
+    background-color: #007bff;
+}
+
+input:checked + .toggle-slider:before {
+    transform: translateX(26px);
+}
+
+/* Canais de Notificação */
+.notification-channels {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.channel-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.channel-option:hover {
+    border-color: #007bff;
+    background-color: #f8f9ff;
+}
+
+.channel-option.selected {
+    border-color: #007bff;
+    background-color: #e7f3ff;
+}
+
+.channel-checkbox {
+    margin: 0;
+}
+
+.channel-label {
+    font-weight: 500;
+    color: #333;
+    cursor: pointer;
+}
+
+.channel-icon {
+    font-size: 18px;
+}
+
+/* Botões de Ação */
+.preferences-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #e9ecef;
+}
+
+.btn-preferences {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+
+.btn-cancel {
+    background: #f8f9fa;
+    color: #666;
+    border: 1px solid #dee2e6;
+}
+
+.btn-cancel:hover {
+    background: #e9ecef;
+    color: #333;
+}
+
+.btn-save {
+    background: #007bff;
+    color: white;
+}
+
+.btn-save:hover {
+    background: #0056b3;
+}
+
+.btn-save:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+/* Estados de Loading */
+.preferences-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: #666;
+}
+
+.loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 10px;
+}
+
+/* Animações */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .preferences-content {
+        width: 95%;
+        padding: 20px;
+        margin: 10px;
+    }
+    
+    .preferences-title {
+        font-size: 20px;
+    }
+    
+    .preference-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .preference-toggle {
+        align-self: flex-end;
+    }
+    
+    .preferences-actions {
+        flex-direction: column;
+    }
+    
+    .btn-preferences {
+        width: 100%;
+    }
+}
+
+/* Estados de Sucesso e Erro */
+.preferences-message {
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
+.preferences-message.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.preferences-message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.preferences-message.warning {
+    background-color: #fffbeb;
+    color: #d69e2e;
+    border-left: 4px solid #d69e2e;
+}
