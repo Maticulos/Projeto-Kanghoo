@@ -56,16 +56,16 @@ class TrackingIntegration {
                     r.nome_rota,
                     array_agg(
                         json_build_object(
-                            'id', c.id,
-                            'nome', c.nome_completo,
-                            'responsavel_id', c.responsavel_id,
+                            'id', criancas.id,
+                            'nome', criancas.nome_completo,
+                            'responsavel', criancas.nome_responsavel,
                             'embarcada', COALESCE(cv.status = 'embarcada', false)
                         )
                     ) as criancas
                 FROM viagens v
                 JOIN rotas r ON v.rota_id = r.id
                 LEFT JOIN criancas_viagens cv ON v.id = cv.viagem_id
-                LEFT JOIN criancas c ON cv.crianca_id = c.id
+                LEFT JOIN criancas ON cv.crianca_id = criancas.id
                 WHERE v.status IN ('iniciada', 'em_andamento')
                 AND v.data_viagem = CURRENT_DATE
                 GROUP BY v.id, r.nome_rota
@@ -226,7 +226,7 @@ class TrackingIntegration {
             if (criancasEmbarcadas.length === 0) return;
 
             // Buscar responsáveis
-            const responsaveisIds = criancasEmbarcadas.map(c => c.responsavel_id);
+            const responsaveis = criancasEmbarcadas.map(c => c.responsavel);
             
             // Criar notificação de localização
             const notification = EventTypes.createNotification(
@@ -241,7 +241,7 @@ class TrackingIntegration {
                     criancas_embarcadas: criancasEmbarcadas.length
                 },
                 EventTypes.PRIORITY_LEVELS.LOW,
-                responsaveisIds
+                responsaveis
             );
 
             // Enviar notificação
@@ -290,7 +290,7 @@ class TrackingIntegration {
         this.alertasAtivos.set(alertaKey, Date.now());
 
         // Buscar responsáveis de todas as crianças da viagem
-        const responsaveisIds = viagem.criancas.map(c => c.responsavel_id);
+        const responsaveis = viagem.criancas.map(c => c.responsavel);
 
         const notification = EventTypes.createNotification(
             EventTypes.EVENT_TYPES.ALERTA_VELOCIDADE,
@@ -304,7 +304,7 @@ class TrackingIntegration {
                 timestamp: localizacao.timestamp
             },
             EventTypes.PRIORITY_LEVELS.HIGH,
-            responsaveisIds
+            responsaveis
         );
 
         await this.notificationHub.sendNotification(notification);
@@ -330,7 +330,7 @@ class TrackingIntegration {
             if (!this.alertasAtivos.has(alertaKey)) {
                 this.alertasAtivos.set(alertaKey, Date.now());
 
-                const responsaveisIds = viagem.criancas.map(c => c.responsavel_id);
+                const responsaveis = viagem.criancas.map(c => c.responsavel);
 
                 const notification = EventTypes.createNotification(
                     EventTypes.EVENT_TYPES.PARADA_PROLONGADA,
@@ -343,7 +343,7 @@ class TrackingIntegration {
                         timestamp: localizacao.timestamp
                     },
                     EventTypes.PRIORITY_LEVELS.MEDIUM,
-                    responsaveisIds
+                    responsaveis
                 );
 
                 await this.notificationHub.sendNotification(notification);
@@ -359,7 +359,7 @@ class TrackingIntegration {
     async buscarResponsavel(criancaId) {
         try {
             const resultado = await db.query(
-                'SELECT responsavel_id FROM criancas WHERE id = $1',
+                'SELECT nome_responsavel FROM criancas WHERE id = $1',
                 [criancaId]
             );
             
