@@ -1,4 +1,4 @@
-# 🚌 Sistema Kanghoo - Transporte Escolar
+# 🚌 Sistema Kanghoo - Transporte Escolar e Excursões
 
 [![Status](https://img.shields.io/badge/Status-Operacional-green)](https://github.com)
 [![Testes](https://img.shields.io/badge/Testes-77%25-yellow)](https://github.com)
