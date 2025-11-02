@@ -4,7 +4,7 @@
  * Este módulo centraliza todas as constantes utilizadas
  * em toda a aplicação, facilitando manutenção e consistência.
  * 
- * @author Sistema de Transporte Escolar
+ * @author Kanghoo Sistema de Transporte escolar e excursões
  * @version 1.0.0
  */
 
@@ -14,7 +14,9 @@
 const USER_TYPES = {
     RESPONSAVEL: 'responsavel',
     MOTORISTA_ESCOLAR: 'motorista_escolar',
-    MOTORISTA_EXCURSAO: 'motorista_excursao'
+    MOTORISTA_EXCURSAO: 'motorista_excursao',
+    MOTORISTA_ESCOLAR_EXCURSAO: 'motorista_escolar_excursao',
+    ADMINISTRADOR: 'admin'
 };
 
 /**
@@ -42,6 +44,7 @@ const PAGINATION = {
 const TRANSPORT_TYPES = {
     ESCOLAR: 'escolar',
     EXCURSAO: 'excursao',
+    ESCOLAR_EXCURSAO: 'escolar_excursao',
     TODOS: 'todos'
 };
 

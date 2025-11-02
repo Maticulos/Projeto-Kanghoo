@@ -10,11 +10,11 @@ param(
 )
 
 # Configurações
-$DB_NAME = "transporte_escolar_prod"
+$DB_NAME = "kanghoo_db_prod"
 $DB_USER = "transporte_user"
 $DB_HOST = "localhost"
 $DB_PORT = "5432"
-$BACKUP_DIR = "C:\backup\transporte_escolar"
+$BACKUP_DIR = "C:\backup\kanghoo_db_prod"
 $LOG_FILE = "$BACKUP_DIR\backup.log"
 
 # Criar diretórios se não existirem

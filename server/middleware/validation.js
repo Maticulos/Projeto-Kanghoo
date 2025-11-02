@@ -4,7 +4,7 @@
  * Este módulo centraliza todas as validações da aplicação,
  * fornecendo funções reutilizáveis e consistentes.
  * 
- * @author Sistema de Transporte Escolar
+ * @author Kanghoo Sistema de Transporte Escolar e Excursões
  * @version 1.0.0
  */
 
@@ -111,7 +111,7 @@ const schemas = {
         cpf: { required: true, validator: validators.isCPF },
         telefone: { required: true, validator: validators.isPhone },
         senha: { required: true, validator: validators.isStrongPassword },
-        tipo_usuario: { required: true, enum: ['responsavel', 'motorista_escolar', 'motorista_excursao'] }
+        tipo_usuario: { required: true, enum: ['responsavel', 'motorista_escolar', 'motorista_excursao' , 'motorista_escolar_excursao'] }
     },
 
     /**

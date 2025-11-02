@@ -13,9 +13,9 @@ if (-not $pgPath) {
 }
 
 # Configurações
-$DB_NAME = "transporte_escolar_prod"
+$DB_NAME = "kanghoo_db_prod"
 $DB_USER = "transporte_user"
-$BACKUP_DIR = "C:\backup\transporte_escolar"
+$BACKUP_DIR = "C:\backup\kanghoo_db_prod"
 
 Write-Host "Configurações:" -ForegroundColor Cyan
 Write-Host "  - Banco: $DB_NAME" -ForegroundColor White

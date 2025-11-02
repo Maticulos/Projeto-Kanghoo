@@ -4,7 +4,7 @@
  * Centraliza todas as configurações relacionadas ao upload de arquivos,
  * incluindo caminhos, limites, tipos permitidos e políticas de segurança.
  * 
- * @author Sistema de Transporte Escolar
+ * @author Kanghoo Sistema de Transporte Escolar e Excursão 
  * @version 2.0.0
  */
 

@@ -6,7 +6,7 @@ const { Pool } = require('pg');
 const pool = new Pool({
     host: process.env.DB_HOST || 'localhost',
     port: parseInt(process.env.DB_PORT) || 5432,
-    database: 'postgres', // Conecta ao banco postgres para ter privilégios de superusuário
+    database: 'kanghoo_db_prod', // Conecta ao banco postgres para ter privilégios de superusuário
     user: 'postgres',     // Usa o usuário postgres
     password: 'postgres'  // Senha padrão do postgres
 });
@@ -14,12 +14,12 @@ const pool = new Pool({
 async function configurarBancoDados() {
     try {
         // Primeiro, criar o banco de dados se não existir
-        const checkDbQuery = "SELECT 1 FROM pg_database WHERE datname = 'transporte_escolar_prod'";
+        const checkDbQuery = "SELECT 1 FROM pg_database WHERE datname = 'kanghoo_db_prod'";
         const dbExists = await pool.query(checkDbQuery);
         
         if (dbExists.rows.length === 0) {
-            console.log('Criando banco de dados transporte_escolar_prod...');
-            await pool.query('CREATE DATABASE transporte_escolar_prod');
+            console.log('Criando banco de dados kanghoo_db_prod...');
+            await pool.query('CREATE DATABASE kanghoo_db_prod');
         }
 
         // Configurar o usuário
@@ -29,10 +29,10 @@ async function configurarBancoDados() {
             BEGIN
                 -- Criar usuário se não existir
                 IF NOT EXISTS (SELECT FROM pg_user WHERE usename = 'transporte_user') THEN
-                    CREATE USER transporte_user WITH PASSWORD 'SENHA_FORTE_AQUI';
+                    CREATE USER transporte_user WITH PASSWORD 'postgres';
                 ELSE
                     -- Se o usuário já existe, atualiza a senha
-                    ALTER USER transporte_user WITH PASSWORD 'SENHA_FORTE_AQUI';
+                    ALTER USER transporte_user WITH PASSWORD 'postgres';
                 END IF;
             END
             $$;
@@ -42,7 +42,7 @@ async function configurarBancoDados() {
         const dbPool = new Pool({
             host: process.env.DB_HOST || 'localhost',
             port: parseInt(process.env.DB_PORT) || 5432,
-            database: 'transporte_escolar_prod',
+            database: 'kanghoo_db_prod',
             user: 'postgres',
             password: 'postgres'
         });
@@ -50,7 +50,7 @@ async function configurarBancoDados() {
         // Conceder permissões
         console.log('Concedendo permissões...');
         await dbPool.query(`
-            GRANT CONNECT ON DATABASE transporte_escolar_prod TO transporte_user;
+            GRANT CONNECT ON DATABASE kanghoo_db_prod TO transporte_user;
             GRANT USAGE ON SCHEMA public TO transporte_user;
             GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO transporte_user;
             GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO transporte_user;

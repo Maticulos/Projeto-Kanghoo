@@ -46,6 +46,8 @@ Cria 5 usuários para teste geral:
 | Responsável | `responsavel@teste.com` | `teste123` | Responsável por crianças |
 | Motorista Escolar | `motorista.escolar@teste.com` | `teste123` | Transporte escolar |
 | Motorista Excursão | `motorista.excursao@teste.com` | `teste123` | Turismo e excursões |
+| Motorista Escolar e Excursão Basic | `motorista.basic@teste.com` | `teste123` | Transporte escolar e excursões Basic |
+| Motorista Escolar e Excursão Premium | `motorista.premium@teste.com` | `teste123` | Transporte escolar e excursões Premium |
 | Admin | `admin@teste.com` | `admin123` | Administrador do sistema |
 
 ### Modo Completo (`complete`)

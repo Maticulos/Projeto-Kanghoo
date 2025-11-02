@@ -153,7 +153,7 @@ const optionalAuth = async (ctx, next) => {
  */
 const verificarResponsavel = async (ctx, next) => {
     try {
-        if (!ctx.user || ctx.user.tipo !== 'responsavel') {
+        if (!ctx.user || ctx.user.tipo !== 'responsavel' && ctx.user.tipo !== 'admin') {
             ctx.status = 403;
             ctx.body = { 
                 success: false, 
@@ -177,7 +177,7 @@ const verificarResponsavel = async (ctx, next) => {
  */
 const verificarMotorista = async (ctx, next) => {
     try {
-        if (!ctx.user || (ctx.user.tipo !== 'motorista_escolar' && ctx.user.tipo !== 'motorista_excursao')) {
+        if (!ctx.user || (ctx.user.tipo !== 'motorista_escolar' && ctx.user.tipo !== 'motorista_excursao' && ctx.user.tipo !== 'motorista_escolar_excursao')) {
             ctx.status = 403;
             ctx.body = { 
                 success: false, 
@@ -201,7 +201,7 @@ const verificarMotorista = async (ctx, next) => {
  */
 const verificarMotoristaExcursao = async (ctx, next) => {
     try {
-        if (!ctx.user || ctx.user.tipo !== 'motorista_excursao') {
+        if (!ctx.user || ctx.user.tipo !== 'motorista_excursao' && ctx.user.tipo !== 'motorista_escolar_excursao') {
             ctx.status = 403;
             ctx.body = { 
                 success: false, 

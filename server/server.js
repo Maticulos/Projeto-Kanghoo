@@ -58,7 +58,7 @@ const { errorHandler } = require('./utils/api-response'); // Middleware de trata
 
 const app = new Koa();                         // Instância principal do Koa
 const router = new KoaRouter();                // Roteador principal
-const PORT = process.env.PORT || 5000;         // Porta do servidor (padrão: 5000)
+const PORT = process.env.PORT || 3000;         // Porta do servidor (padrão: 3000)
 
 // Configuração do JWT Secret com fallback seguro
 const JWT_SECRET = process.env.JWT_SECRET || (() => {
@@ -739,7 +739,7 @@ router.post('/api/validate-token', async (ctx) => {
             ip: ctx.ip,
             timestamp: new Date().toISOString()
         });
-        logger.security(`Tentativa de login com senha incorreta`, logData);
+        logger.security(`Token validado com sucesso`, logData);
         
         ctx.body = {
             valid: true,

@@ -5,7 +5,7 @@ async function testarConfiguracoes() {
         {
             nome: 'Configuração 1: DATABASE_URL do .env',
             config: {
-                connectionString: 'postgres://postgres:postgres@localhost:5432/kanghoo_db'
+                connectionString: 'postgresql://postgres:postgres@localhost:5432/kanghoo_db_prod'
             }
         },
         {
@@ -13,7 +13,7 @@ async function testarConfiguracoes() {
             config: {
                 host: 'localhost',
                 port: 5432,
-                database: 'kanghoo_db',
+                database: 'kanghoo_db_teste',
                 user: 'postgres',
                 password: 'postgres'
             }
@@ -23,9 +23,9 @@ async function testarConfiguracoes() {
             config: {
                 host: 'localhost',
                 port: 5432,
-                database: 'kanghoo_db',
+                database: 'postgres',
                 user: 'postgres',
-                password: 'admin123'
+                password: 'postgres'
             }
         },
         {

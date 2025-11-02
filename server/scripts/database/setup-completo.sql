@@ -3,27 +3,27 @@ DO $$
 BEGIN
     -- Criar o banco de dados se não existir
     IF NOT EXISTS (SELECT FROM pg_database WHERE datname = 'transporte_escolar_prod') THEN
-        CREATE DATABASE transporte_escolar_prod;
+        CREATE DATABASE kanghoo_db_prod;
     END IF;
 END
 $$;
 
 -- Conectar ao banco de dados
-\c transporte_escolar_prod;
+\c kanghoo_db_prod;
 
 -- Criar o usuário se não existir
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT FROM pg_user WHERE usename = 'transporte_user') THEN
-        CREATE USER transporte_user WITH PASSWORD 'SENHA_FORTE_AQUI';
+        CREATE USER transporte_user WITH PASSWORD 'postgres';
     ELSE
-        ALTER USER transporte_user WITH PASSWORD 'SENHA_FORTE_AQUI';
+        ALTER USER transporte_user WITH PASSWORD 'postgres';
     END IF;
 END
 $$;
 
 -- Garantir permissões
-GRANT CONNECT ON DATABASE transporte_escolar_prod TO transporte_user;
+GRANT CONNECT ON DATABASE kanghoo_db_prod TO transporte_user;
 GRANT USAGE ON SCHEMA public TO transporte_user;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO transporte_user;
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO transporte_user;

@@ -3,7 +3,7 @@
 -- ===========================================
 
 -- Criar banco de dados de produção
-CREATE DATABASE transporte_escolar_prod
+CREATE DATABASE kanghoo_db_prod
     WITH 
     OWNER = postgres
     ENCODING = 'UTF8'
@@ -24,28 +24,28 @@ CREATE USER transporte_user WITH
     INHERIT
     NOREPLICATION
     CONNECTION LIMIT -1
-    PASSWORD 'SENHA_FORTE_AQUI';
+    PASSWORD 'postgres';
 
 -- Conceder permissões necessárias
-GRANT CONNECT ON DATABASE transporte_escolar_prod TO transporte_user;
+GRANT CONNECT ON DATABASE kanghoo_db_prod TO transporte_user;
 GRANT USAGE ON SCHEMA public TO transporte_user;
 GRANT CREATE ON SCHEMA public TO transporte_user;
 
 -- Configurações de segurança
-ALTER DATABASE transporte_escolar_prod SET log_statement = 'mod';
-ALTER DATABASE transporte_escolar_prod SET log_min_duration_statement = 1000;
+ALTER DATABASE kanghoo_db_prod SET log_statement = 'mod';
+ALTER DATABASE kanghoo_db_prod SET log_min_duration_statement = 1000;
 
 -- Configurações de performance para produção
-ALTER DATABASE transporte_escolar_prod SET shared_preload_libraries = 'pg_stat_statements';
-ALTER DATABASE transporte_escolar_prod SET max_connections = 100;
-ALTER DATABASE transporte_escolar_prod SET work_mem = '4MB';
-ALTER DATABASE transporte_escolar_prod SET maintenance_work_mem = '64MB';
-ALTER DATABASE transporte_escolar_prod SET effective_cache_size = '1GB';
+ALTER DATABASE kanghoo_db_prod SET shared_preload_libraries = 'pg_stat_statements';
+ALTER DATABASE kanghoo_db_prod SET max_connections = 100;
+ALTER DATABASE kanghoo_db_prod SET work_mem = '4MB';
+ALTER DATABASE kanghoo_db_prod SET maintenance_work_mem = '64MB';
+ALTER DATABASE kanghoo_db_prod SET effective_cache_size = '1GB';
 
 -- Configurar backup automático
 -- (Executar como superuser)
 -- CREATE EXTENSION IF NOT EXISTS pg_cron;
 -- SELECT cron.schedule('backup-transporte', '0 2 * * *', 'pg_dump transporte_escolar_prod > /backup/transporte_$(date +\%Y\%m\%d).sql');
 
-COMMENT ON DATABASE transporte_escolar_prod IS 'Banco de dados de produção do sistema de transporte escolar';
+COMMENT ON DATABASE kanghoo_db_prod IS 'Banco de dados de produção do sistema de transporte escolar';
 COMMENT ON ROLE transporte_user IS 'Usuário dedicado para a aplicação de transporte escolar';

@@ -1,6 +1,7 @@
 const { Pool } = require('pg');
 const path = require('path');
 const logger = require('../utils/logger');
+const bcrypt = require('bcrypt');
 
 // Configuração do pool de conexões
 let poolConfig;
@@ -12,7 +13,7 @@ if (process.env.DATABASE_URL) {
     ssl: false,
     max: 20,
     idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 2000,
+    connectionTimeoutMillis: 10000,
   };
 } else {
   // Caso contrário, use as variáveis individuais
@@ -22,13 +23,13 @@ if (process.env.DATABASE_URL) {
   poolConfig = {
     host: process.env.DB_HOST || 'localhost',
     port: parseInt(process.env.DB_PORT) || 5432,
-    database: process.env.DB_NAME || 'postgres',
+    database: process.env.DB_NAME || 'kanghoo_db_prod',
     user: process.env.DB_USER || 'postgres',
     password: passwordString,
     ssl: false,
     max: 20,
     idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 2000,
+    connectionTimeoutMillis: 10000,
   };
 }
 
