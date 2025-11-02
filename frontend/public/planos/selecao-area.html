@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seleção de Plano - Kanghoo</title>
+    <link rel="stylesheet" href="../../assets/css/bundle.min.css">
+</head>
+<body class="form-page">
+    <main class="form-container">
+        <div id="planSelectionModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="plan-modal-title">
+            <div class="modal-content">
+                <h3 id="plan-modal-title">Escolha seu Plano</h3>
+                <p>Selecione o plano que deseja acessar:</p>
+                <div class="modal-options">
+                    <button class="btn btn-primary" onclick="redirectToPlan('basic')">
+                        <strong>Plano Básico</strong><br>
+                        <small>Acesso a funcionalidades essenciais</small>
+                    </button>
+                    <button class="btn btn-blue" onclick="redirectToPlan('premium')">
+                        <strong>Plano Premium</strong><br>
+                        <small>Acesso a todas as funcionalidades</small>
+                    </button>
+                </div>
+                <div class="modal-footer">
+                    <p><small>Você pode mudar de plano a qualquer momento.</small></p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function redirectToPlan(planType) {
+            let redirectUrl;
+            switch (planType) {
+                case 'basic':
+                    redirectUrl = '../dashboard.html'; // Exemplo: redirecionar para o dashboard genérico
+                    break;
+                case 'premium':
+                    redirectUrl = '../dashboard.html'; // Exemplo: redirecionar para o dashboard genérico
+                    break;
+                default:
+                    redirectUrl = '../dashboard.html';
+            }
+            window.location.href = redirectUrl;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Exibir o modal de seleção de plano automaticamente ao carregar a página
+            const planModal = document.getElementById('planSelectionModal');
+            if (planModal) {
+                planModal.classList.remove('hidden');
+                document.body.classList.add('modal-open');
+            }
+        });
+    </script>
+
+    <script>
+        document.documentElement.setAttribute('data-theme', 'light');
+        document.body.classList.remove('dark-theme');
+        document.body.classList.add('light-theme');
+    </script>
+</body>
+</html>

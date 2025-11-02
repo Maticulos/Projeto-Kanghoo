@@ -27,13 +27,13 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
         const payload = JSON.parse(atob(token.split('.')[1]));
         
-        if (payload.tipo === 'motorista_escolar') {
-            window.location.href = 'area-motorista-escolar-melhorada.html';
-        } else if (payload.tipo === 'motorista_excursao') {
+        if (payload.tipo === 'motorista_escolar' || payload.tipo === 'motorista_escolar_excursao') {
+            window.location.href = 'area-motorista-escolar.html';
+        } else if (payload.tipo === 'motorista_excursao' || payload.tipo === 'motorista_escolar_excursao') {
             window.location.href = 'area-motorista-excursao.html';
+        } else if (payload.tipo === 'responsavel') {
+            window.location.href = 'area-responsavel.html';
         } else {
-            // Fallback, caso precise da área do responsável no futuro
-            // window.location.href = 'area-responsavel.html';
             alert('Tipo de usuário não reconhecido!');
             localStorage.removeItem('authToken');
             window.location.href = 'login.html';
@@ -45,10 +45,6 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = 'login.html';
     }
 });
-    </script>
-    
-    <!-- Script para forçar tema claro -->
-    <script>
         // Força o tema claro para garantir visibilidade adequada
         document.documentElement.setAttribute('data-theme', 'light');
         document.body.classList.remove('dark-theme');

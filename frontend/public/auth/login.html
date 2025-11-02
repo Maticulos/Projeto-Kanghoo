@@ -73,6 +73,19 @@
         </div>
     </div>
 
+    <!-- Modal de Seleção de Perfil -->
+    <div id="profileSelectionModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="profile-selection-modal-title">
+        <div class="modal-content">
+            <button class="close-modal-btn" id="close-profile-selection-modal" aria-label="Fechar modal">&times;</button>
+            <h3 id="profile-selection-modal-title">Selecione seu Perfil</h3>
+            <p>Você possui múltiplos perfis. Por favor, selecione qual deseja acessar:</p>
+            <div class="modal-options">
+                <button class="btn btn-primary" onclick="selectProfile('motorista_escolar')">Motorista Escolar</button>
+                <button class="btn btn-blue" onclick="selectProfile('motorista_excursao')">Motorista Excursão</button>
+            </div>
+        </div>
+    </div>
+
 
     <!-- Conteúdo Principal -->
     <main class="form-container login-container">
@@ -266,6 +279,9 @@
                     return 'area-motorista-escolar.html';
                 case 'motorista_excursao':
                     return 'area-motorista-excursao.html';
+                case 'motorista_escolar_excursao':
+                    showProfileSelectionModal(userType);
+                    return ''; // Retorna vazio para evitar redirecionamento imediato
                 case 'responsavel':
                     return 'area-responsavel.html';
                 default:
@@ -318,9 +334,12 @@
                         const redirectUrl = getRedirectUrlByUserType(data.user.tipo);
                         
                         // Aguardar um pouco para mostrar a notificação antes de redirecionar
-                        setTimeout(() => {
-                            window.location.href = redirectUrl;
-                        }, 1500);
+                        // Apenas redireciona se um redirectUrl válido for retornado
+                        if (redirectUrl) {
+                            setTimeout(() => {
+                                window.location.href = redirectUrl;
+                            }, 1500);
+                        }
 
                     } catch (error) {
                         // Parar loading e mostrar erro
@@ -334,14 +353,92 @@
         function setTransportType(type) {
             localStorage.setItem('transportType', type);
         }
-    </script>
-    
-    <!-- Script para forçar tema claro -->
-    <script>
-        // Força o tema claro para garantir visibilidade adequada
-        document.documentElement.setAttribute('data-theme', 'light');
-        document.body.classList.remove('dark-theme');
-        document.body.classList.add('light-theme');
+
+        // Função para exibir o modal de seleção de perfil
+        function showProfileSelectionModal(userType) {
+            const profileSelectionModal = document.getElementById('profileSelectionModal');
+            if (profileSelectionModal) {
+                profileSelectionModal.classList.remove('hidden');
+                document.body.classList.add('modal-open');
+            }
+        }
+
+        // Função para lidar com a seleção de perfil
+        function selectProfile(profileType) {
+            const profileSelectionModal = document.getElementById('profileSelectionModal');
+            if (profileSelectionModal) {
+                profileSelectionModal.classList.add('hidden');
+                document.body.classList.remove('modal-open');
+            }
+
+            let redirectUrl = '';
+            if (profileType === 'motorista_escolar') {
+                redirectUrl = 'area-motorista-escolar.html';
+            } else if (profileType === 'motorista_excursao') {
+                redirectUrl = 'area-motorista-excursao.html';
+            }
+
+            if (redirectUrl) {
+                window.location.href = redirectUrl;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Lógica existente para o modal de cadastro
+            const cadastroModal = document.getElementById('cadastroModal');
+            const closeBtn = document.getElementById('close-modal');
+            const openBtn = document.getElementById('btn-cadastro-modal-link');
+
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function() {
+                    if (cadastroModal) {
+                        cadastroModal.classList.add('hidden');
+                        document.body.classList.remove('modal-open');
+                    }
+                });
+            }
+
+            if (openBtn) {
+                openBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (cadastroModal) {
+                        cadastroModal.classList.remove('hidden');
+                        document.body.classList.add('modal-open');
+                    }
+                });
+            }
+
+            if (cadastroModal) {
+                cadastroModal.addEventListener('click', function(e) {
+                    if (e.target === cadastroModal) {
+                        cadastroModal.classList.add('hidden');
+                        document.body.classList.remove('modal-open');
+                    }
+                });
+            }
+
+            // Lógica para o modal de seleção de perfil
+            const profileSelectionModal = document.getElementById('profileSelectionModal');
+            const closeProfileSelectionModalBtn = document.getElementById('close-profile-selection-modal');
+
+            if (closeProfileSelectionModalBtn) {
+                closeProfileSelectionModalBtn.addEventListener('click', function() {
+                    if (profileSelectionModal) {
+                        profileSelectionModal.classList.add('hidden');
+                        document.body.classList.remove('modal-open');
+                    }
+                });
+            }
+
+            if (profileSelectionModal) {
+                profileSelectionModal.addEventListener('click', function(e) {
+                    if (e.target === profileSelectionModal) {
+                        profileSelectionModal.classList.add('hidden');
+                        document.body.classList.remove('modal-open');
+                    }
+                });
+            }
+        });
     </script>
 </body>
 </html>

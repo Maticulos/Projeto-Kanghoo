@@ -2098,236 +2098,11 @@
                         <span id="save-btn-text">Salvar Rota</span>
                     </button>
                 </div>
-
-         function saveRoute() {
-             const formData = new FormData(document.getElementById('route-form'));
-             const routeData = {
-                 name: formData.get('route-name'),
-                 period: formData.get('route-period'),
-                 type: formData.get('route-type'),
-                 days: formData.getAll('days'),
-                 capacity: formData.get('route-capacity'),
-                 monthlyValue: formData.get('route-monthly-value'),
-                 startTime: formData.get('route-start-time'),
-                 endTime: formData.get('route-end-time'),
-                 origin: formData.get('route-origin'),
-                 destination: formData.get('route-destination'),
-                 coverageArea: formData.get('route-coverage-area'),
-                 observations: formData.get('route-observations')
-             };
-
-             // Validações
-             if (!routeData.name || !routeData.period || !routeData.type) {
-                 showNotification('Por favor, preencha todos os campos obrigatórios.', 'warning');
-                 return;
-             }
-
-             if (routeData.days.length === 0) {
-                 showNotification('Selecione pelo menos um dia da semana.', 'warning');
-                 return;
-             }
-
-             // Simular salvamento
-             currentRoutes.push({
-                 id: Date.now(),
-                 name: routeData.name,
-                 period: routeData.period,
-                 type: routeData.type,
-                 capacity: routeData.capacity,
-                 monthlyValue: routeData.monthlyValue,
-                 startTime: routeData.startTime,
-                 endTime: routeData.endTime,
-                 origin: routeData.origin,
-                 destination: routeData.destination,
-                 coverageArea: routeData.coverageArea,
-                 observations: routeData.observations,
-                 days: routeData.days,
-                 active: true
-             });
-
-             showNotification('Rota salva com sucesso!', 'success');
-             closeModal(document.getElementById('route-modal'));
-             loadRoutesOverview();
-         }
-
-         function loadRoutesList() {
-             const routesList = document.getElementById('routes-list');
-             
-             if (currentRoutes.length === 0) {
-                 routesList.innerHTML = '<p style="text-align: center; color: var(--secondary-color);">Nenhuma rota cadastrada ainda.</p>';
-                 return;
-             }
-
-             routesList.innerHTML = currentRoutes.map(route => `
-                 <div style="background: var(--white); border: 1px solid var(--border-color); border-radius: var(--border-radius); padding: 1rem; margin-bottom: 1rem;">
-                     <h4 style="margin: 0 0 0.5rem 0;">${route.name}</h4>
-                     <p style="margin: 0; color: var(--secondary-color); font-size: 0.9rem;">
-                         ${route.period} • ${route.type} • Capacidade: ${route.capacity || 'N/A'} crianças
-                     </p>
-                     <p style="margin: 0.25rem 0 0 0; color: var(--secondary-color); font-size: 0.9rem;">
-                         ${route.origin || 'N/A'} → ${route.destination || 'N/A'}
-                     </p>
-                     <div style="margin-top: 0.5rem;">
-                         <span style="padding: 2px 8px; background: ${route.active ? 'var(--success-color)' : 'var(--danger-color)'}; color: white; border-radius: 12px; font-size: 0.8rem;">
-                             ${route.active ? 'Ativa' : 'Inativa'}
-                         </span>
-                     </div>
-                 </div>
-             `).join('');
-         }
-
-         // Funções de gráficos
-         function initializeCharts() {
-             // Inicializar gráficos vazios
-             updateDashboardChart();
-             updateTrackingChart();
-             updateFinancialChart();
-         }
-
-         function updateDashboardChart() {
-             const ctx = document.getElementById('dashboard-chart');
-             if (!ctx) return;
-
-             if (charts.dashboard) {
-                 charts.dashboard.destroy();
-             }
-
-             charts.dashboard = new Chart(ctx, {
-                 type: 'line',
-                 data: {
-                     labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'],
-                     datasets: [{
-                         label: 'Viagens',
-                         data: [12, 19, 8, 15, 22, 18, 14],
-                         borderColor: 'var(--primary-color)',
-                         backgroundColor: 'rgba(0, 123, 255, 0.1)',
-                         tension: 0.4
-                     }]
-                 },
-                 options: {
-                     responsive: true,
-                     maintainAspectRatio: false,
-                     plugins: {
-                         legend: {
-                             display: false
-                         }
-                     },
-                     scales: {
-                         y: {
-                             beginAtZero: true
-                         }
-                     }
-                 }
-             });
-         }
-
-         function updateTrackingChart() {
-             const ctx = document.getElementById('tracking-chart');
-             if (!ctx) return;
-
-             if (charts.tracking) {
-                 charts.tracking.destroy();
-             }
-
-             charts.tracking = new Chart(ctx, {
-                 type: 'bar',
-                 data: {
-                     labels: ['01/10', '02/10', '03/10', '04/10', '05/10'],
-                     datasets: [{
-                         label: 'Distância (km)',
-                         data: [25, 30, 22, 28, 35],
-                         backgroundColor: 'var(--success-color)'
-                     }]
-                 },
-                 options: {
-                     responsive: true,
-                     maintainAspectRatio: false,
-                     plugins: {
-                         legend: {
-                             display: false
-                         }
-                     },
-                     scales: {
-                         y: {
-                             beginAtZero: true
-                         }
-                     }
-                 }
-             });
-         }
-
-         function updateFinancialChart() {
-             const ctx = document.getElementById('financial-chart');
-             if (!ctx) return;
-
-             if (charts.financial) {
-                 charts.financial.destroy();
-             }
-
-             charts.financial = new Chart(ctx, {
-                 type: 'line',
-                 data: {
-                     labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
-                     datasets: [{
-                         label: 'Receita',
-                         data: [2500, 2800, 3200, 2900, 3500, 4250],
-                         borderColor: 'var(--success-color)',
-                         backgroundColor: 'rgba(40, 167, 69, 0.1)',
-                         tension: 0.4
-                     }, {
-                         label: 'Custos',
-                         data: [1800, 2000, 2200, 2100, 2400, 1890],
-                         borderColor: 'var(--danger-color)',
-                         backgroundColor: 'rgba(220, 53, 69, 0.1)',
-                         tension: 0.4
-                     }]
-                 },
-                 options: {
-                     responsive: true,
-                     maintainAspectRatio: false,
-                     plugins: {
-                         legend: {
-                             position: 'top'
-                         }
-                     },
-                     scales: {
-                         y: {
-                             beginAtZero: true
-                         }
-                     }
-                 }
-             });
-         }
-
-         function updateChartsTheme() {
-             // Atualizar cores dos gráficos baseado no tema
-             Object.values(charts).forEach(chart => {
-                 if (chart) {
-                     chart.update();
-                 }
-             });
-         }
-
-         function showNotification(message, type = 'info') {
-             const notification = document.getElementById('notification');
-             const messageElement = document.getElementById('notification-message');
-             
-             messageElement.textContent = message;
-             notification.className = `notification ${type}`;
-             notification.classList.add('show');
-
-             setTimeout(() => {
-                 notification.classList.remove('show');
-             }, 3000);
-         }
-
-         // Tornar funções globais para uso nos botões
-         window.checkIn = checkIn;
-         window.checkOut = checkOut;
-         window.removeStop = removeStop;
-     </script>
+            </form>
+        </div>
+    </div>
 </body>
-</html> required>
+</html> 
                                 </div>
                                 <div class="form-group">
                                     <label>Horário *</label>
@@ -2349,8 +2124,8 @@
                     </div>
                     
                     <button type="button" class="btn btn-blue" id="add-stop-btn">
-                        <i class="fas fa-plus"></i>
-                        Adicionar Parada
+                        <i class="fas fa-plus">Adicionar Parada</i>
+                        
                     </button>
                 </div>
 
@@ -2424,7 +2199,7 @@
 
                 const data = await response.json();
                 
-                if (!data.valid || data.user.tipo !== 'motorista_escolar') {
+                if (!data.valid || !['motorista_escolar', 'motorista_escolar_excursao'].includes(data.user.tipo)) {
                     console.log('Usuário não autorizado durante verificação contínua');
                     localStorage.removeItem('authToken');
                     window.location.href = 'login.html';
@@ -2521,7 +2296,7 @@
                 const data = await response.json();
                 
                 // Verificar se o usuário tem permissão para esta área
-                if (data.user.tipo !== 'motorista_escolar') {
+                if (data.user.tipo !== 'motorista_escolar' && data.user.tipo !== 'motorista_escolar_excursao') {
                     console.log('Usuário não tem permissão para esta área');
                     alert('Você não tem permissão para acessar esta área.');
                     window.location.href = 'login.html';
@@ -2692,13 +2467,10 @@
                 localStorage.setItem('theme', 'light');
             }
 
-            // Atualizar gráficos com novo tema
-            if (typeof updateChartsTheme === 'function') {
-                updateChartsTheme();
-            }
+
             
             // Mostrar notificação
-            showNotification(`Tema ${isDarkTheme ? 'escuro' : 'claro'} ativado!`, 'info');
+            showToast(`Tema ${isDarkTheme ? 'escuro' : 'claro'} ativado!`, 'info');
         }
 
         function loadUserData() {
@@ -2789,9 +2561,9 @@
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;">
                         ${currentRoutes.map(route => `
                             <div style="background: var(--light-color); padding: 1rem; border-radius: var(--border-radius); border-left: 4px solid var(--primary-color);">
-                                <h4 style="margin: 0 0 0.5rem 0;">${route.name}</h4>
+                                <h4 style="margin: 0 0 0.5rem 0;">${escapeHTML(route.name)}</h4>
                                 <p style="margin: 0; color: var(--secondary-color); font-size: 0.9rem;">
-                                    ${route.period} • ${route.type} • ${route.stops.length} paradas
+                                    ${escapeHTML(route.period)} • ${escapeHTML(route.type)} • ${escapeHTML(route.stops.length)} paradas
                                 </p>
                                 <div style="margin-top: 0.5rem;">
                                     <span style="padding: 2px 8px; background: ${route.active ? 'var(--success-color)' : 'var(--danger-color)'}; color: white; border-radius: 12px; font-size: 0.8rem;">
@@ -2805,6 +2577,7 @@
             }
         }
 
+        // Funções de Gerenciamento de Viagens
         function startTrip() {
             const statusDot = document.getElementById('trip-status-dot');
             const statusText = document.getElementById('trip-status-text');
@@ -2830,7 +2603,36 @@
             childrenList.style.display = 'block';
 
             loadChildrenList();
-            showNotification('Viagem iniciada com sucesso!', 'success');
+            showToast('Viagem iniciada com sucesso!', 'success');
+        }
+
+        // Funções de Gerenciamento de Viagens
+        function startTrip() {
+            const statusDot = document.getElementById('trip-status-dot');
+            const statusText = document.getElementById('trip-status-text');
+            const startBtn = document.getElementById('start-trip');
+            const endBtn = document.getElementById('end-trip');
+            const childrenList = document.getElementById('children-list');
+
+            // Simular início de viagem
+            currentTrip = {
+                id: Date.now(),
+                startTime: new Date(),
+                children: [
+                    { id: 1, name: 'Ana Silva', address: 'Rua A, 123', status: 'waiting' },
+                    { id: 2, name: 'João Santos', address: 'Rua B, 456', status: 'waiting' },
+                    { id: 3, name: 'Maria Oliveira', address: 'Rua C, 789', status: 'waiting' }
+                ]
+            };
+
+            statusDot.classList.add('active');
+            statusText.textContent = 'Viagem em andamento';
+            startBtn.style.display = 'none';
+            endBtn.style.display = 'inline-flex';
+            childrenList.style.display = 'block';
+
+            loadChildrenList();
+            showToast('Viagem iniciada com sucesso!', 'success');
         }
 
         function endTrip() {
@@ -2849,7 +2651,56 @@
                 endBtn.style.display = 'none';
                 childrenList.style.display = 'none';
 
-                showNotification('Viagem finalizada com sucesso!', 'success');
+                showToast('Viagem finalizada com sucesso!', 'success');
+            }
+        }
+
+        // Funções de Gerenciamento de Viagens
+        function startTrip() {
+            const statusDot = document.getElementById('trip-status-dot');
+            const statusText = document.getElementById('trip-status-text');
+            const startBtn = document.getElementById('start-trip');
+            const endBtn = document.getElementById('end-trip');
+            const childrenList = document.getElementById('children-list');
+
+            // Simular início de viagem
+            currentTrip = {
+                id: Date.now(),
+                startTime: new Date(),
+                children: [
+                    { id: 1, name: 'Ana Silva', address: 'Rua A, 123', status: 'waiting' },
+                    { id: 2, name: 'João Santos', address: 'Rua B, 456', status: 'waiting' },
+                    { id: 3, name: 'Maria Oliveira', address: 'Rua C, 789', status: 'waiting' }
+                ]
+            };
+
+            statusDot.classList.add('active');
+            statusText.textContent = 'Viagem em andamento';
+            startBtn.style.display = 'none';
+            endBtn.style.display = 'inline-flex';
+            childrenList.style.display = 'block';
+
+            loadChildrenList();
+            showToast('Viagem iniciada com sucesso!', 'success');
+        }
+
+        function endTrip() {
+            const statusDot = document.getElementById('trip-status-dot');
+            const statusText = document.getElementById('trip-status-text');
+            const startBtn = document.getElementById('start-trip');
+            const endBtn = document.getElementById('end-trip');
+            const childrenList = document.getElementById('children-list');
+
+            if (confirm('Tem certeza que deseja finalizar a viagem?')) {
+                currentTrip = null;
+                
+                statusDot.classList.remove('active');
+                statusText.textContent = 'Nenhuma viagem ativa';
+                startBtn.style.display = 'inline-flex';
+                endBtn.style.display = 'none';
+                childrenList.style.display = 'none';
+
+                showToast('Viagem finalizada com sucesso!', 'success');
             }
         }
 
@@ -2861,8 +2712,82 @@
             grid.innerHTML = currentTrip.children.map(child => `
                 <div class="child-card ${child.status === 'checked-in' ? 'checked-in' : child.status === 'checked-out' ? 'checked-out' : ''}">
                     <div class="child-info">
-                        <div class="child-name">${child.name}</div>
-                        <div class="child-details">${child.address}</div>
+                        <div class="child-name">${escapeHTML(child.name)}</div>
+                        <div class="child-details">${escapeHTML(child.address)}</div>
+                    </div>
+                    <div class="child-actions">
+                        <button class="btn btn-success" onclick="checkIn(${child.id})" ${child.status === 'checked-in' ? 'disabled' : ''}>
+                            <i class="fas fa-sign-in-alt"></i>
+                            Check-in
+                        </button>
+                        <button class="btn btn-danger" onclick="checkOut(${child.id})" ${child.status !== 'checked-in' ? 'disabled' : ''}>
+                            <i class="fas fa-sign-out-alt"></i>
+                            Check-out
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Funções de Gerenciamento de Viagens
+        function startTrip() {
+            const statusDot = document.getElementById('trip-status-dot');
+            const statusText = document.getElementById('trip-status-text');
+            const startBtn = document.getElementById('start-trip');
+            const endBtn = document.getElementById('end-trip');
+            const childrenList = document.getElementById('children-list');
+
+            // Simular início de viagem
+            currentTrip = {
+                id: Date.now(),
+                startTime: new Date(),
+                children: [
+                    { id: 1, name: 'Ana Silva', address: 'Rua A, 123', status: 'waiting' },
+                    { id: 2, name: 'João Santos', address: 'Rua B, 456', status: 'waiting' },
+                    { id: 3, name: 'Maria Oliveira', address: 'Rua C, 789', status: 'waiting' }
+                ]
+            };
+
+            statusDot.classList.add('active');
+            statusText.textContent = 'Viagem em andamento';
+            startBtn.style.display = 'none';
+            endBtn.style.display = 'inline-flex';
+            childrenList.style.display = 'block';
+
+            loadChildrenList();
+            showToast('Viagem iniciada com sucesso!', 'success');
+        }
+
+        function endTrip() {
+            const statusDot = document.getElementById('trip-status-dot');
+            const statusText = document.getElementById('trip-status-text');
+            const startBtn = document.getElementById('start-trip');
+            const endBtn = document.getElementById('end-trip');
+            const childrenList = document.getElementById('children-list');
+
+            if (confirm('Tem certeza que deseja finalizar a viagem?')) {
+                currentTrip = null;
+                
+                statusDot.classList.remove('active');
+                statusText.textContent = 'Nenhuma viagem ativa';
+                startBtn.style.display = 'inline-flex';
+                endBtn.style.display = 'none';
+                childrenList.style.display = 'none';
+
+                showToast('Viagem finalizada com sucesso!', 'success');
+            }
+        }
+
+        function loadChildrenList() {
+            const grid = document.getElementById('children-grid');
+            
+            if (!currentTrip) return;
+
+            grid.innerHTML = currentTrip.children.map(child => `
+                <div class="child-card ${child.status === 'checked-in' ? 'checked-in' : child.status === 'checked-out' ? 'checked-out' : ''}">
+                    <div class="child-info">
+                        <div class="child-name">${escapeHTML(child.name)}</div>
+                        <div class="child-details">${escapeHTML(child.address)}</div>
                     </div>
                     <div class="child-actions">
                         <button class="btn btn-success" onclick="checkIn(${child.id})" ${child.status === 'checked-in' ? 'disabled' : ''}>
@@ -2885,7 +2810,92 @@
             if (child) {
                 child.status = 'checked-in';
                 loadChildrenList();
-                showNotification(`${child.name} fez check-in!`, 'success');
+                showToast(`${child.name} fez check-in!`, 'success');
+            }
+        }
+
+        // Funções de Gerenciamento de Viagens
+        function startTrip() {
+            const statusDot = document.getElementById('trip-status-dot');
+            const statusText = document.getElementById('trip-status-text');
+            const startBtn = document.getElementById('start-trip');
+            const endBtn = document.getElementById('end-trip');
+            const childrenList = document.getElementById('children-list');
+
+            // Simular início de viagem
+            currentTrip = {
+                id: Date.now(),
+                startTime: new Date(),
+                children: [
+                    { id: 1, name: 'Ana Silva', address: 'Rua A, 123', status: 'waiting' },
+                    { id: 2, name: 'João Santos', address: 'Rua B, 456', status: 'waiting' },
+                    { id: 3, name: 'Maria Oliveira', address: 'Rua C, 789', status: 'waiting' }
+                ]
+            };
+
+            statusDot.classList.add('active');
+            statusText.textContent = 'Viagem em andamento';
+            startBtn.style.display = 'none';
+            endBtn.style.display = 'inline-flex';
+            childrenList.style.display = 'block';
+
+            loadChildrenList();
+            showToast('Viagem iniciada com sucesso!', 'success');
+        }
+
+        function endTrip() {
+            const statusDot = document.getElementById('trip-status-dot');
+            const statusText = document.getElementById('trip-status-text');
+            const startBtn = document.getElementById('start-trip');
+            const endBtn = document.getElementById('end-trip');
+            const childrenList = document.getElementById('children-list');
+
+            if (confirm('Tem certeza que deseja finalizar a viagem?')) {
+                currentTrip = null;
+                
+                statusDot.classList.remove('active');
+                statusText.textContent = 'Nenhuma viagem ativa';
+                startBtn.style.display = 'inline-flex';
+                endBtn.style.display = 'none';
+                childrenList.style.display = 'none';
+
+                showToast('Viagem finalizada com sucesso!', 'success');
+            }
+        }
+
+        function loadChildrenList() {
+            const grid = document.getElementById('children-grid');
+            
+            if (!currentTrip) return;
+
+            grid.innerHTML = currentTrip.children.map(child => `
+                <div class="child-card ${child.status === 'checked-in' ? 'checked-in' : child.status === 'checked-out' ? 'checked-out' : ''}">
+                    <div class="child-info">
+                        <div class="child-name">${escapeHTML(child.name)}</div>
+                        <div class="child-details">${escapeHTML(child.address)}</div>
+                    </div>
+                    <div class="child-actions">
+                        <button class="btn btn-success" onclick="checkIn(${child.id})" ${child.status === 'checked-in' ? 'disabled' : ''}>
+                            <i class="fas fa-sign-in-alt"></i>
+                            Check-in
+                        </button>
+                        <button class="btn btn-danger" onclick="checkOut(${child.id})" ${child.status !== 'checked-in' ? 'disabled' : ''}>
+                            <i class="fas fa-sign-out-alt"></i>
+                            Check-out
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function checkIn(childId) {
+            if (!currentTrip) return;
+            
+            const child = currentTrip.children.find(c => c.id === childId);
+            if (child) {
+                child.status = 'checked-in';
+                loadChildrenList();
+                showToast(`${child.name} fez check-in!`, 'success');
             }
         }
 
@@ -2896,11 +2906,49 @@
             if (child) {
                 child.status = 'checked-out';
                 loadChildrenList();
-                showNotification(`${child.name} fez check-out!`, 'info');
+                showToast(`${child.name} fez check-out!`, 'info');
             }
         }
 
-        // Funções para rotas
+        // Funções de Gerenciamento de Modais
+        function openRouteModal() {
+            resetRouteForm();
+            document.getElementById('route-modal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Funções de Gerenciamento de Modais
+        function openRouteModal() {
+            resetRouteForm();
+            document.getElementById('route-modal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function openRoutesListModal() {
+            loadRoutesList();
+            document.getElementById('routes-list-modal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Funções de Gerenciamento de Modais
+        function openRouteModal() {
+            resetRouteForm();
+            document.getElementById('route-modal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function openRoutesListModal() {
+            loadRoutesList();
+            document.getElementById('routes-list-modal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(modal) {
+            modal.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Funções de Gerenciamento de Modais
         function openRouteModal() {
             resetRouteForm();
             document.getElementById('route-modal').classList.add('show');
@@ -2921,10 +2969,231 @@
         function resetRouteForm() {
             document.getElementById('route-form').reset();
         }
+
+        // Função para escapar HTML e prevenir XSS
+        function escapeHTML(str) {
+            const div = document.createElement('div');
+            div.appendChild(document.createTextNode(str));
+            return div.innerHTML;
+        }
+
+        // Configuração da API para WebSocket
+        const WS_URL = 'ws://localhost:3001';
+        let websocket = null;
+
+        // Função para mostrar notificações
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => toast.classList.add('show'), 100);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 3000);
+        }
+
+        // Função para conectar WebSocket
+        function conectarWebSocket() {
+            const token = localStorage.getItem('authToken');
+            if (!token) return;
+
+            try {
+                websocket = new WebSocket(`${WS_URL}?token=${token}`);
+
+                websocket.onopen = function() {
+                    console.log('🔌 WebSocket conectado');
+                    showToast('Notificações em tempo real ativadas', 'info');
+                };
+
+                websocket.onmessage = function(event) {
+                    try {
+                        const data = JSON.parse(event.data);
+                        console.log('📨 Notificação recebida:', data);
+
+                        if (data.type === 'notification') {
+                            processarNotificacao(data.data);
+                        }
+                    } catch (error) {
+                        console.error('Erro ao processar mensagem WebSocket:', error);
+                    }
+                };
+
+                websocket.onclose = function() {
+                    console.log('🔌 WebSocket desconectado');
+                    // Tentar reconectar após 5 segundos
+                    setTimeout(conectarWebSocket, 5000);
+                };
+
+                websocket.onerror = function(error) {
+                    console.error('❌ Erro no WebSocket:', error);
+                };
+            } catch (error) {
+                console.error('Erro ao conectar WebSocket:', error);
+            }
+        }
+
+        // Funções WebSocket
+        async function conectarWebSocket() {
+            if (websocket && websocket.readyState === WebSocket.OPEN) {
+                console.log('WebSocket já conectado.');
+                return;
+            }
+
+            const token = await getAuthToken();
+            if (!token) {
+                console.error('Token de autenticação não disponível para WebSocket.');
+                return;
+            }
+
+            const wsUrlWithToken = `${WS_URL}?token=${token}`;
+            websocket = new WebSocket(wsUrlWithToken);
+
+            websocket.onopen = () => {
+                console.log('Conectado ao WebSocket.');
+                showToast('Conectado ao serviço de notificações.', 'success');
+            };
+
+            websocket.onmessage = (event) => {
+                const notification = JSON.parse(event.data);
+                processarNotificacao(notification);
+            };
+
+            websocket.onclose = (event) => {
+                console.log('Desconectado do WebSocket.', event);
+                showToast('Desconectado do serviço de notificações. Tentando reconectar...', 'warning');
+                // Tentar reconectar após um pequeno atraso
+                setTimeout(conectarWebSocket, 5000);
+            };
+
+            websocket.onerror = (error) => {
+                console.error('Erro no WebSocket:', error);
+                showToast('Erro na conexão com o serviço de notificações.', 'danger');
+                websocket.close();
+            };
+        }
+
+        function processarNotificacao(notificacao) {
+            const { tipo, crianca_nome, rota_nome, timestamp } = notificacao;
+            let mensagem = '';
+            let tipoToast = 'info';
+
+            switch (tipo) {
+                case 'crianca_embarcada':
+                    mensagem = `🚌 ${escapeHTML(crianca_nome)} embarcou na rota ${escapeHTML(rota_nome)}`;
+                    tipoToast = 'success';
+                    break;
+                case 'crianca_desembarcada':
+                    mensagem = `🏠 ${escapeHTML(crianca_nome)} desembarcou na rota ${escapeHTML(rota_nome)}`;
+                    tipoToast = 'info';
+                    break;
+                case 'rota_atualizada':
+                    mensagem = `📝 Rota ${escapeHTML(rota_nome)} atualizada`;
+                    tipoToast = 'warning';
+                    break;
+                default:
+                    mensagem = `📢 Atualização: ${escapeHTML(notificacao.mensagem || 'Sem detalhes')}`;
+            }
+
+            showToast(mensagem, tipoToast);
+            // Atualizar lista de rotas se houver alteração
+            if (tipo === 'rota_atualizada' && typeof loadRoutesList === 'function') {
+                loadRoutesList();
+            }
+        }
+
+        function desconectarWebSocket() {
+            if (websocket) {
+                websocket.close();
+                websocket = null;
+            }
+        }
+
+        // Funções WebSocket
+        async function conectarWebSocket() {
+            if (websocket && websocket.readyState === WebSocket.OPEN) {
+                console.log('WebSocket já conectado.');
+                return;
+            }
+
+            const token = await getAuthToken();
+            if (!token) {
+                console.error('Token de autenticação não disponível para WebSocket.');
+                return;
+            }
+
+            const wsUrlWithToken = `${WS_URL}?token=${token}`;
+            websocket = new WebSocket(wsUrlWithToken);
+
+            websocket.onopen = () => {
+                console.log('Conectado ao WebSocket.');
+                showToast('Conectado ao serviço de notificações.', 'success');
+            };
+
+            websocket.onmessage = (event) => {
+                const notification = JSON.parse(event.data);
+                processarNotificacao(notification);
+            };
+
+            websocket.onclose = (event) => {
+                console.log('Desconectado do WebSocket.', event);
+                showToast('Desconectado do serviço de notificações. Tentando reconectar...', 'warning');
+                // Tentar reconectar após um pequeno atraso
+                setTimeout(conectarWebSocket, 5000);
+            };
+
+            websocket.onerror = (error) => {
+                console.error('Erro no WebSocket:', error);
+                showToast('Erro na conexão com o serviço de notificações.', 'danger');
+                websocket.close();
+            };
+        }
+
+        function processarNotificacao(notificacao) {
+            const { tipo, crianca_nome, rota_nome, timestamp } = notificacao;
+            let mensagem = '';
+            let tipoToast = 'info';
+
+            switch (tipo) {
+                case 'crianca_embarcada':
+                    mensagem = `🚌 ${escapeHTML(crianca_nome)} embarcou na rota ${escapeHTML(rota_nome)}`;
+                    tipoToast = 'success';
+                    break;
+                case 'crianca_desembarcada':
+                    mensagem = `🏠 ${escapeHTML(crianca_nome)} desembarcou na rota ${escapeHTML(rota_nome)}`;
+                    tipoToast = 'info';
+                    break;
+                case 'rota_atualizada':
+                    mensagem = `📝 Rota ${escapeHTML(rota_nome)} atualizada`;
+                    tipoToast = 'warning';
+                    break;
+                default:
+                    mensagem = `📢 Atualização: ${escapeHTML(notificacao.mensagem || 'Sem detalhes')}`;
+            }
+
+            showToast(mensagem, tipoToast);
+            // Atualizar lista de rotas se houver alteração
+            if (tipo === 'rota_atualizada' && typeof loadRoutesList === 'function') {
+                loadRoutesList();
+            }
+        }
+
     </script>
     
     <!-- Script para forçar tema claro -->
     <script>
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            conectarWebSocket();
+        });
+
+        window.addEventListener('beforeunload', function() {
+            desconectarWebSocket();
+        });
+
+        // Configuração de Tema
         // Força o tema claro para garantir visibilidade adequada
         document.documentElement.setAttribute('data-theme', 'light');
         document.body.classList.remove('dark-theme');

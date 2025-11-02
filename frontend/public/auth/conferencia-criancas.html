@@ -434,13 +434,13 @@
     <header class="header">
         <div class="header-container">
             <a href="area-motorista-escolar.html" class="logo">
-                <i class="fas fa-bus"></i>
-                Kanghoo
+                <i class="fas fa-bus">Kanghoo</i>
+                
             </a>
             <div class="header-actions">
                 <a href="area-motorista-escolar.html" class="btn btn-primary">
-                    <i class="fas fa-arrow-left"></i>
-                    Voltar ao Dashboard
+                    <i class="fas fa-arrow-left">Voltar ao Dashboard</i>
+                    
                 </a>
             </div>
         </div>
@@ -507,42 +507,7 @@
         let criancasList = [];
         let websocket = null;
 
-        // Função para obter token de autenticação
-        function getAuthToken() {
-            return localStorage.getItem('authToken');
-        }
 
-        // Função para fazer requisições autenticadas
-        async function apiRequest(endpoint, options = {}) {
-            const token = getAuthToken();
-            if (!token) {
-                window.location.href = 'login.html';
-                return;
-            }
-
-            const config = {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                ...options
-            };
-
-            try {
-                const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.message || 'Erro na requisição');
-                }
-
-                return data;
-            } catch (error) {
-                console.error('Erro na API:', error);
-                showToast(error.message, 'error');
-                throw error;
-            }
-        }
 
         // Função para mostrar notificações
         function showToast(message, type = 'success') {
@@ -943,6 +908,55 @@
         window.addEventListener('beforeunload', function() {
             desconectarWebSocket();
         });
+
+                // Função para obter token de autenticação
+        function getAuthToken() {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                // Se não houver token, redireciona para a página de login
+                window.location.href = 'login.html';
+                return null; // Retorna null para indicar que não há token
+            }
+            return token;
+        }
+
+        // Função para fazer requisições autenticadas
+        async function apiRequest(endpoint, options = {}) {
+            const token = getAuthToken();
+            if (!token) {
+                // Se getAuthToken já redirecionou, não precisamos fazer nada aqui
+                return; 
+            }
+
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                ...options
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    // Se o erro for 401 (Não Autorizado), redireciona para o login
+                    if (response.status === 401) {
+                        localStorage.removeItem('authToken'); // Limpa o token inválido
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    throw new Error(data.message || 'Erro na requisição');
+                }
+
+                return data;
+            } catch (error) {
+                console.error('Erro na API:', error);
+                showToast(error.message, 'error');
+                throw error;
+            }
+        }
     </script>
 </body>
 </html>

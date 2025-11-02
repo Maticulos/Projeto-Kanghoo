@@ -1577,7 +1577,7 @@
                         }
                         
                         // Verificar permissão
-                        if (decodedToken.tipo !== 'motorista_excursao') {
+                        if (decodedToken.tipo !== 'motorista_excursao' && decodedToken.tipo !== 'motorista_escolar_excursao') {
                             console.log('Usuário não tem permissão para esta área');
                             alert('Você não tem permissão para acessar esta área.');
                             window.location.href = 'login.html';
@@ -1658,7 +1658,7 @@
                             return false;
                         }
                         
-                        if (decodedToken.tipo !== 'motorista_excursao') {
+                        if (!['motorista_excursao', 'motorista_escolar_excursao'].includes(decodedToken.tipo)) {
                             console.log('Usuário não autorizado durante verificação contínua (teste)');
                             localStorage.removeItem('authToken');
                             window.location.href = 'login.html';
@@ -1689,7 +1689,7 @@
 
                 const data = await response.json();
                 
-                if (!data.valid || data.user.tipo !== 'motorista_excursao') {
+                if (!data.valid || !['motorista_excursao', 'motorista_escolar_excursao'].includes(data.user.tipo)) {
                     console.log('Usuário não autorizado durante verificação contínua');
                     localStorage.removeItem('authToken');
                     window.location.href = 'login.html';
