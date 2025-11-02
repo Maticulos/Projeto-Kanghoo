@@ -1,59 +1,11 @@
-# 🚌 Sistema de Transporte Escolar
+# 🚌 Sistema Kanghoo - Transporte Escolar e Excursões
 
-Sistema completo de transporte escolar com rastreamento em tempo real, desenvolvido com Node.js, Koa.js e PostgreSQL.
+[![Status](https://img.shields.io/badge/Status-Operacional-green)](https://github.com)
+[![Testes](https://img.shields.io/badge/Testes-77%25-yellow)](https://github.com)
+[![Node.js](https://img.shields.io/badge/Node.js-18+-green)](https://nodejs.org)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-13+-blue)](https://postgresql.org)
 
-## 🚀 Início Rápido
-
-### 📋 Pré-requisitos
-- Node.js >= 16.0.0
-- PostgreSQL >= 12.0
-- npm ou yarn
-
-### 🔧 Instalação
-```bash
-cd server
-npm install
-cp .env.example .env
-# Configure suas variáveis de ambiente no .env
-```
-
-### 🧪 Testes e Debug
-```bash
-# Suite completa de testes
-node test-suite.js
-
-# Ferramentas de debug (modo interativo)
-node debug-tools.js
-
-# Verificação rápida do sistema
-node debug-tools.js check
-```
-
-### 🏃‍♂️ Executar
-```bash
-npm start
-```
-
-## 📚 Documentação Completa
-Consulte: [`DOCUMENTACAO_SISTEMA_COMPLETA.md`](./DOCUMENTACAO_SISTEMA_COMPLETA.md)
-
-## 🛠️ Scripts Centralizados
-
-### 🧪 `test-suite.js`
-Script centralizado que executa todos os testes do sistema:
-- Testes de conexão com banco
-- Verificação de tabelas
-- Testes de funcionalidade
-- Testes de performance
-- Testes de segurança
-
-### 🔍 `debug-tools.js`
-Ferramentas centralizadas de debug e diagnóstico:
-- Verificação de conexão
-- Análise de tabelas
-- Criação de dados de teste
-- Limpeza de dados
-- Otimização do banco
+Sistema completo para gestão de transporte escolar e excursões, desenvolvido com tecnologias modernas e foco em segurança, performance e usabilidade.
 
 ## 📋 Índice
 
