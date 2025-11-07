@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Área do Motorista Escolar • Plano Basic | Kanghoo</title>
+    <title>Ãrea do Motorista Escolar â€¢ Plano Premium | Kanghoo</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
@@ -11,62 +11,63 @@
     <link rel="stylesheet" href="../assets/css/auth/post-auth-shell.css">
     <link rel="stylesheet" href="../assets/css/auth/motorista-escolar.css">
 </head>
-<body data-plan="basic">
+<body data-plan="premium">
     <div class="app-shell">
         <aside class="app-sidebar">
             <div>
                 <div class="sidebar-logo">
-                    <span>🟣</span>
+                    <span>ðŸ’ </span>
                     <div>
                         <strong>Kanghoo</strong><br>
-                        <small>Motorista Escolar</small>
+                        <small>Motorista Escolar Premium</small>
                     </div>
                 </div>
 
                 <div class="sidebar-card">
                     <div class="hero-plan">
                         <span class="plan-badge">
-                            Plano <strong id="sidebar-plan-name">Basic</strong>
+                            Plano <strong id="sidebar-plan-name">Premium</strong>
                         </span>
-                        <small>Operação essencial ativa</small>
+                        <small>ExperiÃªncia completa desbloqueada</small>
                     </div>
                     <div class="hero-mini-kpis" style="margin-top: 1rem;">
                         <div>
-                            <small>Próxima saída</small>
+                            <small>PrÃ³xima saÃ­da</small>
                             <strong id="sidebar-next-departure">08:00</strong>
                         </div>
                         <div>
-                            <small>Crianças confirmadas</small>
-                            <strong id="sidebar-confirmations">0</strong>
+                            <small>AutomaÃ§Ã£o ativa</small>
+                            <strong>3 rotinas</strong>
                         </div>
                     </div>
                 </div>
             </div>
 
             <nav class="sidebar-nav">
-                <button class="is-active" data-target="hero">Visão geral</button>
-                <button data-target="timeline-panel">Rotas do dia</button>
-                <button data-target="routes-grid">Centros de ação</button>
-                <button data-target="roster-panel">Alunos & responsáveis</button>
+                <button class="is-active" data-target="hero">Cockpit</button>
+                <button data-target="timeline-panel">Timeline vivo</button>
+                <button data-target="routes-grid">Plataforma operacional</button>
+                <button data-target="roster-panel">Alunos & responsÃ¡veis</button>
+                <button data-target="automation-panel">AutomaÃ§Ãµes</button>
+                <button data-target="ai-panel">Assistente IA</button>
                 <button data-target="insights-panel">Insights</button>
-                <button data-target="compliance-panel">Documentos</button>
             </nav>
 
             <div class="sidebar-card">
-                <span class="live-pill">Painel ao vivo</span>
+                <span class="live-pill">OperaÃ§Ã£o Premium</span>
                 <strong id="sidebar-routes-label">0 rotas</strong>
                 <p style="color: var(--text-muted); margin-bottom: 0.85rem;">
-                    Acompanhamento em tempo real de presença e checkpoints.
+                    AutomaÃ§Ã£o de mensagens, copiloto inteligente e visÃ£o financeira em um sÃ³ lugar.
                 </p>
                 <div id="sidebar-ticker" class="empty-hint">Atualizando...</div>
             </div>
 
             <div class="plan-switcher">
                 <div>
-                    <small>Precisa de recursos avançados?</small>
-                    <strong>Plano Basic</strong>
+                    <small>Precisa voltar ao essencial?</small>
+                    <strong>Plano Premium</strong>
                 </div>
-                <a id="plan-switch-link" href="area-motorista-escolar-premium.html">Conhecer Premium</a>
+                <a id="plan-switch-link" href="area-motorista-escolar.html">Ver Basic</a>
             </div>
         </aside>
 
@@ -81,18 +82,18 @@
                 <article id="timeline-panel" class="panel-card" data-animate>
                     <div class="panel-header">
                         <div>
-                            <p class="panel-title">Fluxo do dia</p>
-                            <small style="color: var(--text-muted);">Acompanhe cada parada confirmada e atrasos.</small>
+                            <p class="panel-title">Linha do tempo inteligente</p>
+                            <small style="color: var(--text-muted);">Mapa todas as interaÃ§Ãµes da famÃ­lia em tempo real.</small>
                         </div>
-                        <span class="live-pill">em progresso</span>
+                        <span class="live-pill">stream ao vivo</span>
                     </div>
                     <div class="timeline" id="journey-timeline"></div>
                 </article>
 
                 <article id="command-panel" class="panel-card" data-animate>
                     <div class="panel-header">
-                        <p class="panel-title">Central de Ações</p>
-                        <small style="color: var(--text-muted);">Automatize tarefas do turno</small>
+                        <p class="panel-title">Orquestrador Premium</p>
+                        <small style="color: var(--text-muted);">Rotinas inteligentes prontas</small>
                     </div>
                     <div class="command-center" id="command-center"></div>
                 </article>
@@ -101,7 +102,7 @@
             <section id="routes-grid" class="panel-grid three">
                 <article class="panel-card" data-animate>
                     <div class="panel-header">
-                        <p class="panel-title">Rotas escolares</p>
+                        <p class="panel-title">Rotas inteligentes</p>
                         <button class="btn btn-ghost" id="create-route">
                             <i class="fa-solid fa-plus"></i> Nova rota
                         </button>
@@ -111,16 +112,16 @@
 
                 <article class="panel-card" data-animate>
                     <div class="panel-header">
-                        <p class="panel-title">Checklist pré-viagem</p>
-                        <small style="color: var(--text-muted);">Lembretes essenciais</small>
+                        <p class="panel-title">Checklist automatizado</p>
+                        <small style="color: var(--text-muted);">Triggers com lembretes</small>
                     </div>
                     <div id="checklist-board" class="checklist"></div>
                 </article>
 
                 <article class="panel-card" data-animate>
                     <div class="panel-header">
-                        <p class="panel-title">Alertas recentes</p>
-                        <small style="color: var(--text-muted);">Eventos importantes</small>
+                        <p class="panel-title">Alertas inteligentes</p>
+                        <small style="color: var(--text-muted);">PriorizaÃ§Ã£o automÃ¡tica</small>
                     </div>
                     <div id="alerts-board" class="notification-stream"></div>
                 </article>
@@ -128,23 +129,23 @@
 
             <section id="roster-panel" class="panel-card" data-animate>
                 <div class="panel-header">
-                    <p class="panel-title">Passageiros e responsáveis</p>
+                    <p class="panel-title">FamÃ­lias e jornada</p>
                     <div class="hero-plan">
                         <span class="pill">
-                            <i class="fa-solid fa-check"></i> Check-in inteligente
+                            <i class="fa-solid fa-bell"></i> Alertas inteligentes
                         </span>
                         <span class="pill">
-                            <i class="fa-solid fa-shield-heart"></i> Responsáveis avisados
+                            <i class="fa-solid fa-route"></i> OrquestraÃ§Ã£o automÃ¡tica
                         </span>
                     </div>
                 </div>
                 <div class="panel-grid two">
                     <div>
-                        <h3>Alunos do turno</h3>
+                        <h3>Alunos</h3>
                         <div id="student-roster" class="roster-grid"></div>
                     </div>
                     <div>
-                        <h3>Responsáveis</h3>
+                        <h3>ResponsÃ¡veis</h3>
                         <div id="guardian-roster" class="roster-grid"></div>
                     </div>
                 </div>
@@ -152,16 +153,16 @@
 
             <section id="compliance-panel" class="panel-card" data-animate>
                 <div class="panel-header">
-                    <p class="panel-title">Documentos e conformidade</p>
-                    <button class="btn btn-ghost" id="upload-docs">Enviar atualização</button>
+                    <p class="panel-title">Compliance em 360Âº</p>
+                    <button class="btn btn-ghost" id="upload-docs">Atualizar documentos</button>
                 </div>
-                <div id="compliance-matrix" class="document-matrix"></div>
+                    <div id="compliance-matrix" class="document-matrix"></div>
             </section>
 
             <section id="insights-panel" class="panel-card" data-animate>
                 <div class="panel-header">
-                    <p class="panel-title">Insights operacionais</p>
-                    <small style="color: var(--text-muted);">Dados do turno e tendências semanais</small>
+                    <p class="panel-title">Cockpit de insights</p>
+                    <small style="color: var(--text-muted);">Financeiro, ocupaÃ§Ã£o e satisfaÃ§Ã£o</small>
                 </div>
                 <div class="panel-grid two">
                     <div>
@@ -170,14 +171,12 @@
                     </div>
                     <div>
                         <div class="insight-card">
-                            <small>Heatmap de ocupação</small>
+                            <small>Heatmap de ocupaÃ§Ã£o</small>
                             <div id="heatmap-grid" class="insights-heatmap" style="margin-top: 0.85rem;"></div>
                         </div>
-                        <div class="insight-card plan-upgrade" id="premium-callout">
-                            Recursos avançados (dashboard financeiro, automações e IA) estão disponíveis no plano Premium.
-                            <button onclick="window.location.href='area-motorista-escolar-premium.html'">
-                                Desbloquear Premium
-                            </button>
+                        <div class="insight-card" id="premium-callout">
+                            <small>SaÃºde financeira</small>
+                            <canvas id="revenue-chart" height="160"></canvas>
                         </div>
                     </div>
                 </div>
@@ -189,8 +188,8 @@
 
             <section id="notifications-panel" class="panel-card" data-animate>
                 <div class="panel-header">
-                    <p class="panel-title">Linha do tempo em tempo real</p>
-                    <small style="color: var(--text-muted);">Atualizações automáticas</small>
+                    <p class="panel-title">Stream em tempo real</p>
+                    <small style="color: var(--text-muted);">IntegraÃ§Ã£o via WebSocket</small>
                 </div>
                 <div id="live-feed" class="live-feed"></div>
             </section>
@@ -207,3 +206,4 @@
     <script src="../assets/js/auth/motorista-escolar.js"></script>
 </body>
 </html>
+
