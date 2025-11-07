@@ -1,0 +1,332 @@
+:root {
+    --excursion-accent: #ffb347;
+    --excursion-accent-strong: #ff6f3c;
+}
+
+body[data-page="excursao"] {
+    background: radial-gradient(circle at 15% 20%, #1b1140 0%, #05060c 70%);
+}
+
+.excursion-shell {
+    display: grid;
+    grid-template-columns: minmax(260px, 320px) 1fr;
+    gap: 1.5rem;
+}
+
+.context-panel {
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--stroke);
+    padding: 1.5rem;
+    background: linear-gradient(180deg, rgba(255, 111, 60, 0.08), rgba(5, 6, 12, 0.8));
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.context-panel h3 {
+    margin: 0 0 0.35rem;
+}
+
+.driver-card {
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--stroke);
+    padding: 1.1rem;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.driver-card img {
+    width: 72px;
+    height: 72px;
+    border-radius: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    object-fit: cover;
+    margin-bottom: 0.5rem;
+}
+
+.document-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.document-row {
+    border-radius: var(--radius-md);
+    border: 1px solid var(--stroke);
+    padding: 0.85rem 1rem;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.document-row strong {
+    display: block;
+}
+
+.support-card {
+    border-radius: var(--radius-lg);
+    border: 1px dashed var(--stroke);
+    padding: 1rem 1.25rem;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.support-card button {
+    margin-top: 0.75rem;
+    width: 100%;
+    border-radius: var(--radius-md);
+    padding: 0.75rem;
+    background: var(--excursion-accent);
+    border: none;
+    color: #1f1200;
+    font-weight: 600;
+}
+
+.excursion-main {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.status-banner {
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--stroke);
+    padding: 2rem;
+    background: linear-gradient(120deg, rgba(255, 111, 60, 0.2), rgba(35, 200, 255, 0.1));
+    position: relative;
+    overflow: hidden;
+}
+
+.status-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.status-meta span {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+}
+
+.status-meta strong {
+    display: block;
+    color: var(--text);
+    font-size: 1.1rem;
+}
+
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+}
+
+.kpi-card {
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    border: 1px solid var(--stroke);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.kpi-card strong {
+    display: block;
+    font-size: 2rem;
+}
+
+.passenger-board {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.passenger-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 0.85rem;
+}
+
+.passenger-tile {
+    border-radius: var(--radius-md);
+    border: 1px solid var(--stroke);
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.passenger-tile header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.passenger-tile button {
+    margin-top: 0.75rem;
+    width: 100%;
+    border-radius: var(--radius-sm);
+    padding: 0.6rem;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text);
+}
+
+.passenger-tile[data-status="checked-in"] {
+    border-color: rgba(43, 209, 156, 0.4);
+}
+
+.passenger-tile[data-status="checked-out"] {
+    border-color: rgba(255, 179, 71, 0.4);
+}
+
+.routes-lab {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.map-card {
+    min-height: 260px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--stroke);
+    border-radius: var(--radius-lg);
+    background: radial-gradient(circle at 30% 30%, rgba(35, 200, 255, 0.4), transparent 55%), rgba(5, 6, 12, 0.7);
+}
+
+.map-card canvas {
+    width: 100% !important;
+    height: 220px !important;
+}
+
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.history-table thead {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.history-table th,
+.history-table td {
+    padding: 0.85rem 0.35rem;
+    border-bottom: 1px solid var(--stroke);
+}
+
+.history-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.table-card {
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--stroke);
+    padding: 1.25rem;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.sheet {
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 6, 12, 0.8);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: flex-end;
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.4s var(--transition);
+    z-index: 200;
+}
+
+.sheet.is-open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.sheet-panel {
+    width: min(420px, 90vw);
+    background: #060913;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-soft);
+    overflow-y: auto;
+}
+
+.sheet-panel h3 {
+    margin-top: 0;
+}
+
+.form-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+}
+
+.form-grid label {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.form-grid input,
+.form-grid select,
+.form-grid textarea {
+    width: 100%;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--stroke);
+    padding: 0.7rem 0.85rem;
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text);
+    font-family: inherit;
+}
+
+.form-actions {
+    margin-top: 1.2rem;
+    display: flex;
+    gap: 0.8rem;
+}
+
+.form-actions button {
+    flex: 1;
+    border-radius: var(--radius-md);
+    padding: 0.85rem;
+    font-weight: 600;
+}
+
+.btn-muted {
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text);
+}
+
+.btn-accent {
+    background: linear-gradient(120deg, var(--excursion-accent), var(--excursion-accent-strong));
+    color: #1d0b05;
+}
+
+.chart-wrapper {
+    min-height: 220px;
+}
+
+.legend {
+    display: flex;
+    gap: 0.85rem;
+    flex-wrap: wrap;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.legend span::before {
+    content: '';
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+@media (max-width: 1100px) {
+    .excursion-shell {
+        grid-template-columns: 1fr;
+    }
+
+    .context-panel {
+        position: relative;
+    }
+}
