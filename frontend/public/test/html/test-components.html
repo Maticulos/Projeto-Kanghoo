@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="pt-br" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Biblioteca de Componentes CSS</title>
+    <link rel="stylesheet" href="assets/css/bundle.min.css">
+    <style>
+        body {
+            padding: 2rem;
+            background-color: #f8f9fa;
+        }
+        .test-section {
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section h2 {
+            margin-bottom: 1.5rem;
+            color: #2e3e70;
+            border-bottom: 2px solid #f7d22f;
+            padding-bottom: 0.5rem;
+        }
+        .component-demo {
+            margin-bottom: 2rem;
+        }
+        .component-demo h3 {
+            margin-bottom: 1rem;
+            color: #495057;
+        }
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="text-align: center; color: #2e3e70; margin-bottom: 3rem;">
+            🎨 Biblioteca de Componentes CSS - Sistema Kanghoo
+        </h1>
+
+        <!-- Buttons Section -->
+        <div class="test-section">
+            <h2>🔘 Botões</h2>
+            
+            <div class="component-demo">
+                <h3>Variações Básicas</h3>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                    <button class="btn btn-primary">Primário</button>
+                    <button class="btn btn-secondary">Secundário</button>
+                    <button class="btn btn-success">Sucesso</button>
+                    <button class="btn btn-danger">Perigo</button>
+                    <button class="btn btn-warning">Aviso</button>
+                    <button class="btn btn-info">Informação</button>
+                </div>
+            </div>
+
+            <div class="component-demo">
+                <h3>Botões Outline</h3>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                    <button class="btn btn-outline-primary">Outline Primário</button>
+                    <button class="btn btn-outline-secondary">Outline Secundário</button>
+                    <button class="btn btn-outline-success">Outline Sucesso</button>
+                    <button class="btn btn-outline-danger">Outline Perigo</button>
+                </div>
+            </div>
+
+            <div class="component-demo">
+                <h3>Tamanhos</h3>
+                <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; margin-bottom: 1rem;">
+                    <button class="btn btn-primary btn-xs">Extra Pequeno</button>
+                    <button class="btn btn-primary btn-sm">Pequeno</button>
+                    <button class="btn btn-primary">Normal</button>
+                    <button class="btn btn-primary btn-lg">Grande</button>
+                    <button class="btn btn-primary btn-xl">Extra Grande</button>
+                </div>
+            </div>
+
+            <div class="component-demo">
+                <h3>Estados e Formas</h3>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                    <button class="btn btn-primary" disabled>Desabilitado</button>
+                    <button class="btn btn-primary loading">Carregando</button>
+                    <button class="btn btn-primary btn-rounded">Arredondado</button>
+                    <button class="btn btn-primary btn-circle">○</button>
+                </div>
+            </div>
+
+            <div class="component-demo">
+                <h3>Grupo de Botões</h3>
+                <div class="btn-group" style="margin-bottom: 1rem;">
+                    <button class="btn btn-outline-primary">Esquerda</button>
+                    <button class="btn btn-outline-primary">Centro</button>
+                    <button class="btn btn-outline-primary">Direita</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cards Section -->
+        <div class="test-section">
+            <h2>🃏 Cards</h2>
+            
+            <div class="demo-grid">
+                <!-- Card Básico -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Card Básico</h3>
+                        <p class="card-subtitle">Subtítulo do card</p>
+                    </div>
+                    <div class="card-body">
+                        <p>Este é um card básico com header, body e footer.</p>
+                    </div>
+                    <div class="card-footer">
+                        <div class="card-actions">
+                            <button class="btn btn-primary btn-sm">Ação</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card Elevado -->
+                <div class="card card-elevated">
+                    <div class="card-header">
+                        <h3 class="card-title">Card Elevado</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>Card com sombra mais pronunciada.</p>
+                    </div>
+                </div>
+
+                <!-- Card com Cor -->
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Card Primário</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>Card com borda colorida à esquerda.</p>
+                    </div>
+                </div>
+
+                <!-- Card de Estatísticas -->
+                <div class="card card-stats">
+                    <div class="stats-number">1,234</div>
+                    <div class="stats-label">Usuários Ativos</div>
+                    <div class="stats-change positive">+12%</div>
+                </div>
+            </div>
+
+            <div class="component-demo">
+                <h3>Card de Notificação</h3>
+                <div class="card card-notification success" style="max-width: 500px;">
+                    <div style="display: flex; align-items: center;">
+                        <div class="notification-icon">✓</div>
+                        <div>
+                            <h4 style="margin: 0 0 0.5rem 0;">Sucesso!</h4>
+                            <p style="margin: 0;">Operação realizada com sucesso.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modals Section -->
+        <div class="test-section">
+            <h2>🪟 Modais</h2>
+            
+            <div class="component-demo">
+                <h3>Botões para Abrir Modais</h3>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem;">
+                    <button class="btn btn-primary" onclick="openModal('basicModal')">Modal Básico</button>
+                    <button class="btn btn-success" onclick="openModal('confirmModal')">Modal de Confirmação</button>
+                    <button class="btn btn-info" onclick="openModal('formModal')">Modal de Formulário</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grid System Section -->
+        <div class="test-section">
+            <h2>📐 Sistema de Grid</h2>
+            
+            <div class="component-demo">
+                <h3>Grid Responsivo</h3>
+                <div class="row">
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4>Coluna 1</h4>
+                                <p>12 cols em mobile, 6 em tablet, 4 em desktop</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4>Coluna 2</h4>
+                                <p>12 cols em mobile, 6 em tablet, 4 em desktop</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-12 col-lg-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4>Coluna 3</h4>
+                                <p>12 cols em mobile, 12 em tablet, 4 em desktop</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Theme Toggle -->
+        <div class="test-section">
+            <h2>🌙 Teste de Tema</h2>
+            <div class="component-demo">
+                <button class="btn btn-secondary" onclick="toggleTheme()">Alternar Tema Escuro/Claro</button>
+                <p style="margin-top: 1rem; color: #666;">
+                    Clique no botão acima para testar o suporte a tema escuro da biblioteca de componentes.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Básico -->
+    <div class="modal-overlay modal-fade" id="basicModal">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeModal('basicModal')"></button>
+            <div class="modal-header">
+                <h2 class="modal-title">Modal Básico</h2>
+                <p class="modal-subtitle">Exemplo de modal simples</p>
+            </div>
+            <div class="modal-body">
+                <p>Este é um exemplo de modal básico da biblioteca de componentes.</p>
+                <p>Ele inclui header, body e footer com botões de ação.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('basicModal')">Cancelar</button>
+                <button class="btn btn-primary" onclick="closeModal('basicModal')">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação -->
+    <div class="modal-overlay modal-confirm success" id="confirmModal">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeModal('confirmModal')"></button>
+            <div class="modal-icon">✓</div>
+            <h2 class="modal-title">Operação Realizada!</h2>
+            <p>Sua ação foi executada com sucesso.</p>
+            <div class="modal-footer modal-footer-center">
+                <button class="btn btn-primary" onclick="closeModal('confirmModal')">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Formulário -->
+    <div class="modal-overlay modal-form" id="formModal">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeModal('formModal')"></button>
+            <div class="modal-header">
+                <h2 class="modal-title">Formulário</h2>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="name" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Nome:</label>
+                        <input type="text" id="name" name="name" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px;">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="email" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Email:</label>
+                        <input type="email" id="email" name="email" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px;">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('formModal')">Cancelar</button>
+                <button class="btn btn-primary" onclick="closeModal('formModal')">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Modal functions
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.add('visible');
+            document.body.classList.add('modal-open');
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.remove('visible');
+            document.body.classList.remove('modal-open');
+        }
+
+        // Theme toggle
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+        }
+
+        // Close modal when clicking overlay
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal-overlay')) {
+                const modalId = e.target.id;
+                closeModal(modalId);
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const visibleModal = document.querySelector('.modal-overlay.visible');
+                if (visibleModal) {
+                    closeModal(visibleModal.id);
+                }
+            }
+        });
+
+        console.log('🎨 Biblioteca de Componentes CSS carregada com sucesso!');
+        console.log('📦 Componentes disponíveis: Botões, Cards, Modais, Grid System');
+        console.log('🌙 Suporte a tema escuro ativado');
+        console.log('📱 Design responsivo ativado');
+    </script>
+</body>
+</html>

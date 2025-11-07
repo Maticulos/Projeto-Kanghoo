@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Integração - Sistema de Rotas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        .result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .logs {
+            max-height: 400px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-ok { background-color: #28a745; }
+        .status-warning { background-color: #ffc107; }
+        .status-error { background-color: #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Teste de Integração - Sistema de Validação de Rotas</h1>
+        <p>Este teste verifica a integração completa do sistema de validação de rotas implementado na tarefa 6.</p>
+
+        <div class="test-section">
+            <h3>📊 Status do Sistema</h3>
+            <div id="system-status">
+                <div class="info">Carregando status do sistema...</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔍 Validação de Rotas</h3>
+            <button onclick="testRouteValidation()">Executar Teste de Validação</button>
+            <div id="validation-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>👤 Redirecionamento por Tipo de Usuário</h3>
+            <button onclick="testUserRedirection()">Testar Mapeamento de Usuários</button>
+            <div id="user-redirect-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔄 Sistema de Fallback</h3>
+            <button onclick="testFallbackSystem()">Testar Sistema de Fallback</button>
+            <div id="fallback-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📝 Sistema de Logging</h3>
+            <button onclick="testLoggingSystem()">Testar Logging</button>
+            <button onclick="showSystemLogs()">Mostrar Logs</button>
+            <button onclick="clearSystemLogs()">Limpar Logs</button>
+            <div id="logging-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📈 Estatísticas e Métricas</h3>
+            <button onclick="showStatistics()">Mostrar Estatísticas</button>
+            <div id="statistics-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔧 Teste de Integração com Auth Manager</h3>
+            <button onclick="testAuthIntegration()">Testar Integração</button>
+            <div id="auth-integration-result"></div>
+        </div>
+    </div>
+
+    <!-- Carregar módulos necessários -->
+    <script src="/assets/js/core/config.js"></script>
+    <script src="/assets/js/core/routes.js"></script>
+
+    <script>
+        // Verificar status do sistema na inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            checkSystemStatus();
+        });
+
+        function checkSystemStatus() {
+            const statusDiv = document.getElementById('system-status');
+            
+            try {
+                const checks = [
+                    { name: 'Routes Module', status: !!window.Routes, details: 'Sistema de rotas carregado' },
+                    { name: 'Config Module', status: !!window.Config, details: 'Configurações carregadas' },
+                    { name: 'Route Validation', status: typeof window.Routes?.validateRoute === 'function', details: 'Função de validação disponível' },
+                    { name: 'Safe Redirect', status: typeof window.Routes?.safeRedirect === 'function', details: 'Redirecionamento seguro disponível' },
+                    { name: 'Fallback System', status: typeof window.Routes?.fallbackRedirect === 'function', details: 'Sistema de fallback disponível' },
+                    { name: 'Logging System', status: !!window.Routes?.logger, details: 'Sistema de logging ativo' },
+                    { name: 'User Type Mapping', status: !!window.Routes?.USER_TYPE_ROUTES, details: 'Mapeamento de usuários configurado' }
+                ];
+
+                let statusHtml = '<div style="display: grid; gap: 10px;">';
+                
+                checks.forEach(check => {
+                    const statusClass = check.status ? 'status-ok' : 'status-error';
+                    const statusText = check.status ? 'OK' : 'ERRO';
+                    
+                    statusHtml += `
+                        <div style="display: flex; align-items: center;">
+                            <span class="status-indicator ${statusClass}"></span>
+                            <strong>${check.name}:</strong> ${statusText} - ${check.details}
+                        </div>
+                    `;
+                });
+
+                statusHtml += '</div>';
+                
+                const allOk = checks.every(check => check.status);
+                const containerClass = allOk ? 'success' : 'error';
+                
+                statusDiv.innerHTML = `
+                    <div class="${containerClass}">
+                        <h4>${allOk ? '✅ Sistema Operacional' : '❌ Problemas Detectados'}</h4>
+                        ${statusHtml}
+                    </div>
+                `;
+
+            } catch (error) {
+                statusDiv.innerHTML = `
+                    <div class="error">
+                        <strong>Erro ao verificar status:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        async function testRouteValidation() {
+            const resultDiv = document.getElementById('validation-result');
+            resultDiv.innerHTML = '<div class="info">Executando testes de validação...</div>';
+
+            try {
+                const testCases = [
+                    { route: 'LOGIN', expected: true, description: 'Rota de login por chave' },
+                    { route: '/auth/login.html', expected: true, description: 'Rota de login por caminho' },
+                    { route: 'MOTORISTA_ESCOLAR', expected: true, description: 'Rota de motorista escolar' },
+                    { route: '/auth/rota-inexistente.html', expected: false, description: 'Rota inexistente' },
+                    { route: '', expected: false, description: 'Rota vazia' },
+                    { route: null, expected: false, description: 'Rota nula' }
+                ];
+
+                let results = [];
+                let passed = 0;
+                let failed = 0;
+
+                for (const testCase of testCases) {
+                    try {
+                        const result = await Routes.validateRoute(testCase.route);
+                        const success = result === testCase.expected;
+                        
+                        if (success) {
+                            passed++;
+                            results.push(`✅ ${testCase.description}: ${result ? 'Válida' : 'Inválida'} (esperado)`);
+                        } else {
+                            failed++;
+                            results.push(`❌ ${testCase.description}: ${result ? 'Válida' : 'Inválida'} (inesperado)`);
+                        }
+                    } catch (error) {
+                        failed++;
+                        results.push(`❌ ${testCase.description}: Erro - ${error.message}`);
+                    }
+                }
+
+                const containerClass = failed === 0 ? 'success' : (passed > failed ? 'warning' : 'error');
+                
+                resultDiv.innerHTML = `
+                    <div class="${containerClass}">
+                        <h4>Resultados da Validação (${passed} passou, ${failed} falhou)</h4>
+                        ${results.map(r => `<div>${r}</div>`).join('')}
+                    </div>
+                `;
+
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>Erro no teste:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function testUserRedirection() {
+            const resultDiv = document.getElementById('user-redirect-result');
+            
+            try {
+                const userTypes = [
+                    'motorista_escolar',
+                    'motorista_excursao', 
+                    'responsavel',
+                    'admin',
+                    'motorista_escolar_excursao',
+                    'tipo_inexistente'
+                ];
+
+                let results = [];
+                
+                userTypes.forEach(userType => {
+                    try {
+                        const route = Routes.getPathByUserType(userType);
+                        const isKnown = Routes.isKnownRoute(route);
+                        
+                        if (userType === 'motorista_escolar_excursao') {
+                            results.push(`✅ ${userType}: Tratamento especial (sem rota direta)`);
+                        } else if (userType === 'tipo_inexistente') {
+                            results.push(`✅ ${userType}: Fallback para rota padrão (${route})`);
+                        } else {
+                            const status = isKnown ? '✅' : '⚠️';
+                            results.push(`${status} ${userType}: ${route} (${isKnown ? 'conhecida' : 'desconhecida'})`);
+                        }
+                    } catch (error) {
+                        results.push(`❌ ${userType}: Erro - ${error.message}`);
+                    }
+                });
+
+                resultDiv.innerHTML = `
+                    <div class="success">
+                        <h4>Mapeamento de Tipos de Usuário</h4>
+                        ${results.map(r => `<div>${r}</div>`).join('')}
+                    </div>
+                `;
+
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>Erro no teste:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        async function testFallbackSystem() {
+            const resultDiv = document.getElementById('fallback-result');
+            resultDiv.innerHTML = '<div class="info">Testando sistema de fallback...</div>';
+
+            try {
+                // Testar se as rotas de fallback existem
+                const fallbackRoutes = ['/auth/login.html', '/', '/index.html'];
+                let results = [];
+
+                for (const route of fallbackRoutes) {
+                    try {
+                        const isValid = await Routes.validateRoute(route);
+                        const status = isValid ? '✅ Disponível' : '❌ Indisponível';
+                        results.push(`${route}: ${status}`);
+                    } catch (error) {
+                        results.push(`${route}: ❌ Erro - ${error.message}`);
+                    }
+                }
+
+                // Testar função de fallback (sem executar redirecionamento)
+                const hasFallbackFunction = typeof Routes.fallbackRedirect === 'function';
+                results.push(`Função de fallback: ${hasFallbackFunction ? '✅ Disponível' : '❌ Não encontrada'}`);
+
+                resultDiv.innerHTML = `
+                    <div class="success">
+                        <h4>Sistema de Fallback</h4>
+                        ${results.map(r => `<div>${r}</div>`).join('')}
+                        <div style="margin-top: 10px; padding: 10px; background: #e9ecef; border-radius: 4px;">
+                            <small><strong>Nota:</strong> Redirecionamentos não são executados para evitar sair da página de teste.</small>
+                        </div>
+                    </div>
+                `;
+
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>Erro no teste:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function testLoggingSystem() {
+            const resultDiv = document.getElementById('logging-result');
+            
+            try {
+                // Gerar alguns logs de teste
+                Routes.logger.info('Teste de log de informação', { test: true });
+                Routes.logger.warn('Teste de log de aviso', { test: true });
+                Routes.logger.error('Teste de log de erro', { test: true });
+
+                const logs = Routes.logger.getLogs();
+                const recentLogs = logs.slice(-3);
+
+                resultDiv.innerHTML = `
+                    <div class="success">
+                        <h4>Sistema de Logging Testado</h4>
+                        <div>Total de logs: ${logs.length}</div>
+                        <div>Logs de teste gerados: 3</div>
+                        <div style="margin-top: 10px;">
+                            <strong>Logs recentes:</strong>
+                            <div class="logs">
+                                ${recentLogs.map(log => 
+                                    `<div>[${log.level.toUpperCase()}] ${log.timestamp}: ${log.message}</div>`
+                                ).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>Erro no teste:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function showSystemLogs() {
+            const resultDiv = document.getElementById('logging-result');
+            
+            try {
+                const logs = Routes.logger.getLogs();
+                
+                if (logs.length === 0) {
+                    resultDiv.innerHTML = '<div class="info">Nenhum log encontrado</div>';
+                    return;
+                }
+
+                const logsHtml = logs.map(log => {
+                    const levelColor = log.level === 'error' ? '#dc3545' : 
+                                     log.level === 'warn' ? '#ffc107' : '#007bff';
+                    
+                    return `
+                        <div style="margin: 5px 0; padding: 8px; border-left: 3px solid ${levelColor}; background: #f8f9fa;">
+                            <div style="font-weight: bold; color: ${levelColor};">[${log.level.toUpperCase()}] ${new Date(log.timestamp).toLocaleString()}</div>
+                            <div>${log.message}</div>
+                            ${Object.keys(log.data).length > 0 ? `<div style="font-size: 11px; color: #6c757d;">${JSON.stringify(log.data)}</div>` : ''}
+                        </div>
+                    `;
+                }).join('');
+
+                resultDiv.innerHTML = `
+                    <div class="info">
+                        <h4>Logs do Sistema (${logs.length} entradas)</h4>
+                        <div class="logs">
+                            ${logsHtml}
+                        </div>
+                    </div>
+                `;
+
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>Erro ao mostrar logs:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function clearSystemLogs() {
+            try {
+                Routes.logger.clearLogs();
+                document.getElementById('logging-result').innerHTML = '<div class="success">✅ Logs limpos com sucesso</div>';
+            } catch (error) {
+                document.getElementById('logging-result').innerHTML = `
+                    <div class="error">
+                        <strong>Erro ao limpar logs:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function showStatistics() {
+            const resultDiv = document.getElementById('statistics-result');
+            
+            try {
+                const stats = Routes.getRouteStats();
+                
+                resultDiv.innerHTML = `
+                    <div class="info">
+                        <h4>📊 Estatísticas do Sistema de Rotas</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                            <div style="padding: 10px; background: #e3f2fd; border-radius: 4px;">
+                                <div style="font-weight: bold; color: #1976d2;">Validações</div>
+                                <div style="font-size: 24px;">${stats.totalValidations}</div>
+                            </div>
+                            <div style="padding: 10px; background: #e8f5e8; border-radius: 4px;">
+                                <div style="font-weight: bold; color: #388e3c;">Redirecionamentos</div>
+                                <div style="font-size: 24px;">${stats.successfulRedirects}</div>
+                            </div>
+                            <div style="padding: 10px; background: #ffebee; border-radius: 4px;">
+                                <div style="font-weight: bold; color: #d32f2f;">Falhas</div>
+                                <div style="font-size: 24px;">${stats.failedValidations}</div>
+                            </div>
+                            <div style="padding: 10px; background: #fff3e0; border-radius: 4px;">
+                                <div style="font-weight: bold; color: #f57c00;">Fallbacks</div>
+                                <div style="font-size: 24px;">${stats.fallbackRedirects}</div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 15px;">
+                            <strong>Rotas Conhecidas:</strong> ${Object.keys(Routes.ROUTES).length}<br>
+                            <strong>Tipos de Usuário:</strong> ${Object.keys(Routes.USER_TYPE_ROUTES).length}<br>
+                            <strong>Erros Recentes:</strong> ${stats.recentErrors.length}
+                        </div>
+                    </div>
+                `;
+
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>Erro ao gerar estatísticas:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        async function testAuthIntegration() {
+            const resultDiv = document.getElementById('auth-integration-result');
+            
+            try {
+                // Verificar se o auth manager está disponível
+                const hasAuthManager = !!window.authManager || !!window.AuthManager;
+                
+                // Testar integração básica
+                let integrationTests = [
+                    { name: 'Auth Manager Disponível', status: hasAuthManager },
+                    { name: 'Routes.redirectByUserType', status: typeof Routes.redirectByUserType === 'function' },
+                    { name: 'Routes.fallbackRedirect', status: typeof Routes.fallbackRedirect === 'function' },
+                    { name: 'Sistema de Logging', status: !!Routes.logger }
+                ];
+
+                let results = integrationTests.map(test => {
+                    const status = test.status ? '✅' : '❌';
+                    return `${status} ${test.name}: ${test.status ? 'OK' : 'Não disponível'}`;
+                });
+
+                // Testar redirecionamento simulado
+                try {
+                    const testUserType = 'motorista_escolar';
+                    const route = Routes.getPathByUserType(testUserType);
+                    const isValid = await Routes.validateRoute(route);
+                    
+                    results.push(`✅ Teste de redirecionamento simulado: ${testUserType} -> ${route} (${isValid ? 'válido' : 'inválido'})`);
+                } catch (error) {
+                    results.push(`❌ Teste de redirecionamento: Erro - ${error.message}`);
+                }
+
+                const allPassed = integrationTests.every(test => test.status);
+                const containerClass = allPassed ? 'success' : 'warning';
+
+                resultDiv.innerHTML = `
+                    <div class="${containerClass}">
+                        <h4>Integração com Auth Manager</h4>
+                        ${results.map(r => `<div>${r}</div>`).join('')}
+                        <div style="margin-top: 10px; padding: 10px; background: #e9ecef; border-radius: 4px;">
+                            <small><strong>Nota:</strong> Para teste completo, carregue uma página com auth-manager.js</small>
+                        </div>
+                    </div>
+                `;
+
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>Erro no teste de integração:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

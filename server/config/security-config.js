@@ -33,10 +33,16 @@ const securityConfig = {
 
     // Configurações de JWT
     jwt: {
-        secret: process.env.JWT_SECRET || (() => {
-            logger.error('⚠️  AVISO DE SEGURANÇA: JWT_SECRET não definido no .env');
-    logger.error('⚠️  Usando chave temporária - ALTERE IMEDIATAMENTE em produção!');
-            return 'temp_key_' + Math.random().toString(36).substring(2, 15);
+        secret: (() => {
+            const s = process.env.JWT_SECRET;
+            if (!s) {
+                if (process.env.NODE_ENV === 'production') {
+                    throw new Error('JWT_SECRET é obrigatório em produção');
+                }
+                logger.warn('⚠️  JWT_SECRET ausente. Usando chave temporária em ambiente não-produtivo.');
+                return 'temp_key_' + Math.random().toString(36).substring(2, 15);
+            }
+            return s;
         })(),
         expiresIn: '2h',
         algorithm: 'HS256'

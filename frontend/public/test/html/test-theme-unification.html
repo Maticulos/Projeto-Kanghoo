@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Sistema de Temas Unificado</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Tema claro (padrão) */
+        [data-theme="light"] {
+            background-color: #ffffff;
+            color: #333333;
+        }
+
+        [data-theme="light"] .container {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+        }
+
+        /* Tema escuro */
+        [data-theme="dark"] {
+            background-color: #1a1a1a;
+            color: #e9ecef;
+        }
+
+        [data-theme="dark"] .container {
+            background-color: #2d3748;
+            border: 1px solid #4a5568;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            border-radius: 8px;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .theme-controls {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        [data-theme="light"] button {
+            background-color: #007bff;
+            color: white;
+        }
+
+        [data-theme="dark"] button {
+            background-color: #0d6efd;
+            color: white;
+        }
+
+        .status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        [data-theme="light"] .status {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        [data-theme="dark"] .status {
+            background-color: #1e3a2e;
+            color: #75b798;
+            border: 1px solid #2d5a3d;
+        }
+
+        .test-results {
+            margin-top: 20px;
+        }
+
+        .test-item {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+        }
+
+        .test-pass {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        [data-theme="dark"] .test-pass {
+            background-color: #1e3a2e;
+            color: #75b798;
+        }
+
+        .test-fail {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        [data-theme="dark"] .test-fail {
+            background-color: #3a1e1e;
+            color: #f5a3a3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Teste do Sistema de Temas Unificado</h1>
+        
+        <div class="theme-controls">
+            <button onclick="setTheme('light')">☀️ Tema Claro</button>
+            <button onclick="setTheme('dark')">🌙 Tema Escuro</button>
+            <button onclick="toggleTheme()">🔄 Alternar Tema</button>
+        </div>
+
+        <div class="status" id="current-status">
+            Tema atual: <span id="current-theme">light</span>
+        </div>
+
+        <div class="test-results">
+            <h3>Resultados dos Testes:</h3>
+            <div id="test-results"></div>
+        </div>
+
+        <div style="margin-top: 30px;">
+            <h3>Verificações Implementadas:</h3>
+            <ul>
+                <li>✅ Removidas todas as referências à classe .dark-theme</li>
+                <li>✅ Mantidos apenas seletores [data-theme="dark"] e [data-theme="light"]</li>
+                <li>✅ Atualizadas funções JavaScript para usar apenas data-theme</li>
+                <li>✅ Removidos scripts que forçam tema claro no final dos HTMLs</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Função para definir tema
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            updateStatus(theme);
+            runTests();
+        }
+
+        // Função para alternar tema
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            setTheme(newTheme);
+        }
+
+        // Atualizar status
+        function updateStatus(theme) {
+            document.getElementById('current-theme').textContent = theme;
+        }
+
+        // Executar testes
+        function runTests() {
+            const results = [];
+            
+            // Teste 1: Verificar se data-theme está definido
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            results.push({
+                name: 'Atributo data-theme definido',
+                pass: currentTheme !== null,
+                details: `Valor: ${currentTheme}`
+            });
+
+            // Teste 2: Verificar se não há classes de tema antigas
+            const hasOldClasses = document.documentElement.classList.contains('dark-theme') || 
+                                 document.documentElement.classList.contains('light-theme');
+            results.push({
+                name: 'Sem classes de tema antigas',
+                pass: !hasOldClasses,
+                details: hasOldClasses ? 'Classes antigas encontradas' : 'Nenhuma classe antiga'
+            });
+
+            // Teste 3: Verificar se o tema está sendo aplicado corretamente
+            const computedStyle = window.getComputedStyle(document.body);
+            const backgroundColor = computedStyle.backgroundColor;
+            const expectedColors = {
+                light: 'rgb(255, 255, 255)',
+                dark: 'rgb(26, 26, 26)'
+            };
+            
+            results.push({
+                name: 'Tema aplicado corretamente',
+                pass: backgroundColor === expectedColors[currentTheme],
+                details: `Cor de fundo: ${backgroundColor}`
+            });
+
+            // Renderizar resultados
+            renderTestResults(results);
+        }
+
+        // Renderizar resultados dos testes
+        function renderTestResults(results) {
+            const container = document.getElementById('test-results');
+            container.innerHTML = '';
+
+            results.forEach(result => {
+                const div = document.createElement('div');
+                div.className = `test-item ${result.pass ? 'test-pass' : 'test-fail'}`;
+                div.innerHTML = `
+                    <strong>${result.pass ? '✅' : '❌'} ${result.name}</strong><br>
+                    <small>${result.details}</small>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', () => {
+            // Definir tema inicial
+            const initialTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            setTheme(initialTheme);
+        });
+    </script>
+</body>
+</html>

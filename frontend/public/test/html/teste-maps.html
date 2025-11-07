@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Google Maps</title>
+    <style>
+        #map {
+            height: 400px;
+            width: 100%;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗺️ Teste de Integração Google Maps</h1>
+        
+        <div id="status" class="status info">
+            ⏳ Carregando Google Maps...
+        </div>
+        
+        <div id="map"></div>
+        
+        <div style="margin-top: 20px;">
+            <h3>Informações de Debug:</h3>
+            <ul id="debug-info">
+                <li>Verificando carregamento da API...</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Google Maps API -->
+    <script async defer 
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBOti4mM-6x9WDnZIjIeyb7NFvBOKXqJBY&libraries=places,geometry&callback=initMap">
+    </script>
+
+    <script>
+        let map;
+        let debugInfo = [];
+
+        function addDebugInfo(message) {
+            debugInfo.push(message);
+            const debugList = document.getElementById('debug-info');
+            const li = document.createElement('li');
+            li.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+            debugList.appendChild(li);
+            console.log(message);
+        }
+
+        function updateStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+        }
+
+        function initMap() {
+            try {
+                addDebugInfo('Função initMap chamada');
+                
+                // Verificar se google está disponível
+                if (typeof google === 'undefined') {
+                    throw new Error('Google Maps API não carregada');
+                }
+                
+                addDebugInfo('Google Maps API carregada com sucesso');
+                
+                // Configurações do mapa
+                const mapOptions = {
+                    center: { lat: -23.5505, lng: -46.6333 }, // São Paulo
+                    zoom: 12,
+                    mapTypeId: google.maps.MapTypeId.ROADMAP
+                };
+                
+                addDebugInfo('Criando instância do mapa...');
+                
+                // Criar o mapa
+                map = new google.maps.Map(document.getElementById('map'), mapOptions);
+                
+                addDebugInfo('Mapa criado com sucesso');
+                
+                // Adicionar um marcador de teste
+                const marker = new google.maps.Marker({
+                    position: { lat: -23.5505, lng: -46.6333 },
+                    map: map,
+                    title: 'São Paulo - Teste'
+                });
+                
+                addDebugInfo('Marcador adicionado');
+                
+                // Testar serviços
+                const placesService = new google.maps.places.PlacesService(map);
+                addDebugInfo('Places Service inicializado');
+                
+                const directionsService = new google.maps.DirectionsService();
+                addDebugInfo('Directions Service inicializado');
+                
+                updateStatus('✅ Google Maps carregado com sucesso!', 'success');
+                
+            } catch (error) {
+                addDebugInfo(`Erro: ${error.message}`);
+                updateStatus(`❌ Erro ao carregar Google Maps: ${error.message}`, 'error');
+                console.error('Erro no Google Maps:', error);
+            }
+        }
+
+        // Verificar se a API falhou ao carregar
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                if (typeof google === 'undefined') {
+                    addDebugInfo('Timeout: Google Maps API não carregou em 5 segundos');
+                    updateStatus('❌ Timeout: Google Maps API não carregou', 'error');
+                }
+            }, 5000);
+        });
+
+        // Capturar erros de script
+        window.addEventListener('error', function(e) {
+            if (e.filename && e.filename.includes('maps.googleapis.com')) {
+                addDebugInfo(`Erro de script do Google Maps: ${e.message}`);
+                updateStatus('❌ Erro ao carregar script do Google Maps', 'error');
+            }
+        });
+    </script>
+</body>
+</html>

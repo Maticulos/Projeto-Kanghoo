@@ -247,6 +247,7 @@ function validateUploadedFiles(category = 'all') {
                 // Verificar assinatura do arquivo
                 const isValidSignature = await verifyFileSignature(file.path, file.mimetype);
                 if (!isValidSignature) {
+                    logger.warn('Arquivo reprovado por assinatura inválida', { name: file.originalname, mimetype: file.mimetype, size: file.size });
                     // Remover arquivo inválido
                     if (fs.existsSync(file.path)) {
                         fs.unlinkSync(file.path);

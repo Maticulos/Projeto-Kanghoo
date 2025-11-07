@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Loading Component</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/core/variables.css">
+    <link rel="stylesheet" href="assets/css/components/loading.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #2e3e70;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .test-section {
+            margin-bottom: 40px;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+        }
+
+        .test-section h2 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            margin: 8px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: #007bff;
+            border: 2px solid #007bff;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .demo-form {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            position: relative;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        [data-theme="dark"] {
+            background-color: #1a1a1a;
+            color: #e9ecef;
+        }
+
+        [data-theme="dark"] .container {
+            background-color: #2d3748;
+            color: #e9ecef;
+        }
+
+        [data-theme="dark"] .test-section {
+            background-color: #4a5568;
+            border-color: #718096;
+        }
+
+        [data-theme="dark"] .demo-form {
+            background-color: #2d3748;
+            border-color: #718096;
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()">🌙 Tema Escuro</button>
+
+    <div class="container">
+        <h1>Teste do Loading Component</h1>
+
+        <!-- Teste de Botões -->
+        <div class="test-section">
+            <h2>1. Loading em Botões</h2>
+            <div class="controls">
+                <button class="btn btn-primary" onclick="testButtonLoading(this)">
+                    Botão Primário
+                </button>
+                <button class="btn btn-secondary" onclick="testButtonLoading(this, 'Processando...')">
+                    Botão Secundário
+                </button>
+                <button class="btn btn-success" onclick="testButtonLoading(this, 'Salvando...', 3000)">
+                    Botão Sucesso (3s)
+                </button>
+                <button class="btn btn-outline" onclick="testButtonLoading(this, 'Carregando...', 5000)">
+                    Botão Outline (5s)
+                </button>
+            </div>
+            <p><strong>Instruções:</strong> Clique nos botões para ver o estado de loading. Cada botão tem configurações diferentes.</p>
+        </div>
+
+        <!-- Teste de Formulário -->
+        <div class="test-section">
+            <h2>2. Loading em Formulário</h2>
+            <form class="demo-form" onsubmit="testFormLoading(event)">
+                <div class="form-group">
+                    <label for="nome">Nome:</label>
+                    <input type="text" id="nome" name="nome" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="tipo">Tipo:</label>
+                    <select id="tipo" name="tipo">
+                        <option value="escolar">Transporte Escolar</option>
+                        <option value="excursao">Excursão</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="observacoes">Observações:</label>
+                    <textarea id="observacoes" name="observacoes" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Enviar Formulário</button>
+                <button type="button" class="btn btn-secondary" onclick="clearFormLoading()">Limpar Loading</button>
+            </form>
+            <div id="form-status"></div>
+        </div>
+
+        <!-- Teste de Loading de Página -->
+        <div class="test-section">
+            <h2>3. Loading de Página Inteira</h2>
+            <div class="controls">
+                <button class="btn btn-primary" onclick="testPageLoading(2000)">
+                    Loading 2s
+                </button>
+                <button class="btn btn-secondary" onclick="testPageLoading(5000, 'Processando dados...')">
+                    Loading 5s (Custom Text)
+                </button>
+                <button class="btn btn-success" onclick="testPageLoading(10000, 'Operação longa...')">
+                    Loading 10s
+                </button>
+                <button class="btn btn-outline" onclick="hidePageLoading()">
+                    Parar Loading
+                </button>
+            </div>
+        </div>
+
+        <!-- Teste de Integração Automática -->
+        <div class="test-section">
+            <h2>4. Integração Automática</h2>
+            <p>Estes elementos são automaticamente interceptados pelo sistema:</p>
+            <form onsubmit="simulateFormSubmission(event)" style="display: inline-block; margin-right: 20px;">
+                <button type="submit" class="btn btn-primary">Submit Automático</button>
+            </form>
+            <button type="submit" class="btn btn-secondary">Botão Submit</button>
+            <button class="btn btn-success btn-submit">Botão com Classe</button>
+            
+            <p style="margin-top: 15px;">
+                <small><strong>Nota:</strong> Para desabilitar o loading automático, adicione o atributo <code>data-no-loading</code> ao elemento.</small>
+            </p>
+            <button class="btn btn-outline" data-no-loading onclick="alert('Sem loading automático!')">
+                Sem Loading Automático
+            </button>
+        </div>
+
+        <!-- Teste de Configuração Manual -->
+        <div class="test-section">
+            <h2>5. Configuração Manual</h2>
+            <div class="controls">
+                <button class="btn btn-primary" id="manual-btn-1">
+                    Setup Manual 1
+                </button>
+                <button class="btn btn-secondary" id="manual-btn-2">
+                    Setup Manual 2
+                </button>
+            </div>
+            <p><strong>Instruções:</strong> Estes botões foram configurados manualmente com <code>setupAutoLoading()</code>.</p>
+        </div>
+
+        <!-- Teste de Diferentes Tamanhos -->
+        <div class="test-section">
+            <h2>6. Diferentes Tamanhos de Spinner</h2>
+            <div class="controls">
+                <button class="btn btn-primary" onclick="testSpinnerSize(this, 'small')">
+                    Spinner Pequeno
+                </button>
+                <button class="btn btn-secondary" onclick="testSpinnerSize(this, '')">
+                    Spinner Normal
+                </button>
+                <button class="btn btn-success" onclick="testSpinnerSize(this, 'large')">
+                    Spinner Grande
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="assets/js/components/loading.js"></script>
+    <script>
+        // Funções de teste
+        function testButtonLoading(button, text = 'Carregando...', duration = 2000) {
+            const loading = loadingComponent.showButtonLoading(button, {
+                text: text,
+                timeout: duration + 1000 // Timeout maior que a duração do teste
+            });
+
+            // Simular operação assíncrona
+            setTimeout(() => {
+                loading.hide();
+                showStatus('Operação concluída!', 'success');
+            }, duration);
+        }
+
+        function testFormLoading(event) {
+            event.preventDefault();
+            const form = event.target;
+            
+            const loading = loadingComponent.showFormLoading(form, {
+                text: 'Enviando formulário...',
+                timeout: 6000
+            });
+
+            // Simular envio
+            setTimeout(() => {
+                loading.hide();
+                showStatus('Formulário enviado com sucesso!', 'success', 'form-status');
+            }, 3000);
+        }
+
+        function clearFormLoading() {
+            const form = document.querySelector('.demo-form');
+            loadingComponent.hideFormLoading(form);
+            showStatus('Loading do formulário removido.', 'success', 'form-status');
+        }
+
+        function testPageLoading(duration, text = 'Carregando...') {
+            const loading = loadingComponent.showPageLoading({
+                text: text,
+                timeout: duration + 1000
+            });
+
+            setTimeout(() => {
+                loading.hide();
+                showStatus('Loading de página concluído!', 'success');
+            }, duration);
+        }
+
+        function simulateFormSubmission(event) {
+            event.preventDefault();
+            // O loading será aplicado automaticamente
+            setTimeout(() => {
+                // Simular conclusão
+                const form = event.target;
+                loadingComponent.hideFormLoading(form);
+                showStatus('Submissão automática concluída!', 'success');
+            }, 2500);
+        }
+
+        function testSpinnerSize(button, size) {
+            const loading = loadingComponent.showButtonLoading(button, {
+                text: `Loading ${size || 'normal'}`,
+                spinnerClass: size,
+                timeout: 4000
+            });
+
+            setTimeout(() => {
+                loading.hide();
+            }, 3000);
+        }
+
+        function showStatus(message, type, containerId = null) {
+            const container = containerId ? document.getElementById(containerId) : document.body;
+            
+            // Remover status anterior se existir
+            const existingStatus = container.querySelector('.status');
+            if (existingStatus) {
+                existingStatus.remove();
+            }
+
+            const status = document.createElement('div');
+            status.className = `status ${type}`;
+            status.textContent = message;
+            
+            if (containerId) {
+                container.appendChild(status);
+            } else {
+                container.insertBefore(status, container.firstChild);
+            }
+
+            // Remover após 3 segundos
+            setTimeout(() => {
+                if (status.parentNode) {
+                    status.remove();
+                }
+            }, 3000);
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            
+            const button = document.querySelector('.theme-toggle');
+            button.textContent = newTheme === 'dark' ? '☀️ Tema Claro' : '🌙 Tema Escuro';
+        }
+
+        // Configurar loading automático para botões manuais
+        document.addEventListener('DOMContentLoaded', () => {
+            const manualBtn1 = document.getElementById('manual-btn-1');
+            const manualBtn2 = document.getElementById('manual-btn-2');
+
+            loadingComponent.setupAutoLoading(manualBtn1, {
+                trigger: 'click',
+                duration: 2000,
+                text: 'Configuração 1...'
+            });
+
+            loadingComponent.setupAutoLoading(manualBtn2, {
+                trigger: 'click',
+                duration: 3500,
+                text: 'Configuração 2...'
+            });
+
+            showStatus('Página de teste carregada! Teste os diferentes tipos de loading.', 'success');
+        });
+
+        // Demonstrar limpeza global
+        window.addEventListener('beforeunload', () => {
+            loadingComponent.clearAllLoadings();
+        });
+    </script>
+</body>
+</html>

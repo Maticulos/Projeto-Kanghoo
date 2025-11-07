@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Sistema de Validação de Formulários</title>
+    <link rel="stylesheet" href="assets/css/bundle.min.css">
+    <script src="assets/js/core/form-validator.js"></script>
+    <style>
+        .test-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .test-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .campo-grupo {
+            margin-bottom: 1rem;
+        }
+        .campo-grupo label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        .campo-grupo input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Teste do Sistema de Validação</h1>
+        <p>Este formulário testa todas as regras de validação implementadas.</p>
+        
+        <form id="testForm" class="test-form">
+            <div class="campo-grupo">
+                <label for="nome">Nome Completo</label>
+                <input type="text" id="nome" name="nome" 
+                       data-validate="required|minLength:2" 
+                       placeholder="Digite seu nome completo">
+            </div>
+            
+            <div class="campo-grupo">
+                <label for="email">E-mail</label>
+                <input type="email" id="email" name="email" 
+                       data-validate="required|email" 
+                       placeholder="seu@email.com">
+            </div>
+            
+            <div class="campo-grupo">
+                <label for="cpf">CPF</label>
+                <input type="text" id="cpf" name="cpf" 
+                       data-validate="required|cpf" 
+                       placeholder="000.000.000-00">
+            </div>
+            
+            <div class="campo-grupo">
+                <label for="telefone">Telefone</label>
+                <input type="tel" id="telefone" name="telefone" 
+                       data-validate="required|phone" 
+                       placeholder="(11) 99999-9999">
+            </div>
+            
+            <div class="campo-grupo">
+                <label for="cep">CEP</label>
+                <input type="text" id="cep" name="cep" 
+                       data-validate="required|cep" 
+                       placeholder="00000-000">
+            </div>
+            
+            <div class="campo-grupo">
+                <label for="placa">Placa do Veículo</label>
+                <input type="text" id="placa" name="placa" 
+                       data-validate="required|placa" 
+                       placeholder="ABC-1234 ou ABC1D23">
+            </div>
+            
+            <div class="campo-grupo">
+                <label for="renavam">RENAVAM</label>
+                <input type="text" id="renavam" name="renavam" 
+                       data-validate="required|renavam" 
+                       placeholder="12345678901">
+            </div>
+            
+            <div class="campo-grupo">
+                <label for="senha">Senha</label>
+                <input type="password" id="senha" name="senha" 
+                       data-validate="required|password" 
+                       placeholder="Mínimo 6 caracteres">
+            </div>
+            
+            <div class="campo-grupo">
+                <label for="confirmaSenha">Confirmar Senha</label>
+                <input type="password" id="confirmaSenha" name="confirmaSenha" 
+                       data-validate="required|confirmPassword:#senha" 
+                       placeholder="Repita a senha">
+            </div>
+            
+            <div class="campo-grupo">
+                <label for="ano">Ano do Veículo</label>
+                <input type="number" id="ano" name="ano" 
+                       data-validate="year" 
+                       placeholder="2020">
+            </div>
+            
+            <button type="submit" class="btn">Testar Validação</button>
+        </form>
+        
+        <div id="resultado" style="margin-top: 2rem; padding: 1rem; background: #e9ecef; border-radius: 4px; display: none;">
+            <h3>Resultado do Teste:</h3>
+            <pre id="resultadoTexto"></pre>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const testForm = document.getElementById('testForm');
+            const resultado = document.getElementById('resultado');
+            const resultadoTexto = document.getElementById('resultadoTexto');
+            
+            if (testForm && window.formValidator) {
+                // Configurar validação em tempo real
+                formValidator.setupRealTimeValidation(testForm, {
+                    validateOnBlur: true,
+                    validateOnInput: false,
+                    showSuccessIndicator: true
+                });
+
+                // Interceptar submissão para mostrar resultado
+                testForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    
+                    const validationResult = formValidator.validateForm(testForm);
+                    
+                    // Mostrar resultado
+                    resultado.style.display = 'block';
+                    resultadoTexto.textContent = JSON.stringify(validationResult, null, 2);
+                    
+                    if (!validationResult.isValid) {
+                        formValidator.showValidationSummary(testForm, validationResult);
+                        resultado.style.background = '#f8d7da';
+                    } else {
+                        formValidator.clearValidationSummary(testForm);
+                        resultado.style.background = '#d4edda';
+                        alert('✅ Formulário válido! Todos os campos passaram na validação.');
+                    }
+                });
+                
+                console.log('✅ Teste de validação configurado com sucesso!');
+            } else {
+                console.error('❌ FormValidator não encontrado!');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -80,6 +80,21 @@ class TrackingPersistenceService {
     }
 
     /**
+     * Verifica se uma tabela existe no schema público
+     * @param {string} tableName
+     * @returns {Promise<boolean>}
+     */
+    async tableExists(tableName) {
+        try {
+            const result = await db.query("SELECT to_regclass('public." + tableName + "') AS t");
+            return !!(result.rows?.[0]?.t);
+        } catch (e) {
+            logger.error('[TRACKING] Erro ao verificar existência da tabela:', { tableName, erro: e.message });
+            return false;
+        }
+    }
+
+    /**
      * MÉTODO DE SALVAMENTO DE LOCALIZAÇÃO
      * 
      * Implementa estratégia cache-first para máxima performance:
@@ -124,10 +139,32 @@ class TrackingPersistenceService {
                 cached_at: new Date() // Timestamp para controle de expiração
             });
 
-            // Simular salvamento no banco (quando o banco estiver configurado)
+            // Persistir no banco (tabela rastreamento)
+            let insertedId = null;
+            try {
+                const insert = await db.query(
+                    `INSERT INTO rastreamento (
+                        motorista_id, rota_id, latitude, longitude, velocidade, direcao, timestamp_localizacao, ativo
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, true)
+                    RETURNING id`,
+                    [
+                        motorista_id,
+                        rota_id || null,
+                        parseFloat(latitude),
+                        parseFloat(longitude),
+                        parseFloat(velocidade) || 0,
+                        parseInt(direcao) || 0,
+                        new Date(timestamp)
+                    ]
+                );
+                insertedId = insert.rows[0]?.id || null;
+            } catch (dbErr) {
+                logger.error('[TRACKING] Falha ao inserir em rastreamento:', dbErr);
+            }
+
             const locationData = {
                 motorista_id,
-                rota_id,
+                rota_id: rota_id || null,
                 latitude: parseFloat(latitude),
                 longitude: parseFloat(longitude),
                 velocidade: parseFloat(velocidade) || 0,
@@ -137,15 +174,15 @@ class TrackingPersistenceService {
             };
 
             logger.debug(`Localização salva para motorista ${motorista_id}:`, {
-                lat: latitude,
-                lng: longitude,
-                velocidade,
-                timestamp: new Date(timestamp).toISOString()
+                lat: locationData.latitude,
+                lng: locationData.longitude,
+                velocidade: locationData.velocidade,
+                timestamp: locationData.timestamp_localizacao.toISOString()
             });
 
             return {
                 sucesso: true,
-                id: `sim_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                id: insertedId,
                 dados: locationData
             };
 
@@ -183,33 +220,64 @@ class TrackingPersistenceService {
             const {
                 motorista_id,
                 rota_id,
-                criancas = []
+                tipo_viagem = 'ida',
+                criancas_ids = []
             } = dados;
 
             if (!motorista_id || !rota_id) {
                 throw new Error('Motorista e rota são obrigatórios');
             }
 
-            const viagemId = `viagem_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            let viagemId = null;
+            if (await this.tableExists('viagens')) {
+                // Persistir viagem + relacionamento com crianças em transação
+                const client = await db.query('BEGIN').then(() => ({ tx: true })).catch(() => null);
+                try {
+                    const inserted = await db.query(
+                        `INSERT INTO viagens (motorista_id, rota_id, tipo_viagem, status, horario_inicio)
+                         VALUES ($1, $2, $3, 'iniciada', NOW()) RETURNING id`,
+                        [motorista_id, rota_id, tipo_viagem]
+                    );
+                    viagemId = inserted.rows[0].id;
+                    if (criancas_ids?.length && await this.tableExists('criancas_viagens')) {
+                        for (const cid of criancas_ids) {
+                            await db.query(
+                                `INSERT INTO criancas_viagens (viagem_id, crianca_id) VALUES ($1, $2)
+                                 ON CONFLICT DO NOTHING`,
+                                [viagemId, cid]
+                            );
+                        }
+                    }
+                    await db.query('COMMIT');
+                } catch (txErr) {
+                    await db.query('ROLLBACK').catch(() => null);
+                    logger.error('[TRACKING] Erro ao iniciar viagem (DB):', txErr);
+                    viagemId = null;
+                }
+            }
+
+            // Construir objeto em memória (cache-first)
+            if (!viagemId) {
+                viagemId = `viagem_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            }
+
             const viagem = {
                 id: viagemId,
                 motorista_id,
                 rota_id,
                 status: 'iniciada',
                 horario_inicio: new Date(),
-                criancas,
+                criancas: criancas_ids,
                 localizacoes: [],
                 eventos: []
             };
 
-            // CACHE-FIRST: Armazenar no cache para acesso imediato
-            // Chave padronizada: viagem_{viagem_id}
             this.cache.set(`viagem_${viagemId}`, {
                 ...viagem,
                 cached_at: new Date()
             });
 
-            logger.debug(`Viagem iniciada:`, {
+            logger.debug('Viagem iniciada:', {
                 id: viagemId,
                 motorista_id,
                 rota_id,
@@ -264,22 +332,33 @@ class TrackingPersistenceService {
             }
 
             // Atualizar dados da viagem
+            const horario_fim = new Date();
             viagem.status = 'finalizada';
-            viagem.horario_fim = new Date();
+            viagem.horario_fim = horario_fim;
             viagem.cached_at = new Date();
+
+            // Persistir no banco, se tabela existir
+            let persisted = false;
+            if (await this.tableExists('viagens')) {
+                try {
+                    await db.query(
+                        `UPDATE viagens SET status = 'finalizada', horario_fim = $2 WHERE id = $1`,
+                        [viagem_id, horario_fim]
+                    );
+                    persisted = true;
+                } catch (e) {
+                    logger.error('[TRACKING] Erro ao persistir finalização da viagem:', e);
+                }
+            }
 
             // Atualizar cache
             this.cache.set(cacheKey, viagem);
 
-            logger.debug(`Viagem finalizada:`, {
-                id: viagemId,
-                duracao: viagemFinalizada.tempo_total,
-                distancia: viagemFinalizada.distancia_total
-            });
+            logger.debug('Viagem finalizada:', { id: viagem_id, persisted });
 
             return {
                 sucesso: true,
-                dados: viagemFinalizada
+                dados: viagem
             };
 
         } catch (error) {
@@ -324,7 +403,20 @@ class TrackingPersistenceService {
             if (!viagem_id || !crianca_id || !latitude || !longitude) {
                 throw new Error('Dados obrigatórios não fornecidos');
             }
-
+            // Persistir no banco, se existir tabela
+            let eventoId = null;
+            if (await this.tableExists('eventos_viagem')) {
+                try {
+                    const res = await db.query(
+                        `INSERT INTO eventos_viagem (viagem_id, crianca_id, tipo_evento, latitude, longitude, observacoes)
+                         VALUES ($1, $2, 'embarque', $3, $4, $5) RETURNING id`,
+                        [viagem_id, crianca_id, parseFloat(latitude), parseFloat(longitude), observacoes]
+                    );
+                    eventoId = res.rows[0]?.id || null;
+                } catch (e) {
+                    logger.error('[TRACKING] Erro ao persistir embarque:', e);
+                }
+            }
             const evento = {
                 id: `evento_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
                 tipo_evento: 'embarque',
@@ -387,7 +479,20 @@ class TrackingPersistenceService {
             if (!viagem_id || !crianca_id || !latitude || !longitude) {
                 throw new Error('Dados obrigatórios não fornecidos');
             }
-
+            // Persistir no banco, se existir tabela
+            let eventoId = null;
+            if (await this.tableExists('eventos_viagem')) {
+                try {
+                    const res = await db.query(
+                        `INSERT INTO eventos_viagem (viagem_id, crianca_id, tipo_evento, latitude, longitude, observacoes)
+                         VALUES ($1, $2, 'desembarque', $3, $4, $5) RETURNING id`,
+                        [viagem_id, crianca_id, parseFloat(latitude), parseFloat(longitude), observacoes]
+                    );
+                    eventoId = res.rows[0]?.id || null;
+                } catch (e) {
+                    logger.error('[TRACKING] Erro ao persistir desembarque:', e);
+                }
+            }
             const evento = {
                 id: `evento_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
                 tipo_evento: 'desembarque',
@@ -413,7 +518,7 @@ class TrackingPersistenceService {
 
             return {
                 sucesso: true,
-                evento_id: evento.id,
+                evento_id: eventoId || evento.id,
                 dados: evento
             };
 
@@ -472,9 +577,25 @@ class TrackingPersistenceService {
                 };
             }
 
-            // FALLBACK: Buscar no banco de dados
-            // Em um ambiente real, aqui seria feita a consulta ao banco
-            // Por enquanto, simular dados para demonstração
+            // Fallback: buscar no banco de dados se existir tabela de localizações
+            if (await this.tableExists('localizacoes')) {
+                const result = await db.query(
+                    `SELECT latitude, longitude, velocidade, direcao, timestamp
+                     FROM localizacoes
+                     WHERE viagem_id = $1
+                     ORDER BY timestamp ASC
+                     LIMIT $2 OFFSET $3`,
+                    [viagem_id, limite, offset]
+                );
+
+                return {
+                    sucesso: true,
+                    dados: result.rows,
+                    total: result.rows.length
+                };
+            }
+
+            // Sem tabela: simular dados
             const localizacoesSimuladas = this.simularHistoricoLocalizacoes(viagem_id, limite);
 
             return {
@@ -602,6 +723,35 @@ class TrackingPersistenceService {
             const localizacao = this.cache.get(cacheKey);
 
             if (!localizacao) {
+                // fallback ao banco: última posição de rastreamento
+                try {
+                    const result = await db.query(
+                        `SELECT motorista_id, rota_id, latitude, longitude, velocidade, direcao, timestamp_localizacao
+                         FROM rastreamento
+                         WHERE motorista_id = $1 AND ativo = true
+                         ORDER BY timestamp_localizacao DESC
+                         LIMIT 1`,
+                        [motorista_id]
+                    );
+                    if (result.rows.length > 0) {
+                        const row = result.rows[0];
+                        return {
+                            sucesso: true,
+                            dados: {
+                                motorista_id: row.motorista_id,
+                                rota_id: row.rota_id,
+                                latitude: parseFloat(row.latitude),
+                                longitude: parseFloat(row.longitude),
+                                velocidade: parseFloat(row.velocidade) || 0,
+                                direcao: parseInt(row.direcao) || 0,
+                                timestamp: row.timestamp_localizacao
+                            }
+                        };
+                    }
+                } catch (dbErr) {
+                    logger.error('[TRACKING] Erro ao buscar localização no banco:', dbErr);
+                }
+
                 return {
                     sucesso: false,
                     erro: 'Localização não encontrada'
@@ -615,10 +765,35 @@ class TrackingPersistenceService {
             if (tempoCache > this.cacheTimeout) {
                 // LIMPEZA AUTOMÁTICA: Remover dados expirados
                 this.cache.delete(cacheKey);
-                return {
-                    sucesso: false,
-                    erro: 'Localização expirada'
-                };
+                // fallback ao banco
+                try {
+                    const result = await db.query(
+                        `SELECT motorista_id, rota_id, latitude, longitude, velocidade, direcao, timestamp_localizacao
+                         FROM rastreamento
+                         WHERE motorista_id = $1 AND ativo = true
+                         ORDER BY timestamp_localizacao DESC
+                         LIMIT 1`,
+                        [motorista_id]
+                    );
+                    if (result.rows.length > 0) {
+                        const row = result.rows[0];
+                        return {
+                            sucesso: true,
+                            dados: {
+                                motorista_id: row.motorista_id,
+                                rota_id: row.rota_id,
+                                latitude: parseFloat(row.latitude),
+                                longitude: parseFloat(row.longitude),
+                                velocidade: parseFloat(row.velocidade) || 0,
+                                direcao: parseInt(row.direcao) || 0,
+                                timestamp: row.timestamp_localizacao
+                            }
+                        };
+                    }
+                } catch (dbErr) {
+                    logger.error('[TRACKING] Erro ao buscar localização expirada no banco:', dbErr);
+                }
+                return { sucesso: false, erro: 'Localização expirada' };
             }
 
             return {

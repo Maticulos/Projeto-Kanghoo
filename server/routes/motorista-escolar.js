@@ -2,6 +2,7 @@ const KoaRouter = require('koa-router');
 const db = require('../config/db');
 const { authenticateToken, requireRole } = require('../middleware/auth-utils');
 const { validateInput, sanitizeForLog } = require('../config/security-config');
+const { validate, validators } = require('../middleware/validation');
 const { createSecureUpload, validateUploadedFiles } = require('../middleware/upload-security');
 const csv = require('csv-parser');
 const fs = require('fs');
@@ -49,30 +50,20 @@ router.get('/criancas', async (ctx) => {
 });
 
 // Rota para cadastrar uma criança
-router.post('/criancas', async (ctx) => {
+// Validação por schema unificado
+const schemaCrianca = {
+    nome_completo: { required: true, minLength: 2, maxLength: 255 },
+    data_nascimento: { required: true, validator: validators.isValidDate },
+    endereco_residencial: { required: true, minLength: 5, maxLength: 300 },
+    escola: { required: true, minLength: 2, maxLength: 200 },
+    endereco_escola: { required: true, minLength: 5, maxLength: 300 },
+    responsavel_email: { required: true, validator: validators.isEmail }
+};
+
+router.post('/criancas', validate(schemaCrianca), async (ctx) => {
     try {
         const motoristaId = ctx.user.id;
-        const dadosCrianca = ctx.request.body;
-
-        // Validar dados da criança
-        const validacao = validateInput(dadosCrianca, {
-            nome_completo: 'name',
-            data_nascimento: 'date',
-            endereco_residencial: 'address',
-            escola: 'name',
-            endereco_escola: 'address',
-            responsavel_email: 'email'
-        });
-
-        if (!validacao.isValid) {
-            ctx.status = 400;
-            ctx.body = {
-                sucesso: false,
-                mensagem: 'Dados inválidos',
-                erros: validacao.errors
-            };
-            return;
-        }
+        const dadosCrianca = ctx.validatedData;
 
         // Verificar se o responsável existe
         const responsavel = await db.query(
@@ -99,11 +90,11 @@ router.post('/criancas', async (ctx) => {
             ) VALUES ($1, $2, $3, $4, $5, $6, $7)
             RETURNING *
         `, [
-            validacao.sanitizedData.nome_completo,
-            validacao.sanitizedData.data_nascimento,
-            validacao.sanitizedData.endereco_residencial,
-            validacao.sanitizedData.escola,
-            validacao.sanitizedData.endereco_escola,
+            dadosCrianca.nome_completo,
+            dadosCrianca.data_nascimento,
+            dadosCrianca.endereco_residencial,
+            dadosCrianca.escola,
+            dadosCrianca.endereco_escola,
             responsavelId,
             motoristaId
         ]);

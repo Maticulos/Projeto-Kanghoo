@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste do Authentication Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .log {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>Teste do Authentication Manager</h1>
+    
+    <div class="test-container">
+        <h2>Testes Automáticos</h2>
+        <button onclick="runAutomaticTests()">Executar Testes Automáticos</button>
+        <div id="automatic-results"></div>
+    </div>
+
+    <div class="test-container">
+        <h2>Testes Manuais</h2>
+        
+        <h3>Gerenciamento de Token</h3>
+        <button onclick="testTokenOperations()">Testar Operações de Token</button>
+        <div id="token-results"></div>
+
+        <h3>Redirecionamentos</h3>
+        <button onclick="testRedirects()">Testar Redirecionamentos</button>
+        <div id="redirect-results"></div>
+
+        <h3>Modal de Seleção</h3>
+        <button onclick="testModal()">Testar Modal de Seleção</button>
+        <div id="modal-results"></div>
+
+        <h3>Inicialização</h3>
+        <button onclick="testInitialization()">Testar Inicialização</button>
+        <div id="init-results"></div>
+    </div>
+
+    <div class="test-container">
+        <h2>Log de Console</h2>
+        <div id="console-log" class="log"></div>
+        <button onclick="clearLog()">Limpar Log</button>
+    </div>
+
+    <script type="module">
+        import { authManager, AuthManager, AuthenticationError } from './assets/js/core/auth-manager.js';
+        import { runTests } from './assets/js/core/auth-manager-test.js';
+
+        // Disponibilizar globalmente para os testes
+        window.authManager = authManager;
+        window.AuthManager = AuthManager;
+        window.AuthenticationError = AuthenticationError;
+        window.runAutomaticTests = runTests;
+
+        // Interceptar console.log para mostrar no HTML
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        const logElement = document.getElementById('console-log');
+
+        function addToLog(type, ...args) {
+            const timestamp = new Date().toLocaleTimeString();
+            const message = args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+            ).join(' ');
+            
+            logElement.textContent += `[${timestamp}] ${type.toUpperCase()}: ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        console.log = (...args) => {
+            originalLog(...args);
+            addToLog('log', ...args);
+        };
+
+        console.error = (...args) => {
+            originalError(...args);
+            addToLog('error', ...args);
+        };
+
+        console.warn = (...args) => {
+            originalWarn(...args);
+            addToLog('warn', ...args);
+        };
+
+        // Funções de teste manual
+        window.testTokenOperations = function() {
+            const results = document.getElementById('token-results');
+            results.innerHTML = '';
+
+            try {
+                // Limpar token
+                authManager.removeAuthToken();
+                const noToken = authManager.getAuthToken();
+                results.innerHTML += `<div class="test-result ${noToken === null ? 'success' : 'error'}">
+                    Token após remoção: ${noToken === null ? 'null (correto)' : noToken}
+                </div>`;
+
+                // Definir token
+                localStorage.setItem('authToken', 'test_token_123');
+                const hasToken = authManager.getAuthToken();
+                results.innerHTML += `<div class="test-result ${hasToken === 'test_token_123' ? 'success' : 'error'}">
+                    Token após definição: ${hasToken}
+                </div>`;
+
+                // Remover novamente
+                authManager.removeAuthToken();
+                const removedToken = authManager.getAuthToken();
+                results.innerHTML += `<div class="test-result ${removedToken === null ? 'success' : 'error'}">
+                    Token após segunda remoção: ${removedToken === null ? 'null (correto)' : removedToken}
+                </div>`;
+
+            } catch (error) {
+                results.innerHTML += `<div class="test-result error">Erro: ${error.message}</div>`;
+            }
+        };
+
+        window.testRedirects = function() {
+            const results = document.getElementById('redirect-results');
+            results.innerHTML = '';
+
+            const testCases = [
+                { userType: 'motorista_escolar', expected: 'area-motorista-escolar.html' },
+                { userType: 'motorista_excursao', expected: 'area-motorista-excursao.html' },
+                { userType: 'responsavel', expected: 'area-responsavel.html' },
+                { userType: 'motorista_escolar_excursao', expected: '' },
+                { userType: 'admin', expected: 'dashboard.html' }
+            ];
+
+            testCases.forEach(({ userType, expected }) => {
+                try {
+                    const result = authManager.getRedirectUrlByUserType(userType);
+                    const isCorrect = userType === 'motorista_escolar_excursao' 
+                        ? result === expected 
+                        : result.includes(expected.split('.')[0]);
+                    
+                    results.innerHTML += `<div class="test-result ${isCorrect ? 'success' : 'error'}">
+                        ${userType}: ${result} ${isCorrect ? '✓' : '✗'}
+                    </div>`;
+                } catch (error) {
+                    results.innerHTML += `<div class="test-result error">
+                        ${userType}: Erro - ${error.message}
+                    </div>`;
+                }
+            });
+        };
+
+        window.testModal = function() {
+            const results = document.getElementById('modal-results');
+            results.innerHTML = '<div class="test-result info">Testando modal de seleção...</div>';
+
+            try {
+                authManager.showRoleSelectionModal('motorista_escolar_excursao').then(selection => {
+                    results.innerHTML += `<div class="test-result success">
+                        Modal fechado. Seleção: ${selection || 'Nenhuma'}
+                    </div>`;
+                }).catch(error => {
+                    results.innerHTML += `<div class="test-result error">
+                        Erro no modal: ${error.message}
+                    </div>`;
+                });
+            } catch (error) {
+                results.innerHTML += `<div class="test-result error">Erro: ${error.message}</div>`;
+            }
+        };
+
+        window.testInitialization = function() {
+            const results = document.getElementById('init-results');
+            results.innerHTML = '';
+
+            try {
+                // Verificar estado inicial
+                const initialState = authManager.isReady();
+                results.innerHTML += `<div class="test-result info">
+                    Estado inicial: ${initialState ? 'Inicializado' : 'Não inicializado'}
+                </div>`;
+
+                // Inicializar
+                authManager.initialize(['motorista_escolar'], { 
+                    startCheck: false, 
+                    setupEvents: false, 
+                    checkOnInit: false 
+                });
+                
+                const afterInit = authManager.isReady();
+                results.innerHTML += `<div class="test-result ${afterInit ? 'success' : 'error'}">
+                    Após inicialização: ${afterInit ? 'Inicializado ✓' : 'Não inicializado ✗'}
+                </div>`;
+
+                // Cleanup
+                authManager.cleanup();
+                const afterCleanup = authManager.isReady();
+                results.innerHTML += `<div class="test-result ${!afterCleanup ? 'success' : 'error'}">
+                    Após cleanup: ${afterCleanup ? 'Ainda inicializado ✗' : 'Não inicializado ✓'}
+                </div>`;
+
+            } catch (error) {
+                results.innerHTML += `<div class="test-result error">Erro: ${error.message}</div>`;
+            }
+        };
+
+        window.runAutomaticTests = function() {
+            const results = document.getElementById('automatic-results');
+            results.innerHTML = '<div class="test-result info">Executando testes automáticos...</div>';
+            
+            try {
+                runTests();
+                results.innerHTML += '<div class="test-result success">Testes automáticos concluídos! Verifique o console.</div>';
+            } catch (error) {
+                results.innerHTML += `<div class="test-result error">Erro nos testes automáticos: ${error.message}</div>`;
+            }
+        };
+
+        window.clearLog = function() {
+            document.getElementById('console-log').textContent = '';
+        };
+
+        // Log inicial
+        console.log('Página de teste carregada. AuthManager disponível:', !!window.authManager);
+    </script>
+</body>
+</html>

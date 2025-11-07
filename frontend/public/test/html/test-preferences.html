@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Sistema de Preferências</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        [data-theme="dark"] {
+            background-color: #1a1a1a;
+            color: #ffffff;
+        }
+        
+        [data-theme="light"] {
+            background-color: #ffffff;
+            color: #000000;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        
+        button {
+            margin: 5px;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+        }
+        
+        button:hover {
+            background-color: #0056b3;
+        }
+        
+        .stats {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 3px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        
+        [data-theme="dark"] .stats {
+            background-color: #2d2d2d;
+        }
+        
+        .log {
+            height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: #f8f9fa;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        
+        [data-theme="dark"] .log {
+            background-color: #2d2d2d;
+            border-color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Teste do Sistema de Preferências</h1>
+        
+        <div class="section">
+            <h2>Controles de Tema</h2>
+            <button onclick="setTheme('light')">Tema Claro</button>
+            <button onclick="setTheme('dark')">Tema Escuro</button>
+            <button onclick="toggleTheme()">Alternar Tema</button>
+        </div>
+        
+        <div class="section">
+            <h2>Outras Preferências</h2>
+            <button onclick="setLanguage('pt-BR')">Português</button>
+            <button onclick="setLanguage('en-US')">English</button>
+            <button onclick="setNotifications(true)">Ativar Notificações</button>
+            <button onclick="setNotifications(false)">Desativar Notificações</button>
+        </div>
+        
+        <div class="section">
+            <h2>Gerenciamento</h2>
+            <button onclick="exportPrefs()">Exportar Preferências</button>
+            <button onclick="importPrefs()">Importar Preferências</button>
+            <button onclick="clearPrefs()">Limpar Preferências</button>
+            <button onclick="showStats()">Mostrar Estatísticas</button>
+        </div>
+        
+        <div class="section">
+            <h2>Estatísticas</h2>
+            <div id="stats" class="stats"></div>
+        </div>
+        
+        <div class="section">
+            <h2>Log de Eventos</h2>
+            <div id="log" class="log"></div>
+            <button onclick="clearLog()">Limpar Log</button>
+        </div>
+    </div>
+
+    <script src="assets/js/core/cache-manager.js"></script>
+    <script>
+        // Função para adicionar log
+        function addLog(message) {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `[${timestamp}] ${message}\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        // Listeners para mudanças de preferências
+        window.cacheManager.addPreferenceListener('*', (key, newValue, oldValue) => {
+            addLog(`Preferência alterada: ${key} = ${JSON.stringify(newValue)} (anterior: ${JSON.stringify(oldValue)})`);
+        });
+
+        // Listeners para eventos de tema
+        document.addEventListener('themeChanged', (event) => {
+            addLog(`Evento de tema: ${event.detail.theme}`);
+        });
+
+        document.addEventListener('languageChanged', (event) => {
+            addLog(`Evento de idioma: ${event.detail.language}`);
+        });
+
+        // Funções de controle
+        function setTheme(theme) {
+            window.cacheManager.setTheme(theme);
+            addLog(`Tema definido para: ${theme}`);
+        }
+
+        function toggleTheme() {
+            const currentTheme = window.cacheManager.getTheme();
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            setTheme(newTheme);
+        }
+
+        function setLanguage(lang) {
+            window.cacheManager.setLanguage(lang);
+            addLog(`Idioma definido para: ${lang}`);
+        }
+
+        function setNotifications(enabled) {
+            const settings = window.cacheManager.getNotificationSettings();
+            settings.enabled = enabled;
+            window.cacheManager.setNotificationSettings(settings);
+            addLog(`Notificações ${enabled ? 'ativadas' : 'desativadas'}`);
+        }
+
+        function exportPrefs() {
+            const prefs = window.cacheManager.exportPreferences();
+            const json = JSON.stringify(prefs, null, 2);
+            
+            // Criar e baixar arquivo
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'kanghoo-preferences.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            addLog('Preferências exportadas');
+        }
+
+        function importPrefs() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const prefs = JSON.parse(e.target.result);
+                            window.cacheManager.importPreferences(prefs);
+                            addLog('Preferências importadas com sucesso');
+                        } catch (error) {
+                            addLog(`Erro ao importar: ${error.message}`);
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            };
+            input.click();
+        }
+
+        function clearPrefs() {
+            if (confirm('Tem certeza que deseja limpar todas as preferências?')) {
+                window.cacheManager.clearPreferences();
+                addLog('Preferências limpas');
+            }
+        }
+
+        function showStats() {
+            const stats = window.cacheManager.getStats();
+            const prefs = window.cacheManager.getUserPreferences();
+            
+            document.getElementById('stats').textContent = 
+                'Estatísticas do Cache Manager:\n' +
+                JSON.stringify(stats, null, 2) + '\n\n' +
+                'Preferências Atuais:\n' +
+                JSON.stringify(prefs, null, 2);
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', () => {
+            addLog('Sistema de preferências inicializado');
+            showStats();
+            
+            // Aplicar tema inicial
+            const theme = window.cacheManager.getTheme();
+            addLog(`Tema inicial: ${theme}`);
+        });
+    </script>
+</body>
+</html>

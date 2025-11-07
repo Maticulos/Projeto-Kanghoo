@@ -1,8 +1,7 @@
 const KoaRouter = require('koa-router');
-const db = require('../config/db');
 const { authenticateToken, requireRole } = require('../middleware/auth-utils');
-const { validateInput, sanitizeForLog } = require('../config/security-config');
-const logger = require('../utils/logger');
+const { validators, validate } = require('../middleware/validation');
+const { getFirstChild, getChildById, updateChild } = require('../controllers/responsavel.controller');
 
 const router = new KoaRouter({ prefix: '/api/responsavel' });
 
@@ -15,86 +14,7 @@ router.get('/test', async (ctx) => {
 });
 
 // Rota para obter dados da criança do responsável (primeira criança encontrada)
-router.get('/crianca', authenticateToken, requireRole('responsavel'), async (ctx) => {
-    try {
-        const responsavelEmail = ctx.user.email;
-
-        // Dados de teste para desenvolvimento
-        if (ctx.user.id === 999 && process.env.NODE_ENV !== 'production') {
-            ctx.body = {
-                success: true,
-                data: {
-                    id: 1,
-                    nome_completo: 'João Silva Teste',
-                    data_nascimento: '2015-05-15',
-                    endereco_residencial: 'Rua das Flores, 123 - Centro',
-                    escola: 'Escola Municipal Teste',
-                    endereco_escola: 'Av. Educação, 456 - Centro',
-                    rota_id: 1,
-                    nome_rota: 'Rota Centro',
-                    descricao_rota: 'Rota que atende o centro da cidade',
-                    ativo: true,
-                    criado_em: new Date().toISOString(),
-                    nome_motorista: 'Carlos Motorista',
-                    telefone_motorista: '(11) 99999-9999',
-                    email_motorista: 'motorista@teste.com'
-                }
-            };
-            return;
-        }
-        
-        const crianca = await db.query(`
-            SELECT 
-                c.id,
-                c.nome_completo,
-                c.data_nascimento,
-                c.endereco_residencial,
-                c.escola,
-                c.endereco_escola,
-                c.rota_id,
-                r.nome_rota,
-                r.descricao as descricao_rota,
-                c.ativo,
-                c.criado_em,
-                u.nome_completo as nome_motorista,
-                u.celular as telefone_motorista,
-                u.email as email_motorista
-            FROM criancas c
-            LEFT JOIN rotas r ON c.rota_id = r.id
-            LEFT JOIN usuarios u ON c.motorista_id = u.id
-            WHERE c.email_responsavel = $1 AND c.ativo = true
-            ORDER BY c.criado_em DESC
-            LIMIT 1
-        `, [responsavelEmail]);
-
-        if (crianca.rows.length === 0) {
-            ctx.status = 404;
-            ctx.body = {
-                success: false,
-                message: 'Nenhuma criança encontrada para este responsável'
-            };
-            return;
-        }
-
-        logger.debug(JSON.stringify(sanitizeForLog({
-            acao: 'buscar_crianca_responsavel',
-            responsavel_email: responsavelEmail,
-            crianca_id: crianca.rows[0].id
-        })));
-
-        ctx.body = {
-            success: true,
-            data: crianca.rows[0]
-        };
-    } catch (error) {
-        logger.error('Erro ao buscar dados da criança:', error);
-        ctx.status = 500;
-        ctx.body = {
-            success: false,
-            message: 'Erro interno do servidor'
-        };
-    }
-});
+router.get('/crianca', authenticateToken, requireRole('responsavel'), getFirstChild);
 
 // Rota para listar todas as crianças do responsável
 router.get('/criancas', async (ctx) => {
@@ -114,160 +34,20 @@ router.get('/criancas', async (ctx) => {
 });
 
 // Rota para visualizar detalhes de uma criança específica
-router.get('/criancas/:id', authenticateToken, requireRole('responsavel'), async (ctx) => {
-    try {
-        const responsavelEmail = ctx.user.email;
-        const criancaId = ctx.params.id;
-        
-        // Validar ID da criança
-        console.log('Iniciando validação do ID...');
-        const validationResult = validateInput(criancaId, 'number');
-        console.log('Resultado da validação:', JSON.stringify(validationResult, null, 2));
-        
-        if (!validationResult.valid) {
-            console.log('Validação falhou, retornando erro 400');
-            ctx.status = 400;
-            ctx.body = {
-                sucesso: false,
-                mensagem: 'ID da criança inválido',
-                detalhes: validationResult.error
-            };
-            return;
-        }
-        
-        console.log('Validação passou, continuando...');
-
-        const crianca = await db.query(`
-            SELECT 
-                c.id,
-                c.nome_completo,
-                c.data_nascimento,
-                c.endereco_residencial,
-                c.escola,
-                c.endereco_escola,
-                c.rota_id,
-                r.nome_rota as nome_rota,
-                r.descricao as descricao_rota,
-                c.ativo,
-                c.criado_em,
-                u.nome_completo as nome_motorista,
-                u.celular as telefone_motorista,
-                u.email as email_motorista
-            FROM criancas c
-            LEFT JOIN rotas r ON c.rota_id = r.id
-            LEFT JOIN usuarios u ON c.motorista_id = u.id
-            WHERE c.id = $1 AND c.email_responsavel = $2
-        `, [criancaId, responsavelEmail]);
-
-        if (crianca.rows.length === 0) {
-            ctx.status = 404;
-            ctx.body = {
-                sucesso: false,
-                mensagem: 'Criança não encontrada'
-            };
-            return;
-        }
-
-        ctx.body = {
-            sucesso: true,
-            crianca: crianca.rows[0]
-        };
-    } catch (error) {
-        logger.error('Erro ao buscar detalhes da criança:', error);
-        ctx.status = 500;
-        ctx.body = {
-            sucesso: false,
-            mensagem: 'Erro interno do servidor'
-        };
-    }
-});
+router.get('/criancas/:id', authenticateToken, requireRole('responsavel'), getChildById);
 
 // Rota para atualizar informações de uma criança
-router.put('/criancas/:id', authenticateToken, requireRole('responsavel'), async (ctx) => {
-    try {
-        
-        const criancaId = ctx.params.id;
-        const responsavelEmail = ctx.user.email;
-        const { endereco_residencial, escola, endereco_escola } = ctx.request.body;
-
-        // Validação do ID
-        const validacaoId = validateInput(criancaId, { type: 'number' });
-        if (!validacaoId.valid) {
-            ctx.status = 400;
-            ctx.body = {
-                sucesso: false,
-                mensagem: 'ID da criança inválido'
-            };
-            return;
-        }
-
-        // Validação dos dados de entrada
-        const validacoes = [
-            validateInput(endereco_residencial, { type: 'text', minLength: 5, maxLength: 200 }),
-            validateInput(escola, { type: 'text', minLength: 2, maxLength: 100 }),
-            validateInput(endereco_escola, { type: 'text', minLength: 5, maxLength: 200 })
-        ];
-
-        for (const validacao of validacoes) {
-            if (!validacao.valid) {
-                ctx.status = 400;
-                ctx.body = {
-                    sucesso: false,
-                    mensagem: validacao.error || 'Erro de validação'
-                };
-                return;
-            }
-        }
-
-        // Verificar se a criança pertence ao responsável
-        const criancaExistente = await db.query(
-            'SELECT id FROM criancas WHERE id = $1 AND email_responsavel = $2',
-            [criancaId, responsavelEmail]
-        );
-
-        if (criancaExistente.rows.length === 0) {
-            ctx.status = 404;
-            ctx.body = {
-                sucesso: false,
-                mensagem: 'Criança não encontrada'
-            };
-            return;
-        }
-
-        // Atualizar a criança
-        const resultado = await db.query(`
-            UPDATE criancas 
-            SET endereco_residencial = $1, escola = $2, endereco_escola = $3, atualizado_em = NOW()
-            WHERE id = $4 AND email_responsavel = $5
-            RETURNING id, nome_completo
-        `, [endereco_residencial, escola, endereco_escola, criancaId, responsavelEmail]);
-
-        logger.info(JSON.stringify(sanitizeForLog({
-            acao: 'atualizar_crianca_responsavel',
-            responsavel_email: responsavelEmail,
-            crianca_id: criancaId,
-            nome_crianca: resultado.rows[0].nome_completo
-        })));
-
-        ctx.body = {
-            sucesso: true,
-            mensagem: 'Informações da criança atualizadas com sucesso',
-            crianca: resultado.rows[0]
-        };
-    } catch (error) {
-        logger.error('Erro ao atualizar criança:', error);
-        ctx.status = 500;
-        ctx.body = {
-            sucesso: false,
-            mensagem: 'Erro interno do servidor'
-        };
-    }
-});
+const updateSchema = {
+    endereco_residencial: { required: true, minLength: 5, maxLength: 200 },
+    escola: { required: true, minLength: 2, maxLength: 100 },
+    endereco_escola: { required: true, minLength: 5, maxLength: 200 }
+};
+router.put('/criancas/:id', authenticateToken, requireRole('responsavel'), validate(updateSchema), updateChild);
 
 // Rota para obter localização atual da criança (se em viagem)
 router.get('/criancas/:id/localizacao', authenticateToken, requireRole('responsavel'), async (ctx) => {
     try {
-        const responsavelEmail = ctx.user.email;
+        const responsavelId = ctx.user.id;
         const criancaId = ctx.params.id;
 
         // Validação do ID
@@ -283,8 +63,8 @@ router.get('/criancas/:id/localizacao', authenticateToken, requireRole('responsa
 
         // Verificar se a criança pertence ao responsável
         const criancaExistente = await db.query(
-            'SELECT id FROM criancas WHERE id = $1 AND email_responsavel = $2',
-            [criancaId, responsavelEmail]
+            'SELECT id FROM criancas WHERE id = $1 AND responsavel_id = $2',
+            [criancaId, responsavelId]
         );
 
         if (criancaExistente.rows.length === 0) {

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Formulário</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        input:focus, textarea:focus, select:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .test-result {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            background: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <h1>Teste de Formulário Simples</h1>
+    <p>Este é um teste para verificar se os campos de formulário funcionam corretamente.</p>
+    
+    <form id="test-form">
+        <div class="form-group">
+            <label for="test-nome">Nome:</label>
+            <input type="text" id="test-nome" name="nome" placeholder="Digite seu nome">
+        </div>
+        
+        <div class="form-group">
+            <label for="test-email">E-mail:</label>
+            <input type="email" id="test-email" name="email" placeholder="seu@email.com">
+        </div>
+        
+        <div class="form-group">
+            <label for="test-telefone">Telefone:</label>
+            <input type="tel" id="test-telefone" name="telefone" placeholder="(11) 99999-9999">
+        </div>
+        
+        <div class="form-group">
+            <label for="test-assunto">Assunto:</label>
+            <select id="test-assunto" name="assunto">
+                <option value="">Selecione</option>
+                <option value="suporte">Suporte</option>
+                <option value="vendas">Vendas</option>
+                <option value="outro">Outro</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="test-mensagem">Mensagem:</label>
+            <textarea id="test-mensagem" name="mensagem" rows="4" placeholder="Sua mensagem"></textarea>
+        </div>
+        
+        <button type="submit">Testar Envio</button>
+    </form>
+    
+    <div id="test-result" class="test-result" style="display: none;"></div>
+    
+    <script>
+        document.getElementById('test-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const result = document.getElementById('test-result');
+            
+            let output = '<h3>Dados do Formulário:</h3>';
+            for (let [key, value] of formData.entries()) {
+                output += `<p><strong>${key}:</strong> ${value}</p>`;
+            }
+            
+            result.innerHTML = output;
+            result.style.display = 'block';
+            result.style.background = '#d4edda';
+            result.style.color = '#155724';
+            result.style.border = '1px solid #c3e6cb';
+        });
+        
+        // Teste de interação com campos
+        const inputs = document.querySelectorAll('input, textarea, select');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                console.log(`Campo ${this.name} recebeu foco`);
+            });
+            
+            input.addEventListener('input', function() {
+                console.log(`Campo ${this.name} foi modificado: ${this.value}`);
+            });
+        });
+        
+        console.log('Teste de formulário carregado. Verifique se consegue interagir com os campos.');
+    </script>
+</body>
+</html>

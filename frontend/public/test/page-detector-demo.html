@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PageDetector Demo - Kanghoo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .demo-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .demo-section h3 {
+            margin-top: 0;
+            color: #242f57;
+        }
+        .output {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 3px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .button {
+            background: #f7d22f;
+            color: #2e3e70;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover {
+            background: #e6c200;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 PageDetector System Demo</h1>
+        <p>Esta página demonstra o funcionamento do sistema PageDetector implementado para o Sistema Kanghoo.</p>
+        
+        <div class="demo-section">
+            <h3>📊 Status do Sistema</h3>
+            <div id="system-status" class="status">Verificando...</div>
+        </div>
+        
+        <div class="demo-section">
+            <h3>📄 Detecção de Página Atual</h3>
+            <button class="button" onclick="detectCurrentPage()">Detectar Página</button>
+            <div id="page-detection-output" class="output"></div>
+        </div>
+        
+        <div class="demo-section">
+            <h3>🎯 Elementos da Página</h3>
+            <button class="button" onclick="getPageElements()">Listar Elementos</button>
+            <div id="elements-output" class="output"></div>
+        </div>
+        
+        <div class="demo-section">
+            <h3>🔧 Correções Contextuais</h3>
+            <button class="button" onclick="getContextualCorrections()">Ver Correções</button>
+            <div id="corrections-output" class="output"></div>
+        </div>
+        
+        <div class="demo-section">
+            <h3>📈 Estatísticas</h3>
+            <button class="button" onclick="getStats()">Ver Estatísticas</button>
+            <div id="stats-output" class="output"></div>
+        </div>
+        
+        <div class="demo-section">
+            <h3>📋 Relatório Completo</h3>
+            <button class="button" onclick="generateReport()">Gerar Relatório</button>
+            <div id="report-output" class="output"></div>
+        </div>
+        
+        <div class="demo-section">
+            <h3>🧪 Testes Dinâmicos</h3>
+            <button class="button" onclick="addDynamicElement()">Adicionar Elemento Dinâmico</button>
+            <button class="button" onclick="clearCache()">Limpar Cache</button>
+            <div id="dynamic-test" style="margin-top: 10px;"></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../assets/js/core/page-detector.js"></script>
+    <script src="../assets/js/core/color-enforcer.js"></script>
+    
+    <script>
+        // Verificar status do sistema
+        function checkSystemStatus() {
+            const statusDiv = document.getElementById('system-status');
+            
+            if (typeof window.pageDetector !== 'undefined') {
+                statusDiv.className = 'status success';
+                statusDiv.textContent = '✅ PageDetector carregado e funcionando!';
+            } else {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = '❌ PageDetector não encontrado. Verifique se o script foi carregado.';
+            }
+        }
+        
+        // Detectar página atual
+        function detectCurrentPage() {
+            const output = document.getElementById('page-detection-output');
+            
+            if (typeof window.pageDetector === 'undefined') {
+                output.textContent = 'Erro: PageDetector não disponível';
+                return;
+            }
+            
+            try {
+                const currentPage = window.pageDetector.getCurrentPage();
+                const pageType = window.pageDetector.getPageType();
+                const selectors = window.pageDetector.getPageSpecificSelectors();
+                
+                output.textContent = `Página Atual: ${currentPage}
+Tipo: ${pageType}
+Seletores Estáticos: ${selectors.static.length}
+Seletores Dinâmicos: ${selectors.dynamic.length}
+Total de Seletores: ${selectors.all.length}`;
+            } catch (error) {
+                output.textContent = `Erro: ${error.message}`;
+            }
+        }
+        
+        // Listar elementos da página
+        function getPageElements() {
+            const output = document.getElementById('elements-output');
+            
+            if (typeof window.pageDetector === 'undefined') {
+                output.textContent = 'Erro: PageDetector não disponível';
+                return;
+            }
+            
+            try {
+                const elements = window.pageDetector.getPageElements();
+                
+                let result = `Total de elementos encontrados: ${elements.length}\n\n`;
+                
+                elements.forEach((el, index) => {
+                    result += `${index + 1}. ${el.selector}
+   Tipo: ${el.type}
+   Visível: ${el.visible ? 'Sim' : 'Não'}
+   Tag: ${el.element.tagName}
+\n`;
+                });
+                
+                output.textContent = result;
+            } catch (error) {
+                output.textContent = `Erro: ${error.message}`;
+            }
+        }
+        
+        // Ver correções contextuais
+        function getContextualCorrections() {
+            const output = document.getElementById('corrections-output');
+            
+            if (typeof window.pageDetector === 'undefined') {
+                output.textContent = 'Erro: PageDetector não disponível';
+                return;
+            }
+            
+            try {
+                const corrections = window.pageDetector.getContextualCorrections();
+                const fixes = window.pageDetector.getPageFixes();
+                
+                let result = `Correções Contextuais:\n${JSON.stringify(corrections, null, 2)}\n\n`;
+                result += `Fixes Disponíveis:\n${fixes.join(', ')}`;
+                
+                output.textContent = result;
+            } catch (error) {
+                output.textContent = `Erro: ${error.message}`;
+            }
+        }
+        
+        // Ver estatísticas
+        function getStats() {
+            const output = document.getElementById('stats-output');
+            
+            if (typeof window.pageDetector === 'undefined') {
+                output.textContent = 'Erro: PageDetector não disponível';
+                return;
+            }
+            
+            try {
+                const stats = window.pageDetector.getStats();
+                output.textContent = JSON.stringify(stats, null, 2);
+            } catch (error) {
+                output.textContent = `Erro: ${error.message}`;
+            }
+        }
+        
+        // Gerar relatório completo
+        function generateReport() {
+            const output = document.getElementById('report-output');
+            
+            if (typeof window.pageDetector === 'undefined') {
+                output.textContent = 'Erro: PageDetector não disponível';
+                return;
+            }
+            
+            try {
+                const report = window.pageDetector.generatePageReport();
+                output.textContent = JSON.stringify(report, null, 2);
+            } catch (error) {
+                output.textContent = `Erro: ${error.message}`;
+            }
+        }
+        
+        // Adicionar elemento dinâmico
+        function addDynamicElement() {
+            const testDiv = document.getElementById('dynamic-test');
+            const newElement = document.createElement('div');
+            newElement.className = 'modal-overlay';
+            newElement.textContent = `Elemento dinâmico criado em ${new Date().toLocaleTimeString()}`;
+            newElement.style.padding = '10px';
+            newElement.style.background = '#e3f2fd';
+            newElement.style.border = '1px solid #2196f3';
+            newElement.style.borderRadius = '3px';
+            newElement.style.margin = '5px 0';
+            
+            testDiv.appendChild(newElement);
+            
+            // Detectar novos elementos após um pequeno delay
+            setTimeout(() => {
+                if (typeof window.pageDetector !== 'undefined') {
+                    const dynamicElements = window.pageDetector.detectDynamicElements();
+                    console.log('Elementos dinâmicos detectados:', dynamicElements);
+                }
+            }, 100);
+        }
+        
+        // Limpar cache
+        function clearCache() {
+            if (typeof window.pageDetector !== 'undefined') {
+                window.pageDetector.clearAllCaches();
+                alert('Cache limpo com sucesso!');
+            }
+        }
+        
+        // Inicializar quando a página carregar
+        window.addEventListener('load', () => {
+            checkSystemStatus();
+            
+            // Configurar debug mode
+            if (typeof window.pageDetector !== 'undefined') {
+                window.pageDetector.setDebugMode(true);
+            }
+        });
+        
+        // Escutar eventos do PageDetector
+        document.addEventListener('pageDetectorChange', (event) => {
+            console.log('PageDetector mudança detectada:', event.detail);
+        });
+    </script>
+</body>
+</html>

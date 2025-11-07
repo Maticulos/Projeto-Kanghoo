@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Sistema de Notificações</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+            margin: 0;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+        
+        .test-section h2 {
+            color: #555;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-error {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        
+        [data-theme="dark"] {
+            background: #1a1a1a;
+            color: #f0f0f0;
+        }
+        
+        [data-theme="dark"] .container {
+            background: #2d2d2d;
+            color: #f0f0f0;
+        }
+        
+        [data-theme="dark"] .test-section {
+            border-color: #444;
+            background: #333;
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()">🌙 Alternar Tema</button>
+    
+    <div class="container">
+        <h1>🔔 Teste do Sistema Unificado de Notificações</h1>
+        
+        <div class="test-section">
+            <h2>Notificações Básicas</h2>
+            <div class="button-group">
+                <button class="btn-success" onclick="testSuccess()">✓ Sucesso</button>
+                <button class="btn-error" onclick="testError()">✕ Erro</button>
+                <button class="btn-info" onclick="testInfo()">ℹ Informação</button>
+                <button class="btn-warning" onclick="testWarning()">⚠ Aviso</button>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Notificações com Título</h2>
+            <div class="button-group">
+                <button class="btn-success" onclick="testSuccessWithTitle()">Sucesso com Título</button>
+                <button class="btn-error" onclick="testErrorWithTitle()">Erro com Título</button>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Notificações Persistentes</h2>
+            <div class="button-group">
+                <button class="btn-info" onclick="testPersistent()">Notificação Persistente</button>
+                <button class="btn-secondary" onclick="clearPersisted()">Limpar Persistidas</button>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Notificações com Ações</h2>
+            <div class="button-group">
+                <button class="btn-info" onclick="testWithActions()">Com Ações</button>
+                <button class="btn-warning" onclick="testConfirmation()">Confirmação</button>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Testes de Duração</h2>
+            <div class="button-group">
+                <button class="btn-info" onclick="testShortDuration()">Curta (1s)</button>
+                <button class="btn-info" onclick="testLongDuration()">Longa (10s)</button>
+                <button class="btn-info" onclick="testNoDuration()">Sem Auto-Remove</button>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Testes de Compatibilidade</h2>
+            <div class="button-group">
+                <button class="btn-success" onclick="testLegacySuccess()">showSuccess() Legacy</button>
+                <button class="btn-error" onclick="testLegacyError()">showError() Legacy</button>
+                <button class="btn-info" onclick="testLegacyNotification()">showNotification() Legacy</button>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Controles</h2>
+            <div class="button-group">
+                <button class="btn-secondary" onclick="clearAll()">Limpar Todas</button>
+                <button class="btn-secondary" onclick="testMultiple()">Múltiplas Notificações</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Carregar módulos -->
+    <script type="module">
+        import { CONFIG } from './assets/js/core/config.js';
+        import { notifications } from './assets/js/core/notifications.js';
+        
+        // Disponibilizar globalmente para os testes
+        window.notifications = notifications;
+        window.CONFIG = CONFIG;
+        
+        console.log('Sistema de notificações carregado:', notifications);
+    </script>
+    
+    <!-- Carregar ui-utils para compatibilidade -->
+    <script type="module" src="./assets/js/core/ui-utils.js"></script>
+    
+    <script>
+        // Funções de teste
+        function testSuccess() {
+            notifications.success('Operação realizada com sucesso!');
+        }
+        
+        function testError() {
+            notifications.error('Ocorreu um erro durante a operação.');
+        }
+        
+        function testInfo() {
+            notifications.info('Esta é uma informação importante.');
+        }
+        
+        function testWarning() {
+            notifications.warning('Atenção: verifique os dados antes de continuar.');
+        }
+        
+        function testSuccessWithTitle() {
+            notifications.success({
+                title: 'Cadastro Realizado',
+                message: 'O usuário foi cadastrado com sucesso no sistema.'
+            });
+        }
+        
+        function testErrorWithTitle() {
+            notifications.error({
+                title: 'Falha na Autenticação',
+                message: 'Email ou senha incorretos. Tente novamente.'
+            });
+        }
+        
+        function testPersistent() {
+            notifications.info('Esta notificação será salva no localStorage.', {
+                persist: true,
+                duration: 3000
+            });
+        }
+        
+        function testWithActions() {
+            notifications.info({
+                title: 'Confirmação Necessária',
+                message: 'Deseja continuar com esta operação?'
+            }, {
+                duration: 0,
+                actions: [
+                    {
+                        id: 'confirm',
+                        label: 'Confirmar',
+                        handler: (id) => {
+                            notifications.remove(id);
+                            notifications.success('Operação confirmada!');
+                        }
+                    },
+                    {
+                        id: 'cancel',
+                        label: 'Cancelar',
+                        handler: (id) => {
+                            notifications.remove(id);
+                            notifications.info('Operação cancelada.');
+                        }
+                    }
+                ]
+            });
+        }
+        
+        function testConfirmation() {
+            notifications.warning({
+                title: 'Excluir Item',
+                message: 'Esta ação não pode ser desfeita.'
+            }, {
+                duration: 0,
+                actions: [
+                    {
+                        id: 'delete',
+                        label: 'Excluir',
+                        handler: (id) => {
+                            notifications.remove(id);
+                            notifications.success('Item excluído com sucesso!');
+                        }
+                    }
+                ]
+            });
+        }
+        
+        function testShortDuration() {
+            notifications.info('Notificação rápida (1 segundo)', { duration: 1000 });
+        }
+        
+        function testLongDuration() {
+            notifications.warning('Notificação longa (10 segundos)', { duration: 10000 });
+        }
+        
+        function testNoDuration() {
+            notifications.error('Esta notificação não remove automaticamente', { duration: 0 });
+        }
+        
+        function testLegacySuccess() {
+            showSuccess('Teste da função legacy showSuccess()');
+        }
+        
+        function testLegacyError() {
+            showError('Teste da função legacy showError()');
+        }
+        
+        function testLegacyNotification() {
+            showNotification('Teste da função legacy showNotification()', 'info', 4000);
+        }
+        
+        function clearAll() {
+            notifications.clear();
+        }
+        
+        function clearPersisted() {
+            notifications.clearPersisted();
+            notifications.info('Notificações persistidas foram limpas.');
+        }
+        
+        function testMultiple() {
+            setTimeout(() => notifications.success('Primeira notificação'), 0);
+            setTimeout(() => notifications.info('Segunda notificação'), 200);
+            setTimeout(() => notifications.warning('Terceira notificação'), 400);
+            setTimeout(() => notifications.error('Quarta notificação'), 600);
+        }
+        
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+        }
+        
+        // Teste automático ao carregar
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                notifications.success('Sistema de notificações carregado com sucesso!');
+            }, 500);
+        });
+    </script>
+</body>
+</html>

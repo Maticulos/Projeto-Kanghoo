@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Sistema de Validação de Rotas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .logs {
+            max-height: 300px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Teste - Sistema de Validação de Rotas</h1>
+        <p>Este teste verifica o funcionamento do sistema de validação de rotas implementado.</p>
+
+        <div class="test-section">
+            <h3>1. Validação de Rotas Conhecidas</h3>
+            <button onclick="testKnownRoutes()">Testar Rotas Conhecidas</button>
+            <div id="known-routes-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. Validação de Rotas Inválidas</h3>
+            <button onclick="testInvalidRoutes()">Testar Rotas Inválidas</button>
+            <div id="invalid-routes-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>3. Redirecionamento por Tipo de Usuário</h3>
+            <button onclick="testUserTypeRedirect('motorista_escolar')">Motorista Escolar</button>
+            <button onclick="testUserTypeRedirect('motorista_excursao')">Motorista Excursão</button>
+            <button onclick="testUserTypeRedirect('responsavel')">Responsável</button>
+            <button onclick="testUserTypeRedirect('invalid_type')">Tipo Inválido</button>
+            <div id="user-type-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>4. Sistema de Logging</h3>
+            <button onclick="showLogs()">Mostrar Logs</button>
+            <button onclick="clearLogs()">Limpar Logs</button>
+            <button onclick="showStats()">Estatísticas</button>
+            <div id="logs-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>5. Teste de Fallback</h3>
+            <button onclick="testFallback()">Testar Fallback para Login</button>
+            <div id="fallback-result"></div>
+        </div>
+    </div>
+
+    <!-- Carregar módulos necessários -->
+    <script src="/assets/js/core/config.js"></script>
+    <script src="/assets/js/core/routes.js"></script>
+
+    <script>
+        // Funções de teste
+        async function testKnownRoutes() {
+            const resultDiv = document.getElementById('known-routes-result');
+            resultDiv.innerHTML = '<div class="info">Testando rotas conhecidas...</div>';
+
+            const knownRoutes = [
+                'LOGIN',
+                'DASHBOARD', 
+                'MOTORISTA_ESCOLAR',
+                'MOTORISTA_EXCURSAO',
+                'RESPONSAVEL',
+                'auth/login.html',
+                '/auth/area-motorista-escolar.html'
+            ];
+
+            let results = [];
+            
+            for (const route of knownRoutes) {
+                try {
+                    const isValid = await Routes.validateRoute(route);
+                    results.push(`${route}: ${isValid ? '✅ Válida' : '❌ Inválida'}`);
+                } catch (error) {
+                    results.push(`${route}: ❌ Erro - ${error.message}`);
+                }
+            }
+
+            resultDiv.innerHTML = `
+                <div class="success">
+                    <strong>Resultados:</strong><br>
+                    ${results.join('<br>')}
+                </div>
+            `;
+        }
+
+        async function testInvalidRoutes() {
+            const resultDiv = document.getElementById('invalid-routes-result');
+            resultDiv.innerHTML = '<div class="info">Testando rotas inválidas...</div>';
+
+            const invalidRoutes = [
+                '',
+                null,
+                'rota-inexistente.html',
+                '/auth/pagina-que-nao-existe.html',
+                'ROTA_INEXISTENTE'
+            ];
+
+            let results = [];
+            
+            for (const route of invalidRoutes) {
+                try {
+                    const isValid = await Routes.validateRoute(route);
+                    results.push(`${route || 'null/empty'}: ${isValid ? '⚠️ Válida (inesperado)' : '✅ Inválida (esperado)'}`);
+                } catch (error) {
+                    results.push(`${route || 'null/empty'}: ✅ Erro capturado - ${error.message}`);
+                }
+            }
+
+            resultDiv.innerHTML = `
+                <div class="success">
+                    <strong>Resultados:</strong><br>
+                    ${results.join('<br>')}
+                </div>
+            `;
+        }
+
+        async function testUserTypeRedirect(userType) {
+            const resultDiv = document.getElementById('user-type-result');
+            
+            try {
+                const route = Routes.getPathByUserType(userType);
+                const isKnown = Routes.isKnownRoute(route);
+                
+                resultDiv.innerHTML = `
+                    <div class="info">
+                        <strong>Tipo:</strong> ${userType}<br>
+                        <strong>Rota:</strong> ${route || 'Nenhuma'}<br>
+                        <strong>Conhecida:</strong> ${isKnown ? 'Sim' : 'Não'}<br>
+                        <em>Redirecionamento não executado (apenas teste)</em>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>Erro:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function showLogs() {
+            const resultDiv = document.getElementById('logs-result');
+            const logs = Routes.logger.getLogs();
+            
+            if (logs.length === 0) {
+                resultDiv.innerHTML = '<div class="info">Nenhum log encontrado</div>';
+                return;
+            }
+
+            const logsHtml = logs.map(log => 
+                `<div style="margin: 5px 0; padding: 5px; background: ${
+                    log.level === 'error' ? '#ffe6e6' : 
+                    log.level === 'warn' ? '#fff3cd' : '#e6f3ff'
+                }">
+                    <strong>[${log.level.toUpperCase()}]</strong> ${log.timestamp}<br>
+                    ${log.message}<br>
+                    <small>${JSON.stringify(log.data)}</small>
+                </div>`
+            ).join('');
+
+            resultDiv.innerHTML = `
+                <div class="logs">
+                    ${logsHtml}
+                </div>
+            `;
+        }
+
+        function clearLogs() {
+            Routes.logger.clearLogs();
+            document.getElementById('logs-result').innerHTML = '<div class="success">Logs limpos</div>';
+        }
+
+        function showStats() {
+            const resultDiv = document.getElementById('logs-result');
+            const stats = Routes.getRouteStats();
+            
+            resultDiv.innerHTML = `
+                <div class="info">
+                    <strong>Estatísticas de Rotas:</strong><br>
+                    Total de validações: ${stats.totalValidations}<br>
+                    Redirecionamentos bem-sucedidos: ${stats.successfulRedirects}<br>
+                    Validações falharam: ${stats.failedValidations}<br>
+                    Redirecionamentos de fallback: ${stats.fallbackRedirects}<br>
+                    Erros recentes: ${stats.recentErrors.length}
+                </div>
+            `;
+        }
+
+        async function testFallback() {
+            const resultDiv = document.getElementById('fallback-result');
+            resultDiv.innerHTML = '<div class="info">Testando sistema de fallback...</div>';
+            
+            // Simular teste de fallback sem executar redirecionamento real
+            try {
+                // Testar validação de rota de login
+                const loginValid = await Routes.validateRoute('LOGIN');
+                
+                resultDiv.innerHTML = `
+                    <div class="success">
+                        <strong>Teste de Fallback:</strong><br>
+                        Rota de login válida: ${loginValid ? 'Sim' : 'Não'}<br>
+                        <em>Fallback funcionaria corretamente</em><br>
+                        <small>Redirecionamento não executado para evitar sair da página de teste</small>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>Erro no teste de fallback:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Sistema de rotas carregado:', !!window.Routes);
+            console.log('Rotas disponíveis:', window.Routes?.ROUTES);
+        });
+    </script>
+</body>
+</html>
