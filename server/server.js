@@ -1,15 +1,12 @@
-/**
- * Servidor principal - versão modular
- * Usa app.js para middlewares/rotas e inicializa WebSocket/realtime.
+﻿/**
+ * Main server - modular version
+ * Uses app.js for middleware/routes and initializes WebSocket/realtime.
  */
 
 require('dotenv').config();
 
 const logger = require('./utils/logger');
 const app = require('./app');
-const db = require('./config/db');
-
-// Realtime
 const RealtimeServer = require('./realtime/realtime-server');
 
 const PORT = process.env.PORT || 3000;
@@ -17,23 +14,20 @@ const PORT = process.env.PORT || 3000;
 async function iniciarServidor() {
   try {
     if (process.env.AUTO_CREATE_TABLES === 'true') {
-      await db.criarTabelas();
-      logger.info('Criação automática de tabelas habilitada (AUTO_CREATE_TABLES=true)');
-    } else {
-      logger.info('AUTO_CREATE_TABLES não habilitado. Assumindo migrações aplicadas.');
+      logger.warn('AUTO_CREATE_TABLES is deprecated. Use migrations (knex migrate:latest). Ignoring runtime creation.');
     }
 
     const server = app.listen(PORT, () => {
-      logger.info(`🚀 Servidor rodando na porta ${PORT}`);
-      logger.info(`📱 Acesse a aplicação em http://localhost:${PORT}`);
+      logger.info('Server listening on port ' + PORT);
+      logger.info('Open http://localhost:' + PORT);
     });
 
-    // Inicializar servidor de tempo real usando o HTTP server existente
+    // Initialize realtime server using the existing HTTP server
     const realtimeServer = new RealtimeServer({ server });
     await realtimeServer.initialize();
 
   } catch (error) {
-    logger.error('Falha ao iniciar servidor:', error);
+    logger.error('Failed to start server:', error);
     process.exit(1);
   }
 }
@@ -41,4 +35,3 @@ async function iniciarServidor() {
 iniciarServidor();
 
 module.exports = app;
-

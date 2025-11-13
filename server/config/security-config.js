@@ -1,4 +1,4 @@
-const bcrypt = require('bcryptjs');
+// Nota: hashing unificado com 'bcrypt' aplicado em controllers/rotas
 const rateLimit = require('koa-ratelimit');
 const Redis = require('ioredis');
 const logger = require('../utils/logger');

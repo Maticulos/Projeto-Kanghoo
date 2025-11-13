@@ -1,4 +1,4 @@
-const KoaRouter = require('koa-router');
+﻿const KoaRouter = require('koa-router');
 const db = require('../config/db');
 const { authenticateToken, requireRole } = require('../middleware/auth-utils');
 const { validateInput, sanitizeForLog } = require('../config/security-config');
@@ -8,19 +8,19 @@ const csv = require('csv-parser');
 const fs = require('fs');
 const logger = require('../utils/logger');
 
-const router = new KoaRouter();
+const router = new KoaRouter({ prefix: '/api/motorista-escolar' });
 
-// Configuração segura do upload para CSV
+// ConfiguraÃ§Ã£o segura do upload para CSV
 const csvUpload = createSecureUpload('csv', { maxFiles: 1 });
 const documentUpload = createSecureUpload('documents', { maxFiles: 5 });
 const imageUpload = createSecureUpload('images', { maxFiles: 3 });
 const allFilesUpload = createSecureUpload('all', { maxFiles: 10 });
 
-// Aplicar middlewares de autenticação e autorização em todas as rotas
+// Aplicar middlewares de autenticaÃ§Ã£o e autorizaÃ§Ã£o em todas as rotas
 router.use(authenticateToken);
 router.use(requireRole('motorista_escolar'));
 
-// Rota para listar crianças do motorista
+// Rota para listar crianÃ§as do motorista
 router.get('/criancas', async (ctx) => {
     try {
         const motoristaId = ctx.user.id;
@@ -40,7 +40,7 @@ router.get('/criancas', async (ctx) => {
             criancas: resultado.rows
         };
     } catch (error) {
-        logger.error('Erro ao listar crianças:', error);
+        logger.error('Erro ao listar crianÃ§as:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -49,8 +49,8 @@ router.get('/criancas', async (ctx) => {
     }
 });
 
-// Rota para cadastrar uma criança
-// Validação por schema unificado
+// Rota para cadastrar uma crianÃ§a
+// ValidaÃ§Ã£o por schema unificado
 const schemaCrianca = {
     nome_completo: { required: true, minLength: 2, maxLength: 255 },
     data_nascimento: { required: true, validator: validators.isValidDate },
@@ -65,7 +65,7 @@ router.post('/criancas', validate(schemaCrianca), async (ctx) => {
         const motoristaId = ctx.user.id;
         const dadosCrianca = ctx.validatedData;
 
-        // Verificar se o responsável existe
+        // Verificar se o responsÃ¡vel existe
         const responsavel = await db.query(
             'SELECT id FROM usuarios WHERE email = $1 AND tipo_cadastro = $2',
             [dadosCrianca.responsavel_email, 'responsavel']
@@ -75,14 +75,14 @@ router.post('/criancas', validate(schemaCrianca), async (ctx) => {
             ctx.status = 400;
             ctx.body = {
                 sucesso: false,
-                mensagem: 'Responsável não encontrado. Verifique o email informado.'
+                mensagem: 'ResponsÃ¡vel nÃ£o encontrado. Verifique o email informado.'
             };
             return;
         }
 
         const responsavelId = responsavel.rows[0].id;
 
-        // Inserir criança
+        // Inserir crianÃ§a
         const resultado = await db.query(`
             INSERT INTO criancas (
                 nome_completo, data_nascimento, endereco_residencial, 
@@ -99,7 +99,7 @@ router.post('/criancas', validate(schemaCrianca), async (ctx) => {
             motoristaId
         ]);
 
-        logger.info('Nova criança cadastrada:', JSON.stringify(sanitizeForLog({
+        logger.info('Nova crianÃ§a cadastrada:', JSON.stringify(sanitizeForLog({
             crianca_id: resultado.rows[0].id,
             motorista_id: motoristaId,
             responsavel_id: responsavelId
@@ -107,11 +107,11 @@ router.post('/criancas', validate(schemaCrianca), async (ctx) => {
 
         ctx.body = {
             sucesso: true,
-            mensagem: 'Criança cadastrada com sucesso',
+            mensagem: 'CrianÃ§a cadastrada com sucesso',
             crianca: resultado.rows[0]
         };
     } catch (error) {
-        logger.error('Erro ao cadastrar criança:', error);
+        logger.error('Erro ao cadastrar crianÃ§a:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -120,7 +120,7 @@ router.post('/criancas', validate(schemaCrianca), async (ctx) => {
     }
 });
 
-// Rota para importar crianças via CSV
+// Rota para importar crianÃ§as via CSV
 router.post('/criancas/importar-csv', csvUpload.single('arquivo_csv'), validateUploadedFiles('csv'), async (ctx) => {
     try {
         const motoristaId = ctx.user.id;
@@ -130,7 +130,7 @@ router.post('/criancas/importar-csv', csvUpload.single('arquivo_csv'), validateU
             ctx.status = 400;
             ctx.body = {
                 sucesso: false,
-                mensagem: 'Arquivo CSV não fornecido'
+                mensagem: 'Arquivo CSV nÃ£o fornecido'
             };
             return;
         }
@@ -162,7 +162,7 @@ router.post('/criancas/importar-csv', csvUpload.single('arquivo_csv'), validateU
                             return;
                         }
 
-                        // Verificar se o responsável existe
+                        // Verificar se o responsÃ¡vel existe
                         const responsavel = await db.query(
                             'SELECT id FROM usuarios WHERE email = $1 AND tipo_cadastro = $2',
                             [linha.responsavel_email, 'responsavel']
@@ -171,14 +171,14 @@ router.post('/criancas/importar-csv', csvUpload.single('arquivo_csv'), validateU
                         if (responsavel.rows.length === 0) {
                             erros.push({
                                 linha: linha,
-                                erro: 'Responsável não encontrado'
+                                erro: 'ResponsÃ¡vel nÃ£o encontrado'
                             });
                             return;
                         }
 
                         const responsavelId = responsavel.rows[0].id;
 
-                        // Inserir criança
+                        // Inserir crianÃ§a
                         const resultado = await db.query(`
                             INSERT INTO criancas (
                                 nome_completo, data_nascimento, endereco_residencial, 
@@ -211,10 +211,10 @@ router.post('/criancas/importar-csv', csvUpload.single('arquivo_csv'), validateU
                 });
         });
 
-        // Remover arquivo temporário
+        // Remover arquivo temporÃ¡rio
         fs.unlinkSync(arquivo.path);
 
-        logger.info('Importação CSV concluída:', JSON.stringify(sanitizeForLog({
+        logger.info('ImportaÃ§Ã£o CSV concluÃ­da:', JSON.stringify(sanitizeForLog({
             motorista_id: motoristaId,
             criancas_importadas: criancasImportadas.length,
             erros: erros.length
@@ -222,12 +222,12 @@ router.post('/criancas/importar-csv', csvUpload.single('arquivo_csv'), validateU
 
         ctx.body = {
             sucesso: true,
-            mensagem: `Importação concluída. ${criancasImportadas.length} crianças importadas.`,
+            mensagem: `ImportaÃ§Ã£o concluÃ­da. ${criancasImportadas.length} crianÃ§as importadas.`,
             criancas_importadas: criancasImportadas,
             erros: erros
         };
     } catch (error) {
-        logger.error('Erro na importação CSV:', error);
+        logger.error('Erro na importaÃ§Ã£o CSV:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -293,7 +293,7 @@ router.post('/rotas', async (ctx) => {
             ctx.status = 400;
             ctx.body = {
                 sucesso: false,
-                mensagem: 'Dados inválidos',
+                mensagem: 'Dados invÃ¡lidos',
                 erros: validacao.errors
             };
             return;
@@ -335,14 +335,14 @@ router.post('/rotas', async (ctx) => {
     }
 });
 
-// Rota para atribuir criança a uma rota
+// Rota para atribuir crianÃ§a a uma rota
 router.put('/criancas/:id/rota', async (ctx) => {
     try {
         const motoristaId = ctx.user.id;
         const criancaId = ctx.params.id;
         const { rota_id } = ctx.request.body;
 
-        // Verificar se a criança pertence ao motorista
+        // Verificar se a crianÃ§a pertence ao motorista
         const crianca = await db.query(
             'SELECT id FROM criancas WHERE id = $1 AND motorista_id = $2',
             [criancaId, motoristaId]
@@ -352,7 +352,7 @@ router.put('/criancas/:id/rota', async (ctx) => {
             ctx.status = 404;
             ctx.body = {
                 sucesso: false,
-                mensagem: 'Criança não encontrada'
+                mensagem: 'CrianÃ§a nÃ£o encontrada'
             };
             return;
         }
@@ -368,13 +368,13 @@ router.put('/criancas/:id/rota', async (ctx) => {
                 ctx.status = 404;
                 ctx.body = {
                     sucesso: false,
-                    mensagem: 'Rota não encontrada'
+                    mensagem: 'Rota nÃ£o encontrada'
                 };
                 return;
             }
         }
 
-        // Atualizar rota da criança
+        // Atualizar rota da crianÃ§a
         await db.query(
             'UPDATE criancas SET rota_id = $1, atualizado_em = CURRENT_TIMESTAMP WHERE id = $2',
             [rota_id || null, criancaId]
@@ -382,10 +382,10 @@ router.put('/criancas/:id/rota', async (ctx) => {
 
         ctx.body = {
             sucesso: true,
-            mensagem: 'Rota da criança atualizada com sucesso'
+            mensagem: 'Rota da crianÃ§a atualizada com sucesso'
         };
     } catch (error) {
-        logger.error('Erro ao atualizar rota da criança:', error);
+        logger.error('Erro ao atualizar rota da crianÃ§a:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -430,8 +430,8 @@ router.post('/upload/documentos', documentUpload.fields([
             }
         }
         
-        // Salvar informações dos arquivos no banco de dados
-        // (Aqui você pode implementar a lógica para salvar no banco)
+        // Salvar informaÃ§Ãµes dos arquivos no banco de dados
+        // (Aqui vocÃª pode implementar a lÃ³gica para salvar no banco)
         
         ctx.body = {
             sucesso: true,
@@ -472,8 +472,8 @@ router.post('/upload/foto-perfil', imageUpload.single('fotoPerfil'), validateUpl
             uploadDate: new Date(file.uploadTimestamp)
         };
         
-        // Salvar informações da foto no banco de dados
-        // (Aqui você pode implementar a lógica para salvar no banco)
+        // Salvar informaÃ§Ãµes da foto no banco de dados
+        // (Aqui vocÃª pode implementar a lÃ³gica para salvar no banco)
         
         ctx.body = {
             sucesso: true,
@@ -491,7 +491,7 @@ router.post('/upload/foto-perfil', imageUpload.single('fotoPerfil'), validateUpl
     }
 });
 
-// Rota para upload múltiplo (todos os tipos)
+// Rota para upload mÃºltiplo (todos os tipos)
 router.post('/upload/multiplo', allFilesUpload.array('arquivos', 10), validateUploadedFiles('all'), async (ctx) => {
     try {
         const motoristaId = ctx.user.id;
@@ -521,7 +521,7 @@ router.post('/upload/multiplo', allFilesUpload.array('arquivos', 10), validateUp
         };
         
     } catch (error) {
-        logger.error('Erro no upload múltiplo:', error);
+        logger.error('Erro no upload mÃºltiplo:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -531,3 +531,4 @@ router.post('/upload/multiplo', allFilesUpload.array('arquivos', 10), validateUp
 });
 
 module.exports = router;
+

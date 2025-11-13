@@ -1,7 +1,8 @@
 const KoaRouter = require('koa-router');
 const db = require('../config/db');
 const { authenticateToken, requireRole } = require('../middleware/auth-utils');
-const { validateInput, sanitizeForLog } = require('../config/security-config');
+const { validate, validators } = require('../middleware/validation');
+const { sanitizeForLog } = require('../config/security-config');
 const notificationService = require('../utils/notification-service');
 const logger = require('../utils/logger');
 
@@ -98,31 +99,18 @@ router.get('/criancas', authenticateToken, requireRole('motorista_escolar'), asy
 });
 
 // Rota para adicionar uma criança
-router.post('/criancas', authenticateToken, requireRole('motorista_escolar'), async (ctx) => {
+const schemaCrianca = {
+    nome_completo: { required: true, minLength: 2, maxLength: 100 },
+    data_nascimento: { required: true, validator: validators.isValidDate },
+    endereco_residencial: { required: true, minLength: 5, maxLength: 200 },
+    escola: { required: true, minLength: 2, maxLength: 100 },
+    endereco_escola: { required: true, minLength: 5, maxLength: 200 },
+    responsavel_email: { required: true, validator: validators.isEmail }
+};
+router.post('/criancas', authenticateToken, requireRole('motorista_escolar'), validate(schemaCrianca), async (ctx) => {
     try {
         const motoristaId = ctx.user.id;
-        const { nome_completo, data_nascimento, endereco_residencial, escola, endereco_escola, responsavel_email } = ctx.request.body;
-
-        // Validação de entrada
-        const validacoes = [
-            validateInput(nome_completo, { type: 'text', minLength: 2, maxLength: 100 }),
-            validateInput(data_nascimento, { type: 'date' }),
-            validateInput(endereco_residencial, { type: 'text', minLength: 5, maxLength: 200 }),
-            validateInput(escola, { type: 'text', minLength: 2, maxLength: 100 }),
-            validateInput(endereco_escola, { type: 'text', minLength: 5, maxLength: 200 }),
-            validateInput(responsavel_email, { type: 'email' })
-        ];
-
-        for (const validacao of validacoes) {
-            if (!validacao.valid) {
-                ctx.status = 400;
-                ctx.body = {
-                    sucesso: false,
-                    mensagem: validacao.error || 'Erro de validação'
-                };
-                return;
-            }
-        }
+        const { nome_completo, data_nascimento, endereco_residencial, escola, endereco_escola, responsavel_email } = ctx.validatedData;
 
         // Verificar se já existe uma criança com o mesmo nome e responsável
         const criancaExistente = await db.query(
@@ -206,31 +194,18 @@ router.get('/rotas', authenticateToken, requireRole('motorista_escolar'), async 
 });
 
 // Rota para criar uma nova rota
-router.post('/rotas', authenticateToken, requireRole('motorista_escolar'), async (ctx) => {
+const schemaRota = {
+    nome: { required: true, minLength: 2, maxLength: 100 },
+    descricao: { required: true, minLength: 5, maxLength: 500 }
+};
+router.post('/rotas', authenticateToken, requireRole('motorista_escolar'), validate(schemaRota), async (ctx) => {
     try {
         const motoristaId = ctx.user.id;
-        const { nome, descricao } = ctx.request.body;
-
-        // Validação de entrada
-        const validacoes = [
-            validateInput(nome, { type: 'text', minLength: 2, maxLength: 100 }),
-            validateInput(descricao, { type: 'text', minLength: 5, maxLength: 500 })
-        ];
-
-        for (const validacao of validacoes) {
-            if (!validacao.valid) {
-                ctx.status = 400;
-                ctx.body = {
-                    sucesso: false,
-                    mensagem: validacao.error || 'Erro de validação'
-                };
-                return;
-            }
-        }
+        const { nome, descricao } = ctx.validatedData;
 
         // Verificar se já existe uma rota com o mesmo nome
         const rotaExistente = await db.query(
-            'SELECT id FROM rotas WHERE nome = $1 AND motorista_id = $2',
+            'SELECT id FROM rotas WHERE nome_rota = $1 AND motorista_id = $2',
             [nome, motoristaId]
         );
 
@@ -245,9 +220,9 @@ router.post('/rotas', authenticateToken, requireRole('motorista_escolar'), async
 
         // Inserir a rota
         const resultado = await db.query(`
-            INSERT INTO rotas (nome, descricao, motorista_id)
+            INSERT INTO rotas (nome_rota, descricao, motorista_id)
             VALUES ($1, $2, $3)
-            RETURNING id, nome, descricao
+            RETURNING id, nome_rota as nome, descricao
         `, [nome, descricao, motoristaId]);
 
         logger.info(JSON.stringify(sanitizeForLog({

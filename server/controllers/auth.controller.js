@@ -1,4 +1,4 @@
-const bcryptjs = require('bcryptjs');
+const bcrypt = require('bcrypt');
 const db = require('../config/db');
 const logger = require('../utils/logger');
 const { validationError, success, send } = require('../utils/api-response');
@@ -25,7 +25,7 @@ async function login(ctx) {
 
     let ok = false;
     try {
-      ok = await bcryptjs.compare(senha, user.senha);
+      ok = await bcrypt.compare(senha, user.senha);
     } catch (_) {
       ok = false;
     }
@@ -53,4 +53,3 @@ async function login(ctx) {
 }
 
 module.exports = { login };
-

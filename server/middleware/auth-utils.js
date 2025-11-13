@@ -133,10 +133,11 @@ const optionalAuth = async (ctx, next) => {
             if (token) {
                 const decoded = jwt.verify(token, JWT_SECRET);
                 ctx.user = {
-                    id: decoded.id,
+                    // suporte a diferentes formatos de payload (userId ou id)
+                    id: decoded.userId || decoded.id,
                     email: decoded.email,
                     tipo: decoded.tipo,
-                    nome: decoded.nome
+                    nome: decoded.nome || decoded.nomeCompleto || decoded.nome_completo
                 };
             }
         }

@@ -6,8 +6,8 @@ module.exports = function mountRoutes() {
   // Importar e montar todos os sub-routers existentes
   const motoristaEscolarRoutes = require('./motorista-escolar');
   const responsavelRoutes = require('./responsavel');
-  const rastreamentoRoutes = require('./rastreamento');
   const trackingApiRoutes = require('./tracking-api');
+  const rastreamentoRoutes = require('./rastreamento');
   const transportesRoutes = require('./transportes');
   const notificationPreferencesRoutes = require('./notification-preferences');
   const rotasEscolaresRoutes = require('./rotas-escolares');
@@ -21,14 +21,16 @@ module.exports = function mountRoutes() {
   const motoristaExcursaoRoutes = require('./motorista-excursao');
   const posicaoCriancasRoutes = require('./posicao-criancas');
   const atualizacaoPosicaoRoutes = require('./atualizacao-posicao');
+  const devToolsRoutes = require('./dev-tools');
   const authRoutes = require('./auth');
+  const validateTokenRoutes = require('./validate-token');
   const contactRoutes = require('./contact');
 
   [
     motoristaEscolarRoutes,
     responsavelRoutes,
-    rastreamentoRoutes,
     trackingApiRoutes,
+    rastreamentoRoutes,
     transportesRoutes,
     notificationPreferencesRoutes,
     rotasEscolaresRoutes,
@@ -42,7 +44,9 @@ module.exports = function mountRoutes() {
     motoristaExcursaoRoutes,
     posicaoCriancasRoutes,
     atualizacaoPosicaoRoutes,
+    devToolsRoutes,
     authRoutes,
+    validateTokenRoutes,
     contactRoutes
   ].forEach((sub) => {
     if (sub && sub.routes) {

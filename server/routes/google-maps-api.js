@@ -11,7 +11,7 @@
 const Router = require('koa-router');
 const googleMapsService = require('../utils/google-maps-service');
 const { authenticateToken } = require('../middleware/auth-utils');
-const { validateRequest } = require('../middleware/validation');
+const { success, error, send } = require('../utils/api-response');
 
 const router = new Router({
     prefix: '/api/maps'
@@ -24,23 +24,12 @@ const router = new Router({
 router.get('/status', async (ctx) => {
     try {
         const isAvailable = googleMapsService.isAvailable();
-        const cacheStats = googleMapsService.getCacheStats();
-        
-        ctx.body = {
-            success: true,
-            data: {
-                available: isAvailable,
-                cache: cacheStats,
-                message: isAvailable ? 'Serviço Google Maps disponível' : 'Serviço Google Maps não configurado'
-            }
-        };
-    } catch (error) {
-        console.error('[MAPS-API] Erro ao verificar status:', error);
+        const cacheStats = googleMapsService.getCacheStats?.() || {};
+        return send(ctx, success({ available: isAvailable, cache: cacheStats, message: isAvailable ? 'Serviço Google Maps disponível' : 'Serviço Google Maps não configurado' }));
+    } catch (err) {
+        console.error('[MAPS-API] Erro ao verificar status:', err);
         ctx.status = 500;
-        ctx.body = {
-            success: false,
-            message: 'Erro interno do servidor'
-        };
+        return send(ctx, error('Erro interno do servidor', 500));
     }
 });
 
@@ -54,27 +43,16 @@ router.post('/geocode', authenticateToken, async (ctx) => {
         
         if (!address) {
             ctx.status = 400;
-            ctx.body = {
-                success: false,
-                message: 'Endereço é obrigatório'
-            };
-            return;
+            return send(ctx, error('Endereço é obrigatório', 400));
         }
 
         const result = await googleMapsService.geocode(address);
+        return send(ctx, success(result));
         
-        ctx.body = {
-            success: true,
-            data: result
-        };
-        
-    } catch (error) {
-        console.error('[MAPS-API] Erro na geocodificação:', error);
+    } catch (err) {
+        console.error('[MAPS-API] Erro na geocodificação:', err);
         ctx.status = 400;
-        ctx.body = {
-            success: false,
-            message: error.message || 'Erro ao geocodificar endereço'
-        };
+        return send(ctx, error(err.message || 'Erro ao geocodificar endereço', 400));
     }
 });
 
@@ -88,27 +66,17 @@ router.post('/reverse-geocode', authenticateToken, async (ctx) => {
         
         if (!latitude || !longitude) {
             ctx.status = 400;
-            ctx.body = {
-                success: false,
-                message: 'Latitude e longitude são obrigatórias'
-            };
-            return;
+            return send(ctx, error('Latitude e longitude são obrigatórias', 400));
         }
 
         const result = await googleMapsService.reverseGeocode(latitude, longitude);
         
-        ctx.body = {
-            success: true,
-            data: result
-        };
+        return send(ctx, success(result));
         
-    } catch (error) {
-        console.error('[MAPS-API] Erro na geocodificação reversa:', error);
+    } catch (err) {
+        console.error('[MAPS-API] Erro na geocodificação reversa:', err);
         ctx.status = 400;
-        ctx.body = {
-            success: false,
-            message: error.message || 'Erro ao converter coordenadas'
-        };
+        return send(ctx, error(err.message || 'Erro ao converter coordenadas', 400));
     }
 });
 
@@ -122,27 +90,17 @@ router.post('/route', authenticateToken, async (ctx) => {
         
         if (!origin || !destination) {
             ctx.status = 400;
-            ctx.body = {
-                success: false,
-                message: 'Origem e destino são obrigatórios'
-            };
-            return;
+            return send(ctx, error('Origem e destino são obrigatórios', 400));
         }
 
         const result = await googleMapsService.calculateRoute(origin, destination, options);
         
-        ctx.body = {
-            success: true,
-            data: result
-        };
+        return send(ctx, success(result));
         
-    } catch (error) {
-        console.error('[MAPS-API] Erro no cálculo de rota:', error);
+    } catch (err) {
+        console.error('[MAPS-API] Erro no cálculo de rota:', err);
         ctx.status = 400;
-        ctx.body = {
-            success: false,
-            message: error.message || 'Erro ao calcular rota'
-        };
+        return send(ctx, error(err.message || 'Erro ao calcular rota', 400));
     }
 });
 

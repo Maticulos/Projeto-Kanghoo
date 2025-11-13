@@ -9,7 +9,7 @@
  * - Dados que passam por todas as validações
  */
 
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt');
 const db = require('../config/db');
 const logger = require('../utils/logger');
 

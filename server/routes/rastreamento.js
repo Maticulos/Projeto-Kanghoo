@@ -1,22 +1,23 @@
-const KoaRouter = require('koa-router');
+﻿const KoaRouter = require('koa-router');
 const db = require('../config/db');
 const { authenticateToken, requireRole } = require('../middleware/auth-utils');
-const { validateInput, sanitizeForLog } = require('../config/security-config');
+const { sanitizeForLog } = require('../config/security-config');
+const { validate, validators } = require('../middleware/validation');
 const notificationService = require('../utils/notification-service');
 const logger = require('../utils/logger');
 
-// Integração com sistema de notificações em tempo real
+// IntegraÃ§Ã£o com sistema de notificaÃ§Ãµes em tempo real
 let trackingIntegration = null;
 
-// Função para definir a integração (será chamada pelo servidor principal)
+// FunÃ§Ã£o para definir a integraÃ§Ã£o (serÃ¡ chamada pelo servidor principal)
 function setTrackingIntegration(integration) {
     trackingIntegration = integration;
-    logger.info('[RASTREAMENTO] Integração de notificações em tempo real configurada');
+    logger.info('[RASTREAMENTO] IntegraÃ§Ã£o de notificaÃ§Ãµes em tempo real configurada');
 }
 
 const router = new KoaRouter({ prefix: '/api/rastreamento' });
 
-// Rota de teste básica
+// Rota de teste bÃ¡sica
 router.get('/test', async (ctx) => {
     ctx.body = {
         sucesso: true,
@@ -24,29 +25,82 @@ router.get('/test', async (ctx) => {
     };
 });
 
-// Rota para iniciar uma viagem
-router.post('/viagens/iniciar', authenticateToken, requireRole('motorista_escolar'), async (ctx) => {
+// Viagem ativa (compatibilidade com UI legada)
+router.get('/viagem-ativa', authenticateToken, async (ctx) => {
     try {
-        const motoristaId = ctx.user.id;
-        const { rota_id, tipo_viagem, criancas_ids } = ctx.request.body;
+        const userId = ctx.user.id;
+        // Tenta como motorista
+        let res = await db.query(
+            `SELECT v.id, v.rota_id, v.tipo_viagem, v.status, v.horario_inicio, v.data_viagem,
+                    r.nome_rota,
+                    (SELECT json_build_object('latitude', ra.latitude, 'longitude', ra.longitude, 'timestamp', ra.timestamp_localizacao)
+                       FROM rastreamento ra
+                       WHERE ra.motorista_id = v.motorista_id
+                       ORDER BY ra.timestamp_localizacao DESC LIMIT 1) as ultima_posicao
+             FROM viagens v
+             LEFT JOIN rotas r ON r.id = v.rota_id
+             WHERE v.motorista_id = $1 AND v.status IN ('iniciada','em_andamento') AND v.data_viagem = CURRENT_DATE
+             ORDER BY v.horario_inicio DESC LIMIT 1`, [userId]
+        );
 
-        // Validação de entrada
-        const validacoes = [
-            validateInput(rota_id, { type: 'number' }),
-            validateInput(tipo_viagem, { type: 'text', allowedValues: ['ida', 'volta'] })
-        ];
-
-        for (const validacao of validacoes) {
-            if (!validacao.valid) {
-                ctx.status = 400;
-                ctx.body = {
-                    sucesso: false,
-                    mensagem: validacao.error || 'Erro de validação'
-                };
-                return;
-            }
+        // Se não for motorista, tenta por criança vinculada (responsável)
+        if (res.rows.length === 0) {
+            res = await db.query(
+                `SELECT v.id, v.rota_id, v.tipo_viagem, v.status, v.horario_inicio, v.data_viagem,
+                        r.nome_rota
+                 FROM viagens v
+                 JOIN criancas_viagens cv ON cv.viagem_id = v.id
+                 JOIN criancas c ON c.id = cv.crianca_id
+                 LEFT JOIN rotas r ON r.id = v.rota_id
+                 WHERE c.responsavel_id = $1 AND v.status IN ('iniciada','em_andamento') AND v.data_viagem = CURRENT_DATE
+                 ORDER BY v.horario_inicio DESC LIMIT 1`, [userId]
+            );
         }
 
+        if (res.rows.length === 0) {
+            ctx.status = 404;
+            ctx.body = { sucesso: false, mensagem: 'Nenhuma viagem ativa' };
+            return;
+        }
+        ctx.body = { sucesso: true, viagem: res.rows[0] };
+    } catch (e) {
+        logger.error('Erro /viagem-ativa:', e);
+        ctx.status = 500;
+        ctx.body = { sucesso: false, mensagem: 'Erro interno' };
+    }
+});
+
+// Estatísticas simples (compatibilidade com UI legada)
+router.get('/estatisticas', authenticateToken, async (ctx) => {
+    try {
+        const userId = ctx.user.id;
+        const totalViagensHoje = await db.query(`SELECT COUNT(*)::int AS c FROM viagens WHERE data_viagem=CURRENT_DATE AND motorista_id=$1`, [userId]);
+        const totalCriancas = await db.query(`SELECT COUNT(*)::int AS c FROM criancas WHERE motorista_id=$1 AND ativo=true`, [userId]);
+        ctx.body = {
+            sucesso: true,
+            dados: {
+                viagens_hoje: totalViagensHoje.rows[0]?.c || 0,
+                criancas_ativas: totalCriancas.rows[0]?.c || 0,
+                atualizacao: new Date().toISOString()
+            }
+        };
+    } catch (e) {
+        logger.error('Erro /estatisticas:', e);
+        ctx.status = 500;
+        ctx.body = { sucesso: false, mensagem: 'Erro interno' };
+    }
+});
+
+// Rota para iniciar uma viagem
+const schemaIniciarViagem = {
+    rota_id: { required: true, validator: validators.isPositiveNumber },
+    tipo_viagem: { required: true, enum: ['ida','volta'] },
+    criancas_ids: { required: false }
+};
+router.post('/viagens/iniciar', authenticateToken, requireRole('motorista_escolar'), validate(schemaIniciarViagem), async (ctx) => {
+    try {
+        const motoristaId = ctx.user.id;
+        const { rota_id, tipo_viagem, criancas_ids } = ctx.validatedData;
         // Verificar se a rota pertence ao motorista
         const rotaExistente = await db.query(
             'SELECT id FROM rotas WHERE id = $1 AND motorista_id = $2',
@@ -57,12 +111,12 @@ router.post('/viagens/iniciar', authenticateToken, requireRole('motorista_escola
             ctx.status = 404;
             ctx.body = {
                 sucesso: false,
-                mensagem: 'Rota não encontrada'
+                mensagem: 'Rota nÃ£o encontrada'
             };
             return;
         }
 
-        // Verificar se já existe uma viagem ativa
+        // Verificar se jÃ¡ existe uma viagem ativa
         const viagemAtiva = await db.query(
             'SELECT id FROM viagens WHERE motorista_id = $1 AND status IN (\'iniciada\', \'em_andamento\') AND data_viagem = CURRENT_DATE',
             [motoristaId]
@@ -72,7 +126,7 @@ router.post('/viagens/iniciar', authenticateToken, requireRole('motorista_escola
             ctx.status = 400;
             ctx.body = {
                 sucesso: false,
-                mensagem: 'Já existe uma viagem ativa'
+                mensagem: 'JÃ¡ existe uma viagem ativa'
             };
             return;
         }
@@ -86,7 +140,7 @@ router.post('/viagens/iniciar', authenticateToken, requireRole('motorista_escola
 
         const viagemId = viagem.rows[0].id;
 
-        // Adicionar crianças à viagem se fornecidas
+        // Adicionar crianÃ§as Ã  viagem se fornecidas
         if (criancas_ids && Array.isArray(criancas_ids) && criancas_ids.length > 0) {
             for (const criancaId of criancas_ids) {
                 await db.query(
@@ -125,19 +179,7 @@ router.put('/viagens/:id/finalizar', authenticateToken, requireRole('motorista_e
     try {
         const motoristaId = ctx.user.id;
         const viagemId = ctx.params.id;
-
-        // Validação do ID
-        const validacao = validateInput(viagemId, { type: 'number' });
-        if (!validacao.valid) {
-            ctx.status = 400;
-            ctx.body = {
-                sucesso: false,
-                mensagem: 'ID da viagem inválido'
-            };
-            return;
-        }
-
-        // Verificar se a viagem pertence ao motorista e está ativa
+        // Verificar se a viagem pertence ao motorista e estÃ¡ ativa
         const viagemExistente = await db.query(
             'SELECT id FROM viagens WHERE id = $1 AND motorista_id = $2 AND status IN (\'iniciada\', \'em_andamento\')',
             [viagemId, motoristaId]
@@ -147,7 +189,7 @@ router.put('/viagens/:id/finalizar', authenticateToken, requireRole('motorista_e
             ctx.status = 404;
             ctx.body = {
                 sucesso: false,
-                mensagem: 'Viagem não encontrada ou já finalizada'
+                mensagem: 'Viagem nÃ£o encontrada ou jÃ¡ finalizada'
             };
             return;
         }
@@ -181,7 +223,7 @@ router.put('/viagens/:id/finalizar', authenticateToken, requireRole('motorista_e
     }
 });
 
-// Enviar localização atual
+// Enviar localizaÃ§Ã£o atual
 router.post('/localizacao', authenticateToken, requireRole('motorista_escolar'), async (ctx) => {
     try {
         const { 
@@ -194,24 +236,13 @@ router.post('/localizacao', authenticateToken, requireRole('motorista_escolar'),
             temperatura = 0,
             timestamp 
         } = ctx.request.body;
-
-        // Validar dados obrigatórios
-        if (!latitude || !longitude) {
-            ctx.status = 400;
-            ctx.body = {
-                sucesso: false,
-                erro: 'Latitude e longitude são obrigatórias'
-            };
-            return;
-        }
-
         // Simular dados da viagem ativa
         const viagemAtiva = {
             id: 'viagem_123',
             motorista_id: ctx.user.id,
             veiculo_id: 'veiculo_456',
             rota_id: 'rota_789',
-            inicio: new Date(Date.now() - 30 * 60 * 1000), // 30 minutos atrás
+            inicio: new Date(Date.now() - 30 * 60 * 1000), // 30 minutos atrÃ¡s
             criancas: [
                 { 
                     id: 1, 
@@ -225,12 +256,12 @@ router.post('/localizacao', authenticateToken, requireRole('motorista_escolar'),
                             tipo: 'ambos',
                             frequencia: '15min'
                         },
-                        ultima_notificacao: new Date(Date.now() - 16 * 60 * 1000) // 16 min atrás
+                        ultima_notificacao: new Date(Date.now() - 16 * 60 * 1000) // 16 min atrÃ¡s
                     }
                 },
                 { 
                     id: 2, 
-                    nome: 'João Santos', 
+                    nome: 'JoÃ£o Santos', 
                     embarcada: true,
                     responsavel: {
                         nome: 'Carlos Santos',
@@ -240,7 +271,7 @@ router.post('/localizacao', authenticateToken, requireRole('motorista_escolar'),
                             tipo: 'whatsapp',
                             frequencia: '5min'
                         },
-                        ultima_notificacao: new Date(Date.now() - 6 * 60 * 1000) // 6 min atrás
+                        ultima_notificacao: new Date(Date.now() - 6 * 60 * 1000) // 6 min atrÃ¡s
                     }
                 },
                 { 
@@ -248,7 +279,7 @@ router.post('/localizacao', authenticateToken, requireRole('motorista_escolar'),
                     nome: 'Maria Oliveira', 
                     embarcada: false,
                     responsavel: {
-                        nome: 'José Oliveira',
+                        nome: 'JosÃ© Oliveira',
                         telefone: '+5511777777777',
                         email: 'jose.oliveira@email.com',
                         preferencias_notificacao: {
@@ -268,7 +299,7 @@ router.post('/localizacao', authenticateToken, requireRole('motorista_escolar'),
             velocidade,
             combustivel: {
                 nivel_atual: combustivel_nivel,
-                consumo_estimado: velocidade > 0 ? (velocidade * 0.1) : 0 // Simulação simples
+                consumo_estimado: velocidade > 0 ? (velocidade * 0.1) : 0 // SimulaÃ§Ã£o simples
             },
             distancia: {
                 percorrida: odometro,
@@ -282,7 +313,7 @@ router.post('/localizacao', authenticateToken, requireRole('motorista_escolar'),
             tempo_viagem: Math.floor((new Date() - viagemAtiva.inicio) / 1000 / 60) // minutos
         };
 
-        // Processar notificações para crianças embarcadas
+        // Processar notificaÃ§Ãµes para crianÃ§as embarcadas
         const notificacoesEnviadas = [];
         for (const crianca of viagemAtiva.criancas) {
             if (crianca.embarcada && crianca.responsavel.preferencias_notificacao.frequencia !== 'chegada_saida') {
@@ -305,13 +336,13 @@ router.post('/localizacao', authenticateToken, requireRole('motorista_escolar'),
                         resultados
                     });
 
-                    // Atualizar timestamp da última notificação
+                    // Atualizar timestamp da Ãºltima notificaÃ§Ã£o
                     crianca.responsavel.ultima_notificacao = new Date();
                 }
             }
         }
 
-        // Integrar com sistema de notificações em tempo real
+        // Integrar com sistema de notificaÃ§Ãµes em tempo real
         if (trackingIntegration) {
             try {
                 await trackingIntegration.processarLocalizacao({
@@ -323,7 +354,7 @@ router.post('/localizacao', authenticateToken, requireRole('motorista_escolar'),
                     dados_completos: dadosRastreamento
                 });
             } catch (error) {
-                logger.error('[RASTREAMENTO] Erro na integração de notificações:', error);
+                logger.error('[RASTREAMENTO] Erro na integraÃ§Ã£o de notificaÃ§Ãµes:', error);
             }
         }
 
@@ -340,7 +371,7 @@ router.post('/localizacao', authenticateToken, requireRole('motorista_escolar'),
 
         ctx.body = {
             sucesso: true,
-            mensagem: 'Localização registrada com sucesso',
+            mensagem: 'LocalizaÃ§Ã£o registrada com sucesso',
             dados: {
                 rastreamento: dadosRastreamento,
                 viagem: viagemAtiva,
@@ -397,10 +428,10 @@ router.get('/viagem-ativa', authenticateToken, requireRole('motorista_escolar'),
                 return;
             }
         } catch (dbError) {
-            logger.debug('Tabelas de viagem não encontradas, usando dados simulados');
+            logger.debug('Tabelas de viagem nÃ£o encontradas, usando dados simulados');
         }
 
-        // Se não há viagem ativa ou erro na query, retornar dados simulados para demonstração
+        // Se nÃ£o hÃ¡ viagem ativa ou erro na query, retornar dados simulados para demonstraÃ§Ã£o
         ctx.body = {
             sucesso: true,
             mensagem: 'Nenhuma viagem ativa no momento',
@@ -412,7 +443,7 @@ router.get('/viagem-ativa', authenticateToken, requireRole('motorista_escolar'),
                 tipo_viagem: 'ida',
                 status: 'aguardando',
                 nome_rota: 'Rota Centro - Escola Municipal',
-                descricao_rota: 'Transporte escolar da região central',
+                descricao_rota: 'Transporte escolar da regiÃ£o central',
                 total_criancas: 15,
                 motorista_id: motoristaId
             }
@@ -427,7 +458,7 @@ router.get('/viagem-ativa', authenticateToken, requireRole('motorista_escolar'),
     }
 });
 
-// Rota para listar histórico de viagens do motorista
+// Rota para listar histÃ³rico de viagens do motorista
 router.get('/historico', authenticateToken, requireRole('motorista_escolar'), async (ctx) => {
     try {
         const motoristaId = ctx.user.id;
@@ -435,7 +466,7 @@ router.get('/historico', authenticateToken, requireRole('motorista_escolar'), as
 
         const offset = (pagina - 1) * limite;
 
-        // Tentar buscar histórico real
+        // Tentar buscar histÃ³rico real
         try {
             const historico = await db.query(`
                 SELECT 
@@ -476,10 +507,10 @@ router.get('/historico', authenticateToken, requireRole('motorista_escolar'), as
                 return;
             }
         } catch (dbError) {
-            logger.debug('Tabelas de histórico não encontradas, usando dados simulados');
+            logger.debug('Tabelas de histÃ³rico nÃ£o encontradas, usando dados simulados');
         }
 
-        // Dados simulados para demonstração
+        // Dados simulados para demonstraÃ§Ã£o
         const historicoSimulado = [
             {
                 id: 1,
@@ -525,7 +556,7 @@ router.get('/historico', authenticateToken, requireRole('motorista_escolar'), as
             }
         };
     } catch (error) {
-        logger.error('Erro ao buscar histórico de viagens:', error);
+        logger.error('Erro ao buscar histÃ³rico de viagens:', error);
         ctx.status = 500;
         ctx.body = {
             sucesso: false,
@@ -534,23 +565,11 @@ router.get('/historico', authenticateToken, requireRole('motorista_escolar'), as
     }
 });
 
-// Rota para obter detalhes de uma viagem específica
+// Rota para obter detalhes de uma viagem especÃ­fica
 router.get('/viagens/:id', authenticateToken, requireRole('motorista_escolar'), async (ctx) => {
     try {
         const motoristaId = ctx.user.id;
         const viagemId = ctx.params.id;
-
-        // Validação do ID
-        const validacao = validateInput(viagemId, { type: 'number' });
-        if (!validacao.valid) {
-            ctx.status = 400;
-            ctx.body = {
-                sucesso: false,
-                mensagem: 'ID da viagem inválido'
-            };
-            return;
-        }
-
         // Buscar detalhes da viagem
         const viagem = await db.query(`
             SELECT 
@@ -571,12 +590,12 @@ router.get('/viagens/:id', authenticateToken, requireRole('motorista_escolar'), 
             ctx.status = 404;
             ctx.body = {
                 sucesso: false,
-                mensagem: 'Viagem não encontrada'
+                mensagem: 'Viagem nÃ£o encontrada'
             };
             return;
         }
 
-        // Buscar crianças da viagem
+        // Buscar crianÃ§as da viagem
         const criancas = await db.query(`
             SELECT 
                 c.id,
@@ -587,7 +606,7 @@ router.get('/viagens/:id', authenticateToken, requireRole('motorista_escolar'), 
             WHERE cv.viagem_id = $1
         `, [viagemId]);
 
-        // Buscar localizações da viagem
+        // Buscar localizaÃ§Ãµes da viagem
         const localizacoes = await db.query(`
             SELECT 
                 latitude,
@@ -618,30 +637,12 @@ router.get('/viagens/:id', authenticateToken, requireRole('motorista_escolar'), 
     }
 });
 
-// Rota para registrar embarque de criança
+// Rota para registrar embarque de crianÃ§a
 router.post('/embarque', authenticateToken, requireRole('motorista_escolar'), async (ctx) => {
     try {
         const motoristaId = ctx.user.id;
         const { viagem_id, crianca_id } = ctx.request.body;
-
-        // Validação de entrada
-        const validacoes = [
-            validateInput(viagem_id, { type: 'number' }),
-            validateInput(crianca_id, { type: 'number' })
-        ];
-
-        for (const validacao of validacoes) {
-            if (!validacao.valid) {
-                ctx.status = 400;
-                ctx.body = {
-                    sucesso: false,
-                    mensagem: validacao.error || 'Erro de validação'
-                };
-                return;
-            }
-        }
-
-        // Verificar se a viagem pertence ao motorista e está ativa
+        // Verificar se a viagem pertence ao motorista e estÃ¡ ativa
         const viagemExistente = await db.query(
             'SELECT id FROM viagens WHERE id = $1 AND motorista_id = $2 AND status IN (\'iniciada\', \'em_andamento\')',
             [viagem_id, motoristaId]
@@ -651,7 +652,7 @@ router.post('/embarque', authenticateToken, requireRole('motorista_escolar'), as
             ctx.status = 404;
             ctx.body = {
                 sucesso: false,
-                mensagem: 'Viagem não encontrada ou não está ativa'
+                mensagem: 'Viagem nÃ£o encontrada ou nÃ£o estÃ¡ ativa'
             };
             return;
         }
@@ -662,7 +663,7 @@ router.post('/embarque', authenticateToken, requireRole('motorista_escolar'), as
             [viagem_id, crianca_id]
         );
 
-        // Integrar com sistema de notificações em tempo real
+        // Integrar com sistema de notificaÃ§Ãµes em tempo real
         if (trackingIntegration) {
             try {
                 await trackingIntegration.processarEmbarque({
@@ -671,7 +672,7 @@ router.post('/embarque', authenticateToken, requireRole('motorista_escolar'), as
                     timestamp: new Date()
                 });
             } catch (error) {
-                logger.error('[RASTREAMENTO] Erro na integração de embarque:', error);
+                logger.error('[RASTREAMENTO] Erro na integraÃ§Ã£o de embarque:', error);
             }
         }
 
@@ -696,30 +697,12 @@ router.post('/embarque', authenticateToken, requireRole('motorista_escolar'), as
     }
 });
 
-// Rota para registrar desembarque de criança
+// Rota para registrar desembarque de crianÃ§a
 router.post('/desembarque', authenticateToken, requireRole('motorista_escolar'), async (ctx) => {
     try {
         const motoristaId = ctx.user.id;
         const { viagem_id, crianca_id } = ctx.request.body;
-
-        // Validação de entrada
-        const validacoes = [
-            validateInput(viagem_id, { type: 'number' }),
-            validateInput(crianca_id, { type: 'number' })
-        ];
-
-        for (const validacao of validacoes) {
-            if (!validacao.valid) {
-                ctx.status = 400;
-                ctx.body = {
-                    sucesso: false,
-                    mensagem: validacao.error || 'Erro de validação'
-                };
-                return;
-            }
-        }
-
-        // Verificar se a viagem pertence ao motorista e está ativa
+        // Verificar se a viagem pertence ao motorista e estÃ¡ ativa
         const viagemExistente = await db.query(
             'SELECT id FROM viagens WHERE id = $1 AND motorista_id = $2 AND status IN (\'iniciada\', \'em_andamento\')',
             [viagem_id, motoristaId]
@@ -729,7 +712,7 @@ router.post('/desembarque', authenticateToken, requireRole('motorista_escolar'),
             ctx.status = 404;
             ctx.body = {
                 sucesso: false,
-                mensagem: 'Viagem não encontrada ou não está ativa'
+                mensagem: 'Viagem nÃ£o encontrada ou nÃ£o estÃ¡ ativa'
             };
             return;
         }
@@ -740,7 +723,7 @@ router.post('/desembarque', authenticateToken, requireRole('motorista_escolar'),
             [viagem_id, crianca_id]
         );
 
-        // Integrar com sistema de notificações em tempo real
+        // Integrar com sistema de notificaÃ§Ãµes em tempo real
         if (trackingIntegration) {
             try {
                 await trackingIntegration.processarDesembarque({
@@ -749,7 +732,7 @@ router.post('/desembarque', authenticateToken, requireRole('motorista_escolar'),
                     timestamp: new Date()
                 });
             } catch (error) {
-                logger.error('[RASTREAMENTO] Erro na integração de desembarque:', error);
+                logger.error('[RASTREAMENTO] Erro na integraÃ§Ã£o de desembarque:', error);
             }
         }
 
@@ -776,3 +759,5 @@ router.post('/desembarque', authenticateToken, requireRole('motorista_escolar'),
 
 module.exports = router;
 module.exports.setTrackingIntegration = setTrackingIntegration;
+
+

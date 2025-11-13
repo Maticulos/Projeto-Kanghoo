@@ -1,0 +1,10 @@
+{"timestamp":"2025-11-13T18:21:07.975Z","level":"ERROR","message":"Erro ao criar as tabelas:","data":[{"errno":-111,"code":"ECONNREFUSED","syscall":"connect","address":"::1","port":5432}]}
+{"timestamp":"2025-11-13T19:00:51.896Z","level":"ERROR","message":"Erro ao criar as tabelas:","data":[{"errno":-111,"code":"ECONNREFUSED","syscall":"connect","address":"::1","port":5432}]}
+{"timestamp":"2025-11-13T19:04:52.604Z","level":"ERROR","message":"Erro ao criar as tabelas:","data":[{"errno":-111,"code":"ECONNREFUSED","syscall":"connect","address":"::1","port":5432}]}
+{"timestamp":"2025-11-13T19:05:02.238Z","level":"ERROR","message":"❌ Erro no login:","data":["connect ECONNREFUSED ::1:5432"]}
+{"timestamp":"2025-11-13T19:09:58.652Z","level":"ERROR","message":"❌ Erro no login:","data":["connect ECONNREFUSED ::1:5432"]}
+{"timestamp":"2025-11-13T20:17:41.763Z","level":"ERROR","message":"Erro ao criar as tabelas:","data":[{"errno":-111,"code":"ECONNREFUSED","syscall":"connect","address":"::1","port":5432}]}
+{"timestamp":"2025-11-13T20:18:05.328Z","level":"ERROR","message":"❌ Erro no login:","data":["connect ECONNREFUSED ::1:5432"]}
+{"timestamp":"2025-11-13T20:27:15.021Z","level":"ERROR","message":"Erro no login:","data":[{"errno":-111,"code":"ECONNREFUSED","syscall":"connect","address":"::1","port":5432}]}
+{"timestamp":"2025-11-13T20:50:21.021Z","level":"ERROR","message":"Erro no login:","data":[{"length":112,"name":"error","severity":"ERROR","code":"42703","position":"34","file":"parse_relation.c","line":"3647","routine":"errorMissingColumn"}]}
+{"timestamp":"2025-11-13T23:15:49.042Z","level":"ERROR","message":"Erro não tratado:","data":[{"status":400,"body":"{email:motorista.escola.premium@example.com,senha:teste123}"}]}

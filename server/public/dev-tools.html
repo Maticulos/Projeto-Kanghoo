@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <title>Admin/Dev Tools (DEV ONLY)</title>
+    <meta name="robots" content="noindex,nofollow">
+    <style>
+      body { font-family: Arial, sans-serif; margin: 20px; }
+      .warn { color: #b00; font-weight: bold; }
+      table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+      th, td { border: 1px solid #ccc; padding: 8px; }
+      th { background: #f0f0f0; }
+      button { margin-right: 6px; }
+      .controls { margin: 12px 0; }
+    </style>
+  </head>
+  <body>
+    <h1>Admin/Dev Tools <span class="warn">(Ambiente de DEV/TESTE, não use em produção)</span></h1>
+    <div class="controls">
+      <button id="btnReset">Reset DB (seed)</button>
+      <button id="btnClear">Limpar cache</button>
+    </div>
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Nome</th><th>Email</th><th>Role</th><th>Blocked</th><th>Ações</th></tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+
+    <script>
+      async function api(path, opts={}) {
+        const token = localStorage.getItem('auth_token');
+        const res = await fetch(path, {
+          method: opts.method || 'GET',
+          headers: { 'Content-Type':'application/json', 'Authorization': 'Bearer ' + token },
+          body: opts.body ? JSON.stringify(opts.body) : undefined
+        });
+        if (!res.ok) throw new Error(await res.text());
+        return res.json();
+      }
+
+      async function loadUsers() {
+        const data = await api('/api/admin/dev-tools/users');
+        const tbody = document.getElementById('tbody');
+        tbody.innerHTML = '';
+        data.users.forEach(u => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${u.id}</td><td>${u.nome_completo}</td><td>${u.email}</td><td>${u.tipo_usuario}</td><td>${u.blocked}</td>
+            <td>
+              <button data-act="imp" data-id="${u.id}">Login como</button>
+              <button data-act="pwd" data-id="${u.id}">Reset senha</button>
+              <button data-act="blk" data-id="${u.id}">Bloquear</button>
+              <button data-act="unb" data-id="${u.id}">Desbloquear</button>
+              <button data-act="plan-basic" data-id="${u.id}">Plano Basic</button>
+              <button data-act="plan-premium" data-id="${u.id}">Plano Premium</button>
+            </td>`;
+          tbody.appendChild(tr);
+        });
+      }
+
+      document.getElementById('tbody').addEventListener('click', async (e) => {
+        if (e.target.tagName !== 'BUTTON') return;
+        const id = Number(e.target.getAttribute('data-id'));
+        const act = e.target.getAttribute('data-act');
+        try {
+          if (act === 'imp') {
+            const r = await api('/api/admin/dev-tools/impersonate', { method: 'POST', body: { user_id: id } });
+            localStorage.setItem('auth_token', r.token);
+            alert('Token trocado. Recarregue a aplicação protegida em outra aba.');
+          } else if (act === 'pwd') {
+            const np = prompt('Nova senha (padrão Test@1234):', 'Test@1234');
+            await api('/api/admin/dev-tools/reset-password', { method: 'POST', body: { user_id: id, new_password: np } });
+            alert('Senha resetada.');
+          } else if (act === 'blk') {
+            await api('/api/admin/dev-tools/block', { method: 'POST', body: { user_id: id } });
+            await loadUsers();
+          } else if (act === 'unb') {
+            await api('/api/admin/dev-tools/unblock', { method: 'POST', body: { user_id: id } });
+            await loadUsers();
+          } else if (act === 'plan-basic') {
+            await api('/api/admin/dev-tools/plan/activate', { method: 'POST', body: { user_id: id, tipo_plano: 'basico', preco_mensal: 0 } });
+            alert('Plano Basic ativado para o usuário ' + id);
+          } else if (act === 'plan-premium') {
+            await api('/api/admin/dev-tools/plan/activate', { method: 'POST', body: { user_id: id, tipo_plano: 'premium', preco_mensal: 29.90 } });
+            alert('Plano Premium ativado para o usuário ' + id);
+          }
+        } catch (err) {
+          alert('Erro: ' + err.message);
+        }
+      });
+
+      document.getElementById('btnReset').onclick = async () => {
+        if (!confirm('Isto vai truncar e repopular dados de teste. Continuar?')) return;
+        await api('/api/admin/dev-tools/reset-db', { method: 'POST' });
+        await loadUsers();
+      };
+      document.getElementById('btnClear').onclick = async () => {
+        await api('/api/admin/dev-tools/clear-cache', { method: 'POST' });
+        alert('Caches limpos');
+      };
+
+      loadUsers();
+    </script>
+  </body>
+  </html>

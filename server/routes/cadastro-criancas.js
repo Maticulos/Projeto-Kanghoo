@@ -1,6 +1,6 @@
 const Router = require('koa-router');
 const db = require('../config/db');
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
 const logger = require('../utils/logger');
 
@@ -196,7 +196,6 @@ router.post('/api/criancas/cadastrar', async (ctx) => {
         const {
             nome_completo,
             data_nascimento,
-            cpf,
             endereco_residencial,
             escola,
             endereco_escola,
@@ -204,101 +203,84 @@ router.post('/api/criancas/cadastrar', async (ctx) => {
             telefone_responsavel,
             telefone_responsavel_secundario,
             email_responsavel,
-            foto_url,
-            observacoes_medicas,
-            contato_emergencia_nome,
-            contato_emergencia_telefone,
             motorista_id,
             rota_id
         } = ctx.request.body;
 
-        // Validações obrigatórias
-        if (!nome_completo || !data_nascimento || !cpf || !nome_responsavel || 
-            !telefone_responsavel || !email_responsavel || !endereco_residencial || 
+        // Validações obrigatórias (mínimas para o schema atual)
+        if (!nome_completo || !data_nascimento || !nome_responsavel ||
+            !telefone_responsavel || !email_responsavel || !endereco_residencial ||
             !escola || !endereco_escola) {
             ctx.status = 400;
             ctx.body = {
                 success: false,
-                message: 'Campos obrigatórios: nome_completo, data_nascimento, cpf, nome_responsavel, telefone_responsavel, email_responsavel, endereco_residencial, escola, endereco_escola'
+                message: 'Campos obrigatórios: nome_completo, data_nascimento, nome_responsavel, telefone_responsavel, email_responsavel, endereco_residencial, escola, endereco_escola'
             };
             return;
         }
 
-        // Validar CPF
-        if (!validarCPF(cpf)) {
+        // Resolver responsável por e-mail
+        const resp = await db.query(
+          `SELECT id FROM usuarios WHERE LOWER(email)=LOWER($1) AND (tipo_usuario='responsavel' OR tipo_cadastro='responsavel') LIMIT 1`,
+          [email_responsavel]
+        );
+        if (resp.rows.length === 0) {
             ctx.status = 400;
-            ctx.body = {
-                success: false,
-                message: 'CPF inválido. O CPF é obrigatório e deve ser válido.'
-            };
+            ctx.body = { success: false, message: 'Responsável não encontrado para o e-mail informado.' };
             return;
         }
+        const responsavel_id = resp.rows[0].id;
 
-        // Verificar se CPF já existe
-        const cpfExistente = await db.query('SELECT id FROM criancas WHERE cpf = $1', [cpf.replace(/[^\d]+/g, '')]);
-        if (cpfExistente.rows.length > 0) {
+        // Evitar duplicidade por (nome_completo, responsavel_id)
+        const dup = await db.query(
+          'SELECT id FROM criancas WHERE nome_completo = $1 AND responsavel_id = $2 LIMIT 1',
+          [nome_completo, responsavel_id]
+        );
+        if (dup.rows.length > 0) {
             ctx.status = 400;
-            ctx.body = {
-                success: false,
-                message: 'CPF já cadastrado no sistema.'
-            };
-            return;
-        }
-
-        // Verificar se email já existe
-        const emailExistente = await db.query('SELECT id FROM criancas WHERE email_responsavel = $1', [email_responsavel]);
-        if (emailExistente.rows.length > 0) {
-            ctx.status = 400;
-            ctx.body = {
-                success: false,
-                message: 'Email do responsável já cadastrado no sistema.'
-            };
+            ctx.body = { success: false, message: 'Já existe uma criança com este nome para este responsável.' };
             return;
         }
 
         // Calcular idade
         const idade = calcularIdade(data_nascimento);
 
-        // Gerar senha para o responsável
-        const senhaGerada = gerarSenha();
-        const senhaHash = await bcrypt.hash(senhaGerada, 10);
-
-        // Inserir criança no banco
+        // Inserir criança no banco (schema reduzido compatível com migrações)
         const resultado = await db.query(`
             INSERT INTO criancas (
-                nome_completo, data_nascimento, cpf, idade, endereco_residencial, 
-                escola, endereco_escola, nome_responsavel, telefone_responsavel, 
-                telefone_responsavel_secundario, email_responsavel, foto_url, 
-                observacoes_medicas, contato_emergencia_nome, contato_emergencia_telefone,
-                senha_responsavel, motorista_id, rota_id, ativo, criado_em, atualizado_em
+                nome_completo, data_nascimento, endereco_residencial,
+                escola, endereco_escola, responsavel_id, motorista_id, rota_id,
+                ativo, criado_em, atualizado_em
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, true, NOW(), NOW()
-            ) RETURNING *
+                $1, $2, $3, $4, $5, $6, $7, $8, true, NOW(), NOW()
+            ) RETURNING id, nome_completo, responsavel_id, motorista_id, rota_id, criado_em
         `, [
-            nome_completo, data_nascimento, cpf.replace(/[^\d]+/g, ''), idade, 
-            endereco_residencial, escola, endereco_escola, nome_responsavel, 
-            telefone_responsavel, telefone_responsavel_secundario, email_responsavel, 
-            foto_url, observacoes_medicas, contato_emergencia_nome, 
-            contato_emergencia_telefone, senhaHash, motorista_id, rota_id
+            nome_completo,
+            data_nascimento,
+            endereco_residencial,
+            escola,
+            endereco_escola,
+            responsavel_id,
+            motorista_id || null,
+            rota_id || null
         ]);
 
         const criancaCadastrada = resultado.rows[0];
 
-        // Enviar notificações
+        // Notificações simuladas (sem senha, pois não armazenamos aqui)
         const emailEnviado = await enviarEmailBoasVindas(
-            email_responsavel, 
-            nome_responsavel, 
-            nome_completo, 
-            email_responsavel, 
-            senhaGerada
+            email_responsavel,
+            nome_responsavel,
+            nome_completo,
+            email_responsavel,
+            '(definida no primeiro acesso)'
         );
-
         const whatsappEnviado = await enviarWhatsApp(
-            telefone_responsavel, 
-            nome_responsavel, 
-            nome_completo, 
-            email_responsavel, 
-            senhaGerada
+            telefone_responsavel,
+            nome_responsavel,
+            nome_completo,
+            email_responsavel,
+            '(definida no primeiro acesso)'
         );
 
         ctx.status = 201;
@@ -308,12 +290,11 @@ router.post('/api/criancas/cadastrar', async (ctx) => {
             data: {
                 id: criancaCadastrada.id,
                 nome_completo: criancaCadastrada.nome_completo,
-                cpf: criancaCadastrada.cpf,
-                idade: criancaCadastrada.idade,
                 responsavel: {
-                    nome: criancaCadastrada.nome_responsavel,
-                    email: criancaCadastrada.email_responsavel,
-                    telefone: criancaCadastrada.telefone_responsavel
+                    id: responsavel_id,
+                    nome: nome_responsavel,
+                    email: email_responsavel,
+                    telefone: telefone_responsavel
                 },
                 credenciais_enviadas: {
                     email: emailEnviado,

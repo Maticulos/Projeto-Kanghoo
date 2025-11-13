@@ -180,6 +180,8 @@
 <script src="../assets/js/core/app.js"></script>
 <script src="../assets/js/core/ui-utils.js"></script>
     <script>
+	const API_BASE_URL = window.location.origin;
+
         // Debug para verificar se os modais estão funcionando
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM carregado - verificando modais');
@@ -237,7 +239,7 @@
             }
 
             try {
-                const response = await fetch('http://localhost:3000/api/validate-token', {
+                const response = await fetch(`${API_BASE_URL}/api/validate-token`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -277,6 +279,8 @@
             switch (userType) {
                 case 'motorista_escolar':
                     return 'area-motorista-escolar.html';
+               case 'motorista_escolar_premium':
+                    return 'area-motorista-escolar-premium.html';
                 case 'motorista_excursao':
                     return 'area-motorista-excursao.html';
                 case 'motorista_escolar_excursao':
@@ -311,30 +315,33 @@
                     // Mostrar loading no botão
                     const buttonLoader = showButtonLoading(submitButton, 'Entrando...');
                     
-                    try {
-                        // Conectar com o backend real na porta 3000
-                        const response = await fetch('http://localhost:3000/login', {
+try {
+                        const response = await fetch(`${API_BASE_URL}/login`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ email: email, senha: senha })
+                            body: JSON.stringify({ email, senha })
                         });
 
-                        const data = await response.json();
+                        const apiResponse = await response.json();
 
                         if (!response.ok) {
-                            throw new Error(data.message || 'Credenciais inválidas');
+                            throw new Error(apiResponse.message || 'Credenciais inválidas');
                         }
-                        
-                        localStorage.setItem('authToken', data.token);
-                        
-                        // Mostrar sucesso
-                        showSuccess(`Login realizado com sucesso! Bem-vindo, ${data.user.nome}!`, 2000);
 
-                        // Redirecionar baseado no tipo de usuário
-                        const redirectUrl = getRedirectUrlByUserType(data.user.tipo);
-                        
-                        // Aguardar um pouco para mostrar a notificação antes de redirecionar
-                        // Apenas redireciona se um redirectUrl válido for retornado
+                        const payload = apiResponse?.data || apiResponse;
+                        const token = payload?.token;
+                        const user = payload?.user;
+
+                        if (!token || !user) {
+                            throw new Error('Resposta inválida do servidor');
+                        }
+
+                        localStorage.setItem('authToken', token);
+
+                        showSuccess(`Login realizado com sucesso! Bem-vindo, ${user.nome || 'usuário'}!`, 2000);
+
+                        const redirectUrl = getRedirectUrlByUserType(user.tipo);
+
                         if (redirectUrl) {
                             setTimeout(() => {
                                 window.location.href = redirectUrl;

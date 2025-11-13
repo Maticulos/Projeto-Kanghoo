@@ -23,10 +23,12 @@ services:
       - DB_PORT=5432
       - DB_NAME=${DB_NAME:-kanghoo_db_prod}
       - DB_USER=${DB_USER:-postgres}
-      - DB_PASSWORD=${postgres}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DATABASE_URL=postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@postgres:${DB_PORT:-5432}/${DB_NAME:-kanghoo_db_prod}
       - JWT_SECRET=${JWT_SECRET}
       - RATE_LIMIT_WINDOW_MS=${RATE_LIMIT_WINDOW_MS:-900000}
       - RATE_LIMIT_MAX_REQUESTS=${RATE_LIMIT_MAX_REQUESTS:-100}
+      
     depends_on:
       postgres:
         condition: service_healthy
@@ -58,7 +60,7 @@ services:
       POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=pt_BR.UTF-8 --lc-ctype=pt_BR.UTF-8"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./database/init.sql:/docker-entrypoint-initdb.d/01_full_init_and_seed.sql:ro
     ports:
       - "${DB_PORT:-5432}:5432"
     networks:
