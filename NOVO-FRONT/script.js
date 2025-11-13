@@ -1,0 +1,313 @@
+const { useState, useEffect, useRef } = React;
+const MotionLib = window.FramerMotion || {};
+const AnimatePresence = MotionLib.AnimatePresence || React.Fragment;
+const useScroll = MotionLib.useScroll || (() => ({ scrollYProgress: { get: () => 0 } }));
+const useTransform = MotionLib.useTransform || ((val, from, to) => {
+    const [state, setState] = useState(to[0]);
+    useEffect(() => {
+        const latest = val.get();
+        const mapped = to[0] + (latest / (from[1] - from[0])) * (to[1] - to[0]);
+        setState(mapped);
+    }, [val, from, to]);
+    return state;
+});
+const motion = (MotionLib.motion) ? MotionLib.motion : (() => {
+    const make = (tag) => ({ children, style, ...rest }) => React.createElement(tag, { ...rest, style }, children);
+    return new Proxy({}, { get: (target, prop) => make(prop) });
+})();
+
+// --- ÍCONES SVG ---
+const ArrowRightIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="inline-block"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>);
+const CheckIcon = () => (<svg className="w-5 h-5 mr-3 text-amber-400 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M20 6L9 17l-5-5"></path></svg>);
+const PlusIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>);
+const MinusIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>);
+const StarIcon = () => (<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-amber-400 opacity-90"><path d="M12 18.26l-7.053 3.948 1.575-7.928L.587 8.792l8.027-.952L12 .5l3.386 7.34 8.027.952-5.935 5.488 1.575 7.928z" fill="currentColor"/></svg>);
+const LogoIcon = () => (<svg width="40" height="40" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="100" cy="100" r="95" fill="url(#logoGradient)" stroke="#f59e0b" strokeWidth="10"/><path d="M60 140 C80 110, 120 110, 140 140" stroke="white" strokeWidth="12" strokeLinecap="round"/><path d="M70 90 Q100 50, 130 90" stroke="white" strokeWidth="12" strokeLinecap="round"/><defs><linearGradient id="logoGradient" x1="0" y1="0" x2="200" y2="200" gradientUnits="userSpaceOnUse"><stop stopColor="#0f172a"/><stop offset="1" stopColor="#1e293b"/></linearGradient></defs></svg>);
+const SunIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>);
+const MoonIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>);
+
+// --- COMPONENTES ---
+
+const ParticlesBackground = () => {
+    const particlesRef = useRef(null);
+
+
+
+    useEffect(() => {
+        const container = window.tsParticles.dom().find(p => p.id === "tsparticles");
+        if (container) container.destroy();
+        if (window.tsParticles && particlesRef.current) {
+            window.tsParticles.load("tsparticles", {
+                background: { color: { value: 'transparent' } },
+                fpsLimit: 60,
+                particles: {
+                    number: { value: 250, density: { enable: true, value_area: 800 } },
+                    color: { value: ["#FFFFFF", "#d1d5db", "#a7c7e7", "#fde68a"] },
+                    shape: { type: "circle" },
+                    opacity: { value: { min: 0.2, max: 0.9 } },
+                    size: { value: { min: 0.5, max: 2.2 } },
+                    links: { enable: false },
+                    move: {
+                        enable: true,
+                        speed: 0.1,
+                        direction: "none",
+                        random: true,
+                        straight: false,
+                        outModes: { default: "out" }
+                    },
+                    twinkle: {
+                        particles: {
+                            enable: true,
+                            frequency: 0.1,
+                            opacity: 1
+                        }
+                    }
+                },
+                interactivity: { enable: false },
+                detectRetina: true,
+                emitters: [
+                    { 
+                        direction: "top-right", 
+                        rate: { quantity: 1, delay: 7 },
+                        position: { x: 0, y: 100 }, 
+                        size: { width: 0, height: 0 }, 
+                        particles: { 
+                            color: { value: ["#fcd34d", "#fef9c3", "#f59e0b"] }, 
+                            size: { value: {min: 1.5, max: 2.5} }, 
+                            move: { 
+                                speed: 18, 
+                                straight: true, 
+                                outModes: { default: "destroy" }, 
+                                trail: { enable: true, fillColor: "#020617", length: 20 }
+                            }, 
+                            opacity: { 
+                                value: 1, 
+                                animation: { enable: true, speed: 2, minimumValue: 0, startValue: "max", destroy: "min" } 
+                            } 
+                        } 
+                    },
+
+                ]
+            });
+        }
+        return () => { const c = window.tsParticles.dom().find(p => p.id === "tsparticles"); if (c) c.destroy(); }
+    }, []);
+    return <div id="tsparticles" ref={particlesRef} className="absolute inset-0 z-10" />;
+};
+
+const useInView = (options) => {
+    const [inView, setInView] = useState(false);
+    const ref = useRef(null);
+    useEffect(() => {
+        const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) { setInView(true); observer.unobserve(entry.target); } }, options);
+        if (ref.current) observer.observe(ref.current);
+        return () => { if (ref.current) observer.unobserve(ref.current); };
+    }, [ref, options]);
+    return [ref, inView];
+};
+
+const AnimatedSection = ({ children, className }) => {
+    const [ref, inView] = useInView({ threshold: 0.1, triggerOnce: true });
+    return (<motion.div ref={ref} initial={{ opacity: 0, y: 50 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8, ease: "easeOut" }} className={className}>{children}</motion.div>);
+};
+
+const SpotlightCard = ({ children, className }) => {
+    const cardRef = useRef(null);
+    useEffect(() => {
+        const card = cardRef.current; if (!card) return;
+        const handleMouseMove = (e) => { const rect = card.getBoundingClientRect(); card.style.setProperty('--spotlight-x', `${e.clientX - rect.left}px`); card.style.setProperty('--spotlight-y', `${e.clientY - rect.top}px`); };
+        card.addEventListener('mousemove', handleMouseMove);
+        return () => card.removeEventListener('mousemove', handleMouseMove);
+    }, []);
+    return <motion.div ref={cardRef} whileHover={{ y: -8 }} className={`spotlight-card ${className}`}>{children}</motion.div>;
+};
+
+const Modal = ({ isOpen, onClose, title, children }) => (<AnimatePresence>{isOpen && (<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black bg-opacity-80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}><motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} transition={{ type: 'spring', stiffness: 300, damping: 30 }} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl w-full max-w-lg p-8 relative" onClick={e => e.stopPropagation()}><button onClick={onClose} className="absolute top-4 right-4 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors"><svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg></button><h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">{title}</h3>{children}</motion.div></motion.div>)}</AnimatePresence>);
+
+const BackToTopButton = () => {
+    const [isVisible, setIsVisible] = useState(false);
+    useEffect(() => { const toggleVisibility = () => setIsVisible(window.pageYOffset > 300); window.addEventListener('scroll', toggleVisibility); return () => window.removeEventListener('scroll', toggleVisibility); }, []);
+    return (<AnimatePresence>{isVisible && (<motion.button initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="fixed bottom-8 right-8 bg-amber-500 text-slate-900 p-3 rounded-full shadow-lg shadow-amber-500/30 hover:bg-amber-400 transition-colors z-30"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></motion.button>)}</AnimatePresence>);
+};
+
+const ThemeToggleButton = () => (<motion.button onClick={() => {}} className="fixed bottom-24 right-8 bg-slate-800 text-amber-400 p-3 rounded-full shadow-lg hover:bg-slate-700 transition-colors z-30" whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} aria-label="Toggle theme"><AnimatePresence mode="wait" initial={false}><motion.div key={'dark'} initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }} transition={{ duration: 0.2 }}><MoonIcon /></motion.div></AnimatePresence></motion.button>);
+
+const SectionSeparator = () => (<div className="absolute bottom-[-1px] left-0 w-full overflow-hidden leading-[0]"><svg viewBox="0 0 1440 100" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M0 50 C 360 120, 1080 120, 1440 50 V 100 H 0 Z" className="fill-slate-100 dark:fill-slate-800" /></svg></div>);
+
+const useScrollSpy = (sectionIds) => {
+    const [activeSection, setActiveSection] = useState(null);
+    useEffect(() => {
+        const observer = new IntersectionObserver((entries) => { const first = entries.find(e => e.isIntersecting); if (first) setActiveSection(first.target.id); }, { rootMargin: '-30% 0px -70% 0px' });
+        sectionIds.forEach(id => { const el = document.getElementById(id); if (el) observer.observe(el); });
+        return () => observer.disconnect();
+    }, [sectionIds]);
+    return activeSection;
+};
+
+// --- SEÇÕES DA PÁGINA ---
+const Header = ({ onCadastroClick, onEncontrarClick }) => {
+    const [scrolled, setScrolled] = useState(false);
+    const navLinks = { solutions: 'Soluções', pricing: 'Planos', testimonials: 'Depoimentos', faq: 'FAQ' };
+    const activeSection = useScrollSpy(Object.keys(navLinks));
+    useEffect(() => { const handleScroll = () => setScrolled(window.scrollY > 10); window.addEventListener('scroll', handleScroll); return () => window.removeEventListener('scroll', handleScroll); }, []);
+    return (<header className={`fixed top-0 left-0 right-0 z-40 border-b transition-all duration-300 ${scrolled ? 'bg-slate-950/75 backdrop-blur-lg border-slate-800' : 'bg-transparent border-transparent'}`}><div className="container mx-auto px-4 h-20 flex justify-between items-center"><a href="#" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' })}} className="flex items-center gap-3"><LogoIcon /><span className="text-white text-2xl font-bold tracking-tight">Kanghoo</span></a><nav className="hidden md:flex items-center gap-8 text-slate-300">{Object.entries(navLinks).map(([id, label]) => (<a key={id} href={`#${id}`} className={`transition-colors ${activeSection === id ? 'text-amber-400' : 'hover:text-amber-400'}`}>{label}</a>))}</nav><div className="flex items-center gap-4"><button onClick={onEncontrarClick} className="hidden sm:block bg-slate-800 text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-slate-700 transition-all">Encontrar Transporte</button><button onClick={onCadastroClick} className="bg-amber-500 text-slate-900 px-5 py-2.5 rounded-lg font-bold hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/40 shine-effect">Cadastre-se</button></div></div></header>);
+};
+
+const HeroSection = ({ onEncontrarClick }) => {
+    const targetRef = useRef(null);
+    const { scrollYProgress } = useScroll({ target: targetRef, offset: ["start start", "end start"] });
+    const yText = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
+    const yImage = useTransform(scrollYProgress, [0, 1], ["0%", "-15%"]);
+
+    useEffect(() => {
+
+        const meteorShowerEmitter = {
+            life: {
+                count: 1,
+                duration: 30, // Duração da chuva
+            },
+            direction: "top-right",
+            position: { x: 0, y: 0 },
+            size: { width: 0, height: 0 },
+            rate: {
+                quantity: 8,
+                delay: 0.1
+            },
+            particles: {
+                color: { value: ["#FFFFFF", "#fef9c3", "#fcd34d"] },
+                size: { value: { min: 1.5, max: 2.5 } },
+                move: {
+                    speed: { min: 20, max: 30 },
+                    straight: true,
+                    outModes: { default: "destroy" },
+                    trail: { enable: true, fillColor: "#020617", length: { min: 15, max: 25 } }
+                },
+                opacity: {
+                    value: 1,
+                    animation: { enable: true, speed: 3, minimumValue: 0, startValue: "max", destroy: "min" }
+                }
+            }
+        };
+
+        const startShowerCycle = () => {
+            setTimeout(() => {
+                const particles = window.tsParticles.dom().find(p => p.id === "tsparticles");
+                if (particles) {
+                    particles.addEmitter(meteorShowerEmitter);
+                }
+            }, 10000); // Inicia a chuva após 10s para sincronizar com o pico da aurora (20% de 50s)
+        };
+
+        startShowerCycle(); // Inicia o primeiro ciclo
+        const cycleInterval = setInterval(startShowerCycle, 50000); // Repete o ciclo a cada 50s
+
+        return () => clearInterval(cycleInterval); // Limpa o intervalo ao desmontar o componente
+    }, []);
+
+    return (
+        <section ref={targetRef} className="bg-slate-950 text-white pt-32 pb-40 relative overflow-hidden">
+            <div className="aurora-background"></div>
+            <ParticlesBackground />
+            <div className="container mx-auto px-4 grid md:grid-cols-2 gap-12 items-center relative z-20">
+                <motion.div style={{ y: yText }} initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }}>
+                    <h1 className="text-4xl md:text-6xl font-extrabold leading-tight tracking-tighter mb-6">Uma plataforma, <span className="animated-gradient-text">dois mundos</span> de transporte.</h1>
+                    <p className="text-lg md:text-xl text-slate-300 mb-10">Segurança máxima no transporte escolar, eficiência e inteligência em viagens e excursões em grupo.</p>
+                    <div className="flex flex-col sm:flex-row gap-4">
+                        <a href="#solutions" className="bg-amber-500 text-slate-900 px-8 py-4 rounded-lg font-bold text-center hover:bg-amber-400 transition-transform hover:scale-105 transform duration-300 shine-effect">Explore as Soluções</a>
+                        <button onClick={onEncontrarClick} className="bg-transparent border-2 border-slate-700 text-white px-8 py-4 rounded-lg font-semibold text-center hover:bg-slate-800 hover:border-slate-600 transition-all duration-300">Encontrar Transporte</button>
+                    </div>
+                </motion.div>
+                <motion.div style={{ y: yImage }} initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, delay: 0.2 }} className="relative">
+                    <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/80 to-slate-900 rounded-3xl transform -rotate-3"></div>
+                    <img src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=2069&auto=format&fit=crop" alt="Ônibus de excursão numa ponte com uma bela paisagem" className="rounded-3xl relative z-10 shadow-2xl w-full h-full object-cover"/>
+                </motion.div>
+            </div>
+            <div className="absolute bottom-[-1px] left-0 w-full overflow-hidden leading-[0]"><svg viewBox="0 0 1440 100" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M0 50 C 360 120, 1080 120, 1440 50 V 100 H 0 Z" className="fill-slate-800" /></svg></div>
+        </section>
+    );
+}
+
+const DestinationsSection = () => {
+    const destinations = ["Lençóis Maranhenses", "Chapada Diamantina", "Fernando de Noronha", "Rio de Janeiro", "Bonito - MS", "Foz do Iguaçu", "Jalapão - TO", "Gramado - RS"];
+    const duplicatedDestinations = [...destinations, ...destinations];
+    return (<div className="py-16 bg-slate-800"><div className="text-center mb-10"><h3 className="text-sm font-bold uppercase tracking-widest text-slate-400">Destinos Populares para Excursões</h3></div><div className="w-full inline-flex flex-nowrap overflow-hidden [mask-image:_linear_gradient(to_right,transparent_0,_black_128px,_black_calc(100%-128px),transparent_100%)]"><ul className="flex items-center justify-center md:justify-start [&_li]:mx-8 [&_svg]:text-amber-400 animate-infinite-scroll">{duplicatedDestinations.map((destination, index) => (<li key={index} className="flex items-center text-slate-300 text-xl font-semibold whitespace-nowrap"><span className="mx-8">{destination}</span><StarIcon /></li>))}</ul><ul className="flex items-center justify-center md:justify-start [&_li]:mx-8 [&_svg]:text-amber-400 animate-infinite-scroll" aria-hidden="true">{duplicatedDestinations.map((destination, index) => (<li key={`copy-${index}`} className="flex items-center text-slate-300 text-xl font-semibold whitespace-nowrap"><span className="mx-8">{destination}</span><StarIcon /></li>))}</ul></div></div>);
+};
+
+const ImpactSection = () => {
+    const AnimatedCounter = ({ to, suffix, delay = 0 }) => {
+        const [ref, inView] = useInView({ threshold: 0.5, triggerOnce: true });
+        const valueRef = useRef(null);
+        useEffect(() => {
+            if (!inView) return; let rafId = null; const duration = 2000; const startT = { s: false, st: 0 }; const sAt = performance.now() + delay * 1000;
+            const step = (now) => {
+                if (!startT.s && now < sAt) { rafId = requestAnimationFrame(step); return; } if (!startT.s) { startT.s = true; startT.st = now; }
+                const elapsed = now - startT.st; const progress = Math.min(elapsed / duration, 1); const current = Math.round(to * progress);
+                if (valueRef.current) valueRef.current.textContent = current.toLocaleString('pt-BR');
+                if (progress < 1) rafId = requestAnimationFrame(step);
+            };
+            rafId = requestAnimationFrame(step); return () => { if (rafId) cancelAnimationFrame(rafId); };
+        }, [inView, to, delay]);
+        return <span ref={ref}><span ref={valueRef}>0</span>{suffix}</span>;
+    };
+    return (<section className="py-20 bg-slate-950"><div className="container mx-auto px-4"><div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-slate-800"><div className="py-8 md:py-0"><h3 className="text-5xl font-extrabold text-amber-500">+<AnimatedCounter to={100000} /></h3><p className="mt-2 text-lg text-slate-400">Viagens Seguras Concluídas</p></div><div className="py-8 md:py-0"><h3 className="text-5xl font-extrabold text-amber-500"><AnimatedCounter to={98} delay={0.2} />%</h3><p className="mt-2 text-lg text-slate-400">de Satisfação dos Clientes</p></div><div className="py-8 md:py-0"><h3 className="text-5xl font-extrabold text-amber-500"><AnimatedCounter to={5000} delay={0.4} />+</h3><p className="mt-2 text-lg text-slate-400">Pais Satisfeitos</p></div></div></div></section>);
+};
+
+const SolutionsSection = () => {
+    const solutions = [{ title: "Passeios Escolares Seguros", description: "Rastreamento de rotas em tempo real, alertas para os pais e notificações instantâneas.", image: "https://images.unsplash.com/photo-1599303272499-4c3397b355de?q=80&w=1974&auto=format&fit=crop" }, { title: "Excursões e Viagens em Grupo", description: "Agende viagens, gira assentos de forma inteligente e processe pagamentos de forma segura.", image: "https://images.unsplash.com/photo-1532934638634-51b6ce4404b9?q=80&w=2070&auto=format&fit=crop" }, { title: "Gestão Administrativa Completa", description: "Gira motoristas e frotas, aceda a relatórios detalhados e controle as suas operações.", image: "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?q=80&w=2070&auto=format&fit=crop" }];
+    return (<section id="solutions" className="py-20 bg-slate-800"><div className="container mx-auto px-4"><AnimatedSection><div className="text-center mb-12"><h2 className="text-4xl font-extrabold text-white">Soluções Completas para Transporte</h2><p className="text-lg text-slate-400 mt-4 max-w-2xl mx-auto">Tudo o que precisa para gerir as suas operações com eficiência e segurança.</p></div><div className="grid md:grid-cols-3 gap-8">{solutions.map((solution, index) => (<SpotlightCard key={index} className="bg-slate-900 rounded-2xl overflow-hidden group shadow-lg border-2 border-amber-400/30"><img src={solution.image} alt={`Imagem ilustrativa para ${solution.title}`} className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500" /><div className="p-8 relative z-10"><h3 className="text-2xl font-bold text-white mb-3">{solution.title}</h3><p className="text-slate-400 mb-6">{solution.description}</p><a href="#" className="font-semibold text-amber-400 flex items-center gap-2 group-hover:gap-3 transition-all">Saiba mais <ArrowRightIcon /></a></div></SpotlightCard>))}</div></AnimatedSection></div></section>);
+};
+
+const PricingSection = () => {
+    const [isAnnual, setIsAnnual] = useState(true);
+    const plans = [{ name: "Básico", price: { monthly: 187.90, annual: 166.66 }, description: "Perfeito para profissionais autônomos.", features: ["Rastreamento GPS ao vivo", "Alertas para pais", "Agendamento de viagens", "Registos de presença", "Sugestões de rotas com IA", "Limitado a 1 veículo"], isFeatured: false }, { name: "Premium", price: { monthly: 293.60, annual: 266.66 }, description: "Controles avançados para empresas.", features: ["Todos os recursos do Básico", "Gestão de múltiplos veículos", "Pagamentos integrados", "Ferramentas de comissão", "Suporte prioritário 24/7", "Integrações via API"], isFeatured: true }];
+    return (<section id="pricing" className="py-20 bg-slate-950"><div className="container mx-auto px-4"><AnimatedSection><div className="text-center mb-12"><h2 className="text-4xl font-extrabold text-white">Planos Flexíveis para o seu Negócio</h2><p className="text-lg text-slate-400 mt-4 max-w-2xl mx-auto">Escolha o plano ideal. Cancele quando quiser.</p><div className="mt-8 flex justify-center items-center gap-4"><span className={`font-semibold transition-colors ${!isAnnual ? 'text-amber-400' : 'text-slate-400'}`}>Mensal</span><label className="relative inline-flex items-center cursor-pointer"><input type="checkbox" checked={isAnnual} onChange={() => setIsAnnual(!isAnnual)} className="sr-only peer" /><div className="w-14 h-8 bg-slate-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-amber-500"></div></label><span className={`font-semibold transition-colors ${isAnnual ? 'text-amber-400' : 'text-slate-400'}`}>Anual (Economize 15%)</span></div></div><div className="grid lg:grid-cols-2 gap-8 max-w-4xl mx-auto">{plans.map(plan => (<div key={plan.name} className={`rounded-2xl p-8 border-2 relative overflow-hidden transition-all duration-300 ${plan.isFeatured ? 'bg-slate-800 border-amber-500 shadow-2xl shadow-amber-500/20 breathing-glow' : 'bg-slate-800/50 border-slate-700 hover:border-slate-600'}`}><AnimatePresence>{plan.isFeatured && <motion.div initial={{opacity:0, y:-10}} animate={{opacity:1, y:0}} className="absolute top-0 right-0 bg-amber-500 text-slate-900 font-bold text-sm px-4 py-1 rounded-bl-lg">POPULAR</motion.div>}</AnimatePresence><h3 className="text-2xl font-bold text-white">{plan.name}</h3><p className="text-slate-400 mt-2 mb-6">{plan.description}</p><div className="mb-6"><span className="text-5xl font-extrabold text-white">R$ {isAnnual ? plan.price.annual.toFixed(2) : plan.price.monthly.toFixed(2)}</span><span className="text-slate-400">/mês</span></div><ul className="space-y-4 mb-8">{plan.features.map(feature => (<li key={feature} className="flex items-center text-slate-300"><CheckIcon /> <span>{feature}</span></li>))}</ul><button className={`w-full py-3.5 rounded-lg font-bold transition-all duration-300 ${plan.isFeatured ? 'bg-amber-500 text-slate-900 hover:bg-amber-400' : 'bg-slate-700 text-white hover:bg-slate-600'}`}>Começar com o plano {plan.name}</button></div>))}</div></AnimatedSection></div></section>);
+};
+
+const TestimonialsSection = () => {
+    const testimonials = [{ name: "Ana Silva", role: "Gestora de Transporte Escolar", quote: "A Kanghoo transformou a nossa operação. Os pais sentem-se muito mais seguros com o rastreamento em tempo real. É indispensável!", avatar: "1" }, { name: "Marcos Rocha", role: "Organizador de Excursões", quote: "Gerir grupos e pagamentos era um caos. Agora, com a Kanghoo, centralizo tudo numa única plataforma. Poupa-me horas de trabalho.", avatar: "3" }, { name: "Carla Mendes", role: "Mãe", quote: "Saber exatamente onde o meu filho está durante o trajeto escolar não tem preço. O aplicativo é simples e muito eficaz.", avatar: "5" }, { name: "Pedro Costa", role: "Motorista Autônomo", quote: "Otimização de rotas com IA é fantástica! Economizo combustível e tempo todos os dias. A melhor decisão que tomei para o meu negócio.", avatar: "7" }];
+    const [currentIndex, setCurrentIndex] = useState(0);
+    useEffect(() => { const timer = setInterval(() => setCurrentIndex(p => (p + 1) % testimonials.length), 5000); return () => clearInterval(timer); }, [testimonials.length]);
+    return (<section id="testimonials" className="py-20 bg-slate-800"><div className="container mx-auto px-4"><AnimatedSection><div className="text-center mb-12"><h2 className="text-4xl font-extrabold text-white">O que os nossos clientes dizem</h2><p className="text-lg text-slate-400 mt-4 max-w-2xl mx-auto">Confiança e eficiência são os pilares do nosso serviço.</p></div><div className="testimonial-carousel-container max-w-2xl mx-auto"><AnimatePresence mode="wait"><motion.div key={currentIndex} initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }} transition={{ duration: 0.5 }} className="bg-slate-900 p-8 rounded-2xl flex flex-col border border-slate-800"><p className="text-slate-300 flex-grow text-lg italic">"{testimonials[currentIndex].quote}"</p><div className="mt-6 flex items-center"><img src={`https://placehold.co/60x60/1e293b/FFFFFF?text=${testimonials[currentIndex].name.charAt(0)}`} alt={`Avatar de ${testimonials[currentIndex].name}`} className="w-12 h-12 rounded-full mr-4" /><div><p className="font-bold text-white">{testimonials[currentIndex].name}</p><p className="text-slate-400 text-sm">{testimonials[currentIndex].role}</p></div></div></motion.div></AnimatePresence><div className="flex justify-center gap-2 mt-6">{testimonials.map((_, index) => (<button key={index} onClick={() => setCurrentIndex(index)} aria-label={`Ver depoimento ${index + 1}`} className={`w-2 h-2 rounded-full transition-colors ${currentIndex === index ? 'bg-amber-500' : 'bg-slate-600 hover:bg-slate-500'}`}></button>))}</div></div></AnimatedSection></div></section>);
+};
+
+const FAQSection = () => {
+    const faqs = [{ q: "Posso cancelar a minha assinatura a qualquer momento?", a: "Sim, todos os nossos planos podem ser cancelados a qualquer momento, sem taxas ou complicações. A sua assinatura permanecerá ativa até ao final do período de faturação atual." }, { q: "Como funciona o rastreamento por GPS?", a: "O nosso sistema utiliza um dispositivo GPS instalado no veículo ou o smartphone do motorista para enviar a localização em tempo real para os nossos servidores. Os pais e gestores podem visualizar a rota diretamente no nosso aplicativo." }, { q: "A plataforma aceita pagamentos online?", a: "Sim, o nosso plano Premium oferece integração completa com as principais plataformas de pagamento, permitindo que faça a cobrança de mensalidades ou bilhetes de excursão de forma automática e segura." }, { q: "Oferecem suporte técnico?", a: "Claro! Oferecemos suporte por e-mail e chat para todos os planos. O plano Premium inclui suporte telefónico prioritário 24 horas por dia, 7 dias por semana." }];
+    const [openIndex, setOpenIndex] = useState(null);
+    return (<section id="faq" className="py-20 bg-slate-950"><div className="container mx-auto px-4"><AnimatedSection><div className="text-center mb-12"><h2 className="text-4xl font-extrabold text-white">Perguntas Frequentes</h2><p className="text-lg text-slate-400 mt-4 max-w-2xl mx-auto">Tudo o que precisa de saber para começar a usar a Kanghoo.</p></div><div className="max-w-3xl mx-auto space-y-4">{faqs.map((faq, index) => (<div key={index} className="bg-slate-900 rounded-lg border border-slate-800"><button onClick={() => setOpenIndex(openIndex === index ? null : index)} className="w-full flex justify-between items-center p-6 text-left"><span className="font-semibold text-white text-lg">{faq.q}</span><motion.div animate={{ rotate: openIndex === index ? 180 : 0 }} className="text-amber-400">{openIndex === index ? <MinusIcon /> : <PlusIcon />}</motion.div></button><AnimatePresence>{openIndex === index && (<motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden"><p className="px-6 pb-6 pt-0 text-slate-300">{faq.a}</p></motion.div>)}</AnimatePresence></div>))}</div></AnimatedSection></div></section>);
+};
+
+const Footer = () => (<footer className="bg-slate-950 border-t border-slate-800 text-slate-400"><div className="container mx-auto px-4 py-12"><div className="grid md:grid-cols-4 lg:grid-cols-6 gap-8 mb-8"><div className="col-span-full lg:col-span-2"><a href="#" onClick={(e) => { e.preventDefault(); window.scrollTo({top: 0, behavior: 'smooth'})}} className="flex items-center gap-3 mb-4"><LogoIcon /><span className="text-white text-2xl font-bold tracking-tight">Kanghoo</span></a><p className="max-w-xs">Soluções de transporte inteligentes para um mundo em movimento.</p></div><div><h4 className="font-bold text-white mb-4">Produto</h4><ul className="space-y-2"><li><a href="#solutions" className="hover:text-amber-400">Soluções</a></li><li><a href="#pricing" className="hover:text-amber-400">Planos</a></li></ul></div><div><h4 className="font-bold text-white mb-4">Empresa</h4><ul className="space-y-2"><li><a href="#" onClick={(e) => e.preventDefault()} title="Página em construção" className="hover:text-amber-400">Sobre Nós</a></li><li><a href="#" onClick={(e) => e.preventDefault()} title="Página em construção" className="hover:text-amber-400">Contato</a></li></ul></div><div><h4 className="font-bold text-white mb-4">Legal</h4><ul className="space-y-2"><li><a href="#" onClick={(e) => e.preventDefault()} title="Página em construção" className="hover:text-amber-400">Termos de Uso</a></li><li><a href="#" onClick={(e) => e.preventDefault()} title="Página em construção" className="hover:text-amber-400">Privacidade</a></li></ul></div></div><div className="border-t border-slate-800 pt-8 flex flex-col sm:flex-row justify-between items-center text-sm"><p>&copy; {new Date().getFullYear()} Kanghoo. Todos os direitos reservados.</p><p>Feito com <span className="text-amber-500">💛</span> no Brasil.</p></div></div></footer>);
+
+const App = () => {
+    const [modalType, setModalType] = useState(null);
+    useEffect(() => {
+        document.documentElement.classList.add('dark');
+    }, []);
+    const openModal = (type) => setModalType(type);
+    const closeModal = () => setModalType(null);
+    return (<div className="bg-slate-950 text-slate-200 transition-colors duration-300">
+        <Header onCadastroClick={() => openModal('cadastro')} onEncontrarClick={() => openModal('encontrar')} />
+        <main>
+            <HeroSection onEncontrarClick={() => openModal('encontrar')} />
+            <DestinationsSection />
+            <ImpactSection />
+            <SolutionsSection />
+            <PricingSection />
+            <TestimonialsSection />
+            <FAQSection />
+        </main>
+        <Footer />
+        <BackToTopButton />
+        <ThemeToggleButton />
+        <Modal isOpen={modalType !== null} onClose={closeModal} title={modalType === 'cadastro' ? "Qual tipo de cadastro?" : "Que tipo de transporte precisa?"}><p className="text-slate-300 mb-6">Escolha a opção que melhor descreve a sua necessidade.</p>
+            <div className="flex flex-col gap-4">
+                <button onClick={() => alert('Funcionalidade em desenvolvimento!')} className="w-full text-center bg-amber-500 text-slate-900 px-6 py-3 rounded-lg font-bold hover:bg-amber-400 transition-all">Transporte Escolar</button>
+                <button onClick={() => alert('Funcionalidade em desenvolvimento!')} className="w-full text-center bg-slate-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-slate-600 transition-all">Excursão e Fretamento</button>
+            </div>
+        </Modal>
+    </div>);
+}
+
+const container = document.getElementById('root');
+const root = ReactDOM.createRoot(container);
+root.render(<App />);
