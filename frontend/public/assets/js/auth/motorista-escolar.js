@@ -367,11 +367,44 @@ const planProfiles = {
 
 (document => {
     document.addEventListener('DOMContentLoaded', async () => {
-        await PostAuth.ensureAuthContext();
-        initializePlan();
+        if (typeof window !== 'undefined' && 'scrollRestoration' in window.history) {
+            window.history.scrollRestoration = 'manual';
+        }
+
+        // garante que nenhum scroll anterior seja restaurado
+        if (typeof window !== 'undefined') {
+            window.scrollTo(0, 0);
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+        }
+
+        try {
+            await Promise.race([
+                PostAuth.ensureAuthContext(),
+                new Promise((resolve) => setTimeout(resolve, 3500))
+            ]);
+        } catch (_) {
+            // ignora erros de validação: entramos em modo demo
+        } finally {
+            initializePlan();
+        }
     });
 
     function initializePlan() {
+        const mainContainer = document.querySelector('.app-main');
+        if (mainContainer) {
+            mainContainer.scrollTop = 0;
+
+            let attempts = 0;
+            const scrollInterval = setInterval(() => {
+                mainContainer.scrollTop = 0;
+                attempts += 1;
+                if (attempts >= 15) {
+                    clearInterval(scrollInterval);
+                }
+            }, 120);
+        }
+
         const planKey = document.body.dataset.plan || 'basic';
         const plan = planProfiles[planKey];
         if (!plan) return;

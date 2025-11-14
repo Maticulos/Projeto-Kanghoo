@@ -30,6 +30,8 @@
 html,
 body {
     height: 100%;
+    overflow: hidden;
+    scroll-behavior: auto !important;
 }
 
 body {
@@ -41,6 +43,14 @@ body {
     min-height: 100vh;
     position: relative;
     overflow-x: hidden;
+}
+
+body[data-plan] {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
 }
 
 a {
@@ -59,6 +69,19 @@ button {
     min-height: 100vh;
     gap: 1.5rem;
     padding: 1.5rem;
+}
+
+.app-main {
+    flex: 1;
+    display: block;
+    padding-bottom: 4rem;
+    height: 100%;
+    max-height: calc(100vh - 3rem);
+    overflow-y: auto;
+}
+
+.app-main > * + * {
+    margin-top: 1.25rem;
 }
 
 .app-sidebar {
@@ -133,12 +156,40 @@ button {
     color: var(--text-muted);
 }
 
-.app-main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-    padding-bottom: 4rem;
+/* limita a altura da página em desktops e força rolagem só no conteúdo principal */
+@media (min-width: 1180px) {
+    html,
+    body {
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .app-shell {
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .app-main {
+        height: 100%;
+        overflow-y: auto;
+        padding-right: 0.5rem;
+        max-height: calc(100vh - 3rem);
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
+    }
+
+    .app-main::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .app-main::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .app-main::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.35);
+        border-radius: 999px;
+    }
 }
 
 .hero {

@@ -114,6 +114,16 @@ body[data-plan="premium"] {
 }
 
 .insights-chart {
+    width: 100%;
+    height: 240px !important;
+    max-height: 240px;
+    min-height: 240px;
+}
+
+#revenue-chart {
+    width: 100%;
+    height: 220px !important;
+    max-height: 220px;
     min-height: 220px;
 }
 

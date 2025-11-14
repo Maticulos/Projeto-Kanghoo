@@ -1,5 +1,19 @@
 (function () {
     const toastHostId = 'post-auth-toast-host';
+    const AUTH_TIMEOUT_MS = 4000;
+
+    async function fetchWithTimeout(resource, options = {}, timeout = AUTH_TIMEOUT_MS) {
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), timeout);
+        try {
+            const response = await fetch(resource, { ...options, signal: controller.signal });
+            clearTimeout(id);
+            return response;
+        } catch (error) {
+            clearTimeout(id);
+            throw error;
+        }
+    }
 
     function ensureToastHost() {
         let host = document.getElementById(toastHostId);
@@ -25,7 +39,7 @@
         }
 
         try {
-            const response = await fetch('/api/validate-token', {
+            const response = await fetchWithTimeout('/api/validate-token', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -38,7 +52,11 @@
             if (!data.valid) throw new Error('Sessão expirada');
             return data.user;
         } catch (error) {
-            console.warn('[PostAuth] Falha na validação do token:', error.message);
+            if (error.name === 'AbortError') {
+                console.warn('[PostAuth] Validação do token demorou demais, prosseguindo em modo offline.');
+            } else {
+                console.warn('[PostAuth] Falha na validação do token:', error.message);
+            }
             // Mantemos o usuário na página para ambientes offline/demonstração
             return null;
         }

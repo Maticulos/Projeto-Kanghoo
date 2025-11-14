@@ -277,21 +277,21 @@
         // Função para determinar URL de redirecionamento baseado no tipo de usuário
         function getRedirectUrlByUserType(userType) {
             switch (userType) {
-                case 'motorista_escolar':
-                    return 'area-motorista-escolar.html';
-               case 'motorista_escolar_premium':
-                    return 'area-motorista-escolar-premium.html';
-                case 'motorista_excursao':
-                    return 'area-motorista-excursao.html';
-                case 'motorista_escolar_excursao':
-                    showProfileSelectionModal(userType);
-                    return ''; // Retorna vazio para evitar redirecionamento imediato
-                case 'responsavel':
-                    return 'area-responsavel.html';
-                default:
-                    return 'dashboard.html';
-            }
+            case 'motorista_escolar':
+                return 'area-motorista-escolar.html';
+            case 'motorista_escolar_premium':
+                return 'area-motorista-escolar-premium.html';
+            case 'motorista_excursao':
+                return 'area-motorista-excursao.html';
+            case 'motorista_escolar_excursao':
+                showProfileSelectionModal(userType);
+                return '';
+            case 'responsavel':
+                return 'area-responsavel.html';
+            default:
+                return 'dashboard.html';
         }
+    }
 
         document.addEventListener('DOMContentLoaded', async () => {
             // Verificar se o usuário já está autenticado antes de mostrar o formulário
