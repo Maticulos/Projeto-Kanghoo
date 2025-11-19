@@ -189,7 +189,7 @@ router.put('/viagens/:id/finalizar', authenticateToken, requireRole('motorista_e
             ctx.status = 404;
             ctx.body = {
                 sucesso: false,
-                mensagem: 'Viagem nÃ£o encontrada ou jÃ¡ finalizada'
+                mensagem: 'Viagem não encontrada ou já concluída'
             };
             return;
         }
@@ -197,7 +197,7 @@ router.put('/viagens/:id/finalizar', authenticateToken, requireRole('motorista_e
         // Finalizar a viagem
         const resultado = await db.query(`
             UPDATE viagens 
-            SET status = 'finalizada', horario_fim = NOW()
+            SET status = 'concluida', horario_fim = NOW()
             WHERE id = $1
             RETURNING id, horario_inicio, horario_fim
         `, [viagemId]);
@@ -210,7 +210,7 @@ router.put('/viagens/:id/finalizar', authenticateToken, requireRole('motorista_e
 
         ctx.body = {
             sucesso: true,
-            mensagem: 'Viagem finalizada com sucesso',
+            mensagem: 'Viagem concluída com sucesso',
             viagem: resultado.rows[0]
         };
     } catch (error) {
@@ -518,7 +518,7 @@ router.get('/historico', authenticateToken, requireRole('motorista_escolar'), as
                 horario_inicio: '07:00',
                 horario_fim: '08:30',
                 tipo_viagem: 'ida',
-                status: 'finalizada',
+                status: 'concluida',
                 nome_rota: 'Rota Centro - Escola Municipal',
                 total_criancas: 15
             },
@@ -528,7 +528,7 @@ router.get('/historico', authenticateToken, requireRole('motorista_escolar'), as
                 horario_inicio: '17:00',
                 horario_fim: '18:30',
                 tipo_viagem: 'volta',
-                status: 'finalizada',
+                status: 'concluida',
                 nome_rota: 'Rota Centro - Escola Municipal',
                 total_criancas: 15
             },
@@ -538,7 +538,7 @@ router.get('/historico', authenticateToken, requireRole('motorista_escolar'), as
                 horario_inicio: '07:00',
                 horario_fim: '08:30',
                 tipo_viagem: 'ida',
-                status: 'finalizada',
+                status: 'concluida',
                 nome_rota: 'Rota Centro - Escola Municipal',
                 total_criancas: 12
             }

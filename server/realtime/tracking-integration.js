@@ -381,8 +381,8 @@ class TrackingIntegration {
 
             viagem.status = novoStatus;
 
-            // Se a viagem foi finalizada, remover do cache
-            if (novoStatus === 'finalizada') {
+            // Se a viagem foi concluída, remover do cache
+            if (novoStatus === 'concluida') {
                 this.viagensAtivas.delete(viagemId);
                 this.ultimasLocalizacoes.delete(viagemId);
                 

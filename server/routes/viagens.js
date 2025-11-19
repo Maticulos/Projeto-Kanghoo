@@ -75,7 +75,7 @@ router.post('/:id/finalizar', async (ctx) => {
       ['concluida', odometro_final, distancia, viagem_id]
     );
     
-    return ctx.body = success(result.rows[0], 'Viagem finalizada com sucesso!');
+    return ctx.body = success(result.rows[0], 'Viagem concluída com sucesso!');
   } catch (err) {
     console.error('Erro ao finalizar viagem:', err);
     return ctx.body = error('Erro interno ao finalizar a viagem.', 500);

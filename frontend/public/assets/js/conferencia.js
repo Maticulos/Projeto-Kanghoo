@@ -129,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (result.success) {
                     this.state.activeTrip = null;
                     this.renderStartForm();
-                    alert('Viagem finalizada com sucesso!');
+                    alert('Viagem concluída com sucesso!');
                 } else {
                     this.showError(result.message || 'Não foi possível finalizar a viagem.');
                 }
