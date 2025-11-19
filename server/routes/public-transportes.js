@@ -117,10 +117,12 @@ function sanitizeTransporteData(transporte) {
         dataFim: transporte.data_fim
       }
     }),
-    // Coordenadas (se disponíveis) - para mapa interativo
-    // NOTA: Campos de coordenadas não existem ainda na estrutura atual
-    // Retornar null por enquanto - será implementado quando campos estiverem disponíveis
-    localizacao: null
+    // Coordenadas e distância para o mapa interativo
+    distancia: transporte.distancia_km ? parseFloat(transporte.distancia_km.toFixed(2)) : null,
+    localizacao: {
+      latitude: transporte.latitude ? parseFloat(transporte.latitude) : null,
+      longitude: transporte.longitude ? parseFloat(transporte.longitude) : null
+    }
   };
 }
 
@@ -197,6 +199,8 @@ router.get('/transportes', async (ctx) => {
         u.celular,
         u.tipo_usuario,
         u.endereco_completo,
+        u.latitude,
+        u.longitude,
         v.placa,
         COALESCE(v.capacidade, 1) as lotacao_maxima,
         v.ano as ano_fabricacao,
@@ -213,6 +217,20 @@ router.get('/transportes', async (ctx) => {
           ELSE 'Transporte'
         END as tipo_servico
     `;
+
+
+    // Condicionalmente adicionar cálculo de distância
+    if (latitude && longitude) {
+      query += `,
+        (
+          6371 * acos(
+            cos(radians(${parseFloat(latitude)})) * cos(radians(u.latitude)) * 
+            cos(radians(u.longitude) - radians(${parseFloat(longitude)})) + 
+            sin(radians(${parseFloat(latitude)})) * sin(radians(u.latitude))
+          )
+        ) AS distancia_km
+      `;
+    }
 
     // Adicionar campos específicos por tipo
     // NOTA: Usar apenas campos que existem na estrutura atual
@@ -349,8 +367,18 @@ router.get('/transportes', async (ctx) => {
         return error(ctx, 400, 'Coordenadas inválidas');
       }
       
-      // TODO: Implementar quando campos de coordenadas estiverem disponíveis
-      logger.info('Filtro de proximidade solicitado, mas campos de coordenadas não disponíveis');
+      // Filtro de proximidade geográfica
+      if (latitude && longitude) {
+        whereConditions.push(`
+          (
+            6371 * acos(
+              cos(radians(${parseFloat(latitude)})) * cos(radians(u.latitude)) * 
+              cos(radians(u.longitude) - radians(${parseFloat(longitude)})) + 
+              sin(radians(${parseFloat(latitude)})) * sin(radians(u.latitude))
+            )
+          ) <= ${raioKm}
+        `);
+      }
     }
 
     // Construir WHERE final

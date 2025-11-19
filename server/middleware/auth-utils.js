@@ -43,7 +43,7 @@ const authenticateToken = async (ctx, next) => {
                 timestamp: new Date().toISOString()
             });
             
-            ctx.user = {
+            ctx.state.user = {
                 id: 1,
                 email: 'ana.responsavel@teste.kanghoo.com',
                 tipo: 'responsavel',
@@ -57,7 +57,7 @@ const authenticateToken = async (ctx, next) => {
         const decoded = jwt.verify(token, JWT_SECRET);
         
         // Adicionar informações do usuário ao contexto
-        ctx.user = {
+        ctx.state.user = {
             id: decoded.userId,  // Corrigido: usar userId em vez de id
             email: decoded.email,
             tipo: decoded.tipo,
@@ -105,7 +105,7 @@ const authenticateToken = async (ctx, next) => {
  */
 const requireRole = (allowedTypes) => {
     return async (ctx, next) => {
-        if (!ctx.user) {
+        if (!ctx.state.user) {
             ctx.status = 401;
             ctx.body = { 
                 success: false, 
@@ -116,7 +116,7 @@ const requireRole = (allowedTypes) => {
 
         const types = Array.isArray(allowedTypes) ? allowedTypes : [allowedTypes];
         
-        if (!types.includes(ctx.user.tipo)) {
+        if (!types.includes(ctx.state.user.tipo)) {
             ctx.status = 403;
             ctx.body = { 
                 success: false, 
@@ -142,7 +142,7 @@ const optionalAuth = async (ctx, next) => {
             
             if (token) {
                 const decoded = jwt.verify(token, JWT_SECRET);
-                ctx.user = {
+                ctx.state.user = {
                     // suporte a diferentes formatos de payload (userId ou id)
                     id: decoded.userId || decoded.id,
                     email: decoded.email,
@@ -164,7 +164,7 @@ const optionalAuth = async (ctx, next) => {
  */
 const verificarResponsavel = async (ctx, next) => {
     try {
-        if (!ctx.user || ctx.user.tipo !== 'responsavel' && ctx.user.tipo !== 'admin') {
+        if (!ctx.state.user || ctx.state.user.tipo !== 'responsavel' && ctx.state.user.tipo !== 'admin') {
             ctx.status = 403;
             ctx.body = { 
                 success: false, 
@@ -188,7 +188,7 @@ const verificarResponsavel = async (ctx, next) => {
  */
 const verificarMotorista = async (ctx, next) => {
     try {
-        if (!ctx.user || (ctx.user.tipo !== 'motorista_escolar' && ctx.user.tipo !== 'motorista_excursao' && ctx.user.tipo !== 'motorista_escolar_excursao')) {
+        if (!ctx.state.user || (ctx.state.user.tipo !== 'motorista_escolar' && ctx.state.user.tipo !== 'motorista_excursao' && ctx.state.user.tipo !== 'motorista_escolar_excursao')) {
             ctx.status = 403;
             ctx.body = { 
                 success: false, 
@@ -212,7 +212,7 @@ const verificarMotorista = async (ctx, next) => {
  */
 const verificarMotoristaExcursao = async (ctx, next) => {
     try {
-        if (!ctx.user || ctx.user.tipo !== 'motorista_excursao' && ctx.user.tipo !== 'motorista_escolar_excursao') {
+        if (!ctx.state.user || ctx.state.user.tipo !== 'motorista_excursao' && ctx.state.user.tipo !== 'motorista_escolar_excursao') {
             ctx.status = 403;
             ctx.body = { 
                 success: false, 

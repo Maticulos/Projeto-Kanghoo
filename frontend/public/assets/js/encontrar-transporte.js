@@ -369,7 +369,7 @@ class TransporteFinder {
                     tipo: tipo,
                     avaliacao: t.avaliacao || 0,
                     avaliacoes: t.totalAvaliacoes || 0,
-                    distancia: t.localizacao ? '-' : '-', // Distância será calculada se coordenadas disponíveis
+                    distancia: t.distancia ? `${t.distancia} km` : '-',
                     capacidade: tipo === 'escolar' 
                         ? (rota.vagas ? `${rota.vagas} vagas` : (t.veiculo?.capacidade ? `Até ${t.veiculo.capacidade} lugares` : '-'))
                         : (pacote.vagas ? `${pacote.vagas} vagas` : (t.veiculo?.capacidade ? `Até ${t.veiculo.capacidade} pessoas` : '-')),
@@ -527,13 +527,11 @@ class TransporteFinder {
         try {
             await this.buscarTransportes();
         } catch (e) {
-            // Fallback suave em caso de erro: usar dados mock para não quebrar a UI
-            console.warn('Falha na busca inicial, usando mock temporário:', e?.message || e);
-            this.currentResults = this.currentTransportType === 'escolar' 
-                ? this.gerarResultadosEscolares() 
-                : this.gerarResultadosExcursoes();
-            this.filteredResults = [...this.currentResults];
-            this.loadResults();
+            console.error('Falha na busca inicial:', e?.message || e);
+            this.showError('Não foi possível carregar os transportes. Verifique sua conexão e tente novamente.');
+            this.currentResults = [];
+            this.filteredResults = [];
+            this.loadResults(); // Isso vai acionar a exibição de "Nenhum resultado encontrado"
         }
     }
 
@@ -569,7 +567,7 @@ class TransporteFinder {
                     tipo: tipo,
                     avaliacao: t.avaliacao || 0,
                     avaliacoes: t.totalAvaliacoes || 0,
-                    distancia: t.localizacao ? '-' : '-',
+                    distancia: t.distancia ? `${t.distancia} km` : '-',
                     capacidade: tipo === 'escolar' 
                         ? (rota.vagas ? `${rota.vagas} vagas` : (t.veiculo?.capacidade ? `Até ${t.veiculo.capacidade} lugares` : '-'))
                         : (pacote.vagas ? `${pacote.vagas} vagas` : (t.veiculo?.capacidade ? `Até ${t.veiculo.capacidade} pessoas` : '-')),

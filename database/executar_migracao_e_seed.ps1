@@ -1,8 +1,8 @@
 # Script PowerShell para executar migração e seed de dados de teste
 
-Write-Host "==========================================" -ForegroundColor Cyan
-Write-Host "MIGRAÇÃO E SEED: Dados para Mapa Interativo" -ForegroundColor Cyan
-Write-Host "==========================================" -ForegroundColor Cyan
+Write-Host "=========================================="
+Write-Host "MIGRAÇÃO E SEED: Dados para Mapa Interativo"
+Write-Host "=========================================="
 
 # Carregar variáveis de ambiente do .env
 $envFile = Join-Path $PSScriptRoot "..\server\.env"
@@ -33,41 +33,40 @@ if (-not $env:DATABASE_URL) {
 }
 
 Write-Host ""
-Write-Host "📋 Executando migração de coordenadas..." -ForegroundColor Yellow
+Write-Host "📋 Executando migração de coordenadas..."
 $migracaoFile = Join-Path $PSScriptRoot "migracao_coordenadas_mapa.sql"
 
 if (Test-Path $migracaoFile) {
     psql $env:DATABASE_URL -f $migracaoFile
     if ($LASTEXITCODE -eq 0) {
-        Write-Host "✅ Migração concluída com sucesso!" -ForegroundColor Green
+        Write-Host "✅ Migração concluída com sucesso!"
     } else {
-        Write-Host "❌ Erro na migração" -ForegroundColor Red
+        Write-Host "❌ Erro na migração"
         exit 1
     }
 } else {
-    Write-Host "❌ Arquivo de migração não encontrado: $migracaoFile" -ForegroundColor Red
+    Write-Host "❌ Arquivo de migração não encontrado: $migracaoFile"
     exit 1
 }
 
 Write-Host ""
-Write-Host "🌱 Inserindo dados de teste..." -ForegroundColor Yellow
+Write-Host "🌱 Inserindo dados de teste..."
 $seedFile = Join-Path $PSScriptRoot "seed_dados_teste_mapa.sql"
 
 if (Test-Path $seedFile) {
     psql $env:DATABASE_URL -f $seedFile
     if ($LASTEXITCODE -eq 0) {
-        Write-Host "✅ Dados de teste inseridos com sucesso!" -ForegroundColor Green
+        Write-Host "✅ Dados de teste inseridos com sucesso!"
     } else {
-        Write-Host "❌ Erro ao inserir dados de teste" -ForegroundColor Red
+        Write-Host "❌ Erro ao inserir dados de teste"
         exit 1
     }
 } else {
-    Write-Host "❌ Arquivo de seed não encontrado: $seedFile" -ForegroundColor Red
+    Write-Host "❌ Arquivo de seed não encontrado: $seedFile"
     exit 1
 }
 
 Write-Host ""
-Write-Host "==========================================" -ForegroundColor Cyan
-Write-Host "✅ Processo concluído!" -ForegroundColor Green
-Write-Host "==========================================" -ForegroundColor Cyan
-
+Write-Host "=========================================="
+Write-Host "✅ Processo concluído!"
+Write-Host "=========================================="

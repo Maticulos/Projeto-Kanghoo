@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Plano - Kanghoo</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <style>
+        .plan-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            background-color: #fff;
+        }
+        .current-plan {
+            border-color: #007bff;
+            background-color: #f8f9fa;
+        }
+        .progress-bar-container {
+            margin-top: 1rem;
+        }
+        .plan-features li {
+            margin-bottom: 0.5rem;
+        }
+        .price {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <header class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">Kanghoo - Portal do Motorista</a>
+    </header>
+
+    <main class="container mt-4">
+        <div id="loading" class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="sr-only">Carregando...</span>
+            </div>
+        </div>
+
+        <div id="error-message" class="alert alert-danger" style="display: none;"></div>
+
+        <div id="plan-content" style="display: none;">
+            <section id="current-plan-section" class="mb-5">
+                <h2>Meu Plano Atual</h2>
+                <div id="current-plan-card" class="plan-card current-plan">
+                    <!-- Detalhes do plano atual serão inseridos aqui -->
+                </div>
+            </section>
+
+            <section id="available-plans-section">
+                <h2>Outros Planos Disponíveis</h2>
+                <div id="available-plans-container" class="row">
+                    <!-- Cards de planos disponíveis serão inseridos aqui -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script src="/assets/js/plano.js"></script>
+</body>
+</html>

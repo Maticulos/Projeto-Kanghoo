@@ -282,58 +282,8 @@ class MapsIntegration {
             console.warn('Erro ao carregar transportes da API, usando dados de exemplo:', error);
         }
         
-        // Fallback: Dados de exemplo se a API falhar
-        const sampleTransports = [
-            {
-                id: 1,
-                name: 'Transporte Escolar São João',
-                type: 'escolar',
-                position: [-23.5505, -46.6333],
-                rating: 4.8,
-                reviews: 127,
-                price: 'R$ 180/mês',
-                capacity: 'Até 25 crianças',
-                features: ['Ar-condicionado', 'Seguro', 'GPS']
-            },
-            {
-                id: 2,
-                name: 'Van Escolar Alegria',
-                type: 'escolar',
-                position: [-23.5615, -46.6565],
-                rating: 4.6,
-                reviews: 89,
-                price: 'R$ 150/mês',
-                capacity: 'Até 15 crianças',
-                features: ['Ar-condicionado', 'Wi-Fi']
-            },
-            {
-                id: 3,
-                name: 'Excursões Aventura',
-                type: 'excursao',
-                position: [-23.5395, -46.6103],
-                rating: 4.9,
-                reviews: 203,
-                price: 'R$ 80/pessoa/dia',
-                capacity: 'Até 45 pessoas',
-                features: ['Ar-condicionado', 'Wi-Fi', 'Seguro']
-            },
-            {
-                id: 4,
-                name: 'Turismo & Fretamento Silva',
-                type: 'excursao',
-                position: [-23.5725, -46.6412],
-                rating: 4.7,
-                reviews: 156,
-                price: 'R$ 120/pessoa/dia',
-                capacity: 'Até 50 pessoas',
-                features: ['Ar-condicionado', 'Wi-Fi', 'Banheiro']
-            }
-        ];
-        
-        // Criar marcadores de exemplo
-        sampleTransports.forEach(transport => {
-            this.addTransportMarker(transport);
-        });
+        // Se a API falhar, simplesmente não carregar marcadores de exemplo
+        console.error('Falha ao carregar marcadores iniciais da API:', error);
     }
     
     addTransportMarker(transport) {

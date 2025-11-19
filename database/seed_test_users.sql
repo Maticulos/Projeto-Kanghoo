@@ -23,12 +23,6 @@ BEGIN
     -- Limpar em ordem para respeitar foreign keys
     -- Verifica se a tabela existe antes de deletar
     
-    IF EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'rastreamento_gps') THEN
-        DELETE FROM rastreamento_gps WHERE usuario_id IN (
-            SELECT id FROM usuarios WHERE email LIKE '%@teste.kanghoo.com' OR email LIKE '%@example.com'
-        );
-    END IF;
-    
     IF EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'criancas_rotas') THEN
         DELETE FROM criancas_rotas WHERE crianca_id IN (
             SELECT id FROM criancas WHERE responsavel_id IN (
@@ -336,50 +330,6 @@ SELECT
     NOW()
 FROM usuarios u
 WHERE u.email = 'joao.motorista.basic@teste.kanghoo.com';
-
--- ==========================================
--- DADOS DE RASTREAMENTO GPS (OPCIONAL)
--- ==========================================
-
-DO $$
-BEGIN
-    -- Só insere se a tabela existir
-    IF EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'rastreamento_gps') THEN
-        -- Posição recente do Motorista Basic
-        INSERT INTO rastreamento_gps (
-            usuario_id, latitude, longitude, velocidade, 
-            timestamp, created_at
-        )
-        SELECT
-            u.id,
-            -23.5505,  -- Coordenadas de São Paulo
-            -46.6333,
-            25.5,
-            NOW() - INTERVAL '1 hour',
-            NOW()
-        FROM usuarios u
-        WHERE u.email = 'joao.motorista.basic@teste.kanghoo.com';
-
-        -- Posição recente do Motorista Premium
-        INSERT INTO rastreamento_gps (
-            usuario_id, latitude, longitude, velocidade,
-            timestamp, created_at
-        )
-        SELECT
-            u.id,
-            -23.5629,  -- Av. Paulista
-            -46.6544,
-            30.0,
-            NOW() - INTERVAL '30 minutes',
-            NOW()
-        FROM usuarios u
-        WHERE u.email = 'maria.motorista.premium@teste.kanghoo.com';
-        
-        RAISE NOTICE '✅ Dados de rastreamento GPS criados';
-    ELSE
-        RAISE NOTICE '⚠️  Tabela rastreamento_gps não existe, pulando...';
-    END IF;
-END $$;
 
 -- ==========================================
 -- RESUMO DOS DADOS CRIADOS
