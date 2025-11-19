@@ -342,31 +342,61 @@ class TransporteFinder {
 
         try {
             const data = await this.fetchRotasFromApi();
-            const rotas = data.rotas || [];
+            const transportes = data.rotas || [];
 
-            // Mapear retorno da API para o formato interno atual
-            this.currentResults = rotas.map(r => ({
-                id: r.id,
-                nome: r.nome_rota || r.nome || 'Rota escolar',
-                tipo: 'escolar',
-                avaliacao: r.media_avaliacoes || 4.7,
-                avaliacoes: r.total_avaliacoes || 0,
-                distancia: r.distancia_km ? `${r.distancia_km} km` : '-',
-                capacidade: r.capacidade_maxima ? `Até ${r.capacidade_maxima} crianças` : '-',
-                horario: r.horario_ida && r.horario_volta ? `${r.horario_ida} - ${r.horario_volta}` : (r.turno || '-'),
-                preco: r.valor_mensal ? `R$ ${r.valor_mensal}/mês` : '-',
-                caracteristicas: 'Rastreamento GPS'
-            }));
+            // Mapear retorno da API pública para o formato interno
+            this.currentResults = transportes.map(t => {
+                // Determinar tipo baseado nos dados
+                const tipo = t.tipo_servico?.toLowerCase().includes('escolar') ? 'escolar' : 
+                            t.tipo_servico?.toLowerCase().includes('excursão') ? 'excursao' : 
+                            t.rota ? 'escolar' : t.pacote ? 'excursao' : 'escolar';
+                
+                // Dados da rota (escolar)
+                const rota = t.rota || {};
+                // Dados do pacote (excursão)
+                const pacote = t.pacote || {};
+                
+                // Características do veículo
+                const caracteristicas = [];
+                if (t.veiculo?.caracteristicas?.arCondicionado) caracteristicas.push('Ar-condicionado');
+                if (t.veiculo?.caracteristicas?.wifi) caracteristicas.push('Wi-Fi');
+                if (t.veiculo?.caracteristicas?.acessibilidade) caracteristicas.push('Acessibilidade');
+                if (t.veiculo?.caracteristicas?.gps) caracteristicas.push('GPS');
+                
+                return {
+                    id: t.id,
+                    nome: rota.nome || pacote.nome || t.nome || 'Transporte',
+                    tipo: tipo,
+                    avaliacao: t.avaliacao || 0,
+                    avaliacoes: t.totalAvaliacoes || 0,
+                    distancia: t.localizacao ? '-' : '-', // Distância será calculada se coordenadas disponíveis
+                    capacidade: tipo === 'escolar' 
+                        ? (rota.vagas ? `${rota.vagas} vagas` : (t.veiculo?.capacidade ? `Até ${t.veiculo.capacidade} lugares` : '-'))
+                        : (pacote.vagas ? `${pacote.vagas} vagas` : (t.veiculo?.capacidade ? `Até ${t.veiculo.capacidade} pessoas` : '-')),
+                    horario: tipo === 'escolar' 
+                        ? (rota.horarioIda && rota.horarioVolta ? `${rota.horarioIda} - ${rota.horarioVolta}` : (rota.turno || '-'))
+                        : (pacote.dataInicio ? `De ${pacote.dataInicio} a ${pacote.dataFim || pacote.dataInicio}` : '-'),
+                    preco: tipo === 'escolar' 
+                        ? (rota.precoMensal || '-')
+                        : (pacote.precoPorPessoa || '-'),
+                    caracteristicas: caracteristicas.length > 0 ? caracteristicas.join(', ') : 'Rastreamento GPS',
+                    // Dados adicionais para o mapa
+                    localizacao: t.localizacao,
+                    rota: rota,
+                    pacote: pacote
+                };
+            });
 
             this.filteredResults = [...this.currentResults];
-            this.currentPage = 1;
+            this.currentPage = data.page || 1;
             this.loadResults();
 
             // Atualizar o mapa com markers
-            this.updateMapMarkersFromApi(rotas);
+            this.updateMapMarkersFromApi(transportes);
 
             this.hideLoading();
-            this.showSuccess(`${rotas.length} transportes encontrados!`);
+            const total = data.total || transportes.length;
+            this.showSuccess(`${total} transportes encontrados!`);
         } catch (error) {
             this.hideLoading();
             this.showError('Erro ao buscar transportes. Tente novamente.');
@@ -395,29 +425,65 @@ class TransporteFinder {
         const filtros = this.obterFiltrosParaApi();
         const params = new URLSearchParams();
 
-        // Mapear filtros para a API
-        if (filtros.tipo_rota) params.set('tipo_rota', filtros.tipo_rota);
-        if (filtros.escola) params.set('escola', filtros.escola);
-        if (filtros.turno) params.set('turno', filtros.turno);
-        if (filtros.valor_max) params.set('valor_max', filtros.valor_max);
+        // Mapear filtros para a API pública /api/public/transportes
+        // Tipo: escolar, excursao, todos
+        if (filtros.tipo_rota) {
+            params.set('tipo', filtros.tipo_rota === 'escolar' ? 'escolar' : 
+                           filtros.tipo_rota === 'excursao' ? 'excursao' : 'todos');
+        } else {
+            params.set('tipo', this.currentTransportType || 'todos');
+        }
+        
+        // Localização
+        if (filtros.endereco) params.set('endereco', filtros.endereco);
+        if (filtros.cidade) params.set('cidade', filtros.cidade);
+        if (filtros.bairro) params.set('bairro', filtros.bairro);
+        
+        // Proximidade geográfica
         if (filtros.latitude && filtros.longitude) {
             params.set('latitude', filtros.latitude);
             params.set('longitude', filtros.longitude);
-            if (filtros.raio_km) params.set('raio_km', filtros.raio_km);
+            if (filtros.raio_km) params.set('raio', filtros.raio_km);
         }
-        params.set('page', filtros.page);
-        params.set('limit', filtros.limit);
+        
+        // Filtros específicos
+        if (filtros.turno) params.set('turno', filtros.turno);
+        if (filtros.capacidade) params.set('capacidade', filtros.capacidade);
+        if (filtros.arCondicionado) params.set('arCondicionado', 'true');
+        if (filtros.wifi) params.set('wifi', 'true');
+        if (filtros.acessibilidade) params.set('acessibilidade', 'true');
+        
+        // Ordenação
+        const ordenacao = document.getElementById('ordenacao')?.value || 'relevancia';
+        params.set('ordenacao', ordenacao);
+        
+        // Paginação
+        params.set('pagina', filtros.page || 1);
+        params.set('limite', filtros.limit || 20);
 
-        const url = `/api/buscar-rotas?${params.toString()}`;
+        const url = `/api/public/transportes?${params.toString()}`;
         const res = await fetch(url);
+        
         if (!res.ok) {
-            throw new Error(`Erro na API (${res.status})`);
+            const errorData = await res.json().catch(() => ({}));
+            throw new Error(errorData.message || `Erro na API (${res.status})`);
         }
-        const json = await res.json();
-        if (!json || !json.success) {
-            throw new Error(json?.message || 'Falha ao obter rotas');
+        
+        const data = await res.json();
+        
+        // A API pública retorna { success, data: { transportes, paginacao } }
+        if (data.success && data.data) {
+            return {
+                rotas: data.data.transportes || [],
+                total: data.data.paginacao?.totalResultados || 0,
+                page: data.data.paginacao?.paginaAtual || 1,
+                limit: data.data.paginacao?.resultadosPorPagina || 20,
+                totalPages: data.data.paginacao?.totalPaginas || 0
+            };
         }
-        return json.data;
+        
+        // Fallback para estrutura antiga
+        return data;
     }
 
     obterFiltrosParaApi() {
@@ -427,22 +493,32 @@ class TransporteFinder {
         const turno = document.getElementById('turno-escolar')?.value || '';
         const escola = document.getElementById('nome-escola')?.value || '';
         const precoMax = document.getElementById('preco-max')?.value || '';
+        const capacidade = document.getElementById('capacidade')?.value || '';
 
         // Tentar usar geolocalização atual do mapa
         const lat = window.mapsIntegration?.userLocation?.[0] || null;
         const lng = window.mapsIntegration?.userLocation?.[1] || null;
+
+        // Verificar características selecionadas
+        const arCondicionado = document.getElementById('ar-condicionado')?.checked || false;
+        const wifi = document.getElementById('wifi')?.checked || false;
+        const acessibilidade = document.getElementById('acessibilidade')?.checked || false;
 
         return {
             tipo_rota: transportType === 'escolar' ? 'escolar' : 'excursao',
             escola: escola.trim(),
             turno: turno.trim(),
             valor_max: precoMax ? parseFloat(precoMax) : '',
+            capacidade: capacidade ? parseInt(capacidade) : '',
             latitude: lat,
             longitude: lng,
             raio_km: raio,
             endereco: endereco.trim(),
+            arCondicionado: arCondicionado,
+            wifi: wifi,
+            acessibilidade: acessibilidade,
             page: this.currentPage || 1,
-            limit: this.resultsPerPage || 10,
+            limit: this.resultsPerPage || 20,
         };
     }
 
@@ -466,28 +542,58 @@ class TransporteFinder {
 
         try {
             const data = await this.fetchRotasFromApi();
-            const rotas = data.rotas || [];
+            const transportes = data.rotas || [];
 
-            // Atualiza lista
-            this.currentResults = rotas.map(r => ({
-                id: r.id,
-                nome: r.nome_rota || r.nome || 'Rota escolar',
-                tipo: 'escolar',
-                avaliacao: r.media_avaliacoes || 4.7,
-                avaliacoes: r.total_avaliacoes || 0,
-                distancia: r.distancia_km ? `${r.distancia_km} km` : '-',
-                capacidade: r.capacidade_maxima ? `Até ${r.capacidade_maxima} crianças` : '-',
-                horario: r.horario_ida && r.horario_volta ? `${r.horario_ida} - ${r.horario_volta}` : (r.turno || '-'),
-                preco: r.valor_mensal ? `R$ ${r.valor_mensal}/mês` : '-',
-                caracteristicas: 'Rastreamento GPS'
-            }));
+            // Mapear retorno da API pública para o formato interno (mesmo mapeamento de buscarTransportes)
+            this.currentResults = transportes.map(t => {
+                // Determinar tipo baseado nos dados
+                const tipo = t.tipo_servico?.toLowerCase().includes('escolar') ? 'escolar' : 
+                            t.tipo_servico?.toLowerCase().includes('excursão') ? 'excursao' : 
+                            t.rota ? 'escolar' : t.pacote ? 'excursao' : 'escolar';
+                
+                // Dados da rota (escolar)
+                const rota = t.rota || {};
+                // Dados do pacote (excursão)
+                const pacote = t.pacote || {};
+                
+                // Características do veículo
+                const caracteristicas = [];
+                if (t.veiculo?.caracteristicas?.arCondicionado) caracteristicas.push('Ar-condicionado');
+                if (t.veiculo?.caracteristicas?.wifi) caracteristicas.push('Wi-Fi');
+                if (t.veiculo?.caracteristicas?.acessibilidade) caracteristicas.push('Acessibilidade');
+                if (t.veiculo?.caracteristicas?.gps) caracteristicas.push('GPS');
+                
+                return {
+                    id: t.id,
+                    nome: rota.nome || pacote.nome || t.nome || 'Transporte',
+                    tipo: tipo,
+                    avaliacao: t.avaliacao || 0,
+                    avaliacoes: t.totalAvaliacoes || 0,
+                    distancia: t.localizacao ? '-' : '-',
+                    capacidade: tipo === 'escolar' 
+                        ? (rota.vagas ? `${rota.vagas} vagas` : (t.veiculo?.capacidade ? `Até ${t.veiculo.capacidade} lugares` : '-'))
+                        : (pacote.vagas ? `${pacote.vagas} vagas` : (t.veiculo?.capacidade ? `Até ${t.veiculo.capacidade} pessoas` : '-')),
+                    horario: tipo === 'escolar' 
+                        ? (rota.horarioIda && rota.horarioVolta ? `${rota.horarioIda} - ${rota.horarioVolta}` : (rota.turno || '-'))
+                        : (pacote.dataInicio ? `De ${pacote.dataInicio} a ${pacote.dataFim || pacote.dataInicio}` : '-'),
+                    preco: tipo === 'escolar' 
+                        ? (rota.precoMensal || '-')
+                        : (pacote.precoPorPessoa || '-'),
+                    caracteristicas: caracteristicas.length > 0 ? caracteristicas.join(', ') : 'Rastreamento GPS',
+                    // Dados adicionais para o mapa
+                    localizacao: t.localizacao,
+                    rota: rota,
+                    pacote: pacote
+                };
+            });
+
             this.filteredResults = [...this.currentResults];
-            this.currentPage = 1;
+            this.currentPage = data.page || 1;
             this.loadResults();
 
-            // Atualiza mapa
-            this.updateMapMarkersFromApi(rotas);
-
+            // Atualizar o mapa
+            this.updateMapMarkersFromApi(transportes);
+            
             this.updateResultsCount();
         } catch (e) {
             console.warn('Falha ao aplicar filtros (API):', e);
@@ -722,26 +828,61 @@ class TransporteFinder {
         this.showSuccess('Filtros limpos com sucesso!');
     }
 
-    updateMapMarkersFromApi(rotas) {
+    updateMapMarkersFromApi(transportes) {
         try {
             if (!window.mapsIntegration) return;
             window.mapsIntegration.clearMarkers();
-            const transports = rotas.map(r => ({
-                id: r.id,
-                name: r.nome_rota || 'Rota escolar',
-                type: 'escolar',
-                position: (r.latitude_origem && r.longitude_origem) ? [r.latitude_origem, r.longitude_origem] : null,
-                rating: r.media_avaliacoes || 4.7,
-                reviews: r.total_avaliacoes || 0,
-                price: r.valor_mensal ? `R$ ${r.valor_mensal}/mês` : '-',
-                capacity: r.capacidade_maxima ? `Até ${r.capacidade_maxima} crianças` : '-',
-                features: ['Rastreamento GPS']
-            })).filter(t => Array.isArray(t.position));
+            
+            const transports = transportes
+                .map(t => {
+                    // Obter coordenadas (priorizar localização, depois rota/pacote)
+                    let position = null;
+                    if (t.localizacao?.latitude && t.localizacao?.longitude) {
+                        position = [t.localizacao.latitude, t.localizacao.longitude];
+                    } else if (t.rota?.coordenadasOrigem) {
+                        position = [t.rota.coordenadasOrigem.latitude, t.rota.coordenadasOrigem.longitude];
+                    } else if (t.pacote?.coordenadasPartida) {
+                        position = [t.pacote.coordenadasPartida.latitude, t.pacote.coordenadasPartida.longitude];
+                    }
+                    
+                    if (!position) return null;
+                    
+                    // Determinar tipo
+                    const tipo = t.tipo_servico?.toLowerCase().includes('escolar') ? 'escolar' : 
+                                t.tipo_servico?.toLowerCase().includes('excursão') ? 'excursao' : 
+                                t.rota ? 'escolar' : t.pacote ? 'excursao' : 'escolar';
+                    
+                    // Características
+                    const features = [];
+                    if (t.veiculo?.caracteristicas?.arCondicionado) features.push('Ar-condicionado');
+                    if (t.veiculo?.caracteristicas?.wifi) features.push('Wi-Fi');
+                    if (t.veiculo?.caracteristicas?.acessibilidade) features.push('Acessibilidade');
+                    if (t.veiculo?.caracteristicas?.gps) features.push('GPS');
+                    
+                    return {
+                        id: t.id,
+                        name: t.rota?.nome || t.pacote?.nome || t.nome || 'Transporte',
+                        type: tipo,
+                        position: position,
+                        rating: t.avaliacao || 0,
+                        reviews: t.totalAvaliacoes || 0,
+                        price: tipo === 'escolar' 
+                            ? (t.rota?.precoMensal || '-')
+                            : (t.pacote?.precoPorPessoa || '-'),
+                        capacity: tipo === 'escolar'
+                            ? (t.rota?.vagas ? `${t.rota.vagas} vagas` : (t.veiculo?.capacidade ? `Até ${t.veiculo.capacidade} lugares` : '-'))
+                            : (t.pacote?.vagas ? `${t.pacote.vagas} vagas` : (t.veiculo?.capacidade ? `Até ${t.veiculo.capacidade} pessoas` : '-')),
+                        features: features.length > 0 ? features : ['Rastreamento GPS']
+                    };
+                })
+                .filter(t => t !== null && Array.isArray(t.position));
 
             transports.forEach(t => window.mapsIntegration.addTransportMarker(t));
 
             if (transports.length > 0) {
                 window.mapsIntegration.centerOnResults();
+            } else {
+                console.info('Nenhum transporte com coordenadas disponíveis para exibir no mapa');
             }
         } catch (e) {
             console.warn('Falha ao atualizar marcadores do mapa:', e);

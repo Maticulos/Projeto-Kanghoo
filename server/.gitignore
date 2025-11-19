@@ -3,6 +3,7 @@
 
 # Arquivos de ambiente
 .env
+.jwt-secret-dev
 
 # Logs
 logs/

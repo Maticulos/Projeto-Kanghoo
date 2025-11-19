@@ -31,8 +31,18 @@ const authenticateToken = async (ctx, next) => {
             return;
         }
 
-        // Token de desenvolvimento
-        if (token === 'dev_token_responsavel_teste' && process.env.NODE_ENV !== 'production') {
+        // Token de desenvolvimento - APENAS se explicitamente habilitado
+        const DEV_TOKEN_ENABLED = process.env.ALLOW_DEV_TOKEN === 'true';
+        const DEV_TOKEN = process.env.DEV_TOKEN || 'dev_token_responsavel_teste';
+        
+        if (token === DEV_TOKEN && DEV_TOKEN_ENABLED && process.env.NODE_ENV !== 'production') {
+            // Log de segurança
+            logger.warn('⚠️  Token de desenvolvimento usado', {
+                ip: ctx.ip,
+                path: ctx.path,
+                timestamp: new Date().toISOString()
+            });
+            
             ctx.user = {
                 id: 1,
                 email: 'ana.responsavel@teste.kanghoo.com',

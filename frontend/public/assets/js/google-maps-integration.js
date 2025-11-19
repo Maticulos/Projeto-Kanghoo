@@ -215,8 +215,74 @@ class MapsIntegration {
         console.info('Usando localização padrão: São Paulo, Brasil');
     }
     
-    loadSampleMarkers() {
-        // Dados de exemplo de transportes
+    async loadSampleMarkers() {
+        // Tentar carregar dados reais da API pública
+        try {
+            const response = await fetch('/api/public/transportes?tipo=todos&limite=20');
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.data && data.data.transportes) {
+                    const transportes = data.data.transportes;
+                    
+                    // Mapear transportes da API para o formato do mapa
+                    transportes.forEach(t => {
+                        // Obter coordenadas
+                        let position = null;
+                        if (t.localizacao?.latitude && t.localizacao?.longitude) {
+                            position = [t.localizacao.latitude, t.localizacao.longitude];
+                        } else if (t.rota?.coordenadasOrigem) {
+                            position = [t.rota.coordenadasOrigem.latitude, t.rota.coordenadasOrigem.longitude];
+                        } else if (t.pacote?.coordenadasPartida) {
+                            position = [t.pacote.coordenadasPartida.latitude, t.pacote.coordenadasPartida.longitude];
+                        }
+                        
+                        if (!position) return; // Pular se não tiver coordenadas
+                        
+                        // Determinar tipo
+                        const tipo = t.tipo_servico?.toLowerCase().includes('escolar') ? 'escolar' : 
+                                    t.tipo_servico?.toLowerCase().includes('excursão') ? 'excursao' : 
+                                    t.rota ? 'escolar' : t.pacote ? 'excursao' : 'escolar';
+                        
+                        // Características
+                        const features = [];
+                        if (t.veiculo?.caracteristicas?.arCondicionado) features.push('Ar-condicionado');
+                        if (t.veiculo?.caracteristicas?.wifi) features.push('Wi-Fi');
+                        if (t.veiculo?.caracteristicas?.acessibilidade) features.push('Acessibilidade');
+                        if (t.veiculo?.caracteristicas?.gps) features.push('GPS');
+                        
+                        const transport = {
+                            id: t.id,
+                            name: t.rota?.nome || t.pacote?.nome || t.nome || 'Transporte',
+                            type: tipo,
+                            position: position,
+                            rating: t.avaliacao || 0,
+                            reviews: t.totalAvaliacoes || 0,
+                            price: tipo === 'escolar' 
+                                ? (t.rota?.precoMensal || '-')
+                                : (t.pacote?.precoPorPessoa || '-'),
+                            capacity: tipo === 'escolar'
+                                ? (t.rota?.vagas ? `${t.rota.vagas} vagas` : (t.veiculo?.capacidade ? `Até ${t.veiculo.capacidade} lugares` : '-'))
+                                : (t.pacote?.vagas ? `${t.pacote.vagas} vagas` : (t.veiculo?.capacidade ? `Até ${t.veiculo.capacidade} pessoas` : '-')),
+                            features: features.length > 0 ? features : ['Rastreamento GPS']
+                        };
+                        
+                        this.addTransportMarker(transport);
+                    });
+                    
+                    // Centralizar nos resultados se houver marcadores
+                    if (this.markers.length > 0) {
+                        this.centerOnResults();
+                    }
+                    
+                    console.log(`Carregados ${this.markers.length} transportes do servidor`);
+                    return;
+                }
+            }
+        } catch (error) {
+            console.warn('Erro ao carregar transportes da API, usando dados de exemplo:', error);
+        }
+        
+        // Fallback: Dados de exemplo se a API falhar
         const sampleTransports = [
             {
                 id: 1,
@@ -264,7 +330,7 @@ class MapsIntegration {
             }
         ];
         
-        // Criar marcadores
+        // Criar marcadores de exemplo
         sampleTransports.forEach(transport => {
             this.addTransportMarker(transport);
         });

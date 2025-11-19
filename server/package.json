@@ -55,6 +55,7 @@
     "koa-json": "^2.0.2",
     "koa-ratelimit": "^6.0.0",
     "koa-static": "^5.0.0",
+    "helmet": "^7.1.0",
     "multer": "^2.0.2",
     "nodemailer": "^7.0.9",
     "pg": "^8.16.3",

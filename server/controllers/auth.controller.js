@@ -26,12 +26,13 @@ async function login(ctx) {
     let ok = false;
     try {
       ok = await bcrypt.compare(senha, user.senha);
-    } catch (_) {
+    } catch (error) {
+      logger.warn('Erro ao comparar senha com bcrypt:', error.message);
       ok = false;
     }
-    // Fallback: se não for hash, comparar string simples (ambientes de teste)
-    if (!ok) ok = String(user.senha) === String(senha);
 
+    // Removido fallback de senha em texto plano por questões de segurança
+    // Todas as senhas devem estar hasheadas no banco de dados
     if (!ok) {
       ctx.status = 401;
       return send(ctx, validationError(['Credenciais inválidas'], 'Falha na autenticação'));

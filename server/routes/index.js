@@ -25,8 +25,26 @@ module.exports = function mountRoutes() {
   const authRoutes = require('./auth');
   const validateTokenRoutes = require('./validate-token');
   const contactRoutes = require('./contact');
+  const publicTransportesRoutes = require('./public-transportes');
+
+  // Rota de informações da API
+  router.get('/api', async (ctx) => {
+    ctx.body = {
+      success: true,
+      message: 'API do Sistema de Transporte Escolar',
+      version: '1.0.0',
+      endpoints: {
+        health: '/api/health',
+        auth: '/api/auth/login',
+        publicTransportes: '/api/public/transportes',
+        docs: 'Consulte a documentação da API'
+      },
+      timestamp: new Date().toISOString()
+    };
+  });
 
   [
+    publicTransportesRoutes, // API pública - deve vir antes para não ser interceptada
     motoristaEscolarRoutes,
     responsavelRoutes,
     trackingApiRoutes,
