@@ -16,6 +16,9 @@ try {
   process.exit(1);
 }
 
+// Log de variáveis importantes para depuração de ambiente
+logger.info(`Environment variables: NODE_ENV=${process.env.NODE_ENV || ''}, DEMO_MODE=${process.env.DEMO_MODE || ''}, CORS_ORIGINS=${process.env.CORS_ORIGINS || process.env.CORS_ORIGIN || ''}`);
+
 const app = require('./app');
 const RealtimeServer = require('./realtime/realtime-server');
 

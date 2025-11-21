@@ -66,6 +66,7 @@ function buildCorsOptions() {
                  process.env.ENVIRONMENT === 'production';
   
   const fromEnv = (process.env.CORS_ORIGINS || process.env.CORS_ORIGIN || '').trim();
+  const isDemo = process.env.DEMO_MODE === 'true';
   
   let origins;
   if (fromEnv) {
@@ -77,6 +78,11 @@ function buildCorsOptions() {
       'https://kanghoo.com',
       'https://www.kanghoo.com'
     ];
+    // Se estivermos em modo demo, permitir também localhost para apresentações locais
+    if (isDemo) {
+      origins.push('http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:3001', 'http://127.0.0.1:3001');
+      logger.info('DEMO_MODE ativo: habilitando origens localhost para CORS');
+    }
   } else {
     // Desenvolvimento: permitir localhost e IPs locais
     origins = [
@@ -93,7 +99,8 @@ function buildCorsOptions() {
     const reqOrigin = ctx.get('Origin') || '';
     
     // Em desenvolvimento, sempre permitir (incluindo requisições sem origem)
-    if (!isProd) {
+    // Também permitir em modo demo quando explicitamente habilitado
+    if (!isProd || isDemo) {
       // Se não há origem (requisição direta do navegador), permitir
       if (!reqOrigin || reqOrigin === '') {
         return '*';

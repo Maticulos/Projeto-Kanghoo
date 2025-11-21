@@ -645,12 +645,8 @@
 async function checkAuthentication() {
     let token = localStorage.getItem('authToken');
     
-    // Modo desenvolvimento: forçar uso do token de teste
-    if (window.location.hostname === 'localhost') {
-        // Token de teste para desenvolvimento (não usar em produção)
-        token = 'dev_token_responsavel_teste';
-        localStorage.setItem('authToken', token);
-    }
+    // Nota: removido comportamento que forçava um token em `localhost`.
+    // O fluxo de autenticação agora confia em `login.html` + `/api/login`.
     
     if (!token) {
         console.log('Token não encontrado, redirecionando para login');
