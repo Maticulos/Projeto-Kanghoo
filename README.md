@@ -229,6 +229,31 @@ teste/
    DB_PASSWORD=sua_senha
    ```
 
+### Usando `.env.docker` (modo demo / docker)
+
+- Criamos um arquivo `.
+   env.docker` pensado para uso com Docker / Docker Compose (`DEMO_MODE=true`).
+- Para usá-lo com o `docker-compose` (CLI v1) copie para `.env` no mesmo diretório do `docker-compose.yml`:
+
+```cmd
+cd teste
+copy .env.docker .env
+docker-compose up -d
+```
+
+- Ou use diretamente o arquivo com o `docker compose` (CLI v2) sem sobrescrever `.env`:
+
+```bash
+cd teste
+docker compose --env-file .env.docker up -d
+```
+
+- Observações de segurança:
+   - `teste/.env.docker` contém placeholders para variáveis sensíveis (ex.: `JWT_SECRET`, `DB_PASSWORD`).
+   - Substitua `CHANGE_ME_*` por segredos fortes antes de usar em qualquer ambiente real.
+   - Nunca comite segredos reais no repositório.
+
+
 5. **Crie as tabelas do banco de dados**
    ```bash
    node scripts/criar-tabelas-completas.js

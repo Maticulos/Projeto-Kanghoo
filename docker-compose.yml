@@ -14,6 +14,9 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: transporte-escolar-app
+    # Carrega variáveis de ambiente do arquivo .env (copie .env.example -> .env)
+    env_file:
+      - .env
     ports:
       - "${PORT:-5000}:5000"
     environment:
@@ -26,6 +29,10 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DATABASE_URL=postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@postgres:${DB_PORT:-5432}/${DB_NAME:-kanghoo_db_prod}
       - JWT_SECRET=${JWT_SECRET}
+      # Demo / CORS flags (can be set in .env or overriden via CLI/env)
+      - DEMO_MODE=${DEMO_MODE:-false}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:5000}
       - RATE_LIMIT_WINDOW_MS=${RATE_LIMIT_WINDOW_MS:-900000}
       - RATE_LIMIT_MAX_REQUESTS=${RATE_LIMIT_MAX_REQUESTS:-100}
       
