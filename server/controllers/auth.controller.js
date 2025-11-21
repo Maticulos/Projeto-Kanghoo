@@ -60,6 +60,19 @@ async function login(ctx) {
       }, process.env.JWT_EXPIRES_IN || '2h');
     }
 
+    // Also set token as an HttpOnly cookie to simplify demo clients that prefer cookies
+    try {
+      const cookieOptions = {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/'
+      };
+      ctx.cookies.set('authToken', token, cookieOptions);
+    } catch (err) {
+      logger.warn('Não foi possível setar cookie de autenticação:', err && err.message);
+    }
+
     return send(ctx, success({ token, user: { id: user.id, email: user.email, nome: user.nome_completo, tipo: user.tipo_usuario } }, 'Autenticado com sucesso'));
   } catch (error) {
     logger.error('Erro no login:', error);
