@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS viagens_ativas (
     data_viagem DATE NOT NULL DEFAULT CURRENT_DATE,
     horario_inicio TIMESTAMP WITH TIME ZONE,
     horario_fim TIMESTAMP WITH TIME ZONE,
-    status VARCHAR(20) DEFAULT 'iniciada' CHECK (status IN ('iniciada', 'em_andamento', 'finalizada', 'cancelada')),
+    status VARCHAR(20) DEFAULT 'iniciada' CHECK (status IN ('iniciada', 'em_andamento', 'concluida', 'cancelada')),
     quilometragem_inicial DECIMAL(10, 2),
     quilometragem_final DECIMAL(10, 2),
     quilometragem_total DECIMAL(10, 2),
