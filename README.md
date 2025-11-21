@@ -456,3 +456,19 @@ Para suporte técnico ou dúvidas:
 **Desenvolvido com ❤️ pela Equipe de Desenvolvimento**
 
 *Última atualização: Janeiro 2024*
+
+## 🧭 Scripts de Conveniência
+
+Para facilitar execução e manutenção, há um conjunto de wrappers em `teste/scripts/` (nomes em português):
+
+- `iniciar-desenvolvimento.sh` / `iniciar-desenvolvimento.cmd` — iniciar o servidor em modo desenvolvimento com `DEMO_MODE=true` e CORS para `localhost`.
+- `iniciar-producao.sh` — subir a stack de produção via `docker-compose.prod.yml`.
+- `db/migrar.sh` — executar migrations (`knex migrate:latest`).
+- `db/reverter-migracoes.sh` — reverter última batch de migrations.
+- `db/seed.sh` — executar seeds via `database/run-seed.js`.
+- `backup-bd.sh` — gerar dump do Postgres para `teste/backups/`.
+- `limpar-logs.sh` — compactar logs antigos (padrão 30 dias).
+- `verificar-saude.sh` — healthcheck simples para uso em CI/monitoramento.
+- `deploy-cd.sh` — wrapper de CI/CD (testes -> build -> docker-compose up).
+
+Use estes scripts como ponto único de entrada para tarefas operacionais. Leia e audite cada script antes de executar em produção.

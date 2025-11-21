@@ -31,11 +31,16 @@ const authenticateToken = async (ctx, next) => {
             return;
         }
 
-        // Token de desenvolvimento - APENAS se explicitamente habilitado
-        const DEV_TOKEN_ENABLED = process.env.ALLOW_DEV_TOKEN === 'true';
+        // Token de desenvolvimento / demo - habilitar se ALLOW_DEV_TOKEN=true ou DEMO_MODE=true
+        const DEV_TOKEN_ENABLED = process.env.ALLOW_DEV_TOKEN === 'true' || process.env.DEMO_MODE === 'true';
         const DEV_TOKEN = process.env.DEV_TOKEN || 'dev_token_responsavel_teste';
-        
-        if (token === DEV_TOKEN && DEV_TOKEN_ENABLED && process.env.NODE_ENV !== 'production') {
+        // Token literal adicional usado pelo modo demo
+        const DEMO_LITERAL_TOKEN = 'demo_token_responsavel';
+
+        const allowedDevTokens = [DEV_TOKEN];
+        if (process.env.DEMO_MODE === 'true') allowedDevTokens.push(DEMO_LITERAL_TOKEN);
+
+        if (DEV_TOKEN_ENABLED && allowedDevTokens.includes(token) && process.env.NODE_ENV !== 'production') {
             // Log de segurança
             logger.warn('⚠️  Token de desenvolvimento usado', {
                 ip: ctx.ip,

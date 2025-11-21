@@ -81,3 +81,19 @@ node scripts/deployment/production/deploy.js
 - **SEMPRE** faça backup antes de executar scripts de database
 - **VERIFIQUE** as variáveis de ambiente antes da execução
 - **TESTE** scripts em ambiente de staging primeiro
+
+## 🧭 Wrappers recomendados (criados em `teste/scripts/`)
+
+Coloquei wrappers de conveniência em `teste/scripts/` para operações comuns:
+
+- `iniciar-desenvolvimento.sh` / `iniciar-desenvolvimento.cmd`: inicia o servidor em modo desenvolvimento com `DEMO_MODE=true` e CORS ajustado para `localhost`.
+- `iniciar-producao.sh`: sobe stack de produção via `docker-compose.prod.yml`.
+- `db/migrar.sh`: executa `knex migrate:latest` no backend.
+- `db/reverter-migracoes.sh`: reverte última batch de migrations.
+- `db/seed.sh`: executa `database/run-seed.js` (se presente).
+- `backup-bd.sh`: cria dump do Postgres para `teste/backups/` com timestamp.
+- `limpar-logs.sh`: compacta logs antigos (padrão 30 dias).
+- `verificar-saude.sh`: healthcheck simples (usa `/api/health`).
+- `deploy-cd.sh`: fluxo simples para CI/CD (testes -> build -> docker-compose up).
+
+Use estes wrappers como ponto único de entrada para tarefas operacionais. Leia e audite cada script antes de executar em produção.
