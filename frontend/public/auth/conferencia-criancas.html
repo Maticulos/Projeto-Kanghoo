@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/bundle.min.css">
+    <script src="/api/config.js"></script>
     <style>
         :root {
             --primary-color: #007bff;
@@ -501,8 +502,10 @@
 
     <script>
         // Configuração da API
-        const API_BASE_URL = 'http://localhost:3001/api';
-        const WS_URL = 'ws://localhost:3001';
+        const API_BASE_URL = (window.APP_CONFIG?.apiBasePath) || '/api';
+        const WS_URL = (window.APP_CONFIG?.wsBaseUrl) 
+            ? `${window.APP_CONFIG.wsBaseUrl}` 
+            : `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}`;
         let viagemAtiva = null;
         let criancasList = [];
         let websocket = null;
@@ -934,7 +937,7 @@
                     'Authorization': `Bearer ${token}`
                 },
                 ...options
-            };
+                const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
 
             try {
                 const response = await fetch(`${API_BASE_URL}${endpoint}`, config);

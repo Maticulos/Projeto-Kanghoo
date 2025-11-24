@@ -1,7 +1,7 @@
 const Router = require('koa-router');
 
 module.exports = function mountRoutes() {
-  const router = new Router();
+  const router = new Router({ prefix: '/api' });
 
   // Importar e montar todos os sub-routers existentes
   const motoristaEscolarRoutes = require('./motorista-escolar');
@@ -25,6 +25,8 @@ module.exports = function mountRoutes() {
   const authRoutes = require('./auth');
   const validateTokenRoutes = require('./validate-token');
   const contactRoutes = require('./contact');
+  const configRoutes = require('./config');
+  const transportesAtivosRoutes = require('./transportes-ativos');
 
   [
     motoristaEscolarRoutes,
@@ -47,7 +49,9 @@ module.exports = function mountRoutes() {
     devToolsRoutes,
     authRoutes,
     validateTokenRoutes,
-    contactRoutes
+    contactRoutes,
+    configRoutes,
+    transportesAtivosRoutes
   ].forEach((sub) => {
     if (sub && sub.routes) {
       router.use(sub.routes());

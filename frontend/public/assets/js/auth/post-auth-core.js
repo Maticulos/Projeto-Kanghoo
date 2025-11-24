@@ -1,6 +1,9 @@
 (function () {
     const toastHostId = 'post-auth-toast-host';
     const AUTH_TIMEOUT_MS = 4000;
+    const APP_CONFIG = window.APP_CONFIG || {};
+    const DEMO_MODE = !!APP_CONFIG.demoMode;
+    const API_BASE = APP_CONFIG.apiBasePath || "/api";
 
     async function fetchWithTimeout(resource, options = {}, timeout = AUTH_TIMEOUT_MS) {
         const controller = new AbortController();
@@ -32,32 +35,37 @@
     }
 
     async function ensureAuthContext() {
-        const token = localStorage.getItem('authToken');
+        const token = localStorage.getItem("authToken");
         if (!token) {
-            window.location.href = 'login.html';
+            if (!DEMO_MODE) {
+                window.location.href = "login.html";
+            }
             return null;
         }
-
         try {
-            const response = await fetchWithTimeout('/api/validate-token', {
-                method: 'POST',
+            const response = await fetchWithTimeout(`${API_BASE}/validate-token`, {
+                method: "POST",
                 headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
                 }
             });
-
-            if (!response.ok) throw new Error('Token inválido');
+            if (!response.ok) throw new Error("Token invalido");
             const data = await response.json();
-            if (!data.valid) throw new Error('Sessão expirada');
+            if (!data.valid) throw new Error("Sessao expirada");
             return data.user;
         } catch (error) {
-            if (error.name === 'AbortError') {
-                console.warn('[PostAuth] Validação do token demorou demais, prosseguindo em modo offline.');
+            if (error.name === "AbortError") {
+                console.warn("[PostAuth] Validacao do token demorou demais.");
             } else {
-                console.warn('[PostAuth] Falha na validação do token:', error.message);
+                console.warn("[PostAuth] Falha na validacao do token:", error.message);
             }
-            // Mantemos o usuário na página para ambientes offline/demonstração
+            if (!DEMO_MODE) {
+                localStorage.removeItem("authToken");
+                window.location.href = "login.html";
+                return null;
+            }
+            console.warn("[PostAuth] DEMO_MODE ativo: prosseguindo em modo offline/demonstracao.");
             return null;
         }
     }
@@ -161,12 +169,87 @@
         });
     }
 
+    // === Chat / Notificações (WS ou demo) ===
+    const chatListeners = [];
+    let chatTimer = null;
+
+    function initChat(channelId) {
+        const token = localStorage.getItem('authToken');
+        const useDemo = DEMO_MODE || !token || !window.RealtimeClient;
+        if (useDemo) {
+            startDemoChat(channelId);
+            return { send: (msg) => sendDemoMessage(channelId, msg), stop: stopDemoChat };
+        }
+        const client = new window.RealtimeClient({ serverUrl: `${API_BASE.replace(/^http/, 'ws')}/ws` });
+        client.initialize(token).catch(() => startDemoChat(channelId));
+        client.on('message', (payload) => dispatchChatMessage(payload));
+        return {
+            send: (msg) => client.send('chat_message', { canal: channelId, mensagem: msg }),
+            stop: () => client.disconnect()
+        };
+    }
+
+    function onChatMessage(fn) {
+        if (typeof fn === 'function') chatListeners.push(fn);
+    }
+
+    function dispatchChatMessage(payload) {
+        chatListeners.forEach(fn => {
+            try { fn(payload); } catch (_) {}
+        });
+    }
+
+    function startDemoChat(channelId) {
+        stopDemoChat();
+        chatTimer = setInterval(() => {
+            dispatchChatMessage({
+                canal: channelId,
+                origem: 'responsavel',
+                mensagem: 'Mensagem automática (demo) para ilustrar o chat.',
+                ts: Date.now()
+            });
+        }, 9000);
+    }
+
+    function sendDemoMessage(channelId, mensagem) {
+        dispatchChatMessage({ canal: channelId, origem: 'motorista', mensagem, ts: Date.now() });
+        setTimeout(() => {
+            dispatchChatMessage({ canal: channelId, origem: 'responsavel', mensagem: 'Recebido! (demo)', ts: Date.now() });
+        }, 1200);
+    }
+
+    function stopDemoChat() {
+        if (chatTimer) clearInterval(chatTimer);
+        chatTimer = null;
+    }
+
+    function notifyEvent(evento) {
+        const payload = { ...evento, ts: Date.now() };
+        if (DEMO_MODE) {
+            showToast(`Notificação demo: ${payload.tipo || 'evento'}`, 'info');
+            return Promise.resolve();
+        }
+        const token = localStorage.getItem('authToken');
+        if (!token) return Promise.resolve();
+        return fetch(`${API_BASE}/notificacoes/hub`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        }).catch(err => console.warn('Notificação não enviada:', err));
+    }
+
     window.PostAuth = {
         ensureAuthContext,
         animateCounter,
         observe,
         showToast,
         createTicker,
-        bindTilt
+        bindTilt,
+        initChat,
+        onChatMessage,
+        notifyEvent
     };
 })();

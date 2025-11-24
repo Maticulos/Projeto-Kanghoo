@@ -1,249 +1,43 @@
-# ========================================
-# DOCKER COMPOSE - SISTEMA DE TRANSPORTE ESCOLAR
-# ========================================
-# Orquestração completa dos serviços da aplicação
-
 version: '3.8'
 
 services:
-  # ========================================
-  # APLICAÇÃO PRINCIPAL
-  # ========================================
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: transporte-escolar-app
-    ports:
-      - "${PORT:-5000}:5000"
-    environment:
-      - NODE_ENV=${NODE_ENV:-production}
-      - PORT=5000
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_NAME=${DB_NAME:-kanghoo_db_prod}
-      - DB_USER=${DB_USER:-postgres}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DATABASE_URL=postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@postgres:${DB_PORT:-5432}/${DB_NAME:-kanghoo_db_prod}
-      - JWT_SECRET=${JWT_SECRET}
-      - RATE_LIMIT_WINDOW_MS=${RATE_LIMIT_WINDOW_MS:-900000}
-      - RATE_LIMIT_MAX_REQUESTS=${RATE_LIMIT_MAX_REQUESTS:-100}
-      
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    volumes:
-      - ./uploads:/app/uploads
-      - ./logs:/app/logs
-    networks:
-      - transporte-network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-
-  # ========================================
-  # BANCO DE DADOS POSTGRESQL
-  # ========================================
   postgres:
-    image: postgres:14-alpine
-    container_name: transporte-escolar-db
+    image: postgres:15-alpine
+    container_name: kanghoo-postgres
     environment:
-      POSTGRES_DB: ${DB_NAME:-transporte_escolar}
-      POSTGRES_USER: ${DB_USER:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=pt_BR.UTF-8 --lc-ctype=pt_BR.UTF-8"
+      POSTGRES_DB: kanghoo_db_prod
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./database/init.sql:/docker-entrypoint-initdb.d/01_full_init_and_seed.sql:ro
-    ports:
-      - "${DB_PORT:-5432}:5432"
-    networks:
-      - transporte-network
-    restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-transporte_escolar}"]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # ========================================
-  # REDIS PARA CACHE E SESSÕES
-  # ========================================
-  redis:
-    image: redis:7-alpine
-    container_name: transporte-escolar-redis
-    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis123}
+  app:
+    image: node:24-alpine
+    container_name: kanghoo-app
+    working_dir: /app/server
+    command: sh -c "npm install && npm start"
+    ports:
+      - "5000:5000"
+      - "8080:8080"
     volumes:
-      - redis_data:/data
-    ports:
-      - "${REDIS_PORT:-6379}:6379"
-    networks:
-      - transporte-network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
-      interval: 10s
-      timeout: 3s
-      retries: 5
-
-  # ========================================
-  # NGINX REVERSE PROXY
-  # ========================================
-  nginx:
-    image: nginx:alpine
-    container_name: transporte-escolar-nginx
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/ssl:/etc/nginx/ssl:ro
-      - ./logs/nginx:/var/log/nginx
-    depends_on:
-      - app
-    networks:
-      - transporte-network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # ========================================
-  # MONITORAMENTO COM PROMETHEUS
-  # ========================================
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: transporte-escolar-prometheus
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - prometheus_data:/prometheus
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
-      - '--storage.tsdb.retention.time=200h'
-      - '--web.enable-lifecycle'
-    networks:
-      - transporte-network
-    restart: unless-stopped
-    profiles:
-      - monitoring
-
-  # ========================================
-  # GRAFANA PARA DASHBOARDS
-  # ========================================
-  grafana:
-    image: grafana/grafana:latest
-    container_name: transporte-escolar-grafana
-    ports:
-      - "3001:3000"
+      - ./:/app
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin123}
-      - GF_USERS_ALLOW_SIGN_UP=false
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
-      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
-      - ./monitoring/grafana/grafana.ini:/etc/grafana/grafana.ini:ro
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=kanghoo_db_prod
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - PORT=5000
     depends_on:
-      - prometheus
-    networks:
-      - transporte-network
-    restart: unless-stopped
-    profiles:
-      - monitoring
+      postgres:
+        condition: service_healthy
 
-  # ========================================
-  # NODE EXPORTER - MÉTRICAS DO SISTEMA
-  # ========================================
-  node-exporter:
-    image: prom/node-exporter:latest
-    container_name: transporte-escolar-node-exporter
-    ports:
-      - "9100:9100"
-    volumes:
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-      - /:/rootfs:ro
-    command:
-      - '--path.procfs=/host/proc'
-      - '--path.rootfs=/rootfs'
-      - '--path.sysfs=/host/sys'
-      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
-    networks:
-      - transporte-network
-    restart: unless-stopped
-    profiles:
-      - monitoring
-
-  # ========================================
-  # POSTGRES EXPORTER - MÉTRICAS DO BANCO
-  # ========================================
-  postgres-exporter:
-    image: prometheuscommunity/postgres-exporter:latest
-    container_name: transporte-escolar-postgres-exporter
-    ports:
-      - "9187:9187"
-    environment:
-      - DATA_SOURCE_NAME=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres123}@postgres:5432/${POSTGRES_DB:-transporte_escolar}?sslmode=disable
-    depends_on:
-      - postgres
-    networks:
-      - transporte-network
-    restart: unless-stopped
-    profiles:
-      - monitoring
-
-  # ========================================
-  # REDIS EXPORTER - MÉTRICAS DO CACHE
-  # ========================================
-  redis-exporter:
-    image: oliver006/redis_exporter:latest
-    container_name: transporte-escolar-redis-exporter
-    ports:
-      - "9121:9121"
-    environment:
-      - REDIS_ADDR=redis://redis:6379
-    depends_on:
-      - redis
-    networks:
-      - transporte-network
-    restart: unless-stopped
-    profiles:
-      - monitoring
-
-# ========================================
-# VOLUMES PERSISTENTES
-# ========================================
 volumes:
   postgres_data:
-    driver: local
-    name: transporte_postgres_data
-  redis_data:
-    driver: local
-    name: transporte_redis_data
-  prometheus_data:
-    driver: local
-    name: transporte_prometheus_data
-  grafana_data:
-    driver: local
-    name: transporte_grafana_data
-
-# ========================================
-# REDE PERSONALIZADA
-# ========================================
-networks:
-  transporte-network:
-    driver: bridge
-    name: transporte-escolar-network

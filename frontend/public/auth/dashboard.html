@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Kanghoo</title>
     <link rel="stylesheet" href="../assets/css/bundle.min.css">
+    <script src="/api/config.js"></script>
 </head>
 <body class="form-page">
     <main class="form-container">
@@ -14,41 +15,27 @@
             <button id="logout-button" class="btn btn-logout">Sair (Logout)</button>
         </div>
     </main>
-
-    <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const token = localStorage.getItem('authToken');
-
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+    const token = localStorage.getItem("authToken");
+    const apiBase = (window.APP_CONFIG?.apiBasePath) || "/api";
     if (!token) {
-        window.location.href = 'login.html';
+        if (!window.APP_CONFIG?.demoMode) {
+            window.location.href = "login.html";
+            return;
+        }
+    }
+    const payload = token ? JSON.parse(atob(token.split(".")[1])) : { tipo: "demo" };
+    if (payload.tipo === "motorista_escolar" || payload.tipo === "motorista_escolar_excursao") {
+        window.location.href = "area-motorista-escolar.html";
+        return;
+    } else if (payload.tipo === "motorista_excursao" || payload.tipo === "motorista_escolar_excursao") {
+        window.location.href = "area-motorista-excursao.html";
+        return;
+    } else if (payload.tipo === "responsavel") {
+        window.location.href = "area-responsavel.html";
         return;
     }
-
-    try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        
-        if (payload.tipo === 'motorista_escolar' || payload.tipo === 'motorista_escolar_excursao') {
-            window.location.href = 'area-motorista-escolar.html';
-        } else if (payload.tipo === 'motorista_excursao' || payload.tipo === 'motorista_escolar_excursao') {
-            window.location.href = 'area-motorista-excursao.html';
-        } else if (payload.tipo === 'responsavel') {
-            window.location.href = 'area-responsavel.html';
-        } else {
-            alert('Tipo de usu√°rio n√£o reconhecido!');
-            localStorage.removeItem('authToken');
-            window.location.href = 'login.html';
-        }
-
-    } catch (error) {
-        console.error('Erro ao decodificar token ou redirecionar:', error);
-        localStorage.removeItem('authToken');
-        window.location.href = 'login.html';
-    }
+    document.getElementById("welcome-message").textContent = "Modo demonstraÁ„o - escolha seu perfil";
 });
-        // For√ßa o tema claro para garantir visibilidade adequada
-        document.documentElement.setAttribute('data-theme', 'light');
-        document.body.classList.remove('dark-theme');
-        document.body.classList.add('light-theme');
-    </script>
-</body>
-</html>
+</script>

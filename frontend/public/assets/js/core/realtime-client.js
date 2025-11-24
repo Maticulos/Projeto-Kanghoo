@@ -18,6 +18,7 @@
 
 class RealtimeClient {
     constructor(options = {}) {
+        this.apiBase = (window.APP_CONFIG?.apiBasePath) || '/api';
         this.options = {
             serverUrl: options.serverUrl || 'ws://localhost:8080/ws',
             reconnectInterval: options.reconnectInterval || 5000,
@@ -445,7 +446,7 @@ class RealtimeClient {
      */
     async pollForUpdates() {
         try {
-            const response = await fetch('/api/notifications/poll', {
+            const response = await fetch(`${this.apiBase}/notifications/poll`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${this.authToken}`,

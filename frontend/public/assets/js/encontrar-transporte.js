@@ -1,13 +1,15 @@
-/**
+﻿/**
  * Funcionalidades da página Encontrar Transporte
  * Versão melhorada com validação, filtros avançados e UX aprimorada
  */
 
 class TransporteFinder {
     constructor() {
+        this.apiBase = (window.APP_CONFIG?.apiBasePath) || '/api';
         this.currentTransportType = 'escolar';
         this.currentResults = [];
         this.filteredResults = [];
+        this.activeVehicles = [];
         this.currentPage = 1;
         this.resultsPerPage = 10;
         this.isLoading = false;
@@ -362,8 +364,8 @@ class TransporteFinder {
             this.currentPage = 1;
             this.loadResults();
 
-            // Atualizar o mapa com markers
-            this.updateMapMarkersFromApi(rotas);
+            await this.loadActiveVehicles();
+            this.updateMapMarkersFromApi(rotas, this.filterActiveVehicles(this.activeVehicles));
 
             this.hideLoading();
             this.showSuccess(`${rotas.length} transportes encontrados!`);
@@ -408,7 +410,7 @@ class TransporteFinder {
         params.set('page', filtros.page);
         params.set('limit', filtros.limit);
 
-        const url = `/api/buscar-rotas?${params.toString()}`;
+        const url = `${this.apiBase}/buscar-rotas?${params.toString()}`;
         const res = await fetch(url);
         if (!res.ok) {
             throw new Error(`Erro na API (${res.status})`);
@@ -458,6 +460,8 @@ class TransporteFinder {
                 : this.gerarResultadosExcursoes();
             this.filteredResults = [...this.currentResults];
             this.loadResults();
+            await this.loadActiveVehicles();
+            this.updateMapMarkersFromApi([], this.filterActiveVehicles(this.activeVehicles));
         }
     }
 
@@ -485,8 +489,8 @@ class TransporteFinder {
             this.currentPage = 1;
             this.loadResults();
 
-            // Atualiza mapa
-            this.updateMapMarkersFromApi(rotas);
+            await this.loadActiveVehicles();
+            this.updateMapMarkersFromApi(rotas, this.filterActiveVehicles(this.activeVehicles));
 
             this.updateResultsCount();
         } catch (e) {
@@ -722,30 +726,70 @@ class TransporteFinder {
         this.showSuccess('Filtros limpos com sucesso!');
     }
 
-    updateMapMarkersFromApi(rotas) {
+    
+        filterActiveVehicles(list = []) {
+        const filtros = this.obterFiltros?.() || null;
+        if (!filtros) return list;
+        return list.filter(v => {
+            const pseudo = {
+                capacidade: v.capacidade ? `Até ${v.capacidade}` : (v.disponibilidade || v.capacidade_maxima || ''),
+                preco: v.preco ? `R$ ${v.preco}` : (v.valor_mensal ? `R$ ${v.valor_mensal}` : ''),
+                caracteristicas: (v.caracteristicas || v.features || 'rastreamento gps').toString().toLowerCase()
+            };
+            try {
+                return this.aplicarFiltroItem(pseudo, filtros);
+            } catch (_) {
+                return true;
+            }
+        });
+    }
+
+    updateMapMarkersFromApi(rotas, vehicles = []) {
         try {
             if (!window.mapsIntegration) return;
             window.mapsIntegration.clearMarkers();
-            const transports = rotas.map(r => ({
-                id: r.id,
-                name: r.nome_rota || 'Rota escolar',
-                type: 'escolar',
-                position: (r.latitude_origem && r.longitude_origem) ? [r.latitude_origem, r.longitude_origem] : null,
-                rating: r.media_avaliacoes || 4.7,
-                reviews: r.total_avaliacoes || 0,
-                price: r.valor_mensal ? `R$ ${r.valor_mensal}/mês` : '-',
-                capacity: r.capacidade_maxima ? `Até ${r.capacidade_maxima} crianças` : '-',
-                features: ['Rastreamento GPS']
+            const baseLatLng = window.mapsIntegration?.userLocation || [-23.5505, -46.6333];
+            const filteredVehicles = this.filterActiveVehicles(vehicles);
+            const transports = rotas.map((r, idx) => {
+                let position = null;
+                if (r.latitude_origem && r.longitude_origem) {
+                    position = [Number(r.latitude_origem), Number(r.longitude_origem)];
+                } else if (window.APP_CONFIG?.demoMode) {
+                    const jitter = 0.01 * (idx + 1);
+                    position = [baseLatLng[0] + jitter, baseLatLng[1] + jitter];
+                }
+                return {
+                    id: r.id || `demo-${idx}`,
+                    name: r.nome_rota || "Rota escolar",
+                    type: r.tipo_rota || "escolar",
+                    position,
+                    rating: r.media_avaliacoes || 4.7,
+                    reviews: r.total_avaliacoes || 0,
+                    price: r.valor_mensal ? `R$ ${r.valor_mensal}/mês` : "-",
+                    capacity: r.capacidade_maxima ? `Até ${r.capacidade_maxima} crianças` : "-",
+                    features: ["Rastreamento GPS"]
+                };
+            }).filter(t => Array.isArray(t.position));
+            const vehicleMarkers = filteredVehicles.map((v, idx) => ({
+                id: v.id || `veh-${idx}`,
+                name: v.nome || 'Transporte ativo',
+                type: v.tipo || 'escolar',
+                position: (v.latitude && v.longitude) ? [Number(v.latitude), Number(v.longitude)] : null,
+                rating: v.avaliacao || v.avaliacao_media || 4.7,
+                reviews: v.reviews || v.total_avaliacoes || 0,
+                price: v.preco ? `R$ ${v.preco}` : (v.valor_mensal ? `R$ ${v.valor_mensal}/mes` : '-'),
+                capacity: v.capacidade ? `Até ${v.capacidade} passageiros` : (v.disponibilidade || '-'),
+                availability: v.disponibilidade || v.status || '-',
+                features: ['Localizacao em tempo real']
             })).filter(t => Array.isArray(t.position));
-
-            transports.forEach(t => window.mapsIntegration.addTransportMarker(t));
-
-            if (transports.length > 0) {
+            [...transports, ...vehicleMarkers].forEach(t => window.mapsIntegration.addTransportMarker(t));
+            if (transports.length + vehicleMarkers.length > 0) {
                 window.mapsIntegration.centerOnResults();
             }
         } catch (e) {
-            console.warn('Falha ao atualizar marcadores do mapa:', e);
+            console.warn("Falha ao atualizar marcadores do mapa:", e);
         }
+    }
     }
 
     criarCardResultado(resultado) {
@@ -1273,3 +1317,8 @@ function limparFiltros() {
 function ordenarResultados() {
     window.transporteFinder?.ordenarResultados();
 }
+
+
+
+
+

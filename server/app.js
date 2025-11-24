@@ -79,11 +79,18 @@ const staticCandidates = [
   path.join(__dirname, './frontend/public'),
   path.join(__dirname, './frontend'),
   path.join(__dirname, './public'),
+  '/app/frontend/public', // Docker path
+  '/app/frontend',
 ];
 
 staticCandidates.forEach((dir) => {
   if (fs.existsSync(dir)) {
-    app.use(serve(dir));
+    logger.info(`Serving static files from: ${dir}`);
+    app.use(serve(dir, {
+      maxage: process.env.NODE_ENV === 'production' ? 1000 * 60 * 60 * 24 * 7 : 0, // 7 days cache in production
+      gzip: true,
+      brotli: true
+    }));
   }
 });
 
