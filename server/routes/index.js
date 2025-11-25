@@ -1,7 +1,7 @@
 const Router = require('koa-router');
 
 module.exports = function mountRoutes() {
-  const router = new Router();
+  const router = new Router({ prefix: '/api' });
 
   // Importar e montar todos os sub-routers existentes
   const motoristaEscolarRoutes = require('./motorista-escolar');
@@ -25,6 +25,7 @@ module.exports = function mountRoutes() {
   const authRoutes = require('./auth');
   const validateTokenRoutes = require('./validate-token');
   const contactRoutes = require('./contact');
+<<<<<<< HEAD
   const publicTransportesRoutes = require('./public-transportes');
     const viagensRoutes = require('./viagens');
     const veiculosRoutes = require('./veiculos');
@@ -71,6 +72,37 @@ module.exports = function mountRoutes() {
       validateTokenRoutes,
       contactRoutes
     ].forEach((sub) => {    if (sub && sub.routes) {
+=======
+  const configRoutes = require('./config');
+  const transportesAtivosRoutes = require('./transportes-ativos');
+
+  [
+    motoristaEscolarRoutes,
+    responsavelRoutes,
+    trackingApiRoutes,
+    rastreamentoRoutes,
+    transportesRoutes,
+    notificationPreferencesRoutes,
+    rotasEscolaresRoutes,
+    planosAssinaturaRoutes,
+    buscarRotasRoutes,
+    conferenciaCriancasRoutes,
+    rastreamentoGpsRoutes,
+    googleMapsApiRoutes,
+    gpsTrackingApiRoutes,
+    mapsConfigRoutes,
+    motoristaExcursaoRoutes,
+    posicaoCriancasRoutes,
+    atualizacaoPosicaoRoutes,
+    devToolsRoutes,
+    authRoutes,
+    validateTokenRoutes,
+    contactRoutes,
+    configRoutes,
+    transportesAtivosRoutes
+  ].forEach((sub) => {
+    if (sub && sub.routes) {
+>>>>>>> 7e3033439b6ddb76a0413d080f32ee1cb52d2502
       router.use(sub.routes());
     }
   });

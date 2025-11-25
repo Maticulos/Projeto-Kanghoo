@@ -1,3 +1,10 @@
+﻿const APP_CONFIG = window.APP_CONFIG || {};
+const API_BASE = APP_CONFIG.apiBasePath || '/api';
+const DEMO_MODE = !!APP_CONFIG.demoMode;
+let activeTripId = null;
+let chatClient = null;
+let pendingAbsence = null;
+
 const excursionData = {
     status: {
         destination: 'Campos do Jordão',
@@ -41,10 +48,52 @@ const excursionData = {
     }
 };
 
-document.addEventListener('DOMContentLoaded', async () => {
+function bindLogoutButton() {
+    const btn = document.getElementById("logout-btn");
+    if (btn) {
+        btn.addEventListener("click", () => {
+            localStorage.removeItem("authToken");
+            window.location.href = "login.html";
+        });
+    }
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
     await PostAuth.ensureAuthContext();
+    bindLogoutButton();
+    // Em produção, aqui poderíamos carregar viagens/rotas reais
+    await loadRealData();
     buildExcursionPage();
 });
+
+async function loadRealData() {
+    if (DEMO_MODE) return;
+    const token = localStorage.getItem('authToken');
+    if (!token) return;
+    try {
+        const res = await fetch(`${API_BASE}/rastreamento/historico?pagina=1&limite=5`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        const hist = data?.historico || [];
+        if (hist.length) {
+            excursionData.trips = hist.map((v) => ({
+                date: v.data_viagem || '',
+                destination: v.nome_rota || v.rota_id || 'Viagem',
+                passengers: v.total_criancas || '-',
+                distance: '-',
+                status: v.status || 'em andamento',
+                rating: ''
+            }));
+            excursionData.status.destination = hist[0].nome_rota || excursionData.status.destination;
+        }
+    } catch (e) {
+        console.warn('Falha ao carregar viagens reais, mantendo demo:', e);
+    }
+}
 
 function buildExcursionPage() {
     renderStatus();
@@ -55,6 +104,8 @@ function buildExcursionPage() {
     renderCharts();
     setupSheet();
     setupActions();
+    setupChatUi();
+    setupAbsenceModal();
     PostAuth.observe(document.querySelectorAll('[data-animate]'));
 }
 
@@ -128,7 +179,7 @@ function renderHistory() {
             <td>${trip.passengers}</td>
             <td>${trip.distance}</td>
             <td><span class="badge success">${trip.status}</span></td>
-            <td>⭐ ${trip.rating}</td>
+            <td>★ ${trip.rating}</td>
         </tr>
     `).join('');
 }
@@ -197,9 +248,73 @@ function setupSheet() {
 }
 
 function setupActions() {
-    document.querySelector('[data-action="start-trip"]')?.addEventListener('click', () => {
-        PostAuth.showToast('Excursão iniciada. Dados sincronizados com os responsáveis.', 'success');
-    });
+    const startBtn = document.querySelector('[data-action="start-trip"]');
+    if (startBtn) {
+        startBtn.addEventListener('click', async () => {
+            if (DEMO_MODE) {
+                activeTripId = 'demo-trip';
+                PostAuth.showToast('Excursão iniciada (demo). Dados simulados sincronizados.', 'success');
+                return;
+            }
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+            try {
+                const res = await fetch(`${API_BASE}/rastreamento/viagens/iniciar`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ rota_id: excursionData?.status?.rota_id || 1, tipo_viagem: 'ida' })
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const payload = await res.json().catch(() => ({}));
+                activeTripId = payload.viagem_id || payload.id || payload.data?.id || activeTripId;
+                PostAuth.showToast('Excursão iniciada.', 'success');
+                initChatChannel();
+            } catch (err) {
+                PostAuth.showToast('Não foi possível iniciar a excursão.', 'danger');
+            }
+        });
+    }
+
+    const finishBtn = document.querySelector('[data-action="finish-trip"]');
+    if (finishBtn) {
+        finishBtn.addEventListener('click', async () => {
+            if (DEMO_MODE) {
+                PostAuth.showToast('Excursão finalizada (demo).', 'success');
+                return;
+            }
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+            const tripId = activeTripId || excursionData?.status?.viagem_id || excursionData?.trips?.[0]?.id;
+            if (!tripId) {
+                PostAuth.showToast('Nenhuma viagem ativa encontrada para finalizar.', 'warning');
+                return;
+            }
+            try {
+                const res = await fetch(`${API_BASE}/rastreamento/viagens/${tripId}/finalizar`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                PostAuth.showToast('Excursão finalizada.', 'success');
+                activeTripId = null;
+                updateChatChannelLabel();
+            } catch (_) {
+                PostAuth.showToast('Falha ao finalizar excursão.', 'danger');
+            }
+        });
+    }
 
     document.getElementById('add-passenger')?.addEventListener('click', () => {
         PostAuth.showToast('Funcionalidade de adicionar passageiros em breve.', 'info');
@@ -217,9 +332,113 @@ function setupActions() {
 function togglePassengerStatus(id) {
     const passenger = excursionData.passengers.find(item => item.id === id);
     if (!passenger) return;
-    passenger.status = passenger.status === 'checked-in' ? 'checked-out' : 'checked-in';
-    renderPassengers();
-    PostAuth.showToast(`Status de ${passenger.name} atualizado.`, 'success');
+    if (passenger.status === 'checked-in') {
+        pendingAbsence = passenger;
+        openAbsenceModal();
+    } else {
+        passenger.status = 'checked-in';
+        renderPassengers();
+        publishPassengerStatus(passenger);
+        PostAuth.showToast(`Status de ${passenger.name} atualizado.`, 'success');
+    }
+}
+
+async function publishPassengerStatus(passenger) {
+    if (DEMO_MODE || !activeTripId) return;
+    const token = localStorage.getItem('authToken');
+    if (!token) return;
+    const endpoint = passenger.status === 'checked-in' ? 'embarque' : 'desembarque';
+    const body = {
+        viagem_id: activeTripId,
+        crianca_id: passenger.id,
+        presente: passenger.status === 'checked-in',
+        motivo: passenger.status === 'checked-in' ? '' : 'Ausente informado pelo motorista'
+    };
+    try {
+        await fetch(`${API_BASE}/conferencia/${endpoint}`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body)
+        });
+        PostAuth.notifyEvent({
+            tipo: endpoint,
+            viagem_id: activeTripId,
+            crianca_id: passenger.id,
+            presente: passenger.status === 'checked-in'
+        });
+    } catch (err) {
+        console.warn('Checklist nao sincronizado:', err);
+    }
+}
+
+function setupChatUi() {
+    const form = document.getElementById('chat-form');
+    const input = document.getElementById('chat-input');
+    const list = document.getElementById('chat-messages');
+    if (!form || !input || !list) return;
+
+    PostAuth.onChatMessage((payload) => {
+        if (payload.canal && payload.canal !== (activeTripId || 'demo-canal-excursao')) return;
+        const item = document.createElement('div');
+        item.className = `chat-bubble ${payload.origem === 'motorista' ? 'mine' : 'theirs'}`;
+        item.textContent = payload.mensagem || '';
+        list.appendChild(item);
+        list.scrollTop = list.scrollHeight;
+    });
+
+    form.addEventListener('submit', (evt) => {
+        evt.preventDefault();
+        if (!input.value.trim()) return;
+        if (chatClient?.send) chatClient.send(input.value.trim());
+        input.value = '';
+    });
+    initChatChannel();
+}
+
+function initChatChannel() {
+    const channel = activeTripId || 'demo-canal-excursao';
+    updateChatChannelLabel(channel);
+    chatClient = PostAuth.initChat(channel);
+}
+
+function updateChatChannelLabel(channel = null) {
+    const label = document.getElementById('chat-channel-label');
+    if (label) {
+        label.textContent = `Canal: ${channel || 'aguardando viagem'}`;
+    }
+}
+
+function setupAbsenceModal() {
+    const modal = document.getElementById('absence-modal');
+    if (!modal) return;
+    const cancel = document.getElementById('absence-cancel');
+    const confirm = document.getElementById('absence-confirm');
+    cancel?.addEventListener('click', closeAbsenceModal);
+    confirm?.addEventListener('click', () => {
+        if (!pendingAbsence) return closeAbsenceModal();
+        const reason = document.querySelector('input[name=\"absence-reason\"]:checked')?.value || 'Ausência';
+        const notes = document.getElementById('absence-notes')?.value || '';
+        pendingAbsence.status = 'checked-out';
+        pendingAbsence.motivo = `${reason}${notes ? ' - ' + notes : ''}`;
+        renderPassengers();
+        publishPassengerStatus(pendingAbsence);
+        PostAuth.showToast(`Ausência registrada: ${pendingAbsence.name}`, 'info');
+        pendingAbsence = null;
+        closeAbsenceModal();
+    });
+}
+
+function openAbsenceModal() {
+    const modal = document.getElementById('absence-modal');
+    if (modal) modal.style.display = 'flex';
+}
+
+function closeAbsenceModal() {
+    const modal = document.getElementById('absence-modal');
+    if (modal) modal.style.display = 'none';
 }
 
 function chartOptions() {
@@ -237,5 +456,5 @@ function chartOptions() {
                 grid: { color: 'rgba(255,255,255,0.06)' }
             }
         }
-    };
+    }
 }

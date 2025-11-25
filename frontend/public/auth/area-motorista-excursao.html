@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="../assets/css/auth/post-auth-shell.css">
     <link rel="stylesheet" href="../assets/css/auth/motorista-excursao.css">
+    <script src="/api/config.js"></script>
 </head>
 <body data-page="excursao">
     <div class="app-shell">
@@ -23,6 +24,9 @@
                     <p style="color: var(--text-muted); margin: 0;">Email: joao.silva@email.com</p>
                     <button class="btn btn-ghost" style="width:100%;margin-top:0.75rem;" id="update-avatar">
                         <i class="fa-solid fa-camera"></i> Atualizar foto
+                    </button>
+                    <button class="btn btn-ghost" id="logout-btn" style="width:100%;margin-top:0.5rem;">
+                        <i class="fa-solid fa-right-from-bracket"></i> Sair
                     </button>
                 </div>
 
@@ -132,6 +136,36 @@
         </div>
     </div>
 
+    <div class="chat-panel" id="chat-panel" aria-label="Chat com responsáveis">
+        <header>
+            <strong>Chat em tempo real</strong>
+            <small id="chat-channel-label">Canal: aguardando viagem</small>
+        </header>
+        <div class="chat-messages" id="chat-messages"></div>
+        <form id="chat-form">
+            <input type="text" id="chat-input" placeholder="Digite uma mensagem" autocomplete="off" />
+            <button type="submit"><i class="fa-solid fa-paper-plane"></i></button>
+        </form>
+    </div>
+
+    <div class="modal-backdrop" id="absence-modal" style="display:none;">
+        <div class="modal-card">
+            <h3>Registrar ausência</h3>
+            <p>Selecione um motivo e adicione detalhes se necessário.</p>
+            <div class="options">
+                <label><input type="radio" name="absence-reason" value="Doença" checked> Doença</label>
+                <label><input type="radio" name="absence-reason" value="Falta informada"> Falta informada</label>
+                <label><input type="radio" name="absence-reason" value="Atraso"> Atraso</label>
+                <label><input type="radio" name="absence-reason" value="Outro"> Outro</label>
+            </div>
+            <textarea id="absence-notes" rows="3" placeholder="Descrição opcional"></textarea>
+            <div class="modal-actions">
+                <button type="button" id="absence-cancel">Cancelar</button>
+                <button type="button" id="absence-confirm">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
     <div class="sheet" id="route-sheet">
         <div class="sheet-panel">
             <div class="panel-header">
@@ -180,6 +214,7 @@
     <div class="floating-actions">
         <button data-action="start-trip"><i class="fa-solid fa-play"></i></button>
         <button data-action="open-sheet"><i class="fa-solid fa-plus"></i></button>
+        <button data-action="finish-trip"><i class="fa-solid fa-square-check"></i></button>
     </div>
 
     <script src="../assets/js/vendors/chart.min.js"></script>

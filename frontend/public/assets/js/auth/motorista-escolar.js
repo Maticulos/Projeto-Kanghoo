@@ -1,4 +1,10 @@
-const baseStudents = [
+﻿const APP_CONFIG = window.APP_CONFIG || {};
+const API_BASE = APP_CONFIG.apiBasePath || '/api';
+const DEMO_MODE = !!APP_CONFIG.demoMode;
+let trackingInterval = null;
+let currentTripId = null;
+
+let baseStudents = [
     {
         name: 'Ana Clara Rocha',
         grade: '5º ano • Colégio Horizonte',
@@ -46,7 +52,7 @@ const baseStudents = [
     }
 ];
 
-const baseGuardians = [
+let baseGuardians = [
     {
         name: 'Marina Rocha',
         relation: 'Mãe da Ana Clara',
@@ -77,38 +83,235 @@ const baseGuardians = [
     }
 ];
 
-const baseRoutes = [
+let baseRoutes = [
     {
-        name: 'Van Azul • Zona Norte',
-        window: '07:00 - 09:05',
+        name: "Van Azul - Zona Norte",
+        window: "07:00 - 09:05",
         students: 26,
         occupancy: 0.82,
-        status: 'Em preparação',
-        checkpoint: '18/26 check-ins confirmados',
-        trend: '+2 novos interessados',
-        emphasis: 'primary'
+        status: "Em preparacao",
+        checkpoint: "18/26 check-ins confirmados",
+        trend: "+2 novos interessados",
+        emphasis: "primary"
     },
     {
-        name: 'Circuito Leste',
-        window: '10:30 - 12:00',
+        name: "Circuito Leste",
+        window: "10:30 - 12:00",
         students: 14,
         occupancy: 0.58,
-        status: 'Aguardando pais',
-        checkpoint: 'Checklist liberado',
-        trend: 'Último atraso há 12 dias',
-        emphasis: 'neutral'
+        status: "Aguardando pais",
+        checkpoint: "Checklist liberado",
+        trend: "Ultimo atraso ha 12 dias",
+        emphasis: "neutral"
     },
     {
-        name: 'Retorno Vespertino',
-        window: '16:10 - 18:45',
+        name: "Retorno Vespertino",
+        window: "16:10 - 18:45",
         students: 24,
         occupancy: 0.91,
-        status: 'Planejado',
-        checkpoint: 'Plano revisado',
-        trend: '2 lembretes agendados',
-        emphasis: 'success'
+        status: "Planejado",
+        checkpoint: "Plano revisado",
+        trend: "2 lembretes agendados",
+        emphasis: "success"
     }
 ];
+
+const liveState = { routes: [], students: [] };
+let currentRouteId = null;
+
+async function loadLiveData() {
+    if (DEMO_MODE) return;
+    const token = localStorage.getItem('authToken');
+    if (!token) return;
+
+    try {
+        const [rotasRes, criancasRes] = await Promise.all([
+            fetch(`${API_BASE}/motorista-escolar/rotas`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            }),
+            fetch(`${API_BASE}/motorista-escolar/criancas`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+        ]);
+
+        if (rotasRes.ok) {
+            const rotasJson = await rotasRes.json();
+            if (rotasJson?.rotas?.length) {
+                liveState.routes = rotasJson.rotas.map(r => ({
+                    id: r.id,
+                    name: r.nome_rota || 'Rota escolar',
+                    window: r.horario_inicio && r.horario_fim ? `${r.horario_inicio} - ${r.horario_fim}` : (r.dias_semana || ''),
+                    students: r.total_criancas || 0,
+                    occupancy: r.capacidade_maxima ? Math.min((r.total_criancas || 0) / r.capacidade_maxima, 1) : 0.5,
+                    status: 'Em operação',
+                    checkpoint: r.descricao || 'Rota ativa',
+                    trend: '',
+                    emphasis: 'primary'
+                }));
+                baseRoutes = liveState.routes;
+                currentRouteId = liveState.routes[0]?.id || null;
+            }
+        }
+
+        if (criancasRes.ok) {
+            const criancasJson = await criancasRes.json();
+            const lista = criancasJson?.criancas || criancasJson?.data || [];
+            if (lista.length) {
+                liveState.students = lista.map(c => ({
+                    name: c.nome_completo || c.nome,
+                    grade: c.escola || 'Escola não informada',
+                    stop: c.endereco_residencial || '',
+                    guardian: c.responsavel_nome || c.responsavel_email || 'Responsável',
+                    status: 'aguardando',
+                    eta: '',
+                    note: ''
+                }));
+                baseStudents = liveState.students;
+            }
+        }
+    } catch (err) {
+        console.warn('Falha ao carregar dados reais, mantendo demo:', err);
+    }
+}
+
+async function startLiveRoute() {
+    if (DEMO_MODE) {
+        PostAuth.showToast('Rota iniciada (modo demo).', 'success');
+        return;
+    }
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        window.location.href = 'login.html';
+        return;
+    }
+    const rota = liveState.routes[0] || (currentRouteId ? { id: currentRouteId } : null);
+    if (!rota || !rota.id) {
+        PostAuth.showToast('Nenhuma rota encontrada para iniciar.', 'warning');
+        return;
+    }
+    try {
+        const res = await fetch(`${API_BASE}/rastreamento/viagens/iniciar`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ rota_id: rota.id, tipo_viagem: 'ida' })
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        try {
+            const data = await res.json();
+            currentTripId = data?.viagem?.id || currentTripId;
+        } catch (_) {
+            // se não vier JSON, seguimos
+        }
+        PostAuth.showToast('Rota iniciada com sucesso.', 'success');
+    } catch (err) {
+        console.error('Erro ao iniciar rota:', err);
+        PostAuth.showToast('Falha ao iniciar rota.', 'danger');
+    }
+}
+
+async function finalizeLiveRoute() {
+    if (DEMO_MODE) {
+        PostAuth.showToast('Viagem finalizada (demo).', 'success');
+        return;
+    }
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        window.location.href = 'login.html';
+        return;
+    }
+    const rota = liveState.routes[0] || (currentRouteId ? { id: currentRouteId } : null);
+    const viagemId = currentTripId || rota?.id;
+    if (!viagemId) {
+        PostAuth.showToast('Nenhuma viagem ativa para finalizar.', 'warning');
+        return;
+    }
+    try {
+        const res = await fetch(`${API_BASE}/rastreamento/viagens/${viagemId}/finalizar`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        PostAuth.showToast('Viagem finalizada.', 'success');
+    } catch (err) {
+        PostAuth.showToast('Falha ao finalizar viagem.', 'danger');
+    }
+}
+
+    function bindRealtimeTracking() {
+        const startButton = document.querySelector('[data-action="start-route"]');
+        const syncButton = document.querySelector('[data-action="sync-app"]');
+        const finishButton = document.querySelector('[data-action="finish-route"]');
+
+    // adicionar botão de finalizar na UI (invisível se não existir)
+    if (!finishButton) {
+        const container = document.querySelector('.floating-actions');
+        if (container) {
+            const btn = document.createElement('button');
+            btn.dataset.action = 'finish-route';
+            btn.innerHTML = '<i class="fa-solid fa-square-check"></i>';
+            container.appendChild(btn);
+        }
+    }
+
+    const sendLocation = async () => {
+        if (DEMO_MODE) return;
+        const token = localStorage.getItem('authToken');
+        if (!token) return;
+        const coords = await getCurrentPositionSafe();
+        if (!coords) return;
+        try {
+            await fetch(`${API_BASE}/rastreamento/localizacao`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    latitude: coords.latitude,
+                    longitude: coords.longitude,
+                    velocidade: coords.speed || 0
+                })
+            });
+        } catch (_) {
+            // silencioso
+        }
+    };
+
+    startButton?.addEventListener('click', () => {
+        if (trackingInterval) clearInterval(trackingInterval);
+        trackingInterval = setInterval(sendLocation, 15000);
+    });
+
+    syncButton?.addEventListener('click', sendLocation);
+    document.querySelector('[data-action="finish-route"]')?.addEventListener('click', () => {
+        if (trackingInterval) clearInterval(trackingInterval);
+        finalizeLiveRoute();
+    });
+}
+
+function getCurrentPositionSafe() {
+    return new Promise((resolve) => {
+        if (!navigator.geolocation) {
+            resolve(null);
+            return;
+        }
+        navigator.geolocation.getCurrentPosition(
+            (pos) => resolve({
+                latitude: pos.coords.latitude,
+                longitude: pos.coords.longitude,
+                speed: pos.coords.speed
+            }),
+            () => resolve(null),
+            { enableHighAccuracy: true, timeout: 8000, maximumAge: 30000 }
+        );
+    });
+}
 
 const planProfiles = {
     basic: {
@@ -366,6 +569,257 @@ const planProfiles = {
 };
 
 (document => {
+    function bindLogoutButton() {
+        const btn = document.getElementById("logout-btn");
+        if (btn) {
+            btn.addEventListener("click", () => {
+                localStorage.removeItem("authToken");
+                window.location.href = "login.html";
+            });
+        }
+    }
+
+    function wireCreateForms() {
+        const routeBtn = document.getElementById('open-create-route');
+        const studentBtn = document.getElementById('open-create-student');
+
+        routeBtn?.addEventListener('click', async () => {
+            const nome = prompt('Nome da rota');
+            const inicio = prompt('Horário início (HH:MM)');
+            const fim = prompt('Horário fim (HH:MM)');
+            if (!nome) return;
+            if (DEMO_MODE) {
+                const mock = {
+                    id: `demo-${Date.now()}`,
+                    name: nome,
+                    window: `${inicio || '-'} - ${fim || '-'}`,
+                    students: 0,
+                    occupancy: 0,
+                    status: 'Planejada',
+                    checkpoint: 'Nova rota (demo)',
+                    trend: '',
+                    emphasis: 'primary'
+                };
+                baseRoutes.unshift(mock);
+                renderRoutes(planProfiles[document.body.dataset.plan || 'basic']);
+                PostAuth.showToast('Rota criada (demo).', 'success');
+                return;
+            }
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+            try {
+                const res = await fetch(`${API_BASE}/motorista-escolar/rotas`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        nome_rota: nome,
+                        horario_inicio: inicio,
+                        horario_fim: fim,
+                        descricao: 'Criada via painel'
+                    })
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                await loadLiveData();
+                renderRoutes(planProfiles[document.body.dataset.plan || 'basic']);
+                PostAuth.showToast('Rota criada.', 'success');
+            } catch (err) {
+                console.error(err);
+                PostAuth.showToast('Falha ao criar rota.', 'danger');
+            }
+        });
+
+        studentBtn?.addEventListener('click', async () => {
+            const nome = prompt('Nome completo da criança');
+            const emailResp = prompt('E-mail do responsável');
+            if (!nome || !emailResp) return;
+            if (DEMO_MODE) {
+                const mock = {
+                    name: nome,
+                    grade: '',
+                    stop: '',
+                    guardian: emailResp,
+                    status: 'aguardando',
+                    eta: '',
+                    note: ''
+                };
+                baseStudents.unshift(mock);
+                renderRoster(planProfiles[document.body.dataset.plan || 'basic']);
+                PostAuth.showToast('Criança adicionada (demo).', 'success');
+                return;
+            }
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+            try {
+                const res = await fetch(`${API_BASE}/motorista-escolar/criancas`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        nome_completo: nome,
+                        responsavel_email: emailResp,
+                        data_nascimento: '2015-01-01',
+                        endereco_residencial: '',
+                        escola: '',
+                        endereco_escola: ''
+                    })
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                await loadLiveData();
+                renderRoster(planProfiles[document.body.dataset.plan || 'basic']);
+                PostAuth.showToast('Criança adicionada.', 'success');
+            } catch (err) {
+                console.error(err);
+                PostAuth.showToast('Falha ao adicionar criança.', 'danger');
+            }
+        });
+    }
+
+    function bindChecklist() {
+        const openBtn = document.querySelector('[data-action="open-checklist"]');
+        const modal = document.getElementById('checklist-modal');
+        const closeBtn = document.getElementById('close-checklist');
+        const list = document.getElementById('checklist-list');
+
+        if (!modal || !list) return;
+
+        const renderChecklist = async () => {
+            // tentar carregar viagem ativa e crianças da conferência
+            if (!DEMO_MODE) {
+                await fetchActiveConference();
+            }
+            const students = liveState.students.length ? liveState.students : baseStudents;
+            list.innerHTML = students.map((s, idx) => `
+                <div class="check-item">
+                    <div>
+                        <strong>${s.name || s.nome || 'Aluno'}</strong>
+                        <p style="margin:0;color:var(--text-muted);">${s.guardian || ''}</p>
+                    </div>
+                    <div class="check-actions">
+                        <label><input type="radio" name="presenca-${idx}" value="presente" checked> Presente</label>
+                        <label><input type="radio" name="presenca-${idx}" value="ausente"> Ausente</label>
+                        <textarea name="motivo-${idx}" placeholder="Motivo (se ausente)" style="width:100%;min-height:60px;margin-top:0.35rem;"></textarea>
+                    </div>
+                </div>
+            `).join('');
+        };
+
+        const closeModal = () => modal.classList.add('hidden');
+        const openModal = () => {
+            renderChecklist();
+            modal.classList.remove('hidden');
+        };
+
+        openBtn?.addEventListener('click', openModal);
+        closeBtn?.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+
+        const saveHandler = async () => {
+            const students = liveState.students.length ? liveState.students : baseStudents;
+            const payload = students.map((s, idx) => {
+                const status = modal.querySelector(`input[name="presenca-${idx}"]:checked`)?.value || 'presente';
+                const motivo = modal.querySelector(`textarea[name="motivo-${idx}"]`)?.value || '';
+                return {
+                    nome: s.name || s.nome,
+                    status,
+                    motivo,
+                    conferencia_id: s.conferencia_id || null
+                };
+            });
+
+            if (DEMO_MODE) {
+                PostAuth.showToast('Checklist salvo (demo).', 'success');
+                closeModal();
+                return;
+            }
+
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+            try {
+                // Enviar presentes como embarque, ausentes como desembarque com observação
+                for (const item of payload) {
+                    if (!item.conferencia_id) continue;
+                    const endpoint = item.status === 'presente' ? 'embarque' : 'desembarque';
+                    await fetch(`${API_BASE}/conferencia/${endpoint}`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            conferencia_id: item.conferencia_id,
+                            observacoes: item.motivo || ''
+                        })
+                    });
+                }
+                PostAuth.showToast('Checklist enviado.', 'success');
+                closeModal();
+            } catch (err) {
+                console.error(err);
+                PostAuth.showToast('Falha ao enviar checklist.', 'danger');
+            }
+        };
+
+        const footer = document.createElement('div');
+        footer.className = 'checklist-actions';
+        footer.style = 'margin-top:1rem;display:flex;gap:0.5rem;justify-content:flex-end;';
+        footer.innerHTML = `
+            <button id="cancel-checklist" class="btn btn-ghost">Cancelar</button>
+            <button id="submit-checklist" class="btn btn-primary">Salvar checklist</button>
+        `;
+        modal.querySelector('.modal-content')?.appendChild(footer);
+        modal.querySelector('#cancel-checklist')?.addEventListener('click', closeModal);
+        modal.querySelector('#submit-checklist')?.addEventListener('click', saveHandler);
+    }
+
+    async function fetchActiveConference() {
+        const token = localStorage.getItem('authToken');
+        if (!token) return;
+        try {
+            // Buscar viagem ativa
+            const viagens = await fetch(`${API_BASE}/conferencia/viagens-ativas`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }).then(res => res.json());
+            const viagemAtiva = viagens?.data?.[0];
+            if (!viagemAtiva) return;
+
+            // Buscar crianças com conferencia_id
+            const criancas = await fetch(`${API_BASE}/conferencia/viagens/${viagemAtiva.id}/criancas`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }).then(res => res.json());
+            if (criancas?.data?.length) {
+                liveState.students = criancas.data.map(c => ({
+                    name: c.nome_completo,
+                    guardian: c.responsavel_nome || '',
+                    conferencia_id: c.conferencia_id,
+                    status: c.status_conferencia || 'aguardando',
+                    note: c.observacoes || ''
+                }));
+            }
+        } catch (e) {
+            console.warn('Falha ao buscar conferência ativa:', e);
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', async () => {
         if (typeof window !== 'undefined' && 'scrollRestoration' in window.history) {
             window.history.scrollRestoration = 'manual';
@@ -377,6 +831,11 @@ const planProfiles = {
             document.documentElement.scrollTop = 0;
             document.body.scrollTop = 0;
         }
+
+        bindLogoutButton();
+        wireCreateForms();
+        await loadLiveData();
+        bindRealtimeTracking();
 
         try {
             await Promise.race([
@@ -815,7 +1274,10 @@ const planProfiles = {
         if (!action) return;
         switch (true) {
             case action === 'start-route':
-                PostAuth.showToast('Rota iniciada. Avisos disparados.', 'success');
+                startLiveRoute();
+                break;
+            case action === 'finish-route':
+                finalizeLiveRoute();
                 break;
             case action === 'sync-app':
                 PostAuth.showToast('Sincronizando com aplicativos das famílias...', 'info');
@@ -875,3 +1337,6 @@ const planProfiles = {
         }
     }
 })(document);
+
+
+

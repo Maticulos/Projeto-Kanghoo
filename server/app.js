@@ -143,6 +143,31 @@ function buildCorsOptions() {
 
 app.use(cors(buildCorsOptions()));
 
+<<<<<<< HEAD
+=======
+// Estáticos
+const staticCandidates = [
+  path.join(__dirname, '../frontend/public'),
+  path.join(__dirname, '../frontend'),
+  path.join(__dirname, './frontend/public'),
+  path.join(__dirname, './frontend'),
+  path.join(__dirname, './public'),
+  '/app/frontend/public', // Docker path
+  '/app/frontend',
+];
+
+staticCandidates.forEach((dir) => {
+  if (fs.existsSync(dir)) {
+    logger.info(`Serving static files from: ${dir}`);
+    app.use(serve(dir, {
+      maxage: process.env.NODE_ENV === 'production' ? 1000 * 60 * 60 * 24 * 7 : 0, // 7 days cache in production
+      gzip: true,
+      brotli: true
+    }));
+  }
+});
+
+>>>>>>> 7e3033439b6ddb76a0413d080f32ee1cb52d2502
 // Body + JSON pretty (dev)
 app.use(bodyParser());
 app.use(json());

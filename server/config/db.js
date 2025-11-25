@@ -14,9 +14,10 @@ if (process.env.DATABASE_URL) {
 } else {
   const dbPassword = process.env.DB_PASSWORD || 'postgres';
   const passwordString = String(dbPassword);
+  const dbHost = process.env.DB_HOST || 'localhost';
 
   poolConfig = {
-    host: process.env.DB_HOST || 'localhost',
+    host: dbHost,
     port: parseInt(process.env.DB_PORT || '5432', 10),
     database: process.env.DB_NAME || 'kanghoo_db_prod',
     user: process.env.DB_USER || 'postgres',
@@ -26,6 +27,14 @@ if (process.env.DATABASE_URL) {
     idleTimeoutMillis: parseInt(process.env.PG_IDLE_TIMEOUT_MS || '30000', 10),
     connectionTimeoutMillis: parseInt(process.env.PG_CONN_TIMEOUT_MS || '10000', 10),
   };
+  
+  // Log para debug
+  console.log('[DB] Configuração de conexão:', {
+    host: dbHost,
+    port: poolConfig.port,
+    database: poolConfig.database,
+    user: poolConfig.user
+  });
 }
 
 const pool = new Pool(poolConfig);

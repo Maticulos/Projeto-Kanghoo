@@ -288,7 +288,8 @@ class MotoristaTracking extends GoogleMapsIntegration {
     async enviarLocalizacao(coords, position) {
         try {
             const token = localStorage.getItem('authToken');
-            const response = await fetch('/api/rastreamento/localizacao', {
+            const base = (window.APP_CONFIG?.apiBasePath) || '/api';
+            const response = await fetch(`${base}/rastreamento/localizacao`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -318,7 +319,8 @@ class MotoristaTracking extends GoogleMapsIntegration {
             const endereco = await this.getAddressFromCoords(position.lat, position.lng);
             
             const token = localStorage.getItem('authToken');
-            const response = await fetch('/api/rastreamento/embarque', {
+            const base = (window.APP_CONFIG?.apiBasePath) || '/api';
+            const response = await fetch(`${base}/rastreamento/embarque`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -350,7 +352,8 @@ class MotoristaTracking extends GoogleMapsIntegration {
             const endereco = await this.getAddressFromCoords(position.lat, position.lng);
             
             const token = localStorage.getItem('authToken');
-            const response = await fetch('/api/rastreamento/desembarque', {
+            const base = (window.APP_CONFIG?.apiBasePath) || '/api';
+            const response = await fetch(`${base}/rastreamento/desembarque`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

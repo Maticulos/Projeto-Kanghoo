@@ -11,6 +11,18 @@ const authenticateToken = async (ctx, next) => {
         const authHeader = ctx.headers.authorization;
         
         if (!authHeader) {
+            // DEMO_MODE: permite navegação sem token para facilitar apresentação
+            if (process.env.DEMO_MODE === 'true') {
+                const demoTipo = process.env.DEMO_DEFAULT_TYPE || (ctx.path.includes('motorista') ? 'motorista_escolar' : 'responsavel');
+                ctx.state.user = {
+                    id: 1,
+                    email: 'demo@kanghoo.com',
+                    tipo: demoTipo,
+                    nome: 'Demo User'
+                };
+                await next();
+                return;
+            }
             console.log('Token não encontrado ou formato inválido');
             ctx.status = 401;
             ctx.body = { 

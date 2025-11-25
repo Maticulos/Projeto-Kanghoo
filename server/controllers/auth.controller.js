@@ -16,7 +16,7 @@ async function login(ctx) {
     }
 
     const { email, senha } = validation.sanitizedData;
-    const userRes = await db.query('SELECT id, email, nome_completo, tipo_usuario, senha FROM usuarios WHERE LOWER(email)=LOWER($1) LIMIT 1', [email]);
+    const userRes = await db.query('SELECT id, email, nome, tipo_usuario, senha FROM usuarios WHERE LOWER(email)=LOWER($1) LIMIT 1', [email]);
     if (userRes.rows.length === 0) {
       ctx.status = 401;
       return send(ctx, validationError(['Credenciais inválidas'], 'Falha na autenticação'));
@@ -46,6 +46,7 @@ async function login(ctx) {
       return send(ctx, validationError(['Credenciais inválidas'], 'Falha na autenticação'));
     }
 
+<<<<<<< HEAD
     // In demo mode, optionally return a fixed demo token to simplify front-end demos
     let token;
     if (isDemo) {
@@ -72,8 +73,16 @@ async function login(ctx) {
     } catch (err) {
       logger.warn('Não foi possível setar cookie de autenticação:', err && err.message);
     }
+=======
+    const token = generateToken({
+      userId: user.id,
+      email: user.email,
+      tipo: user.tipo_usuario,
+      nome: user.nome
+    }, process.env.JWT_EXPIRES_IN || '2h');
+>>>>>>> 7e3033439b6ddb76a0413d080f32ee1cb52d2502
 
-    return send(ctx, success({ token, user: { id: user.id, email: user.email, nome: user.nome_completo, tipo: user.tipo_usuario } }, 'Autenticado com sucesso'));
+    return send(ctx, success({ token, user: { id: user.id, email: user.email, nome: user.nome, tipo: user.tipo_usuario } }, 'Autenticado com sucesso'));
   } catch (error) {
     logger.error('Erro no login:', error);
     ctx.status = 500;

@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
+    const API_BASE = (window.APP_CONFIG?.apiBasePath) || '/api';
     // Cache de elementos DOM
     const domCache = {
         smoothScrollLinks: document.querySelectorAll('a[href^="#"]'),
@@ -402,7 +403,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             try {
-                const res = await fetch('/api/contact', {
+                const res = await fetch(`${API_BASE}/contact`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)

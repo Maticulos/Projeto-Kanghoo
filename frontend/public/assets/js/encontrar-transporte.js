@@ -1,13 +1,15 @@
-/**
+﻿/**
  * Funcionalidades da página Encontrar Transporte
  * Versão melhorada com validação, filtros avançados e UX aprimorada
  */
 
 class TransporteFinder {
     constructor() {
+        this.apiBase = (window.APP_CONFIG?.apiBasePath) || '/api';
         this.currentTransportType = 'escolar';
         this.currentResults = [];
         this.filteredResults = [];
+        this.activeVehicles = [];
         this.currentPage = 1;
         this.resultsPerPage = 10;
         this.isLoading = false;
@@ -391,8 +393,13 @@ class TransporteFinder {
             this.currentPage = data.page || 1;
             this.loadResults();
 
+<<<<<<< HEAD
             // Atualizar o mapa com markers
             this.updateMapMarkersFromApi(transportes);
+=======
+            await this.loadActiveVehicles();
+            this.updateMapMarkersFromApi(rotas, this.filterActiveVehicles(this.activeVehicles));
+>>>>>>> 7e3033439b6ddb76a0413d080f32ee1cb52d2502
 
             this.hideLoading();
             const total = data.total || transportes.length;
@@ -461,7 +468,11 @@ class TransporteFinder {
         params.set('pagina', filtros.page || 1);
         params.set('limite', filtros.limit || 20);
 
+<<<<<<< HEAD
         const url = `/api/public/transportes?${params.toString()}`;
+=======
+        const url = `${this.apiBase}/buscar-rotas?${params.toString()}`;
+>>>>>>> 7e3033439b6ddb76a0413d080f32ee1cb52d2502
         const res = await fetch(url);
         
         if (!res.ok) {
@@ -527,11 +538,23 @@ class TransporteFinder {
         try {
             await this.buscarTransportes();
         } catch (e) {
+<<<<<<< HEAD
             console.error('Falha na busca inicial:', e?.message || e);
             this.showError('Não foi possível carregar os transportes. Verifique sua conexão e tente novamente.');
             this.currentResults = [];
             this.filteredResults = [];
             this.loadResults(); // Isso vai acionar a exibição de "Nenhum resultado encontrado"
+=======
+            // Fallback suave em caso de erro: usar dados mock para não quebrar a UI
+            console.warn('Falha na busca inicial, usando mock temporário:', e?.message || e);
+            this.currentResults = this.currentTransportType === 'escolar' 
+                ? this.gerarResultadosEscolares() 
+                : this.gerarResultadosExcursoes();
+            this.filteredResults = [...this.currentResults];
+            this.loadResults();
+            await this.loadActiveVehicles();
+            this.updateMapMarkersFromApi([], this.filterActiveVehicles(this.activeVehicles));
+>>>>>>> 7e3033439b6ddb76a0413d080f32ee1cb52d2502
         }
     }
 
@@ -589,9 +612,15 @@ class TransporteFinder {
             this.currentPage = data.page || 1;
             this.loadResults();
 
+<<<<<<< HEAD
             // Atualizar o mapa
             this.updateMapMarkersFromApi(transportes);
             
+=======
+            await this.loadActiveVehicles();
+            this.updateMapMarkersFromApi(rotas, this.filterActiveVehicles(this.activeVehicles));
+
+>>>>>>> 7e3033439b6ddb76a0413d080f32ee1cb52d2502
             this.updateResultsCount();
         } catch (e) {
             console.warn('Falha ao aplicar filtros (API):', e);
@@ -826,6 +855,7 @@ class TransporteFinder {
         this.showSuccess('Filtros limpos com sucesso!');
     }
 
+<<<<<<< HEAD
     updateMapMarkersFromApi(transportes) {
         try {
             if (!window.mapsIntegration) return;
@@ -878,13 +908,74 @@ class TransporteFinder {
             transports.forEach(t => window.mapsIntegration.addTransportMarker(t));
 
             if (transports.length > 0) {
+=======
+    
+        filterActiveVehicles(list = []) {
+        const filtros = this.obterFiltros?.() || null;
+        if (!filtros) return list;
+        return list.filter(v => {
+            const pseudo = {
+                capacidade: v.capacidade ? `Até ${v.capacidade}` : (v.disponibilidade || v.capacidade_maxima || ''),
+                preco: v.preco ? `R$ ${v.preco}` : (v.valor_mensal ? `R$ ${v.valor_mensal}` : ''),
+                caracteristicas: (v.caracteristicas || v.features || 'rastreamento gps').toString().toLowerCase()
+            };
+            try {
+                return this.aplicarFiltroItem(pseudo, filtros);
+            } catch (_) {
+                return true;
+            }
+        });
+    }
+
+    updateMapMarkersFromApi(rotas, vehicles = []) {
+        try {
+            if (!window.mapsIntegration) return;
+            window.mapsIntegration.clearMarkers();
+            const baseLatLng = window.mapsIntegration?.userLocation || [-23.5505, -46.6333];
+            const filteredVehicles = this.filterActiveVehicles(vehicles);
+            const transports = rotas.map((r, idx) => {
+                let position = null;
+                if (r.latitude_origem && r.longitude_origem) {
+                    position = [Number(r.latitude_origem), Number(r.longitude_origem)];
+                } else if (window.APP_CONFIG?.demoMode) {
+                    const jitter = 0.01 * (idx + 1);
+                    position = [baseLatLng[0] + jitter, baseLatLng[1] + jitter];
+                }
+                return {
+                    id: r.id || `demo-${idx}`,
+                    name: r.nome_rota || "Rota escolar",
+                    type: r.tipo_rota || "escolar",
+                    position,
+                    rating: r.media_avaliacoes || 4.7,
+                    reviews: r.total_avaliacoes || 0,
+                    price: r.valor_mensal ? `R$ ${r.valor_mensal}/mês` : "-",
+                    capacity: r.capacidade_maxima ? `Até ${r.capacidade_maxima} crianças` : "-",
+                    features: ["Rastreamento GPS"]
+                };
+            }).filter(t => Array.isArray(t.position));
+            const vehicleMarkers = filteredVehicles.map((v, idx) => ({
+                id: v.id || `veh-${idx}`,
+                name: v.nome || 'Transporte ativo',
+                type: v.tipo || 'escolar',
+                position: (v.latitude && v.longitude) ? [Number(v.latitude), Number(v.longitude)] : null,
+                rating: v.avaliacao || v.avaliacao_media || 4.7,
+                reviews: v.reviews || v.total_avaliacoes || 0,
+                price: v.preco ? `R$ ${v.preco}` : (v.valor_mensal ? `R$ ${v.valor_mensal}/mes` : '-'),
+                capacity: v.capacidade ? `Até ${v.capacidade} passageiros` : (v.disponibilidade || '-'),
+                availability: v.disponibilidade || v.status || '-',
+                features: ['Localizacao em tempo real']
+            })).filter(t => Array.isArray(t.position));
+            [...transports, ...vehicleMarkers].forEach(t => window.mapsIntegration.addTransportMarker(t));
+            if (transports.length + vehicleMarkers.length > 0) {
+>>>>>>> 7e3033439b6ddb76a0413d080f32ee1cb52d2502
                 window.mapsIntegration.centerOnResults();
             } else {
                 console.info('Nenhum transporte com coordenadas disponíveis para exibir no mapa');
             }
         } catch (e) {
-            console.warn('Falha ao atualizar marcadores do mapa:', e);
+            console.warn("Falha ao atualizar marcadores do mapa:", e);
         }
+    }
     }
 
     criarCardResultado(resultado) {
@@ -1412,3 +1503,8 @@ function limparFiltros() {
 function ordenarResultados() {
     window.transporteFinder?.ordenarResultados();
 }
+
+
+
+
+

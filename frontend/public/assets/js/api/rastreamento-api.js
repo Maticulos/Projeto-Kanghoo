@@ -5,7 +5,8 @@
 
 class RastreamentoAPI {
     constructor() {
-        this.baseURL = '/api';
+        const appConfig = window.APP_CONFIG || {};
+        this.baseURL = appConfig.apiBasePath || '/api';
         this.token = null;
         this.viagemAtiva = null;
         this.intervalos = new Map();
@@ -29,7 +30,7 @@ class RastreamentoAPI {
     // Verificar se há viagem ativa
     async obterViagemAtiva() {
         try {
-            const response = await fetch('/api/rastreamento/viagem-ativa', {
+            const response = await fetch(`${this.baseURL}/rastreamento/viagem-ativa`, {
                 method: 'GET',
                 headers: this.getAuthHeaders()
             });
@@ -49,7 +50,7 @@ class RastreamentoAPI {
     // Obter histórico de viagens
     async obterHistoricoViagens(pagina = 1, limite = 20) {
         try {
-            const response = await fetch(`/api/rastreamento/historico?pagina=${pagina}&limite=${limite}`, {
+            const response = await fetch(`${this.baseURL}/rastreamento/historico?pagina=${pagina}&limite=${limite}`, {
                 method: 'GET',
                 headers: this.getAuthHeaders()
             });
@@ -69,7 +70,7 @@ class RastreamentoAPI {
     // Testar conectividade da API
     async testarAPI() {
         try {
-            const response = await fetch('/api/rastreamento/test', {
+            const response = await fetch(`${this.baseURL}/rastreamento/test`, {
                 method: 'GET',
                 headers: this.getAuthHeaders()
             });

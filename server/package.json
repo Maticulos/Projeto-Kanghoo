@@ -20,13 +20,12 @@
     "test:server:win": "set AUTO_CREATE_TABLES=true&& mocha"
   },
   "devDependencies": {
-    "knex": "^3.1.0",
     "axios": "^1.12.2",
     "chai": "^4.3.7",
     "eslint": "^8.0.0",
-    
     "husky": "^8.0.0",
     "jsdom": "^27.0.1",
+    "knex": "^3.1.0",
     "koa-router": "^14.0.0",
     "lint-staged": "^16.2.6",
     "mocha": "^10.2.0",
@@ -43,10 +42,10 @@
     "@koa/cors": "^5.0.0",
     "@koa/multer": "^3.0.2",
     "bcrypt": "^6.0.0",
-    
     "csv-parser": "^3.2.0",
     "dotenv": "^17.2.2",
     "eventemitter3": "^5.0.1",
+    "helmet": "^7.1.0",
     "ioredis": "^5.8.2",
     "jsonwebtoken": "^9.0.2",
     "koa": "^3.0.1",
@@ -55,13 +54,12 @@
     "koa-json": "^2.0.2",
     "koa-ratelimit": "^6.0.0",
     "koa-static": "^5.0.0",
-    "helmet": "^7.1.0",
     "multer": "^2.0.2",
     "nodemailer": "^7.0.9",
     "pg": "^8.16.3",
     "prom-client": "^15.1.3",
-    
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "xlsx": "^0.18.5"
   },
   "engines": {
     "node": ">=18.0.0"

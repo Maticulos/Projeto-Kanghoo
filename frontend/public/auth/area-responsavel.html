@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/bundle.min.css">
+    <script src="/api/config.js"></script>
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
           integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
@@ -665,7 +666,8 @@ async function checkAuthentication() {
     tokenValidationInProgress = true;
 
     try {
-        const response = await fetch('/api/validate-token', {
+        const apiBase = window.APP_CONFIG?.apiBasePath || '/api';
+        const response = await fetch(`${apiBase}/validate-token`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -746,7 +748,8 @@ async function continuousTokenCheck() {
     try {
         console.log('🔄 Iniciando requisição de validação de token...');
         
-        const response = await fetch('/api/validate-token', {
+        const apiBase = window.APP_CONFIG?.apiBasePath || '/api';
+        const response = await fetch(`${apiBase}/validate-token`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${currentToken}`,
@@ -839,10 +842,10 @@ document.addEventListener('DOMContentLoaded', async function() {
     setTimeout(() => {
         setInterval(continuousTokenCheck, 60000);
     }, 2000);
-
+        const response = await fetch(${window.APP_CONFIG?.apiBasePath || '/api'}/responsavel/crianca, {
     try {
         // Carregar dados da criança
-        const response = await fetch('/api/responsavel/crianca', {
+        const response = await fetch(`${window.APP_CONFIG?.apiBasePath || '/api'}/responsavel/crianca', {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -1595,12 +1598,12 @@ class NotificationPreferences {
         this.showLoading(true);
         
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('authToken');
             if (!token) {
                 throw new Error('Token de autenticação não encontrado');
             }
 
-            const response = await fetch('/api/notification-preferences', {
+            const response = await fetch(`${window.APP_CONFIG?.apiBasePath || '/api'}/notification-preferences`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -1680,7 +1683,7 @@ class NotificationPreferences {
             saveButton.textContent = 'Salvando...';
             saveButton.disabled = true;
             
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('authToken');
             if (!token) {
                 throw new Error('Token de autenticação não encontrado');
             }
@@ -1699,7 +1702,7 @@ class NotificationPreferences {
             preferences.canais = formData.getAll('canais[]');
             
             // Enviar para a API
-            const response = await fetch('/api/notification-preferences', {
+            const response = await fetch(`${window.APP_CONFIG?.apiBasePath || '/api'}/notification-preferences`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,

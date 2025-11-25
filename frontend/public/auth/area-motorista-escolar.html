@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="../assets/css/vendors/font-awesome.min.css">
     <link rel="stylesheet" href="../assets/css/auth/post-auth-shell.css">
     <link rel="stylesheet" href="../assets/css/auth/motorista-escolar.css">
+    <script src="/api/config.js"></script>
 </head>
 <body data-plan="basic">
     <div class="app-shell">
@@ -68,6 +69,20 @@
                     <strong>Plano Basic</strong>
                 </div>
                 <a id="plan-switch-link" href="area-motorista-escolar-premium.html">Conhecer Premium</a>
+            </div>
+            <div class="sidebar-card">
+                <button class="btn btn-ghost" id="logout-btn" style="width: 100%;">
+                    <i class="fa-solid fa-right-from-bracket"></i> Sair
+                </button>
+            </div>
+            <div class="sidebar-card">
+                <p class="panel-title">Criação rápida</p>
+                <button class="btn btn-primary" id="open-create-route" style="width:100%;margin-top:0.5rem;">
+                    <i class="fa-solid fa-route"></i> Criar rota
+                </button>
+                <button class="btn btn-ghost" id="open-create-student" style="width:100%;margin-top:0.5rem;">
+                    <i class="fa-solid fa-child"></i> Adicionar criança
+                </button>
             </div>
         </aside>
 
@@ -201,6 +216,19 @@
     <div class="floating-actions">
         <button data-action="start-route"><i class="fa-solid fa-play"></i></button>
         <button data-action="sync-app"><i class="fa-solid fa-arrows-rotate"></i></button>
+        <button data-action="finish-route"><i class="fa-solid fa-square-check"></i></button>
+        <button data-action="open-checklist"><i class="fa-solid fa-list-check"></i></button>
+    </div>
+
+    <!-- Checklist Modal -->
+    <div id="checklist-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Checklist de presenças</h3>
+                <button id="close-checklist" class="btn btn-ghost"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="checklist-list" class="checklist-grid"></div>
+        </div>
     </div>
 
     <script src="../assets/js/vendors/chart.min.js"></script>
