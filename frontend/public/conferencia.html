@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conferência de Rota - Kanghoo</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <style>
+        .child-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            background-color: #fff;
+        }
+        .child-info {
+            display: flex;
+            align-items: center;
+        }
+        .child-info img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 1rem;
+        }
+        .action-buttons .btn {
+            margin-left: 0.5rem;
+        }
+        .log-item {
+            padding: 0.5rem;
+            border-bottom: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <header class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">Kanghoo - Portal do Motorista</a>
+    </header>
+
+    <main class="container mt-4">
+        <div id="loading" class="text-center" style="display: none;">
+            <div class="spinner-border" role="status">
+                <span class="sr-only">Carregando...</span>
+            </div>
+        </div>
+
+        <div id="error-message" class="alert alert-danger" style="display: none;"></div>
+
+        <!-- Seção de Seleção de Viagem -->
+        <section id="trip-selection">
+            <h2>Gerenciamento de Viagem</h2>
+            <div id="active-trip-display" class="card mb-3" style="display: none;">
+                <div class="card-body">
+                    <h5 class="card-title">Viagem em Andamento</h5>
+                    <p class="card-text" id="active-trip-info"></p>
+                    <button id="btn-end-trip" class="btn btn-danger">Finalizar Viagem</button>
+                </div>
+            </div>
+
+            <div id="start-trip-form">
+                <div class="form-group">
+                    <label for="select-route">Selecione a Rota para Iniciar</label>
+                    <select id="select-route" class="form-control"></select>
+                </div>
+                <div class="form-group">
+                    <label for="select-vehicle">Selecione o Veículo</label>
+                    <select id="select-vehicle" class="form-control"></select>
+                </div>
+                <button id="btn-start-trip" class="btn btn-primary">Iniciar Viagem</button>
+            </div>
+        </section>
+
+        <!-- Seção de Conferência (visível apenas durante uma viagem) -->
+        <section id="conference-section" style="display: none;">
+            <h2 class="mt-5">Conferência de Crianças</h2>
+            <div id="children-list">
+                <!-- Cards de crianças serão inseridos aqui -->
+            </div>
+
+            <h3 class="mt-5">Log de Conferências</h3>
+            <div id="conference-log" class="card">
+                <div class="card-body">
+                    <!-- Itens de log serão inseridos aqui -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="/assets/js/conferencia.js"></script>
+</body>
+</html>

@@ -6,6 +6,19 @@
 require('dotenv').config();
 
 const logger = require('./utils/logger');
+const { validateEnvironment } = require('./scripts/validate-env');
+
+// Validar variáveis de ambiente antes de iniciar
+try {
+  validateEnvironment();
+} catch (error) {
+  logger.error('Falha na validação de ambiente:', error.message);
+  process.exit(1);
+}
+
+// Log de variáveis importantes para depuração de ambiente
+logger.info(`Environment variables: NODE_ENV=${process.env.NODE_ENV || ''}, DEMO_MODE=${process.env.DEMO_MODE || ''}, CORS_ORIGINS=${process.env.CORS_ORIGINS || process.env.CORS_ORIGIN || ''}`);
+
 const app = require('./app');
 const RealtimeServer = require('./realtime/realtime-server');
 

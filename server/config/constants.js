@@ -54,7 +54,7 @@ const TRANSPORT_TYPES = {
 const TRIP_STATUS = {
     AGENDADA: 'agendada',
     EM_ANDAMENTO: 'em_andamento',
-    FINALIZADA: 'finalizada',
+    CONCLUIDA: 'concluida',
     CANCELADA: 'cancelada'
 };
 

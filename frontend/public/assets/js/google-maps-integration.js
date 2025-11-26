@@ -10,6 +10,8 @@ class MapsIntegration {
         this.userLocationMarker = null;
         this.userLocation = null;
         this.routeControl = null;
+        this.statusOverlay = null;
+        this.realtimeBadge = null;
         
         // Configurações padrão
         this.defaultCenter = [-23.5505, -46.6333]; // São Paulo [lat, lng]
@@ -62,6 +64,10 @@ class MapsIntegration {
                 attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
                 maxZoom: 19
             }).addTo(this.map);
+
+            this.ensureStatusOverlay(mapElement);
+            this.setStatus('ready');
+            this.setRealtimeBadge(window.APP_CONFIG?.demoMode ? 'DEMO' : 'Tempo real');
             
             // Esconder loading
             if (loadingElement) {
@@ -215,59 +221,75 @@ class MapsIntegration {
         console.info('Usando localização padrão: São Paulo, Brasil');
     }
     
-    loadSampleMarkers() {
-        // Dados de exemplo de transportes
-        const sampleTransports = [
-            {
-                id: 1,
-                name: 'Transporte Escolar São João',
-                type: 'escolar',
-                position: [-23.5505, -46.6333],
-                rating: 4.8,
-                reviews: 127,
-                price: 'R$ 180/mês',
-                capacity: 'Até 25 crianças',
-                features: ['Ar-condicionado', 'Seguro', 'GPS']
-            },
-            {
-                id: 2,
-                name: 'Van Escolar Alegria',
-                type: 'escolar',
-                position: [-23.5615, -46.6565],
-                rating: 4.6,
-                reviews: 89,
-                price: 'R$ 150/mês',
-                capacity: 'Até 15 crianças',
-                features: ['Ar-condicionado', 'Wi-Fi']
-            },
-            {
-                id: 3,
-                name: 'Excursões Aventura',
-                type: 'excursao',
-                position: [-23.5395, -46.6103],
-                rating: 4.9,
-                reviews: 203,
-                price: 'R$ 80/pessoa/dia',
-                capacity: 'Até 45 pessoas',
-                features: ['Ar-condicionado', 'Wi-Fi', 'Seguro']
-            },
-            {
-                id: 4,
-                name: 'Turismo & Fretamento Silva',
-                type: 'excursao',
-                position: [-23.5725, -46.6412],
-                rating: 4.7,
-                reviews: 156,
-                price: 'R$ 120/pessoa/dia',
-                capacity: 'Até 50 pessoas',
-                features: ['Ar-condicionado', 'Wi-Fi', 'Banheiro']
+    async loadSampleMarkers() {
+        // Tentar carregar dados reais da API pública
+        try {
+            const response = await fetch('/api/public/transportes?tipo=todos&limite=20');
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.data && data.data.transportes) {
+                    const transportes = data.data.transportes;
+                    
+                    // Mapear transportes da API para o formato do mapa
+                    transportes.forEach(t => {
+                        // Obter coordenadas
+                        let position = null;
+                        if (t.localizacao?.latitude && t.localizacao?.longitude) {
+                            position = [t.localizacao.latitude, t.localizacao.longitude];
+                        } else if (t.rota?.coordenadasOrigem) {
+                            position = [t.rota.coordenadasOrigem.latitude, t.rota.coordenadasOrigem.longitude];
+                        } else if (t.pacote?.coordenadasPartida) {
+                            position = [t.pacote.coordenadasPartida.latitude, t.pacote.coordenadasPartida.longitude];
+                        }
+                        
+                        if (!position) return; // Pular se não tiver coordenadas
+                        
+                        // Determinar tipo
+                        const tipo = t.tipo_servico?.toLowerCase().includes('escolar') ? 'escolar' : 
+                                    t.tipo_servico?.toLowerCase().includes('excursão') ? 'excursao' : 
+                                    t.rota ? 'escolar' : t.pacote ? 'excursao' : 'escolar';
+                        
+                        // Características
+                        const features = [];
+                        if (t.veiculo?.caracteristicas?.arCondicionado) features.push('Ar-condicionado');
+                        if (t.veiculo?.caracteristicas?.wifi) features.push('Wi-Fi');
+                        if (t.veiculo?.caracteristicas?.acessibilidade) features.push('Acessibilidade');
+                        if (t.veiculo?.caracteristicas?.gps) features.push('GPS');
+                        
+                        const transport = {
+                            id: t.id,
+                            name: t.rota?.nome || t.pacote?.nome || t.nome || 'Transporte',
+                            type: tipo,
+                            position: position,
+                            rating: t.avaliacao || 0,
+                            reviews: t.totalAvaliacoes || 0,
+                            price: tipo === 'escolar' 
+                                ? (t.rota?.precoMensal || '-')
+                                : (t.pacote?.precoPorPessoa || '-'),
+                            capacity: tipo === 'escolar'
+                                ? (t.rota?.vagas ? `${t.rota.vagas} vagas` : (t.veiculo?.capacidade ? `Até ${t.veiculo.capacidade} lugares` : '-'))
+                                : (t.pacote?.vagas ? `${t.pacote.vagas} vagas` : (t.veiculo?.capacidade ? `Até ${t.veiculo.capacidade} pessoas` : '-')),
+                            features: features.length > 0 ? features : ['Rastreamento GPS']
+                        };
+                        
+                        this.addTransportMarker(transport);
+                    });
+                    
+                    // Centralizar nos resultados se houver marcadores
+                    if (this.markers.length > 0) {
+                        this.centerOnResults();
+                    }
+                    
+                    console.log(`Carregados ${this.markers.length} transportes do servidor`);
+                    return;
+                }
             }
-        ];
+        } catch (error) {
+            console.warn('Erro ao carregar transportes da API, usando dados de exemplo:', error);
+        }
         
-        // Criar marcadores
-        sampleTransports.forEach(transport => {
-            this.addTransportMarker(transport);
-        });
+        // Se a API falhar, simplesmente não carregar marcadores de exemplo
+        console.error('Falha ao carregar marcadores iniciais da API:', error);
     }
     
     addTransportMarker(transport) {
@@ -445,7 +467,97 @@ class MapsIntegration {
             `;
         }
     }
-    
+
+    ensureStatusOverlay(mapElement = null) {
+        if (this.statusOverlay) return this.statusOverlay;
+        const host = mapElement || document.getElementById('google-map');
+        if (!host) return null;
+        host.style.position = host.style.position || 'relative';
+        const overlay = document.createElement('div');
+        overlay.id = 'map-status-overlay';
+        overlay.style.cssText = `
+            position: absolute;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.35);
+            color: #fff;
+            z-index: 999;
+            text-align: center;
+            padding: 1rem;
+            backdrop-filter: blur(2px);
+        `;
+        host.appendChild(overlay);
+        this.statusOverlay = overlay;
+        return overlay;
+    }
+
+    setStatus(state = 'ready', message = '') {
+        const overlay = this.ensureStatusOverlay();
+        if (!overlay) return;
+        if (state === 'ready') {
+            overlay.style.display = 'none';
+            return;
+        }
+        const palette = {
+            loading: '#7c5dff',
+            error: '#ff5563',
+            empty: '#999',
+            warning: '#ffb347'
+        };
+        const label = state === 'loading'
+            ? 'Carregando mapa...'
+            : state === 'empty'
+                ? 'Nenhum transporte encontrado'
+                : 'Aviso';
+
+        overlay.innerHTML = `
+            <div style="
+                background: rgba(0,0,0,0.65);
+                padding: 1rem 1.5rem;
+                border-radius: 12px;
+                border: 1px solid rgba(255,255,255,0.2);
+                box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+            ">
+                <strong style="display:block;margin-bottom:0.35rem;">${label}</strong>
+                <small>${message || 'Aguardando dados do mapa'}</small>
+            </div>
+        `;
+        overlay.style.display = 'flex';
+        overlay.style.background = state === 'loading'
+            ? 'rgba(124,93,255,0.15)'
+            : state === 'error'
+                ? 'rgba(255,85,99,0.15)'
+                : 'rgba(0,0,0,0.35)';
+        overlay.style.color = palette[state] || '#fff';
+    }
+
+    setRealtimeBadge(label = '') {
+        const host = document.getElementById('google-map');
+        if (!host) return;
+        if (!this.realtimeBadge) {
+            const badge = document.createElement('div');
+            badge.id = 'map-realtime-badge';
+            badge.style.cssText = `
+                position: absolute;
+                bottom: 12px;
+                left: 12px;
+                padding: 6px 10px;
+                border-radius: 10px;
+                background: rgba(0,0,0,0.65);
+                color: #fff;
+                font-size: 12px;
+                z-index: 901;
+                letter-spacing: 0.3px;
+            `;
+            host.appendChild(badge);
+            this.realtimeBadge = badge;
+        }
+        this.realtimeBadge.textContent = label;
+        this.realtimeBadge.style.display = label ? 'inline-flex' : 'none';
+    }
+
     showMessage(message, type = 'info') {
         // Criar ou atualizar elemento de mensagem
         let messageElement = document.getElementById('map-message');

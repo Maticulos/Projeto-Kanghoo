@@ -4,6 +4,9 @@
     const APP_CONFIG = window.APP_CONFIG || {};
     const DEMO_MODE = !!APP_CONFIG.demoMode;
     const API_BASE = APP_CONFIG.apiBasePath || "/api";
+    const PREFS_TTL = 60000;
+    let notificationPreferences = null;
+    let lastPrefsLoad = 0;
 
     async function fetchWithTimeout(resource, options = {}, timeout = AUTH_TIMEOUT_MS) {
         const controller = new AbortController();
@@ -70,6 +73,31 @@
         }
     }
 
+    function getAppConfig() {
+        return {
+            apiBasePath: API_BASE,
+            demoMode: DEMO_MODE,
+            wsBaseUrl: APP_CONFIG.wsBaseUrl || API_BASE.replace(/^http/, 'ws')
+        };
+    }
+
+    async function logout(redirectToLogin = true) {
+        const token = localStorage.getItem('authToken');
+        try {
+            if (token && !DEMO_MODE) {
+                await fetch(`${API_BASE}/logout`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                }).catch(() => {});
+            }
+        } finally {
+            localStorage.removeItem('authToken');
+            if (redirectToLogin) {
+                window.location.href = "login.html";
+            }
+        }
+    }
+
     function animateCounter(element, target, duration = 1200) {
         const start = performance.now();
         const initial = Number(element.dataset.initial || 0);
@@ -131,6 +159,56 @@
         }, 2600);
     }
 
+    function defaultPreferences() {
+        return {
+            embarque_desembarque: true,
+            localizacao_tempo_real: true,
+            veiculo_chegando: true,
+            emergencia: true,
+            atraso_detectado: true,
+            canais: ['app']
+        };
+    }
+
+    async function loadNotificationPreferences(force = false) {
+        const now = Date.now();
+        if (!force && notificationPreferences && (now - lastPrefsLoad) < PREFS_TTL) {
+            return notificationPreferences;
+        }
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            notificationPreferences = notificationPreferences || defaultPreferences();
+            lastPrefsLoad = now;
+            return notificationPreferences;
+        }
+        try {
+            const res = await fetch(`${API_BASE}/notification-preferences`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                notificationPreferences = data?.preferencias || data?.data || data || defaultPreferences();
+                lastPrefsLoad = now;
+                return notificationPreferences;
+            }
+        } catch (err) {
+            console.warn('[PostAuth] Nao foi possivel carregar preferencias:', err);
+        }
+        notificationPreferences = notificationPreferences || defaultPreferences();
+        lastPrefsLoad = now;
+        return notificationPreferences;
+    }
+
+    function shouldNotify(tipo, prefs = defaultPreferences()) {
+        if (!tipo) return true;
+        const t = (tipo || '').toLowerCase();
+        if (t.includes('embarque') || t.includes('desembarque')) return prefs.embarque_desembarque !== false;
+        if (t.includes('rastreamento') || t.includes('localizacao')) return prefs.localizacao_tempo_real !== false;
+        if (t.includes('chegando')) return prefs.veiculo_chegando !== false;
+        if (t.includes('atraso')) return prefs.atraso_detectado !== false;
+        return true;
+    }
+
     function createTicker(container, items = [], interval = 4000) {
         if (!container || !items.length) return;
         let index = 0;
@@ -169,9 +247,10 @@
         });
     }
 
-    // === Chat / Notificações (WS ou demo) ===
+    // === Chat / Notifica├º├Áes (WS ou demo) ===
     const chatListeners = [];
     let chatTimer = null;
+    let demoEventTimer = null;
 
     function initChat(channelId) {
         const token = localStorage.getItem('authToken');
@@ -205,7 +284,7 @@
             dispatchChatMessage({
                 canal: channelId,
                 origem: 'responsavel',
-                mensagem: 'Mensagem automática (demo) para ilustrar o chat.',
+                mensagem: 'Mensagem autom├ítica (demo) para ilustrar o chat.',
                 ts: Date.now()
             });
         }, 9000);
@@ -223,10 +302,12 @@
         chatTimer = null;
     }
 
-    function notifyEvent(evento) {
+    async function notifyEvent(evento) {
         const payload = { ...evento, ts: Date.now() };
+        const prefs = await loadNotificationPreferences();
+        if (!shouldNotify(payload.tipo, prefs)) return Promise.resolve();
         if (DEMO_MODE) {
-            showToast(`Notificação demo: ${payload.tipo || 'evento'}`, 'info');
+            showToast(`Notificacao demo: ${payload.tipo || 'evento'}`, 'info');
             return Promise.resolve();
         }
         const token = localStorage.getItem('authToken');
@@ -238,7 +319,24 @@
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(payload)
-        }).catch(err => console.warn('Notificação não enviada:', err));
+        }).catch(err => console.warn('Notificacao nao enviada:', err));
+    }
+
+    function startDemoEvents(sequence = []) {
+        if (!DEMO_MODE) return;
+        if (demoEventTimer) clearInterval(demoEventTimer);
+        let idx = 0;
+        const events = sequence.length ? sequence : [
+            { tipo: 'embarque', mensagem: 'Aluno embarcado (demo)' },
+            { tipo: 'rastreamento_demo', mensagem: 'Van a caminho (demo)' },
+            { tipo: 'desembarque', mensagem: 'Aluno desembarcado (demo)' },
+            { tipo: 'atraso', mensagem: 'Atraso de 5 min (demo)' }
+        ];
+        demoEventTimer = setInterval(() => {
+            const ev = events[idx % events.length];
+            notifyEvent(ev);
+            idx += 1;
+        }, 8000);
     }
 
     window.PostAuth = {
@@ -246,10 +344,14 @@
         animateCounter,
         observe,
         showToast,
+        getAppConfig,
+        logout,
         createTicker,
         bindTilt,
         initChat,
         onChatMessage,
-        notifyEvent
+        loadNotificationPreferences,
+        notifyEvent,
+        startDemoEvents
     };
 })();

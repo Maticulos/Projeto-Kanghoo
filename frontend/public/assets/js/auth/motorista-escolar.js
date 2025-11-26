@@ -3,11 +3,13 @@ const API_BASE = APP_CONFIG.apiBasePath || '/api';
 const DEMO_MODE = !!APP_CONFIG.demoMode;
 let trackingInterval = null;
 let currentTripId = null;
+let selectedRouteId = null;
+let activeConferenceId = null;
 
 let baseStudents = [
     {
         name: 'Ana Clara Rocha',
-        grade: '5º ano • Colégio Horizonte',
+        grade: '5º ano - Colégio Horizonte',
         stop: 'Rua das Mangueiras, 205',
         guardian: 'Marina Rocha',
         status: 'confirmado',
@@ -16,7 +18,7 @@ let baseStudents = [
     },
     {
         name: 'Lia Peixoto',
-        grade: '4º ano • Colégio Vivace',
+        grade: '4º ano - Colégio Vivace',
         stop: 'Av. Verona, 109',
         guardian: 'Cláudia Peixoto',
         status: 'aguardando',
@@ -25,7 +27,7 @@ let baseStudents = [
     },
     {
         name: 'Miguel Costa',
-        grade: '6º ano • Colégio Lírio',
+        grade: '6º ano - Colégio Lírio',
         stop: 'Praça Nova Esperança, 14',
         guardian: 'Rafael Costa',
         status: 'confirmado',
@@ -34,7 +36,7 @@ let baseStudents = [
     },
     {
         name: 'Helena Barros',
-        grade: '2º ano • Colégio Horizonte',
+        grade: '2º ano - Colégio Horizonte',
         stop: 'Rua Ipê Roxo, 88',
         guardian: 'Sílvia Barros',
         status: 'em rota',
@@ -43,7 +45,7 @@ let baseStudents = [
     },
     {
         name: 'Breno Azevedo',
-        grade: '5º ano • Colégio Mundo Novo',
+        grade: '5º ano - Colégio Mundo Novo',
         stop: 'Alameda das Bromélias, 300',
         guardian: 'Renata Azevedo',
         status: 'aguardando',
@@ -150,6 +152,7 @@ async function loadLiveData() {
                 }));
                 baseRoutes = liveState.routes;
                 currentRouteId = liveState.routes[0]?.id || null;
+                selectedRouteId = currentRouteId;
             }
         }
 
@@ -184,7 +187,7 @@ async function startLiveRoute() {
         window.location.href = 'login.html';
         return;
     }
-    const rota = liveState.routes[0] || (currentRouteId ? { id: currentRouteId } : null);
+    const rota = liveState.routes.find(r => r.id === selectedRouteId) || liveState.routes[0] || (currentRouteId ? { id: currentRouteId } : null);
     if (!rota || !rota.id) {
         PostAuth.showToast('Nenhuma rota encontrada para iniciar.', 'warning');
         return;
@@ -202,10 +205,14 @@ async function startLiveRoute() {
         try {
             const data = await res.json();
             currentTripId = data?.viagem?.id || currentTripId;
+            selectedRouteId = rota.id;
         } catch (_) {
             // se não vier JSON, seguimos
         }
         PostAuth.showToast('Rota iniciada com sucesso.', 'success');
+        if (trackingInterval) clearInterval(trackingInterval);
+        trackingInterval = setInterval(sendLocation, 15000);
+        sendLocation();
     } catch (err) {
         console.error('Erro ao iniciar rota:', err);
         PostAuth.showToast('Falha ao iniciar rota.', 'danger');
@@ -238,6 +245,12 @@ async function finalizeLiveRoute() {
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         PostAuth.showToast('Viagem finalizada.', 'success');
+        currentTripId = null;
+        selectedRouteId = null;
+        if (trackingInterval) {
+            clearInterval(trackingInterval);
+            trackingInterval = null;
+        }
     } catch (err) {
         PostAuth.showToast('Falha ao finalizar viagem.', 'danger');
     }
@@ -260,32 +273,45 @@ async function finalizeLiveRoute() {
     }
 
     const sendLocation = async () => {
-        if (DEMO_MODE) return;
         const token = localStorage.getItem('authToken');
-        if (!token) return;
-        const coords = await getCurrentPositionSafe();
+        const isDemo = DEMO_MODE || !token;
+        const coords = isDemo ? mockCoords() : await getCurrentPositionSafe();
         if (!coords) return;
-        try {
-            await fetch(`${API_BASE}/rastreamento/localizacao`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    latitude: coords.latitude,
-                    longitude: coords.longitude,
-                    velocidade: coords.speed || 0
-                })
-            });
-        } catch (_) {
-            // silencioso
+        if (!isDemo) {
+            try {
+                await fetch(`${API_BASE}/rastreamento/localizacao`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        latitude: coords.latitude,
+                        longitude: coords.longitude,
+                        velocidade: coords.speed || 0,
+                        viagem_id: currentTripId || selectedRouteId || null
+                    })
+                });
+            } catch (_) { /* silencioso */ }
+        }
+        if (window.mapsIntegration?.addMarker) {
+            const pos = { lat: coords.latitude, lng: coords.longitude };
+            if (!window.mapsIntegration.markers?.get('van-escolar')) {
+                window.mapsIntegration.addMarker('van-escolar', pos, { title: 'Sua rota em andamento' });
+            } else {
+                window.mapsIntegration.updateMarker('van-escolar', pos);
+            }
+            window.mapsIntegration.centerMap?.(pos);
+        }
+        if (isDemo) {
+            PostAuth.notifyEvent({ tipo: 'rastreamento_demo', viagem_id: currentTripId || selectedRouteId || 'demo-rota', latitude: coords.latitude, longitude: coords.longitude });
         }
     };
 
     startButton?.addEventListener('click', () => {
-        if (trackingInterval) clearInterval(trackingInterval);
-        trackingInterval = setInterval(sendLocation, 15000);
+        sendLocation();
+        const selector = document.getElementById('trip-select-school');
+        if (selector) selector.value = currentTripId || selectedRouteId || '';
     });
 
     syncButton?.addEventListener('click', sendLocation);
@@ -311,6 +337,12 @@ function getCurrentPositionSafe() {
             { enableHighAccuracy: true, timeout: 8000, maximumAge: 30000 }
         );
     });
+}
+
+function mockCoords() {
+    const base = { latitude: -23.5505, longitude: -46.6333 };
+    const jitter = (Math.random() - 0.5) * 0.01;
+    return { latitude: base.latitude + jitter, longitude: base.longitude + jitter, speed: Math.random() * 30 };
 }
 
 const planProfiles = {
@@ -573,8 +605,12 @@ const planProfiles = {
         const btn = document.getElementById("logout-btn");
         if (btn) {
             btn.addEventListener("click", () => {
-                localStorage.removeItem("authToken");
-                window.location.href = "login.html";
+                if (window.PostAuth?.logout) {
+                    window.PostAuth.logout();
+                } else {
+                    localStorage.removeItem("authToken");
+                    window.location.href = "login.html";
+                }
             });
         }
     }
@@ -735,7 +771,8 @@ const planProfiles = {
                     nome: s.name || s.nome,
                     status,
                     motivo,
-                    conferencia_id: s.conferencia_id || null
+                    conferencia_id: s.conferencia_id || activeConferenceId || null,
+                    crianca_id: s.id || s.crianca_id || null
                 };
             });
 
@@ -763,8 +800,18 @@ const planProfiles = {
                         },
                         body: JSON.stringify({
                             conferencia_id: item.conferencia_id,
+                            viagem_id: currentTripId || selectedRouteId || null,
+                            crianca_id: item.crianca_id,
+                            presente: item.status === 'presente',
                             observacoes: item.motivo || ''
                         })
+                    });
+                    PostAuth.notifyEvent({
+                        tipo: endpoint,
+                        viagem_id: currentTripId || selectedRouteId || null,
+                        conferencia_id: item.conferencia_id,
+                        crianca_id: item.crianca_id,
+                        presente: item.status === 'presente'
                     });
                 }
                 PostAuth.showToast('Checklist enviado.', 'success');
@@ -799,6 +846,8 @@ const planProfiles = {
             }).then(res => res.json());
             const viagemAtiva = viagens?.data?.[0];
             if (!viagemAtiva) return;
+            activeConferenceId = viagemAtiva.conferencia_id || viagemAtiva.id || null;
+            currentTripId = currentTripId || viagemAtiva.viagem_id || null;
 
             // Buscar crianças com conferencia_id
             const criancas = await fetch(`${API_BASE}/conferencia/viagens/${viagemAtiva.id}/criancas`, {
@@ -808,9 +857,10 @@ const planProfiles = {
             }).then(res => res.json());
             if (criancas?.data?.length) {
                 liveState.students = criancas.data.map(c => ({
+                    id: c.id || c.crianca_id,
                     name: c.nome_completo,
                     guardian: c.responsavel_nome || '',
-                    conferencia_id: c.conferencia_id,
+                    conferencia_id: c.conferencia_id || activeConferenceId,
                     status: c.status_conferencia || 'aguardando',
                     note: c.observacoes || ''
                 }));
@@ -847,6 +897,9 @@ const planProfiles = {
         } finally {
             initializePlan();
         }
+        if (DEMO_MODE) {
+            PostAuth.startDemoEvents();
+        }
     });
 
     function initializePlan() {
@@ -882,6 +935,7 @@ const planProfiles = {
         renderNotifications(plan);
         renderAutomation(plan);
         renderAI(plan);
+        setupChatPanel();
         updateSidebar(plan);
         setupInteractions();
 
@@ -988,8 +1042,9 @@ const planProfiles = {
     function renderRoutes(plan) {
         const board = document.getElementById('routes-board');
         if (!board) return;
+        const selector = document.getElementById('trip-select-school');
         board.innerHTML = plan.routes.map(route => `
-            <div class="route-card" data-emphasis="${route.emphasis}">
+            <div class="route-card ${route.id === selectedRouteId ? 'is-selected' : ''}" data-emphasis="${route.emphasis}" data-route-id="${route.id || ''}">
                 <div class="route-meta">
                     <span>${route.window}</span>
                     <span>${route.students} alunos</span>
@@ -1004,11 +1059,17 @@ const planProfiles = {
                     <span>${route.trend}</span>
                 </div>
                 <div class="route-actions">
-                    <button class="primary" data-action="route:start" data-route="${route.name}">Iniciar</button>
-                    <button data-action="route:view" data-route="${route.name}">Detalhes</button>
+                    <button class="primary" data-action="route:start" data-route="${route.name}" data-route-id="${route.id || ''}">Iniciar</button>
+                    <button data-action="route:view" data-route="${route.name}" data-route-id="${route.id || ''}">Detalhes</button>
                 </div>
             </div>
         `).join('');
+        if (selector && plan.routes?.length) {
+            selector.innerHTML = plan.routes.map(r => `<option value="${r.id || ''}">${r.name}</option>`).join('');
+            selector.addEventListener('change', (e) => {
+                selectedRouteId = e.target.value || null;
+            });
+        }
     }
 
     function renderChecklist(plan) {
@@ -1286,10 +1347,17 @@ const planProfiles = {
                 PostAuth.showToast(`Ação ${action.replace('command:', '')} pronta.`, 'info');
                 break;
             case action.startsWith('route:start'):
-                PostAuth.showToast(`Iniciando ${context.route}`, 'success');
+                if (context.routeId) {
+                    selectedRouteId = context.routeId;
+                }
+                startLiveRoute();
+                PostAuth.showToast(`Iniciando ${context.route || 'rota'}`, 'success');
                 break;
             case action.startsWith('route:view'):
-                PostAuth.showToast(`Abrindo detalhes de ${context.route}`, 'info');
+                if (context.routeId) {
+                    selectedRouteId = context.routeId;
+                }
+                PostAuth.showToast(`Abrindo detalhes de ${context.route || 'rota'}`, 'info');
                 break;
             case action.startsWith('contact:'):
                 PostAuth.showToast(`Mensagem enviada para ${action.split(':')[1]}`, 'success');
@@ -1304,6 +1372,50 @@ const planProfiles = {
             default:
                 PostAuth.showToast('Ação executada.', 'info');
         }
+    }
+
+    function setupChatPanel() {
+        if (document.getElementById('chat-panel-school')) return;
+        const panel = document.createElement('div');
+        panel.id = 'chat-panel-school';
+        panel.className = 'chat-panel';
+        panel.innerHTML = `
+            <header>
+                <strong>Chat em tempo real</strong>
+                <small id="chat-channel-school">Canal: aguardando rota</small>
+            </header>
+            <div class="chat-messages" id="chat-messages-school"></div>
+            <form id="chat-form-school">
+                <input type="text" id="chat-input-school" placeholder="Digite uma mensagem" autocomplete="off" />
+                <button type="submit"><i class="fa-solid fa-paper-plane"></i></button>
+            </form>
+        `;
+        document.body.appendChild(panel);
+
+        const form = panel.querySelector('#chat-form-school');
+        const input = panel.querySelector('#chat-input-school');
+        const list = panel.querySelector('#chat-messages-school');
+        const label = panel.querySelector('#chat-channel-school');
+
+        const channel = () => currentTripId || selectedRouteId || 'demo-rota-escolar';
+        label.textContent = `Canal: ${channel()}`;
+        const client = PostAuth.initChat(channel());
+
+        PostAuth.onChatMessage((payload) => {
+            if (payload.canal && payload.canal !== channel()) return;
+            const item = document.createElement('div');
+            item.className = `chat-bubble ${payload.origem === 'motorista' ? 'mine' : 'theirs'}`;
+            item.textContent = payload.mensagem || '';
+            list.appendChild(item);
+            list.scrollTop = list.scrollHeight;
+        });
+
+        form?.addEventListener('submit', (evt) => {
+            evt.preventDefault();
+            if (!input.value.trim()) return;
+            client?.send?.(input.value.trim());
+            input.value = '';
+        });
     }
 
     function chartOptions() {
@@ -1337,6 +1449,9 @@ const planProfiles = {
         }
     }
 })(document);
+
+
+
 
 
 

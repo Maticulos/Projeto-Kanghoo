@@ -49,11 +49,11 @@ class TrackingPersistenceService {
          *     cached_at: Date  // Para controle de expiração
          *   }
          * 
-         * - "viagem_{viagem_id}": {
-         *     id: string,
-         *     motorista_id: string,
-         *     rota_id: string,
-         *     status: 'iniciada'|'finalizada',
+        * - "viagem_{viagem_id}": {
+        *     id: string,
+        *     motorista_id: string,
+        *     rota_id: string,
+        *     status: 'iniciada'|'concluida',
          *     horario_inicio: Date,
          *     horario_fim: Date,
          *     criancas: Array<string>,
@@ -308,8 +308,8 @@ class TrackingPersistenceService {
      * 2. Atualiza status e horário de fim
      * 3. Persiste alterações
      * 
-     * TRANSIÇÕES DE STATUS:
-     * 'iniciada' → 'finalizada'
+    * TRANSIÇÕES DE STATUS:
+    * 'iniciada' → 'concluida'
      */
     async finalizarViagem(viagem_id) {
         try {
@@ -333,7 +333,7 @@ class TrackingPersistenceService {
 
             // Atualizar dados da viagem
             const horario_fim = new Date();
-            viagem.status = 'finalizada';
+            viagem.status = 'concluida';
             viagem.horario_fim = horario_fim;
             viagem.cached_at = new Date();
 
@@ -342,7 +342,7 @@ class TrackingPersistenceService {
             if (await this.tableExists('viagens')) {
                 try {
                     await db.query(
-                        `UPDATE viagens SET status = 'finalizada', horario_fim = $2 WHERE id = $1`,
+                        `UPDATE viagens SET status = 'concluida', horario_fim = $2 WHERE id = $1`,
                         [viagem_id, horario_fim]
                     );
                     persisted = true;
@@ -354,7 +354,7 @@ class TrackingPersistenceService {
             // Atualizar cache
             this.cache.set(cacheKey, viagem);
 
-            logger.debug('Viagem finalizada:', { id: viagem_id, persisted });
+            logger.debug('Viagem concluída:', { id: viagem_id, persisted });
 
             return {
                 sucesso: true,
@@ -541,7 +541,7 @@ class TrackingPersistenceService {
      * 
      * ESTRATÉGIA DE BUSCA:
      * - Cache: Para viagens ativas/recentes
-     * - Banco: Para viagens finalizadas/antigas
+    * - Banco: Para viagens concluídas/antigas
      * - Simulação: Para demonstração/testes
      * 
      * FORMATO DE RETORNO:

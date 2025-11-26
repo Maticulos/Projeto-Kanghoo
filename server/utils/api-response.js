@@ -138,8 +138,22 @@ const send = (ctx, response) => {
 const errorHandler = async (ctx, next) => {
     try {
         await next();
+        
+        // Se não há body definido e status é 404, tratar como 404
+        if (!ctx.body && ctx.status === 404) {
+            ctx.status = 404;
+            send(ctx, notFound(`Rota ${ctx.method} ${ctx.path} não encontrada`));
+        }
     } catch (err) {
-        logger.error('Erro não tratado:', err);
+        // Log mais detalhado do erro
+        logger.error('Erro não tratado:', {
+            message: err.message,
+            stack: err.stack,
+            status: err.status,
+            path: ctx.path,
+            method: ctx.method,
+            ip: ctx.ip
+        });
         
         // Determina o tipo de erro e resposta apropriada
         let response;

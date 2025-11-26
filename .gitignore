@@ -1,6 +1,18 @@
+# Ignore env files with secrets for docker/demo
+.env
+.env.docker
+
 # Dependencies
 node_modules/
 **/node_modules/
 
-# Env files
-.env.docker
+# Logs
+logs/
+*.log
+
+# Build artifacts
+dist/
+build/
+
+# Ignore docker-compose override generated files
+docker-compose.override.yml

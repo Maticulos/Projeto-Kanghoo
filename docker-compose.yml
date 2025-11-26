@@ -1,6 +1,60 @@
 version: '3.8'
 
 services:
+<<<<<<< HEAD
+  # ========================================
+  # APLICAÇÃO PRINCIPAL
+  # ========================================
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: transporte-escolar-app
+    # Carrega variáveis de ambiente do arquivo .env (copie .env.example -> .env)
+    env_file:
+      - .env
+    ports:
+      - "${PORT:-5000}:5000"
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - PORT=5000
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=${DB_NAME:-kanghoo_db_prod}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DATABASE_URL=postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@postgres:${DB_PORT:-5432}/${DB_NAME:-kanghoo_db_prod}
+      - JWT_SECRET=${JWT_SECRET}
+      # Demo / CORS flags (can be set in .env or overriden via CLI/env)
+      - DEMO_MODE=${DEMO_MODE:-false}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:5000}
+      - RATE_LIMIT_WINDOW_MS=${RATE_LIMIT_WINDOW_MS:-900000}
+      - RATE_LIMIT_MAX_REQUESTS=${RATE_LIMIT_MAX_REQUESTS:-100}
+      
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+    networks:
+      - transporte-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ========================================
+  # BANCO DE DADOS POSTGRESQL
+  # ========================================
+=======
+>>>>>>> 7e3033439b6ddb76a0413d080f32ee1cb52d2502
   postgres:
     image: postgres:15-alpine
     container_name: kanghoo-postgres

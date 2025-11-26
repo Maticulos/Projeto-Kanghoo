@@ -107,25 +107,14 @@ if (process.env.REDIS_URL) {
 }
 
 /**
- * Middleware de headers de segurança usando Helmet
+ * Middleware de headers de segurança
+ * NOTA: Helmet 7.x é para Express, não funciona diretamente com Koa
+ * Usando headers manuais que são mais compatíveis com Koa
  */
 function securityHeaders() {
-    return helmet({
-        contentSecurityPolicy: process.env.CSP_ENABLED === 'true' ? SECURITY_CONFIG.csp : false,
-        hsts: {
-            maxAge: SECURITY_CONFIG.securityHeaders.hsts.maxAge,
-            includeSubDomains: SECURITY_CONFIG.securityHeaders.hsts.includeSubDomains,
-            preload: SECURITY_CONFIG.securityHeaders.hsts.preload
-        },
-        noSniff: true,
-        frameguard: { action: 'deny' },
-        xssFilter: true,
-        referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
-        permittedCrossDomainPolicies: false,
-        crossOriginEmbedderPolicy: false, // Pode causar problemas com Google Maps
-        crossOriginOpenerPolicy: { policy: 'same-origin' },
-        crossOriginResourcePolicy: { policy: 'cross-origin' }
-    });
+    // Retornar null para usar o fallback de headers manuais no app.js
+    // Isso é mais compatível com Koa e funciona corretamente
+    return null;
 }
 
 /**
@@ -133,8 +122,29 @@ function securityHeaders() {
  */
 function generalRateLimit() {
     if (!redisClient) {
-        logger.warn('Redis não configurado, rate limiting desabilitado');
-        return async (ctx, next) => await next();
+        logger.warn('⚠️  Redis não configurado. Usando rate limiting em memória (limitado a este processo)');
+        
+        // Fallback em memória usando Map
+        const memoryStore = new Map();
+        
+        return rateLimit({
+            driver: 'memory',
+            db: memoryStore,
+            duration: SECURITY_CONFIG.rateLimit.general.duration,
+            errorMessage: SECURITY_CONFIG.rateLimit.general.message,
+            id: (ctx) => ctx.ip,
+            headers: {
+                remaining: 'Rate-Limit-Remaining',
+                reset: 'Rate-Limit-Reset',
+                total: 'Rate-Limit-Total'
+            },
+            max: SECURITY_CONFIG.rateLimit.general.max,
+            disableHeader: false,
+            whitelist: (ctx) => {
+                const allowedIPs = (process.env.ALLOWED_IPS || '127.0.0.1').split(',');
+                return allowedIPs.includes(ctx.ip);
+            }
+        });
     }
     
     return rateLimit({
@@ -163,7 +173,19 @@ function generalRateLimit() {
  */
 function loginRateLimit() {
     if (!redisClient) {
-        return async (ctx, next) => await next();
+        logger.warn('⚠️  Redis não configurado. Usando rate limiting em memória para login');
+        
+        const memoryStore = new Map();
+        
+        return rateLimit({
+            driver: 'memory',
+            db: memoryStore,
+            duration: SECURITY_CONFIG.rateLimit.login.duration,
+            errorMessage: SECURITY_CONFIG.rateLimit.login.message,
+            id: (ctx) => `login:${ctx.ip}`,
+            max: SECURITY_CONFIG.rateLimit.login.max,
+            disableHeader: false
+        });
     }
     
     return rateLimit({
@@ -182,7 +204,19 @@ function loginRateLimit() {
  */
 function apiRateLimit() {
     if (!redisClient) {
-        return async (ctx, next) => await next();
+        logger.warn('⚠️  Redis não configurado. Usando rate limiting em memória para API');
+        
+        const memoryStore = new Map();
+        
+        return rateLimit({
+            driver: 'memory',
+            db: memoryStore,
+            duration: SECURITY_CONFIG.rateLimit.api.duration,
+            errorMessage: SECURITY_CONFIG.rateLimit.api.message,
+            id: (ctx) => `api:${ctx.ip}`,
+            max: SECURITY_CONFIG.rateLimit.api.max,
+            disableHeader: false
+        });
     }
     
     return rateLimit({

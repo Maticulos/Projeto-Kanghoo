@@ -11,6 +11,18 @@ const authenticateToken = async (ctx, next) => {
         const authHeader = ctx.headers.authorization;
         
         if (!authHeader) {
+            // DEMO_MODE: permite navegação sem token para facilitar apresentação
+            if (process.env.DEMO_MODE === 'true') {
+                const demoTipo = process.env.DEMO_DEFAULT_TYPE || (ctx.path.includes('motorista') ? 'motorista_escolar' : 'responsavel');
+                ctx.state.user = {
+                    id: 1,
+                    email: 'demo@kanghoo.com',
+                    tipo: demoTipo,
+                    nome: 'Demo User'
+                };
+                await next();
+                return;
+            }
             console.log('Token não encontrado ou formato inválido');
             ctx.status = 401;
             ctx.body = { 
@@ -31,9 +43,24 @@ const authenticateToken = async (ctx, next) => {
             return;
         }
 
-        // Token de desenvolvimento
-        if (token === 'dev_token_responsavel_teste' && process.env.NODE_ENV !== 'production') {
-            ctx.user = {
+        // Token de desenvolvimento / demo - habilitar se ALLOW_DEV_TOKEN=true ou DEMO_MODE=true
+        const DEV_TOKEN_ENABLED = process.env.ALLOW_DEV_TOKEN === 'true' || process.env.DEMO_MODE === 'true';
+        const DEV_TOKEN = process.env.DEV_TOKEN || 'dev_token_responsavel_teste';
+        // Token literal adicional usado pelo modo demo
+        const DEMO_LITERAL_TOKEN = 'demo_token_responsavel';
+
+        const allowedDevTokens = [DEV_TOKEN];
+        if (process.env.DEMO_MODE === 'true') allowedDevTokens.push(DEMO_LITERAL_TOKEN);
+
+        if (DEV_TOKEN_ENABLED && allowedDevTokens.includes(token) && process.env.NODE_ENV !== 'production') {
+            // Log de segurança
+            logger.warn('⚠️  Token de desenvolvimento usado', {
+                ip: ctx.ip,
+                path: ctx.path,
+                timestamp: new Date().toISOString()
+            });
+            
+            ctx.state.user = {
                 id: 1,
                 email: 'ana.responsavel@teste.kanghoo.com',
                 tipo: 'responsavel',
@@ -47,7 +74,7 @@ const authenticateToken = async (ctx, next) => {
         const decoded = jwt.verify(token, JWT_SECRET);
         
         // Adicionar informações do usuário ao contexto
-        ctx.user = {
+        ctx.state.user = {
             id: decoded.userId,  // Corrigido: usar userId em vez de id
             email: decoded.email,
             tipo: decoded.tipo,
@@ -95,7 +122,7 @@ const authenticateToken = async (ctx, next) => {
  */
 const requireRole = (allowedTypes) => {
     return async (ctx, next) => {
-        if (!ctx.user) {
+        if (!ctx.state.user) {
             ctx.status = 401;
             ctx.body = { 
                 success: false, 
@@ -106,7 +133,7 @@ const requireRole = (allowedTypes) => {
 
         const types = Array.isArray(allowedTypes) ? allowedTypes : [allowedTypes];
         
-        if (!types.includes(ctx.user.tipo)) {
+        if (!types.includes(ctx.state.user.tipo)) {
             ctx.status = 403;
             ctx.body = { 
                 success: false, 
@@ -132,7 +159,7 @@ const optionalAuth = async (ctx, next) => {
             
             if (token) {
                 const decoded = jwt.verify(token, JWT_SECRET);
-                ctx.user = {
+                ctx.state.user = {
                     // suporte a diferentes formatos de payload (userId ou id)
                     id: decoded.userId || decoded.id,
                     email: decoded.email,
@@ -154,7 +181,7 @@ const optionalAuth = async (ctx, next) => {
  */
 const verificarResponsavel = async (ctx, next) => {
     try {
-        if (!ctx.user || ctx.user.tipo !== 'responsavel' && ctx.user.tipo !== 'admin') {
+        if (!ctx.state.user || ctx.state.user.tipo !== 'responsavel' && ctx.state.user.tipo !== 'admin') {
             ctx.status = 403;
             ctx.body = { 
                 success: false, 
@@ -178,7 +205,7 @@ const verificarResponsavel = async (ctx, next) => {
  */
 const verificarMotorista = async (ctx, next) => {
     try {
-        if (!ctx.user || (ctx.user.tipo !== 'motorista_escolar' && ctx.user.tipo !== 'motorista_excursao' && ctx.user.tipo !== 'motorista_escolar_excursao')) {
+        if (!ctx.state.user || (ctx.state.user.tipo !== 'motorista_escolar' && ctx.state.user.tipo !== 'motorista_excursao' && ctx.state.user.tipo !== 'motorista_escolar_excursao')) {
             ctx.status = 403;
             ctx.body = { 
                 success: false, 
@@ -202,7 +229,7 @@ const verificarMotorista = async (ctx, next) => {
  */
 const verificarMotoristaExcursao = async (ctx, next) => {
     try {
-        if (!ctx.user || ctx.user.tipo !== 'motorista_excursao' && ctx.user.tipo !== 'motorista_escolar_excursao') {
+        if (!ctx.state.user || ctx.state.user.tipo !== 'motorista_excursao' && ctx.state.user.tipo !== 'motorista_escolar_excursao') {
             ctx.status = 403;
             ctx.body = { 
                 success: false, 

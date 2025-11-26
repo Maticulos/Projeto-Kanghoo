@@ -3,7 +3,6 @@ const Router = require('koa-router');
 module.exports = function mountRoutes() {
   const router = new Router({ prefix: '/api' });
 
-  // Importar e montar todos os sub-routers existentes
   const motoristaEscolarRoutes = require('./motorista-escolar');
   const responsavelRoutes = require('./responsavel');
   const trackingApiRoutes = require('./tracking-api');
@@ -27,8 +26,32 @@ module.exports = function mountRoutes() {
   const contactRoutes = require('./contact');
   const configRoutes = require('./config');
   const transportesAtivosRoutes = require('./transportes-ativos');
+  const publicTransportesRoutes = require('./public-transportes');
+  const viagensRoutes = require('./viagens');
+  const veiculosRoutes = require('./veiculos');
+
+  // Rota de informações da API
+  router.get('/api', async (ctx) => {
+    ctx.body = {
+      success: true,
+      message: 'API do Sistema de Transporte Escolar',
+      version: '1.0.0',
+      endpoints: {
+        health: '/api/health',
+        auth: '/api/auth/login',
+        publicTransportes: '/api/public/transportes',
+        docs: 'Consulte a documentação da API'
+      },
+      timestamp: new Date().toISOString()
+    };
+  });
 
   [
+    publicTransportesRoutes, // público primeiro
+    transportesAtivosRoutes,
+    configRoutes,
+    viagensRoutes,
+    veiculosRoutes,
     motoristaEscolarRoutes,
     responsavelRoutes,
     trackingApiRoutes,
@@ -49,9 +72,7 @@ module.exports = function mountRoutes() {
     devToolsRoutes,
     authRoutes,
     validateTokenRoutes,
-    contactRoutes,
-    configRoutes,
-    transportesAtivosRoutes
+    contactRoutes
   ].forEach((sub) => {
     if (sub && sub.routes) {
       router.use(sub.routes());

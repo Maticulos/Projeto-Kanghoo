@@ -22,6 +22,12 @@ const UPLOAD_CONFIG = {
             maxSize: 10 * 1024 * 1024, // 10MB
             description: 'Documentos (PDF, DOC, DOCX)'
         },
+        spreadsheets: {
+            mimeTypes: ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
+            extensions: ['.xlsx'],
+            maxSize: 10 * 1024 * 1024, // 10MB
+            description: 'Planilhas Excel (.xlsx)'
+        },
         csv: {
             mimeTypes: ['text/csv', 'application/csv', 'text/plain'],
             extensions: ['.csv'],
@@ -32,9 +38,10 @@ const UPLOAD_CONFIG = {
             mimeTypes: [
                 'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp',
                 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                 'text/csv', 'application/csv'
             ],
-            extensions: ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.pdf', '.doc', '.docx', '.csv'],
+            extensions: ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.pdf', '.doc', '.docx', '.xlsx', '.csv'],
             maxSize: 10 * 1024 * 1024, // 10MB
             description: 'Todos os tipos permitidos'
         }
@@ -155,7 +162,8 @@ async function verifyFileSignature(filePath, expectedMimeType) {
             'image/gif': ['474946'],
             'application/pdf': ['255044462D'],
             'application/msword': ['D0CF11E0'],
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['504B0304']
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['504B0304'],
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['504B0304']
         };
         
         const expectedSignatures = signatures[expectedMimeType];
