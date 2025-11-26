@@ -57,7 +57,8 @@ router.get('/excursoes', authenticateToken, verificarMotoristaExcursao, async (c
     
     if (status === 'ativas') {
       whereClause += ' AND pe.data_excursao >= CURRENT_DATE';
-    } else if (status === 'finalizadas') {
+    } else if (status === 'concluidas' || status === 'finalizadas') {
+      // aceitar ambos valores de filtro para compatibilidade
       whereClause += ' AND pe.data_excursao < CURRENT_DATE';
     }
     

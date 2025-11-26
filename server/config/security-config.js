@@ -39,8 +39,32 @@ const securityConfig = {
                 if (process.env.NODE_ENV === 'production') {
                     throw new Error('JWT_SECRET é obrigatório em produção');
                 }
-                logger.warn('⚠️  JWT_SECRET ausente. Usando chave temporária em ambiente não-produtivo.');
-                return 'temp_key_' + Math.random().toString(36).substring(2, 15);
+                
+                // Em desenvolvimento, usar chave persistente de arquivo
+                const fs = require('fs');
+                const path = require('path');
+                const secretFile = path.join(__dirname, '../../.jwt-secret-dev');
+                
+                try {
+                    // Tentar ler chave existente
+                    if (fs.existsSync(secretFile)) {
+                        const existingSecret = fs.readFileSync(secretFile, 'utf8').trim();
+                        if (existingSecret) {
+                            logger.info('Usando JWT_SECRET persistente de desenvolvimento');
+                            return existingSecret;
+                        }
+                    }
+                    
+                    // Gerar nova chave e salvar
+                    const crypto = require('crypto');
+                    const newSecret = 'dev_' + crypto.randomBytes(32).toString('hex');
+                    fs.writeFileSync(secretFile, newSecret, { mode: 0o600 }); // Permissões restritas
+                    logger.warn('⚠️  Novo JWT_SECRET de desenvolvimento gerado e salvo');
+                    return newSecret;
+                } catch (error) {
+                    logger.error('Erro ao gerenciar JWT_SECRET de desenvolvimento:', error);
+                    throw new Error('Não foi possível configurar JWT_SECRET. Configure JWT_SECRET no .env');
+                }
             }
             return s;
         })(),

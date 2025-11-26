@@ -302,6 +302,30 @@
                 return;
             }
 
+            // Em desenvolvimento local, facilitar demo auto-login para o usuário demo
+            // Observação: isso é intencionalmente restrito a `localhost` para evitar exposição em produção
+            try {
+                if (window.location.hostname === 'localhost' && !localStorage.getItem('authToken')) {
+                    const demoEmail = 'ana.responsavel@teste.kanghoo.com';
+                    const loginFormAuto = document.getElementById('login-form');
+                    if (loginFormAuto) {
+                        document.getElementById('email').value = demoEmail;
+                        document.getElementById('senha').value = 'demo'; // valor irrelevante se servidor permitir demo
+                        // Aguarde um tick para deixar o formulário inicializar os event listeners
+                        setTimeout(() => {
+                            // Use requestSubmit quando disponível para acionar validações nativas
+                            if (typeof loginFormAuto.requestSubmit === 'function') {
+                                loginFormAuto.requestSubmit();
+                            } else {
+                                loginFormAuto.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+                            }
+                        }, 250);
+                    }
+                }
+            } catch (e) {
+                console.warn('Auto-login demo falhou:', e && e.message);
+            }
+
             const loginForm = document.getElementById('login-form');
 
             if(loginForm) {

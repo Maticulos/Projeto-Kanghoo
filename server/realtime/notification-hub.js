@@ -293,7 +293,7 @@ class NotificationHub extends EventEmitter {
                     },
                     duracao,
                     timestamp: new Date(),
-                    message: `Viagem finalizada - Duração: ${duracao} minutos`
+                    message: `Viagem concluída - Duração: ${duracao} minutos`
                 }
             };
 

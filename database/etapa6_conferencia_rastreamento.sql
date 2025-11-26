@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS viagens_ativas (
     quilometragem_percorrida DECIMAL(10, 2) GENERATED ALWAYS AS (quilometragem_final - quilometragem_inicial) STORED,
     
     -- Status da viagem
-    status VARCHAR(20) DEFAULT 'iniciada' CHECK (status IN ('iniciada', 'em_andamento', 'pausada', 'finalizada', 'cancelada')),
+    status VARCHAR(20) DEFAULT 'iniciada' CHECK (status IN ('iniciada', 'em_andamento', 'pausada', 'concluida', 'cancelada')),
     tipo_viagem VARCHAR(20) DEFAULT 'ida' CHECK (tipo_viagem IN ('ida', 'volta')),
     
     -- Cálculos automáticos

@@ -889,11 +889,11 @@ router.post('/rotas/:id/finalizar', authenticateToken, requireRole('motorista_es
         rotasTransporte[rotaIndex].tracking = false;
         rotasTransporte[rotaIndex].finished_at = new Date();
 
-        logger.info(`[${new Date().toISOString()}] Rota finalizada - ID: ${rotaId}, Motorista: ${motoristaId}`);
+        logger.info(`[${new Date().toISOString()}] Rota concluída - ID: ${rotaId}, Motorista: ${motoristaId}`);
 
         ctx.body = {
             sucesso: true,
-            mensagem: 'Rota finalizada com sucesso!',
+            mensagem: 'Rota concluída com sucesso!',
             dados: {
                 rota_id: rotaId,
                 horario_fim: rotasTransporte[rotaIndex].finished_at

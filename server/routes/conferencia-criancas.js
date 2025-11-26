@@ -402,14 +402,14 @@ router.put('/viagens/:viagemId/finalizar', authenticateToken, verificarMotorista
 
     const viagem = viagemResult.rows[0];
 
-    if (viagem.status === 'finalizada') {
-      return ctx.body = apiResponse.error('Viagem já foi finalizada', 400);
+    if (viagem.status === 'concluida') {
+      return ctx.body = apiResponse.error('Viagem já foi concluída', 400);
     }
 
-    // Finalizar viagem
+    // Finalizar viagem (padroniza para 'concluida')
     await db.query(`
       UPDATE viagens_ativas 
-      SET status = 'finalizada',
+      SET status = 'concluida',
           data_fim = NOW(),
           atualizado_em = NOW()
       WHERE id = $1
@@ -418,10 +418,10 @@ router.put('/viagens/:viagemId/finalizar', authenticateToken, verificarMotorista
     // Registrar evento
     await db.query(`
       INSERT INTO eventos_viagem (viagem_id, tipo_evento, descricao, criado_em)
-      VALUES ($1, 'finalizacao', 'Viagem finalizada pelo motorista', NOW())
+      VALUES ($1, 'finalizacao', 'Viagem concluída pelo motorista', NOW())
     `, [viagemId]);
 
-    ctx.body = apiResponse.success(null, 'Viagem finalizada com sucesso');
+    ctx.body = apiResponse.success(null, 'Viagem concluída com sucesso');
   } catch (error) {
     logger.error('Erro ao finalizar viagem:', error);
     ctx.body = apiResponse.error('Erro interno do servidor', 500);

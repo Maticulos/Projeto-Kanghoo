@@ -229,6 +229,31 @@ teste/
    DB_PASSWORD=sua_senha
    ```
 
+### Usando `.env.docker` (modo demo / docker)
+
+- Criamos um arquivo `.
+   env.docker` pensado para uso com Docker / Docker Compose (`DEMO_MODE=true`).
+- Para usá-lo com o `docker-compose` (CLI v1) copie para `.env` no mesmo diretório do `docker-compose.yml`:
+
+```cmd
+cd teste
+copy .env.docker .env
+docker-compose up -d
+```
+
+- Ou use diretamente o arquivo com o `docker compose` (CLI v2) sem sobrescrever `.env`:
+
+```bash
+cd teste
+docker compose --env-file .env.docker up -d
+```
+
+- Observações de segurança:
+   - `teste/.env.docker` contém placeholders para variáveis sensíveis (ex.: `JWT_SECRET`, `DB_PASSWORD`).
+   - Substitua `CHANGE_ME_*` por segredos fortes antes de usar em qualquer ambiente real.
+   - Nunca comite segredos reais no repositório.
+
+
 5. **Crie as tabelas do banco de dados**
    ```bash
    node scripts/criar-tabelas-completas.js
@@ -456,3 +481,19 @@ Para suporte técnico ou dúvidas:
 **Desenvolvido com ❤️ pela Equipe de Desenvolvimento**
 
 *Última atualização: Janeiro 2024*
+
+## 🧭 Scripts de Conveniência
+
+Para facilitar execução e manutenção, há um conjunto de wrappers em `teste/scripts/` (nomes em português):
+
+- `iniciar-desenvolvimento.sh` / `iniciar-desenvolvimento.cmd` — iniciar o servidor em modo desenvolvimento com `DEMO_MODE=true` e CORS para `localhost`.
+- `iniciar-producao.sh` — subir a stack de produção via `docker-compose.prod.yml`.
+- `db/migrar.sh` — executar migrations (`knex migrate:latest`).
+- `db/reverter-migracoes.sh` — reverter última batch de migrations.
+- `db/seed.sh` — executar seeds via `database/run-seed.js`.
+- `backup-bd.sh` — gerar dump do Postgres para `teste/backups/`.
+- `limpar-logs.sh` — compactar logs antigos (padrão 30 dias).
+- `verificar-saude.sh` — healthcheck simples para uso em CI/monitoramento.
+- `deploy-cd.sh` — wrapper de CI/CD (testes -> build -> docker-compose up).
+
+Use estes scripts como ponto único de entrada para tarefas operacionais. Leia e audite cada script antes de executar em produção.

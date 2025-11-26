@@ -14,22 +14,35 @@ const router = new Router({
 // ==========================================
 
 // Middleware para verificar se o usuário é motorista escolar
+
 const verificarMotoristaEscolar = async (ctx, next) => {
+
   try {
-    if (!ctx.user || ctx.user.tipo !== 'motorista_escolar') {
-      return ctx.body = apiResponse.error('Acesso negado. Apenas motoristas escolares podem acessar esta funcionalidade.', 403);
+
+    if (!ctx.state.user || ctx.state.user.tipo !== 'motorista_escolar') {
+
+      ctx.status = 403;
+      ctx.body = apiResponse.error('Acesso negado. Apenas motoristas escolares podem acessar esta funcionalidade.', 403);
+      return;
+
     }
+
     await next();
+
   } catch (error) {
+
     logger.error('Erro na verificação de motorista escolar:', error);
+
     ctx.body = apiResponse.error('Erro interno do servidor', 500);
+
   }
+
 };
 
 // Middleware para verificar limites do plano
 const verificarLimitesPlano = async (ctx, next) => {
   try {
-    const usuarioId = ctx.user.id;
+    const usuarioId = ctx.state.user.id;
     
     // Buscar plano ativo do usuário
     const planoResult = await db.query(`
@@ -45,26 +58,37 @@ const verificarLimitesPlano = async (ctx, next) => {
     }
     
     const plano = planoResult.rows[0];
-    
-    // Contar rotas ativas do usuário
-    const rotasResult = await db.query(`
-      SELECT COUNT(*) as total 
-      FROM rotas_escolares 
-      WHERE usuario_id = $1 AND ativa = true
-    `, [usuarioId]);
-    
-    const totalRotas = parseInt(rotasResult.rows[0].total);
-    
-    // Verificar se pode criar nova rota (apenas para POST)
-    if (ctx.method === 'POST' && totalRotas >= plano.limite_rotas) {
-      return ctx.body = apiResponse.error(
-        `Limite de rotas atingido. Seu plano ${plano.tipo_plano} permite até ${plano.limite_rotas} rotas ativas.`, 
-        400
-      );
+    ctx.state.plano = plano;
+
+    // Se for uma requisição para adicionar rota
+    if (ctx.method === 'POST' && !ctx.path.includes('/criancas')) {
+      const rotasResult = await db.query('SELECT COUNT(*) as total FROM rotas_escolares WHERE usuario_id = $1 AND ativa = true', [usuarioId]);
+      const totalRotas = parseInt(rotasResult.rows[0].total);
+      if (plano.limite_rotas !== -1 && totalRotas >= plano.limite_rotas) {
+        return ctx.body = apiResponse.error(
+          `Limite de rotas atingido. Seu plano ${plano.tipo_plano} permite até ${plano.limite_rotas} rotas ativas.`, 
+          400
+        );
+      }
+    }
+
+    // Se for uma requisição para adicionar criança
+    if (ctx.method === 'POST' && ctx.path.includes('/criancas')) {
+      const criancasResult = await db.query(`
+        SELECT COUNT(DISTINCT cr.crianca_id) as total_criancas
+        FROM criancas_rotas cr
+        JOIN rotas_escolares r ON r.id = cr.rota_id
+        WHERE r.usuario_id = $1 AND cr.ativo = true
+      `, [usuarioId]);
+      const totalCriancas = parseInt(criancasResult.rows[0].total_criancas);
+      if (plano.limite_usuarios !== -1 && totalCriancas >= plano.limite_usuarios) {
+        return ctx.body = apiResponse.error(
+          `Limite de crianças atingido. Seu plano ${plano.tipo_plano} permite até ${plano.limite_usuarios} crianças ativas.`,
+          400
+        );
+      }
     }
     
-    ctx.state.plano = plano;
-    ctx.state.totalRotas = totalRotas;
     await next();
   } catch (error) {
     logger.error('Erro na verificação de limites do plano:', error);
@@ -79,7 +103,7 @@ const verificarLimitesPlano = async (ctx, next) => {
 // GET /api/rotas-escolares - Listar rotas do motorista
 router.get('/', authenticateToken, verificarMotoristaEscolar, async (ctx) => {
   try {
-    const usuarioId = ctx.user.id;
+    const usuarioId = ctx.state.user.id;
     const { page = 1, limit = 10, status, tipo_rota } = ctx.query;
     
     let whereClause = 'WHERE r.usuario_id = $1';
@@ -136,11 +160,29 @@ router.get('/', authenticateToken, verificarMotoristaEscolar, async (ctx) => {
   }
 });
 
+// GET /api/rotas-escolares/motorista - Listar todas as rotas do motorista (versão simples para preencher selects)
+router.get('/motorista', authenticateToken, verificarMotoristaEscolar, async (ctx) => {
+  try {
+    const usuarioId = ctx.state.user.id;
+    const result = await db.query(`
+      SELECT id, nome_rota FROM rotas_escolares 
+      WHERE usuario_id = $1 AND ativa = true
+      ORDER BY nome_rota
+    `, [usuarioId]);
+    
+    ctx.body = apiResponse.success(result.rows);
+    
+  } catch (error) {
+    logger.error('Erro ao listar rotas do motorista:', error);
+    ctx.body = apiResponse.error('Erro ao buscar rotas', 500);
+  }
+});
+
 // GET /api/rotas-escolares/:id - Buscar rota específica
 router.get('/:id', authenticateToken, verificarMotoristaEscolar, async (ctx) => {
   try {
     const { id } = ctx.params;
-    const usuarioId = ctx.user.id;
+    const usuarioId = ctx.state.user.id;
     
     const result = await db.query(`
       SELECT * FROM rotas_escolares 
@@ -203,7 +245,7 @@ router.post('/',
   }),
   async (ctx) => {
     try {
-      const usuarioId = ctx.user.id;
+      const usuarioId = ctx.state.user.id;
       const {
         nome_rota,
         descricao,
@@ -289,7 +331,7 @@ router.put('/:id',
   async (ctx) => {
     try {
       const { id } = ctx.params;
-      const usuarioId = ctx.user.id;
+      const usuarioId = ctx.state.user.id;
       
       // Verificar se a rota existe e pertence ao usuário
       const rotaExistente = await db.query(`
@@ -356,7 +398,7 @@ router.put('/:id',
 router.delete('/:id', authenticateToken, verificarMotoristaEscolar, async (ctx) => {
   try {
     const { id } = ctx.params;
-    const usuarioId = ctx.user.id;
+    const usuarioId = ctx.state.user.id;
     
     // Verificar se a rota existe e pertence ao usuário
     const rotaExistente = await db.query(`
@@ -410,6 +452,7 @@ router.delete('/:id', authenticateToken, verificarMotoristaEscolar, async (ctx) 
 router.post('/:id/criancas', 
   authenticateToken, 
   verificarMotoristaEscolar,
+  verificarLimitesPlano,
   validate({
     crianca_id: { required: true, type: 'number' },
     endereco_embarque: { required: true, type: 'string', minLength: 10, maxLength: 500 },
@@ -425,7 +468,7 @@ router.post('/:id/criancas',
   async (ctx) => {
     try {
       const { id: rotaId } = ctx.params;
-      const usuarioId = ctx.user.id;
+      const usuarioId = ctx.state.user.id;
       const {
         crianca_id,
         endereco_embarque,
@@ -513,7 +556,7 @@ router.post('/:id/criancas',
 router.delete('/:id/criancas/:criancaRotaId', authenticateToken, verificarMotoristaEscolar, async (ctx) => {
   try {
     const { id: rotaId, criancaRotaId } = ctx.params;
-    const usuarioId = ctx.user.id;
+    const usuarioId = ctx.state.user.id;
     
     // Verificar se a rota pertence ao usuário
     const rotaResult = await db.query(`
@@ -565,7 +608,7 @@ router.delete('/:id/criancas/:criancaRotaId', authenticateToken, verificarMotori
 // GET /api/rotas-escolares/estatisticas - Estatísticas do motorista
 router.get('/estatisticas/dashboard', authenticateToken, verificarMotoristaEscolar, async (ctx) => {
   try {
-    const usuarioId = ctx.user.id;
+    const usuarioId = ctx.state.user.id;
     
     // Buscar estatísticas usando as views criadas
     const estatisticasResult = await db.query(`
@@ -617,6 +660,55 @@ router.get('/estatisticas/dashboard', authenticateToken, verificarMotoristaEscol
   } catch (error) {
     logger.error('Erro ao buscar estatísticas:', error);
     ctx.body = apiResponse.error('Erro ao buscar estatísticas', 500);
+  }
+});
+
+// GET /api/rotas-escolares/motorista - Listar todas as rotas do motorista (versão simples para preencher selects)
+router.get('/motorista', authenticateToken, verificarMotoristaEscolar, async (ctx) => {
+  try {
+    const usuarioId = ctx.state.user.id;
+    const result = await db.query(`
+      SELECT id, nome_rota FROM rotas_escolares 
+      WHERE usuario_id = $1 AND ativa = true
+      ORDER BY nome_rota
+    `, [usuarioId]);
+    
+    ctx.body = apiResponse.success(result.rows);
+    
+  } catch (error) {
+    logger.error('Erro ao listar rotas do motorista:', error);
+    ctx.body = apiResponse.error('Erro ao buscar rotas', 500);
+  }
+});
+
+// GET /api/rotas-escolares/:id/criancas - Listar crianças de uma rota específica
+router.get('/:id/criancas', authenticateToken, verificarMotoristaEscolar, async (ctx) => {
+  try {
+    const { id } = ctx.params;
+    const usuarioId = ctx.state.user.id;
+    
+    // Verificar se a rota pertence ao motorista
+    const rotaResult = await db.query('SELECT id FROM rotas_escolares WHERE id = $1 AND usuario_id = $2', [id, usuarioId]);
+    if (rotaResult.rows.length === 0) {
+      return ctx.body = apiResponse.error('Rota não encontrada ou não pertence a este motorista.', 404);
+    }
+
+    const criancasResult = await db.query(`
+      SELECT 
+        c.id,
+        c.nome_completo,
+        c.foto_url
+      FROM criancas_rotas cr
+      JOIN criancas c ON c.id = cr.crianca_id
+      WHERE cr.rota_id = $1 AND cr.ativo = true
+      ORDER BY c.nome_completo
+    `, [id]);
+    
+    ctx.body = apiResponse.success(criancasResult.rows);
+    
+  } catch (error) {
+    logger.error('Erro ao buscar crianças da rota:', error);
+    ctx.body = apiResponse.error('Erro ao buscar crianças da rota', 500);
   }
 });
 
