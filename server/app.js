@@ -1,4 +1,4 @@
-const Koa = require('koa');
+﻿const Koa = require('koa');
 const path = require('path');
 const fs = require('fs');
 const serve = require('koa-static');
@@ -23,6 +23,9 @@ const mountRoutes = require('./routes');
 const { cleanupOldFiles } = require('./middleware/upload-security');
 
 const app = new Koa();
+const FRONTEND_STATIC_DIR = process.env.FRONTEND_STATIC_PATH || path.resolve(__dirname, '..', 'frontend', 'public');
+const SERVER_PUBLIC_DIR = path.resolve(__dirname, 'public');
+const STATIC_MAX_AGE = parseInt(process.env.STATIC_MAX_AGE || '0', 10);
 
 // Erros primeiro
 app.use(errorHandler);
@@ -30,7 +33,7 @@ app.use(errorHandler);
 // Security headers via Helmet (fallback para headers manuais)
 if (securityMiddleware && securityMiddleware.securityHeaders) {
   const headersMiddleware = securityMiddleware.securityHeaders();
-  // Verificar se retornou uma função válida (não null)
+  // Verificar se retornou uma funÃ§Ã£o vÃ¡lida (nÃ£o null)
   if (typeof headersMiddleware === 'function') {
     app.use(headersMiddleware);
   } else {
@@ -51,14 +54,14 @@ if (securityMiddleware && securityMiddleware.securityHeaders) {
   });
 }
 
-// Compressão
+// CompressÃ£o
 app.use(compress({
   filter(ct) { return /text|javascript|json|xml|svg/.test(ct); },
   threshold: 1024,
   br: false
 }));
 
-// CORS por ambiente (restrito em produção)
+// CORS por ambiente (restrito em produÃ§Ã£o)
 function buildCorsOptions() {
   // Detectar ambiente de forma mais robusta
   const isProd = process.env.NODE_ENV === 'production' || 
@@ -72,13 +75,13 @@ function buildCorsOptions() {
   if (fromEnv) {
     origins = fromEnv.split(',').map(s => s.trim()).filter(Boolean);
   } else if (isProd) {
-    // Em produção SEM CORS_ORIGINS configurado, usar lista padrão restritiva
-    logger.warn('⚠️  CORS_ORIGINS não configurado em produção. Usando lista padrão restritiva.');
+    // Em produÃ§Ã£o SEM CORS_ORIGINS configurado, usar lista padrÃ£o restritiva
+    logger.warn('âš ï¸  CORS_ORIGINS nÃ£o configurado em produÃ§Ã£o. Usando lista padrÃ£o restritiva.');
     origins = [
       'https://kanghoo.com',
       'https://www.kanghoo.com'
     ];
-    // Se estivermos em modo demo, permitir também localhost para apresentações locais
+    // Se estivermos em modo demo, permitir tambÃ©m localhost para apresentaÃ§Ãµes locais
     if (isDemo) {
       origins.push('http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:3001', 'http://127.0.0.1:3001');
       logger.info('DEMO_MODE ativo: habilitando origens localhost para CORS');
@@ -98,10 +101,10 @@ function buildCorsOptions() {
   const originFn = (ctx) => {
     const reqOrigin = ctx.get('Origin') || '';
     
-    // Em desenvolvimento, sempre permitir (incluindo requisições sem origem)
-    // Também permitir em modo demo quando explicitamente habilitado
+    // Em desenvolvimento, sempre permitir (incluindo requisiÃ§Ãµes sem origem)
+    // TambÃ©m permitir em modo demo quando explicitamente habilitado
     if (!isProd || isDemo) {
-      // Se não há origem (requisição direta do navegador), permitir
+      // Se nÃ£o hÃ¡ origem (requisiÃ§Ã£o direta do navegador), permitir
       if (!reqOrigin || reqOrigin === '') {
         return '*';
       }
@@ -110,16 +113,16 @@ function buildCorsOptions() {
           (reqOrigin && (reqOrigin.includes('localhost') || reqOrigin.includes('127.0.0.1')))) {
         return reqOrigin;
       }
-      // Em desenvolvimento, permitir por padrão
+      // Em desenvolvimento, permitir por padrÃ£o
       return '*';
     }
     
-    // Em produção, validar origem
+    // Em produÃ§Ã£o, validar origem
     if (reqOrigin && origins.includes(reqOrigin)) {
       return reqOrigin;
     }
     
-    // Bloquear se não estiver na lista (apenas em produção)
+    // Bloquear se nÃ£o estiver na lista (apenas em produÃ§Ã£o)
     if (isProd && reqOrigin) {
       logger.warn(`CORS bloqueado para origem: ${reqOrigin}`, {
         ip: ctx.ip,
@@ -128,7 +131,7 @@ function buildCorsOptions() {
       return null; // Bloqueia
     }
     
-    // Em produção sem origem, não permitir
+    // Em produÃ§Ã£o sem origem, nÃ£o permitir
     return null;
   };
 
@@ -143,126 +146,25 @@ function buildCorsOptions() {
 
 app.use(cors(buildCorsOptions()));
 
-<<<<<<< HEAD
-=======
-// Estáticos
-const staticCandidates = [
-  path.join(__dirname, '../frontend/public'),
-  path.join(__dirname, '../frontend'),
-  path.join(__dirname, './frontend/public'),
-  path.join(__dirname, './frontend'),
-  path.join(__dirname, './public'),
-  '/app/frontend/public', // Docker path
-  '/app/frontend',
-];
-
-staticCandidates.forEach((dir) => {
+// Servir arquivos estaticos
+[
+  { dir: SERVER_PUBLIC_DIR, label: 'server/public' },
+  { dir: FRONTEND_STATIC_DIR, label: 'frontend/public' }
+].forEach(({ dir, label }) => {
   if (fs.existsSync(dir)) {
-    logger.info(`Serving static files from: ${dir}`);
+    logger.info(`[STATIC] Servindo arquivos de ${label} em ${dir}`);
     app.use(serve(dir, {
-      maxage: process.env.NODE_ENV === 'production' ? 1000 * 60 * 60 * 24 * 7 : 0, // 7 days cache in production
+      maxage: Number.isFinite(STATIC_MAX_AGE) ? STATIC_MAX_AGE : 0,
       gzip: true,
-      brotli: true
+      brotli: false
     }));
+  } else {
+    logger.warn(`[STATIC] Caminho ${dir} nao encontrado (label=${label})`);
   }
 });
 
->>>>>>> 7e3033439b6ddb76a0413d080f32ee1cb52d2502
-// Body + JSON pretty (dev)
-app.use(bodyParser());
-app.use(json());
 
-// Rate limiting (no-op se Redis não configurado)
-if (securityMiddleware && securityMiddleware.generalRateLimit) {
-  app.use(securityMiddleware.generalRateLimit());
-}
-
-// Rate limiting específico para API (apenas /api/*)
-if (securityMiddleware && securityMiddleware.apiRateLimit) {
-  const apiLimiter = securityMiddleware.apiRateLimit();
-  app.use(async (ctx, next) => {
-    if (ctx.path.startsWith('/api/')) {
-      return apiLimiter(ctx, next);
-    }
-    return next();
-  });
-}
-
-// Rota raiz - servir frontend por padrão, API apenas se solicitado explicitamente
-app.use(async (ctx, next) => {
-  // Interceptar apenas GET / se for uma requisição de API explícita
-  if (ctx.path === '/' && ctx.method === 'GET') {
-    const acceptHeader = ctx.get('Accept') || '';
-    // Verificar se é uma requisição de API (query params ou Accept header específico)
-    const isApiRequest = ctx.query.format === 'json' ||
-                         ctx.query.api === 'true' ||
-                         (acceptHeader.includes('application/json') && !acceptHeader.includes('text/html'));
-    
-    if (isApiRequest) {
-      ctx.body = {
-        success: true,
-        message: 'API do Sistema de Transporte Escolar',
-        version: '1.0.0',
-        endpoints: {
-          health: '/api/health',
-          auth: '/api/auth/login',
-          publicTransportes: '/api/public/transportes',
-          docs: 'Consulte a documentação da API'
-        },
-        timestamp: new Date().toISOString()
-      };
-      ctx.type = 'application/json';
-      return;
-    }
-    // Caso contrário, continuar para servir o frontend (index.html)
-  }
-  await next();
-});
-
-// Estáticos - DEPOIS da rota raiz
-const staticCandidates = [
-  path.join(__dirname, '../frontend/public'),
-  path.join(__dirname, '../frontend'),
-  path.join(__dirname, './frontend/public'),
-  path.join(__dirname, './frontend'),
-  path.join(__dirname, './public'),
-];
-
-// Encontrar o diretório do frontend
-let frontendDir = null;
-for (const dir of staticCandidates) {
-  if (fs.existsSync(dir) && fs.existsSync(path.join(dir, 'index.html'))) {
-    frontendDir = dir;
-    break;
-  }
-}
-
-// Servir arquivos estáticos
-if (frontendDir) {
-  app.use(serve(frontendDir, {
-    index: 'index.html',
-    defer: false
-  }));
-  
-  // Middleware para servir index.html em rotas não encontradas (SPA fallback)
-  app.use(async (ctx, next) => {
-    await next();
-    
-    // Se não encontrou arquivo e não é uma rota de API, servir index.html
-    if (ctx.status === 404 && !ctx.path.startsWith('/api')) {
-      const indexPath = path.join(frontendDir, 'index.html');
-      if (fs.existsSync(indexPath)) {
-        ctx.type = 'text/html';
-        ctx.body = fs.createReadStream(indexPath);
-        ctx.status = 200;
-      }
-    }
-  });
-} else {
-  logger.warn('⚠️  Diretório do frontend não encontrado. Arquivos estáticos não serão servidos.');
-}
-
-// Health check básico
+// Health check bÃ¡sico
 const health = new Router();
 health.get('/api/health', async (ctx) => {
   ctx.body = {
@@ -278,9 +180,9 @@ app.use(health.routes());
 const rootRouter = mountRoutes();
 app.use(rootRouter.routes()).use(rootRouter.allowedMethods());
 
-// Tratamento de rotas não encontradas (404) - removido, agora tratado no errorHandler
+// Tratamento de rotas nÃ£o encontradas (404) - removido, agora tratado no errorHandler
 
-// Endpoint de métricas Prometheus (se prom-client disponível)
+// Endpoint de mÃ©tricas Prometheus (se prom-client disponÃ­vel)
 try {
   const metrics = require('./utils/metrics');
   const metricsRouter = new Router();
@@ -290,13 +192,32 @@ try {
   });
   app.use(metricsRouter.routes());
 } catch (_err) {
-  // prom-client não instalado; ignorar
+  // prom-client nÃ£o instalado; ignorar
 }
 
-// Job diário de limpeza de uploads (24h)
+
+// Fallback para servir index.html em rotas nao API
+const INDEX_HTML_PATH = path.join(FRONTEND_STATIC_DIR, 'index.html');
+if (fs.existsSync(INDEX_HTML_PATH)) {
+  app.use(async (ctx, next) => {
+    await next();
+    const isApiRoute = ctx.path.startsWith('/api') || ctx.path.startsWith('/metrics') || ctx.path.startsWith('/ws');
+    const hasExtension = Boolean(path.extname(ctx.path));
+    if (ctx.status === 404 && ctx.method === 'GET' && !isApiRoute && !hasExtension) {
+      ctx.type = 'html';
+      ctx.status = 200;
+      ctx.body = fs.createReadStream(INDEX_HTML_PATH);
+    }
+  });
+} else {
+  logger.warn(`[STATIC] index.html nao encontrado em ${INDEX_HTML_PATH}`);
+}
+
+// Job diÃ¡rio de limpeza de uploads (24h)
 const DAY_MS = 24 * 60 * 60 * 1000;
 setInterval(() => {
   try { cleanupOldFiles(24); } catch(e) { /* noop */ }
 }, DAY_MS);
 
 module.exports = app;
+

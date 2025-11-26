@@ -1,14 +1,14 @@
-/**
+﻿/**
  * ========================================
- * API PÚBLICA DE TRANSPORTES
- * Endpoint público para busca de transportes sem autenticação
+ * API PÃšBLICA DE TRANSPORTES
+ * Endpoint pÃºblico para busca de transportes sem autenticaÃ§Ã£o
  * ========================================
  * 
- * SEGURANÇA:
- * - Não requer autenticação
- * - Filtra dados sensíveis (email, telefone completo, endereço completo)
- * - Rate limiting específico para API pública
- * - Validação rigorosa de inputs
+ * SEGURANÃ‡A:
+ * - NÃ£o requer autenticaÃ§Ã£o
+ * - Filtra dados sensÃ­veis (email, telefone completo, endereÃ§o completo)
+ * - Rate limiting especÃ­fico para API pÃºblica
+ * - ValidaÃ§Ã£o rigorosa de inputs
  * - Cache recomendado (implementar futuramente)
  */
 
@@ -26,31 +26,31 @@ try {
 const router = new Router({ prefix: '/api/public' });
 
 /**
- * Função para sanitizar dados sensíveis de um transporte
- * Remove informações pessoais que não devem ser expostas publicamente
+ * FunÃ§Ã£o para sanitizar dados sensÃ­veis de um transporte
+ * Remove informaÃ§Ãµes pessoais que nÃ£o devem ser expostas publicamente
  */
 function sanitizeTransporteData(transporte) {
-  // Criar ID público (hash do ID real para não expor IDs sequenciais)
+  // Criar ID pÃºblico (hash do ID real para nÃ£o expor IDs sequenciais)
   const crypto = require('crypto');
   const publicId = crypto.createHash('sha256')
     .update(`transporte_${transporte.id}_${process.env.JWT_SECRET || 'default'}`)
     .digest('hex')
     .substring(0, 16);
 
-  // Sanitizar endereço - mostrar apenas bairro/cidade, não endereço completo
+  // Sanitizar endereÃ§o - mostrar apenas bairro/cidade, nÃ£o endereÃ§o completo
   const sanitizeEndereco = (endereco) => {
     if (!endereco) return null;
-    // Extrair apenas bairro e cidade se possível
+    // Extrair apenas bairro e cidade se possÃ­vel
     const parts = endereco.split(',');
     if (parts.length >= 2) {
-      // Retornar apenas as últimas partes (bairro, cidade)
+      // Retornar apenas as Ãºltimas partes (bairro, cidade)
       return parts.slice(-2).join(',').trim();
     }
-    // Se não conseguir extrair, retornar apenas cidade genérica
-    return 'São Paulo, SP';
+    // Se nÃ£o conseguir extrair, retornar apenas cidade genÃ©rica
+    return 'SÃ£o Paulo, SP';
   };
 
-  // Sanitizar telefone - mostrar apenas últimos 4 dígitos
+  // Sanitizar telefone - mostrar apenas Ãºltimos 4 dÃ­gitos
   const sanitizeTelefone = (telefone) => {
     if (!telefone) return null;
     const digits = telefone.replace(/\D/g, '');
@@ -60,7 +60,7 @@ function sanitizeTransporteData(transporte) {
     return '(XX) XXXXX-XXXX';
   };
 
-  // Sanitizar email - mostrar apenas domínio
+  // Sanitizar email - mostrar apenas domÃ­nio
   const sanitizeEmail = (email) => {
     if (!email) return null;
     const parts = email.split('@');
@@ -74,6 +74,18 @@ function sanitizeTransporteData(transporte) {
     id: publicId, // ID público hashado
     nome: transporte.nome || 'Transporte',
     tipo: transporte.tipo_servico || transporte.tipo || 'Transporte',
+    tipo_rota: transporte.tipo_servico || transporte.tipo || 'Transporte',
+    nome_rota: transporte.nome_rota || transporte.nome || 'Transporte',
+    valor_mensal: transporte.preco_mensal ? parseFloat(transporte.preco_mensal) : null,
+    preco: transporte.preco_por_pessoa ? parseFloat(transporte.preco_por_pessoa) : null,
+    turno: transporte.turno,
+    escola_destino: transporte.escola_destino,
+    caracteristicas: [
+      transporte.ar_condicionado ? 'ar-condicionado' : null,
+      transporte.wifi ? 'wifi' : null,
+      transporte.acessibilidade_pcd ? 'acessibilidade' : null,
+      transporte.gps_rastreamento ? 'gps' : null
+    ].filter(Boolean),
     avaliacao: parseFloat(transporte.avaliacao) || 0,
     totalAvaliacoes: parseInt(transporte.total_avaliacoes) || 0,
     // Dados sanitizados
@@ -128,37 +140,38 @@ function sanitizeTransporteData(transporte) {
 
 /**
  * GET /api/public/transportes
- * Busca pública de transportes (sem autenticação)
+ * Busca pÃºblica de transportes (sem autenticaÃ§Ã£o)
  * 
- * Parâmetros de query:
- * - tipo: 'escolar'|'excursao'|'todos' (padrão: 'todos')
+ * ParÃ¢metros de query:
+ * - tipo: 'escolar'|'excursao'|'todos' (padrÃ£o: 'todos')
  * - endereco: busca textual
  * - cidade: filtrar por cidade
  * - bairro: filtrar por bairro
- * - capacidade: capacidade mínima do veículo
- * - faixaPreco: faixa de preço
+ * - capacidade: capacidade mÃ­nima do veÃ­culo
+ * - faixaPreco: faixa de preÃ§o
  * - turno: turno (para escolar)
  * - arCondicionado: boolean
  * - wifi: boolean
  * - acessibilidade: boolean
  * - latitude: latitude para busca por proximidade
  * - longitude: longitude para busca por proximidade
- * - raio: raio em km (padrão: 10)
+ * - raio: raio em km (padrÃ£o: 10)
  * - ordenacao: 'relevancia'|'preco'|'avaliacao'|'distancia'
- * - pagina: número da página (padrão: 1)
- * - limite: resultados por página (padrão: 20, máximo: 50)
+ * - pagina: nÃºmero da pÃ¡gina (padrÃ£o: 1)
+ * - limite: resultados por pÃ¡gina (padrÃ£o: 20, mÃ¡ximo: 50)
  */
 router.get('/transportes', async (ctx) => {
   try {
-    // Rate limiting específico para API pública (se disponível)
+    // Rate limiting especÃ­fico para API pÃºblica (se disponÃ­vel)
     if (securityMiddleware && securityMiddleware.apiRateLimit) {
       const publicRateLimit = securityMiddleware.apiRateLimit();
       await publicRateLimit(ctx, async () => {});
     }
 
-    // Extrair e validar parâmetros
+    // Extrair e validar parÃ¢metros
+    const queryParams = ctx.query || {};
+    const tipo = (queryParams.tipo_rota || queryParams.tipo || 'todos').toLowerCase();
     const {
-      tipo = 'todos',
       endereco,
       cidade,
       bairro,
@@ -170,27 +183,33 @@ router.get('/transportes', async (ctx) => {
       acessibilidade,
       latitude,
       longitude,
-      raio = 10,
+      raio = queryParams.raio_km || 10,
       ordenacao = 'relevancia',
       pagina = 1,
-      limite = 20
-    } = ctx.query;
+      limite = 20,
+      valor_max,
+      escola
+    } = queryParams;
+    const caracteristicasList = (queryParams.caracteristicas || '').split(',').map(s => s.trim()).filter(Boolean);
+    const valorMax = valor_max ? parseFloat(valor_max) : null;
 
-    // Validação de limites
+    // ValidaÃ§Ã£o de limites
     const page = Math.max(1, parseInt(pagina) || 1);
-    const limit = Math.min(50, Math.max(1, parseInt(limite) || 20)); // Máximo 50 por página
-    const raioKm = Math.min(50, Math.max(1, parseFloat(raio) || 10)); // Máximo 50km
+    const limit = Math.min(50, Math.max(1, parseInt(limite) || 20)); // MÃ¡ximo 50 por pÃ¡gina
+    const raioKm = Math.min(50, Math.max(1, parseFloat(raio) || 10)); // MÃ¡ximo 50km
 
-    // Validação de coordenadas se fornecidas
+    // ValidaÃ§Ã£o de coordenadas se fornecidas
     if (latitude && longitude) {
       const lat = parseFloat(latitude);
       const lng = parseFloat(longitude);
       if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-        return ctx.body = error('Coordenadas inválidas', 400);
+        return ctx.body = error('Coordenadas invÃ¡lidas', 400);
       }
     }
 
     // Construir query base (reutilizando lógica do endpoint existente)
+    const latExpr = 'COALESCE(r.latitude_origem, u.latitude)';
+    const lonExpr = 'COALESCE(r.longitude_origem, u.longitude)';
     let query = `
       SELECT DISTINCT
         u.id,
@@ -199,8 +218,8 @@ router.get('/transportes', async (ctx) => {
         u.celular,
         u.tipo_usuario,
         u.endereco_completo,
-        u.latitude,
-        u.longitude,
+        ${latExpr} as latitude,
+        ${lonExpr} as longitude,
         v.placa,
         COALESCE(v.capacidade, 1) as lotacao_maxima,
         v.ano as ano_fabricacao,
@@ -219,20 +238,20 @@ router.get('/transportes', async (ctx) => {
     `;
 
 
-    // Condicionalmente adicionar cálculo de distância
+    // Condicionalmente adicionar cÃ¡lculo de distÃ¢ncia
     if (latitude && longitude) {
       query += `,
         (
           6371 * acos(
-            cos(radians(${parseFloat(latitude)})) * cos(radians(u.latitude)) * 
-            cos(radians(u.longitude) - radians(${parseFloat(longitude)})) + 
-            sin(radians(${parseFloat(latitude)})) * sin(radians(u.latitude))
+            cos(radians(${parseFloat(latitude)})) * cos(radians(${latExpr})) * 
+            cos(radians(${lonExpr}) - radians(${parseFloat(longitude)})) + 
+            sin(radians(${parseFloat(latitude)})) * sin(radians(${latExpr}))
           )
         ) AS distancia_km
       `;
     }
 
-    // Adicionar campos específicos por tipo
+    // Adicionar campos especÃ­ficos por tipo
     // NOTA: Usar apenas campos que existem na estrutura atual
     if (tipo === 'escolar' || tipo === 'todos') {
       query += `,
@@ -259,7 +278,7 @@ router.get('/transportes', async (ctx) => {
     }
 
     // FROM e JOINs
-    // Usar LEFT JOIN para permitir usuários sem veículos
+    // Usar LEFT JOIN para permitir usuÃ¡rios sem veÃ­culos
     // NOTA: A tabela veiculos usa 'motorista_id' em vez de 'usuario_id'
     query += `
       FROM usuarios u
@@ -276,11 +295,11 @@ router.get('/transportes', async (ctx) => {
       ) avg_aval ON u.id = avg_aval.avaliado_id
     `;
     
-    // Verificar se tabela caracteristicas_veiculos existe (pode não existir)
-    // Se não existir, os valores serão NULL e serão tratados com COALESCE
+    // Verificar se tabela caracteristicas_veiculos existe (pode nÃ£o existir)
+    // Se nÃ£o existir, os valores serÃ£o NULL e serÃ£o tratados com COALESCE
 
     // JOINs condicionais
-    // NOTA: Tabela rotas_escolares não tem 'status_rota', apenas 'ativa'
+    // NOTA: Tabela rotas_escolares nÃ£o tem 'status_rota', apenas 'ativa'
     if (tipo === 'escolar' || tipo === 'todos') {
       query += `
         LEFT JOIN rotas_escolares r ON u.id = r.usuario_id AND r.ativa = true
@@ -298,7 +317,7 @@ router.get('/transportes', async (ctx) => {
     let params = [];
     let paramCount = 0;
 
-    // Filtro de tipo de usuário
+    // Filtro de tipo de usuÃ¡rio
     if (tipo === 'escolar') {
       whereConditions.push(`u.tipo_usuario IN ('motorista_escolar', 'motorista_escolar_excursao')`);
     } else if (tipo === 'excursao') {
@@ -307,8 +326,8 @@ router.get('/transportes', async (ctx) => {
       whereConditions.push(`u.tipo_usuario IN ('motorista_escolar', 'motorista_excursao', 'motorista_escolar_excursao')`);
     }
 
-    // Filtro de endereço
-    // NOTA: Tabela rotas_escolares não tem endereco_origem/endereco_destino
+    // Filtro de endereÃ§o
+    // NOTA: Tabela rotas_escolares nÃ£o tem endereco_origem/endereco_destino
     if (endereco) {
       paramCount++;
       whereConditions.push(`LOWER(u.endereco_completo) LIKE LOWER($${paramCount})`);
@@ -323,19 +342,33 @@ router.get('/transportes', async (ctx) => {
     }
 
     // Filtro de bairro
-    // NOTA: Tabela rotas_escolares não tem endereco_origem
+    // NOTA: Tabela rotas_escolares nÃ£o tem endereco_origem
     if (bairro) {
       paramCount++;
       whereConditions.push(`LOWER(u.endereco_completo) LIKE LOWER($${paramCount})`);
       params.push(`%${bairro}%`);
     }
 
+    // Filtro de escola (rota escolar)
+    if (escola) {
+      paramCount++;
+      whereConditions.push(`LOWER(r.escola_destino) LIKE LOWER($${paramCount})`);
+      params.push(`%${escola}%`);
+    }
+
     // Filtro de capacidade
-    // NOTA: Tabela veiculos tem apenas 'capacidade', não 'lotacao_maxima' ou 'capacidade_passageiros'
+    // NOTA: Tabela veiculos tem apenas 'capacidade', nÃ£o 'lotacao_maxima' ou 'capacidade_passageiros'
     if (capacidade) {
       paramCount++;
       whereConditions.push(`v.capacidade >= $${paramCount}`);
       params.push(parseInt(capacidade));
+    }
+
+    // Filtro de valor máximo (mensal ou por pessoa)
+    if (valorMax) {
+      paramCount++;
+      whereConditions.push(`COALESCE(r.valor_mensal, r.preco_mensal, p.preco_por_pessoa) <= $${paramCount}`);
+      params.push(valorMax);
     }
 
     // Filtro de turno (escolar)
@@ -345,36 +378,44 @@ router.get('/transportes', async (ctx) => {
       params.push(turno);
     }
 
-    // Filtros de características (apenas se tabela existir)
+    // Filtros de caracteristicas (apenas se tabela existir)
+    const wantedCaracts = new Set(caracteristicasList.map(c => c.toLowerCase()));
     if (arCondicionado === 'true') {
       whereConditions.push(`COALESCE(cv.ar_condicionado, false) = true`);
+      wantedCaracts.add('ar-condicionado');
     }
     if (wifi === 'true') {
       whereConditions.push(`COALESCE(cv.wifi, false) = true`);
+      wantedCaracts.add('wifi');
     }
     if (acessibilidade === 'true') {
       whereConditions.push(`COALESCE(cv.acessibilidade_pcd, false) = true`);
+      wantedCaracts.add('acessibilidade');
     }
-
-    // Filtro por proximidade geográfica
-    // NOTA: Campos de coordenadas não existem ainda - desabilitado temporariamente
+    if (wantedCaracts.size) {
+      if (wantedCaracts.has('ar-condicionado')) whereConditions.push(`COALESCE(cv.ar_condicionado, false) = true`);
+      if (wantedCaracts.has('wifi') || wantedCaracts.has('wi-fi')) whereConditions.push(`COALESCE(cv.wifi, false) = true`);
+      if (wantedCaracts.has('acessibilidade')) whereConditions.push(`COALESCE(cv.acessibilidade_pcd, false) = true`);
+    }
+    // Filtro por proximidade geogrÃ¡fica
+    // NOTA: Campos de coordenadas nÃ£o existem ainda - desabilitado temporariamente
     if (latitude && longitude) {
       const lat = parseFloat(latitude);
       const lng = parseFloat(longitude);
       
       // Validar coordenadas (para uso futuro)
       if (!(lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180)) {
-        return error(ctx, 400, 'Coordenadas inválidas');
+        return error(ctx, 400, 'Coordenadas invÃ¡lidas');
       }
       
-      // Filtro de proximidade geográfica
+      // Filtro de proximidade geogrÃ¡fica
       if (latitude && longitude) {
         whereConditions.push(`
           (
             6371 * acos(
-              cos(radians(${parseFloat(latitude)})) * cos(radians(u.latitude)) * 
-              cos(radians(u.longitude) - radians(${parseFloat(longitude)})) + 
-              sin(radians(${parseFloat(latitude)})) * sin(radians(u.latitude))
+              cos(radians(${parseFloat(latitude)})) * cos(radians(${latExpr})) * 
+              cos(radians(${lonExpr}) - radians(${parseFloat(longitude)})) + 
+              sin(radians(${parseFloat(latitude)})) * sin(radians(${latExpr}))
             )
           ) <= ${raioKm}
         `);
@@ -388,13 +429,13 @@ router.get('/transportes', async (ctx) => {
 
     // ORDER BY
     if (ordenacao === 'preco') {
-      // Ordenar por preço baseado no tipo
+      // Ordenar por preÃ§o baseado no tipo
       if (tipo === 'escolar') {
         query += ` ORDER BY r.valor_mensal ASC NULLS LAST, u.id DESC`;
       } else if (tipo === 'excursao') {
         query += ` ORDER BY p.preco_por_pessoa ASC NULLS LAST, u.id DESC`;
       } else {
-        // Tipo 'todos' - ordenar por preço unificado
+        // Tipo 'todos' - ordenar por preÃ§o unificado
         query += ` ORDER BY COALESCE(r.valor_mensal, r.preco_mensal, p.preco_por_pessoa) ASC NULLS LAST, u.id DESC`;
       }
     } else if (ordenacao === 'avaliacao') {
@@ -402,16 +443,16 @@ router.get('/transportes', async (ctx) => {
     } else if (ordenacao === 'distancia' && latitude && longitude) {
       query += ` ORDER BY distancia_km ASC NULLS LAST, avaliacao DESC, u.id DESC`;
     } else {
-      // Ordenação padrão: relevância (avaliação + total de avaliações)
+      // OrdenaÃ§Ã£o padrÃ£o: relevÃ¢ncia (avaliaÃ§Ã£o + total de avaliaÃ§Ãµes)
       query += ` ORDER BY avaliacao DESC, total_avaliacoes DESC, u.id DESC`;
     }
 
-    // Paginação
+    // PaginaÃ§Ã£o
     const offset = (page - 1) * limit;
     paramCount++;
     query += ` LIMIT $${paramCount} OFFSET $${paramCount + 1}`;
     params.push(limit, offset);
-    paramCount++; // Incrementar após adicionar offset
+    paramCount++; // Incrementar apÃ³s adicionar offset
 
     // Executar query
     const result = await db.query(query, params);
@@ -443,8 +484,8 @@ router.get('/transportes', async (ctx) => {
     // Sanitizar dados antes de retornar
     const transportesSanitizados = result.rows.map(row => sanitizeTransporteData(row));
 
-    // Log de acesso (sem dados sensíveis)
-    logger.info('API pública acessada', {
+    // Log de acesso (sem dados sensÃ­veis)
+    logger.info('API pÃºblica acessada', {
       ip: ctx.ip,
       tipo,
       totalResultados: total,
@@ -453,6 +494,7 @@ router.get('/transportes', async (ctx) => {
 
     return ctx.body = success({
       transportes: transportesSanitizados,
+      rotas: transportesSanitizados,
       paginacao: {
         paginaAtual: page,
         totalPaginas: Math.ceil(total / limit),
@@ -470,7 +512,7 @@ router.get('/transportes', async (ctx) => {
     }, 'Busca realizada com sucesso');
 
   } catch (err) {
-    logger.error('Erro na API pública de transportes:', {
+    logger.error('Erro na API pÃºblica de transportes:', {
       error: err.message,
       stack: err.stack,
       ip: ctx.ip
@@ -480,4 +522,7 @@ router.get('/transportes', async (ctx) => {
 });
 
 module.exports = router;
+
+
+
 

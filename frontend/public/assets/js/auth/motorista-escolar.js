@@ -605,8 +605,12 @@ const planProfiles = {
         const btn = document.getElementById("logout-btn");
         if (btn) {
             btn.addEventListener("click", () => {
-                localStorage.removeItem("authToken");
-                window.location.href = "login.html";
+                if (window.PostAuth?.logout) {
+                    window.PostAuth.logout();
+                } else {
+                    localStorage.removeItem("authToken");
+                    window.location.href = "login.html";
+                }
             });
         }
     }

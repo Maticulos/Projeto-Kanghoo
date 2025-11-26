@@ -19,6 +19,7 @@ class TransportesGateway {
 
     buildQueryFromFilters(filtros = {}) {
         const params = new URLSearchParams();
+        if (filtros.tipo) params.set('tipo', filtros.tipo);
         if (filtros.tipo_rota) params.set('tipo_rota', filtros.tipo_rota);
         if (filtros.escola) params.set('escola', filtros.escola);
         if (filtros.turno) params.set('turno', filtros.turno);
@@ -33,6 +34,7 @@ class TransportesGateway {
             params.set('latitude', filtros.latitude);
             params.set('longitude', filtros.longitude);
             if (filtros.raio_km) params.set('raio_km', filtros.raio_km);
+            if (filtros.raio) params.set('raio', filtros.raio);
         }
         params.set('page', filtros.page || 1);
         params.set('limit', filtros.limit || 10);
@@ -60,7 +62,8 @@ class TransportesGateway {
         if (!res || !res.ok) throw new Error(`Erro na API (${res ? res.status : 'offline'})`);
         const json = await res.json();
         if (!json) throw new Error('Resposta vazia da API');
-        return json.data || json;
+        const payload = json.data || json;
+        return payload.rotas || payload.transportes || payload.data || payload;
     }
 
     async listarAtivos(tipo = 'escolar') {
@@ -183,6 +186,7 @@ class TransporteFinder {
         this.resultsPerPage = 10;
         this.isLoading = false;
         this.matchMode = MATCH_MODE;
+        this.userCoords = null;
         
         this.init();
     }
@@ -282,11 +286,10 @@ class TransporteFinder {
 
     getCurrentLocation() {
         this.showLoading('Obtendo sua localização...');
-        
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 const { latitude, longitude } = position.coords;
-                this.reverseGeocode(latitude, longitude);
+                this.handleGeolocationSuccess(latitude, longitude);
             },
             (error) => {
                 this.hideLoading();
@@ -297,26 +300,25 @@ class TransporteFinder {
         );
     }
 
-    async reverseGeocode(lat, lng) {
-        try {
-            // Simulação de API de geocodificação reversa
-            // Em produção, usar uma API real como Google Maps ou OpenStreetMap
-            const mockAddress = `Rua Exemplo, ${Math.floor(Math.random() * 1000)}, São Paulo, SP`;
-            
-            setTimeout(() => {
-                document.getElementById('endereco').value = mockAddress;
-                this.hideLoading();
-                this.showSuccess('Localização obtida com sucesso!');
-                this.aplicarFiltros();
-            }, 1000);
-            
-        } catch (error) {
-            this.hideLoading();
-            this.showError('Erro ao obter endereço da localização.');
-            console.error('Erro na geocodificação reversa:', error);
+    handleGeolocationSuccess(lat, lng) {
+        this.userCoords = [lat, lng];
+        const enderecoEl = document.getElementById('endereco');
+        if (enderecoEl) {
+            enderecoEl.value = 'Minha localização';
         }
+        if (window.mapsIntegration) {
+            window.mapsIntegration.userLocation = [lat, lng];
+            if (typeof window.mapsIntegration.setUserLocationMarker === 'function') {
+                window.mapsIntegration.setUserLocationMarker([lat, lng]);
+            }
+            if (window.mapsIntegration.map?.setView) {
+                window.mapsIntegration.map.setView([lat, lng], 14);
+            }
+        }
+        this.hideLoading();
+        this.showSuccess('Localização obtida com sucesso!');
+        this.aplicarFiltros();
     }
-
     setupFormValidation() {
         const form = document.querySelector('.filters-container');
         if (!form) return;
@@ -544,7 +546,7 @@ class TransporteFinder {
         
         let isValid = true;
         
-        if (endereco && !this.validateField(endereco)) {
+        if (endereco && !this.userCoords && !this.validateField(endereco)) {
             isValid = false;
         }
         
@@ -573,11 +575,13 @@ class TransporteFinder {
         const caracteristicasSelecionadas = this.obterCaracteristicasSelecionadas();
 
         // Tentar usar geolocalização atual do mapa
-        const lat = window.mapsIntegration?.userLocation?.[0] || null;
-        const lng = window.mapsIntegration?.userLocation?.[1] || null;
+        const coords = this.userCoords || window.mapsIntegration?.userLocation || [null, null];
+        const lat = coords[0];
+        const lng = coords[1];
 
         return {
             tipo_rota: transportType === 'escolar' ? 'escolar' : 'excursao',
+            tipo: transportType === 'escolar' ? 'escolar' : 'excursao',
             escola: escola.trim(),
             turno: turno.trim(),
             valor_max: precoMax ? parseFloat(precoMax) : '',
@@ -588,6 +592,7 @@ class TransporteFinder {
             latitude: lat,
             longitude: lng,
             raio_km: raio,
+            raio: raio,
             endereco: endereco.trim(),
             page: this.currentPage || 1,
             limit: this.resultsPerPage || 10,
@@ -595,35 +600,46 @@ class TransporteFinder {
     }
 
     mapRouteToResult(rota = {}) {
-        const horario = rota.horario_ida && rota.horario_volta
-            ? `${rota.horario_ida} - ${rota.horario_volta}`
-            : (rota.turno || rota.dias_semana || '-');
-        const capacidadeLabel = rota.capacidade_maxima
-            ? `At\u00e9 ${rota.capacidade_maxima} crian\u00e7as`
-            : (rota.capacidade ? `At\u00e9 ${rota.capacidade}` : (rota.capacidade_atual ? `${rota.capacidade_atual}` : '-'));
-        const precoLabel = rota.valor_mensal
-            ? `R$ ${rota.valor_mensal}/m\u00eas`
+        const rotaPublica = rota.rota || {};
+        const horarioIda = rota.horario_ida || rotaPublica.horarioIda;
+        const horarioVolta = rota.horario_volta || rotaPublica.horarioVolta;
+        const horarioTurno = rota.turno || rotaPublica.turno || rota.dias_semana || '-';
+        const horario = (horarioIda && horarioVolta)
+            ? `${horarioIda} - ${horarioVolta}`
+            : horarioTurno;
+        const capacidadeRaw = rota.capacidade_maxima || rota.capacidade || rota.capacidade_atual || rota.veiculo?.capacidade;
+        const capacidadeLabel = capacidadeRaw
+            ? `At\u00e9 ${capacidadeRaw} crian\u00e7as`
+            : '-';
+        const precoValor = rota.valor_mensal || rota.preco || rota.preco_mensal || rotaPublica.precoMensal || null;
+        const precoLabel = precoValor
+            ? `R$ ${precoValor}/m\u00eas`
             : (rota.preco ? `R$ ${rota.preco}` : '-');
-        const caracteristicas = Array.isArray(rota.caracteristicas)
-            ? rota.caracteristicas.join(', ')
-            : (rota.features || rota.dias_semana || 'Rastreamento GPS');
+        const caracteristicasList = Array.isArray(rota.caracteristicas)
+            ? rota.caracteristicas
+            : Array.isArray(rotaPublica.caracteristicas)
+                ? rotaPublica.caracteristicas
+                : Object.entries(rota.veiculo?.caracteristicas || {}).filter(([, v]) => v).map(([k]) => k);
+
+        const lat = rota.latitude_origem || rota.latitude || rota.localizacao?.latitude || null;
+        const lng = rota.longitude_origem || rota.longitude || rota.localizacao?.longitude || null;
 
         return {
             id: rota.id,
-            nome: rota.nome_rota || rota.nome || 'Rota escolar',
-            tipo: rota.tipo_rota || this.currentTransportType || 'escolar',
-            avaliacao: rota.media_avaliacoes || 4.7,
+            nome: rota.nome_rota || rota.nome || rotaPublica.nome || 'Rota escolar',
+            tipo: rota.tipo_rota || rota.tipo || this.currentTransportType || 'escolar',
+            avaliacao: rota.media_avaliacoes || rota.avaliacao || 4.7,
             avaliacoes: rota.total_avaliacoes || 0,
             distancia: rota.distancia_km ? `${rota.distancia_km} km` : '-',
             capacidade: capacidadeLabel,
             horario,
             preco: precoLabel,
-            caracteristicas,
+            caracteristicas: Array.isArray(caracteristicasList) ? caracteristicasList.join(', ') : (rota.features || rota.dias_semana || 'Rastreamento GPS'),
             faixaEtaria: rota.faixa_etaria || rota.faixa_etaria_atendida || '',
-            escolas: rota.escola_destino || rota.escola || rota.escolas_atendidas || '',
-            latitude: rota.latitude_origem || rota.latitude,
-            longitude: rota.longitude_origem || rota.longitude,
-            turno: rota.turno || '',
+            escolas: rota.escola_destino || rota.escola || rotaPublica.escola || rota.escolas_atendidas || '',
+            latitude: lat,
+            longitude: lng,
+            turno: rota.turno || rotaPublica.turno || '',
             vagaDisponivel: rota.vagas_disponiveis,
             raw: rota
         };
