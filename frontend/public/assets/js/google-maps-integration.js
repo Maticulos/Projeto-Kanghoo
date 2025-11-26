@@ -10,6 +10,8 @@ class MapsIntegration {
         this.userLocationMarker = null;
         this.userLocation = null;
         this.routeControl = null;
+        this.statusOverlay = null;
+        this.realtimeBadge = null;
         
         // Configurações padrão
         this.defaultCenter = [-23.5505, -46.6333]; // São Paulo [lat, lng]
@@ -62,6 +64,10 @@ class MapsIntegration {
                 attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
                 maxZoom: 19
             }).addTo(this.map);
+
+            this.ensureStatusOverlay(mapElement);
+            this.setStatus('ready');
+            this.setRealtimeBadge(window.APP_CONFIG?.demoMode ? 'DEMO' : 'Tempo real');
             
             // Esconder loading
             if (loadingElement) {
@@ -445,7 +451,97 @@ class MapsIntegration {
             `;
         }
     }
-    
+
+    ensureStatusOverlay(mapElement = null) {
+        if (this.statusOverlay) return this.statusOverlay;
+        const host = mapElement || document.getElementById('google-map');
+        if (!host) return null;
+        host.style.position = host.style.position || 'relative';
+        const overlay = document.createElement('div');
+        overlay.id = 'map-status-overlay';
+        overlay.style.cssText = `
+            position: absolute;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.35);
+            color: #fff;
+            z-index: 999;
+            text-align: center;
+            padding: 1rem;
+            backdrop-filter: blur(2px);
+        `;
+        host.appendChild(overlay);
+        this.statusOverlay = overlay;
+        return overlay;
+    }
+
+    setStatus(state = 'ready', message = '') {
+        const overlay = this.ensureStatusOverlay();
+        if (!overlay) return;
+        if (state === 'ready') {
+            overlay.style.display = 'none';
+            return;
+        }
+        const palette = {
+            loading: '#7c5dff',
+            error: '#ff5563',
+            empty: '#999',
+            warning: '#ffb347'
+        };
+        const label = state === 'loading'
+            ? 'Carregando mapa...'
+            : state === 'empty'
+                ? 'Nenhum transporte encontrado'
+                : 'Aviso';
+
+        overlay.innerHTML = `
+            <div style="
+                background: rgba(0,0,0,0.65);
+                padding: 1rem 1.5rem;
+                border-radius: 12px;
+                border: 1px solid rgba(255,255,255,0.2);
+                box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+            ">
+                <strong style="display:block;margin-bottom:0.35rem;">${label}</strong>
+                <small>${message || 'Aguardando dados do mapa'}</small>
+            </div>
+        `;
+        overlay.style.display = 'flex';
+        overlay.style.background = state === 'loading'
+            ? 'rgba(124,93,255,0.15)'
+            : state === 'error'
+                ? 'rgba(255,85,99,0.15)'
+                : 'rgba(0,0,0,0.35)';
+        overlay.style.color = palette[state] || '#fff';
+    }
+
+    setRealtimeBadge(label = '') {
+        const host = document.getElementById('google-map');
+        if (!host) return;
+        if (!this.realtimeBadge) {
+            const badge = document.createElement('div');
+            badge.id = 'map-realtime-badge';
+            badge.style.cssText = `
+                position: absolute;
+                bottom: 12px;
+                left: 12px;
+                padding: 6px 10px;
+                border-radius: 10px;
+                background: rgba(0,0,0,0.65);
+                color: #fff;
+                font-size: 12px;
+                z-index: 901;
+                letter-spacing: 0.3px;
+            `;
+            host.appendChild(badge);
+            this.realtimeBadge = badge;
+        }
+        this.realtimeBadge.textContent = label;
+        this.realtimeBadge.style.display = label ? 'inline-flex' : 'none';
+    }
+
     showMessage(message, type = 'info') {
         // Criar ou atualizar elemento de mensagem
         let messageElement = document.getElementById('map-message');

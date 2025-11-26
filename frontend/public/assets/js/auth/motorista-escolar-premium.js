@@ -180,6 +180,7 @@ async function loadLiveData() {
 async function startLiveRoute() {
     if (DEMO_MODE) {
         PostAuth.showToast('Rota iniciada (modo demo).', 'success');
+        PostAuth.notifyEvent?.({ tipo: 'rastreamento_demo', mensagem: 'Rota iniciada (demo)' });
         return;
     }
     const token = localStorage.getItem('authToken');
@@ -210,6 +211,7 @@ async function startLiveRoute() {
             // se não vier JSON, seguimos
         }
         PostAuth.showToast('Rota iniciada com sucesso.', 'success');
+        PostAuth.notifyEvent?.({ tipo: 'rastreamento', mensagem: 'Viagem iniciada' });
         if (trackingInterval) clearInterval(trackingInterval);
         trackingInterval = setInterval(sendLocation, 15000);
         sendLocation();
@@ -222,6 +224,7 @@ async function startLiveRoute() {
 async function finalizeLiveRoute() {
     if (DEMO_MODE) {
         PostAuth.showToast('Viagem finalizada (demo).', 'success');
+        PostAuth.notifyEvent?.({ tipo: 'rastreamento_demo', mensagem: 'Viagem finalizada (demo)' });
         return;
     }
     const token = localStorage.getItem('authToken');
@@ -245,6 +248,7 @@ async function finalizeLiveRoute() {
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         PostAuth.showToast('Viagem finalizada.', 'success');
+        PostAuth.notifyEvent?.({ tipo: 'rastreamento', mensagem: 'Viagem finalizada' });
         currentTripId = null;
         selectedRouteId = null;
         if (trackingInterval) {
@@ -605,8 +609,12 @@ const planProfiles = {
         const btn = document.getElementById("logout-btn");
         if (btn) {
             btn.addEventListener("click", () => {
-                localStorage.removeItem("authToken");
-                window.location.href = "login.html";
+                if (window.PostAuth?.logout) {
+                    window.PostAuth.logout();
+                } else {
+                    localStorage.removeItem("authToken");
+                    window.location.href = "login.html";
+                }
             });
         }
     }
@@ -1046,7 +1054,7 @@ const planProfiles = {
                     <span>${route.students} alunos</span>
                 </div>
                 <strong>${route.name}</strong>
-                <p style="color: var(--text-muted); margin: 0.35rem 0;">${route.status}</p>
+                <p style="color: var(--text-muted); margin: 0.35rem 0;">${route.status}${route.id ? ` • ID ${route.id}` : ''}</p>
                 <div class="progress-track">
                     <div class="progress-value" style="width: ${Math.round(route.occupancy * 100)}%"></div>
                 </div>
@@ -1061,7 +1069,8 @@ const planProfiles = {
             </div>
         `).join('');
         if (selector && plan.routes?.length) {
-            selector.innerHTML = plan.routes.map(r => `<option value="${r.id || ''}">${r.name}</option>`).join('');
+            selector.innerHTML = plan.routes.map(r => `<option value="${r.id || ''}">${r.name}${r.id ? ` • ID ${r.id}` : ''} ${r.status ? `(${r.status})` : ''}</option>`).join('');
+            selectedRouteId = selectedRouteId || plan.routes[0]?.id || null;
             selector.addEventListener('change', (e) => {
                 selectedRouteId = e.target.value || null;
             });

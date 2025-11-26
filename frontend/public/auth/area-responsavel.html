@@ -3607,8 +3607,48 @@ function openParentsGroup() {
 
 function openDriverChat() {
     notifications.info('Abrindo chat com motorista...');
-    // Implementar lógica do chat com motorista
-    console.log('Chat com motorista aberto');
+    // Chat simples com motorista (usa PostAuth initChat)
+    const existing = document.getElementById('chat-panel-resp');
+    if (existing) {
+        existing.classList.add('is-open');
+        return;
+    }
+    const panel = document.createElement('div');
+    panel.id = 'chat-panel-resp';
+    panel.className = 'chat-panel is-open';
+    panel.innerHTML = `
+        <header><strong>Chat com motorista</strong><small id="chat-channel-resp">Canal: carregando...</small></header>
+        <div class="chat-messages" id="chat-messages-resp"></div>
+        <form id="chat-form-resp">
+            <input type="text" id="chat-input-resp" placeholder="Mensagem" autocomplete="off" />
+            <button type="submit"><i class="fa-solid fa-paper-plane"></i></button>
+        </form>
+    `;
+    document.body.appendChild(panel);
+
+    const form = panel.querySelector('#chat-form-resp');
+    const input = panel.querySelector('#chat-input-resp');
+    const list = panel.querySelector('#chat-messages-resp');
+    const label = panel.querySelector('#chat-channel-resp');
+    const channel = window.APP_CONFIG?.activeTripId || 'demo-responsavel';
+    label.textContent = `Canal: ${channel}`;
+    const client = window.PostAuth?.initChat ? PostAuth.initChat(channel) : null;
+
+    PostAuth?.onChatMessage?.((payload) => {
+        if (payload.canal && payload.canal !== channel) return;
+        const item = document.createElement('div');
+        item.className = `chat-bubble ${payload.origem === 'responsavel' ? 'mine' : 'theirs'}`;
+        item.textContent = payload.mensagem || '';
+        list.appendChild(item);
+        list.scrollTop = list.scrollHeight;
+    });
+
+    form?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (!input.value.trim()) return;
+        client?.send?.(input.value.trim());
+        input.value = '';
+    });
 }
 
 // Adicionar indicadores de status online/offline (simulado)

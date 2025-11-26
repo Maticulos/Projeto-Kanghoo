@@ -4,6 +4,7 @@ const DEMO_MODE = !!APP_CONFIG.demoMode;
 let activeTripId = null;
 let chatClient = null;
 let pendingAbsence = null;
+let excursionTrackingInterval = null;
 
 const excursionData = {
     status: {
@@ -64,6 +65,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Em produção, aqui poderíamos carregar viagens/rotas reais
     await loadRealData();
     buildExcursionPage();
+    if (DEMO_MODE) {
+        PostAuth.startDemoEvents();
+    }
 });
 
 async function loadRealData() {
@@ -81,14 +85,19 @@ async function loadRealData() {
         const hist = data?.historico || [];
         if (hist.length) {
             excursionData.trips = hist.map((v) => ({
+                id: v.id || v.viagem_id,
+                rota_id: v.rota_id,
                 date: v.data_viagem || '',
                 destination: v.nome_rota || v.rota_id || 'Viagem',
                 passengers: v.total_criancas || '-',
-                distance: '-',
+                distance: v.distancia_total_km ? `${v.distancia_total_km} km` : '-',
                 status: v.status || 'em andamento',
-                rating: ''
+                rating: v.avaliacao || ''
             }));
             excursionData.status.destination = hist[0].nome_rota || excursionData.status.destination;
+            excursionData.status.viagem_id = hist[0].id || hist[0].viagem_id;
+            excursionData.status.rota_id = hist[0].rota_id;
+            activeTripId = excursionData.status.viagem_id || null;
         }
     } catch (e) {
         console.warn('Falha ao carregar viagens reais, mantendo demo:', e);
@@ -101,6 +110,7 @@ function buildExcursionPage() {
     renderPassengers();
     renderDocuments();
     renderHistory();
+    renderTripSelector();
     renderCharts();
     setupSheet();
     setupActions();
@@ -113,6 +123,10 @@ function renderStatus() {
     document.getElementById('status-departure').textContent = excursionData.status.departure;
     document.getElementById('status-return').textContent = excursionData.status.returnTime;
     document.getElementById('status-meeting').textContent = excursionData.status.meetingPoint;
+    const tripLabel = document.getElementById('status-trip-id');
+    const routeLabel = document.getElementById('status-route-id');
+    if (tripLabel) tripLabel.textContent = activeTripId || excursionData.status.viagem_id || '-';
+    if (routeLabel) routeLabel.textContent = excursionData.status.rota_id || '-';
 
     setTimeout(() => {
         document.querySelector('.status-banner').classList.add('is-visible');
@@ -176,12 +190,41 @@ function renderHistory() {
         <tr>
             <td>${trip.date}</td>
             <td>${trip.destination}</td>
+            <td>${trip.id || '-'}</td>
+            <td>${trip.rota_id || '-'}</td>
             <td>${trip.passengers}</td>
             <td>${trip.distance}</td>
             <td><span class="badge success">${trip.status}</span></td>
-            <td>★ ${trip.rating}</td>
+            <td>★ ${trip.rating || '-'}</td>
         </tr>
     `).join('');
+}
+
+function renderTripSelector() {
+    const banner = document.querySelector('.status-meta');
+    if (!banner) return;
+    let select = document.getElementById('trip-select');
+    if (!select) {
+        select = document.createElement('select');
+        select.id = 'trip-select';
+        select.style.marginTop = '0.5rem';
+        select.style.padding = '0.35rem';
+        select.style.borderRadius = '8px';
+        banner.appendChild(select);
+    }
+    select.innerHTML = excursionData.trips.map(t => `<option value="${t.id || ''}">${t.date || 'Viagem'} - ${t.destination}</option>`).join('');
+    select.addEventListener('change', () => {
+        activeTripId = select.value || null;
+        const selected = excursionData.trips.find(t => String(t.id) === select.value);
+        if (selected) {
+            excursionData.status.viagem_id = selected.id;
+            excursionData.status.rota_id = selected.rota_id;
+            renderStatus();
+        }
+    });
+    if (activeTripId) {
+        select.value = activeTripId;
+    }
 }
 
 function renderCharts() {
@@ -239,11 +282,58 @@ function setupSheet() {
         if (event.target === sheet) sheet.classList.remove('is-open');
     });
 
-    document.getElementById('route-form').addEventListener('submit', event => {
+    document.getElementById('route-form').addEventListener('submit', async event => {
         event.preventDefault();
         sheet.classList.remove('is-open');
-        PostAuth.showToast('Excursão criada com sucesso!', 'success');
-        event.target.reset();
+        const formData = new FormData(event.target);
+        const body = {
+            destino: formData.get('destination'),
+            data: formData.get('date'),
+            horario_inicio: formData.get('start'),
+            horario_fim: formData.get('end'),
+            ponto_encontro: formData.get('meeting'),
+            max_passageiros: Number(formData.get('max')),
+            observacoes: formData.get('notes')
+        };
+        if (DEMO_MODE) {
+            excursionData.trips.unshift({
+                id: `demo-${Date.now()}`,
+                rota_id: `demo-rota-${Date.now()}`,
+                date: body.data,
+                destination: body.destino,
+                passengers: body.max_passageiros,
+                distance: '-',
+                status: 'Planejada',
+                rating: ''
+            });
+            renderHistory();
+            PostAuth.showToast('Excursão criada (demo).', 'success');
+            event.target.reset();
+            return;
+        }
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            window.location.href = 'login.html';
+            return;
+        }
+        try {
+            const res = await fetch(`${API_BASE}/rastreamento/viagens`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(body)
+            });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            await loadRealData();
+            renderHistory();
+            PostAuth.showToast('Excursão criada com sucesso!', 'success');
+            event.target.reset();
+        } catch (err) {
+            console.warn(err);
+            PostAuth.showToast('Falha ao criar excursão.', 'danger');
+        }
     });
 }
 
@@ -254,6 +344,7 @@ function setupActions() {
             if (DEMO_MODE) {
                 activeTripId = 'demo-trip';
                 PostAuth.showToast('Excursão iniciada (demo). Dados simulados sincronizados.', 'success');
+                startExcursionTracking();
                 return;
             }
             const token = localStorage.getItem('authToken');
@@ -262,21 +353,22 @@ function setupActions() {
                 return;
             }
             try {
-                const res = await fetch(`${API_BASE}/rastreamento/viagens/iniciar`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ rota_id: excursionData?.status?.rota_id || 1, tipo_viagem: 'ida' })
-                });
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                const payload = await res.json().catch(() => ({}));
-                activeTripId = payload.viagem_id || payload.id || payload.data?.id || activeTripId;
-                PostAuth.showToast('Excursão iniciada.', 'success');
-                initChatChannel();
-            } catch (err) {
-                PostAuth.showToast('Não foi possível iniciar a excursão.', 'danger');
+            const res = await fetch(`${API_BASE}/rastreamento/viagens/iniciar`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ rota_id: excursionData?.status?.rota_id || 1, tipo_viagem: 'ida' })
+            });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const payload = await res.json().catch(() => ({}));
+            activeTripId = payload.viagem_id || payload.id || payload.data?.id || payload?.viagem?.id || activeTripId;
+            PostAuth.showToast('Excursão iniciada.', 'success');
+            startExcursionTracking();
+            initChatChannel();
+        } catch (err) {
+            PostAuth.showToast('Não foi possível iniciar a excursão.', 'danger');
             }
         });
     }
@@ -309,6 +401,7 @@ function setupActions() {
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 PostAuth.showToast('Excursão finalizada.', 'success');
                 activeTripId = null;
+                stopExcursionTracking();
                 updateChatChannelLabel();
             } catch (_) {
                 PostAuth.showToast('Falha ao finalizar excursão.', 'danger');
@@ -441,6 +534,78 @@ function closeAbsenceModal() {
     if (modal) modal.style.display = 'none';
 }
 
+function startExcursionTracking() {
+    if (excursionTrackingInterval) clearInterval(excursionTrackingInterval);
+    excursionTrackingInterval = setInterval(sendExcursionLocation, DEMO_MODE ? 8000 : 15000);
+    sendExcursionLocation();
+}
+
+function stopExcursionTracking() {
+    if (excursionTrackingInterval) clearInterval(excursionTrackingInterval);
+    excursionTrackingInterval = null;
+}
+
+async function sendExcursionLocation() {
+    if (!activeTripId) return;
+    const token = localStorage.getItem('authToken');
+    if (!token && !DEMO_MODE) return;
+    const coords = DEMO_MODE ? mockExcursionCoords() : await getCurrentPositionSafe();
+    if (!coords) return;
+    if (!DEMO_MODE) {
+        try {
+            await fetch(`${API_BASE}/rastreamento/localizacao`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    latitude: coords.latitude,
+                    longitude: coords.longitude,
+                    velocidade: coords.speed || 0,
+                    viagem_id: activeTripId
+                })
+            });
+        } catch (_) { /* silencioso */ }
+    }
+    if (window.mapsIntegration?.addMarker) {
+        const pos = { lat: coords.latitude, lng: coords.longitude };
+        if (!window.mapsIntegration.markers?.get('excursao')) {
+            window.mapsIntegration.addMarker('excursao', pos, { title: 'Excursão em andamento' });
+        } else {
+            window.mapsIntegration.updateMarker('excursao', pos);
+        }
+        window.mapsIntegration.centerMap?.(pos);
+    }
+    if (DEMO_MODE) {
+        PostAuth.notifyEvent({ tipo: 'rastreamento_demo', viagem_id: activeTripId, latitude: coords.latitude, longitude: coords.longitude });
+    }
+}
+
+function mockExcursionCoords() {
+    const base = { latitude: -23.5505, longitude: -46.6333 };
+    const jitter = (Math.random() - 0.5) * 0.01;
+    return { latitude: base.latitude + jitter, longitude: base.longitude + jitter, speed: Math.random() * 30 };
+}
+
+function getCurrentPositionSafe() {
+    return new Promise((resolve) => {
+        if (!navigator.geolocation) {
+            resolve(null);
+            return;
+        }
+        navigator.geolocation.getCurrentPosition(
+            (pos) => resolve({
+                latitude: pos.coords.latitude,
+                longitude: pos.coords.longitude,
+                speed: pos.coords.speed
+            }),
+            () => resolve(null),
+            { enableHighAccuracy: true, timeout: 8000, maximumAge: 30000 }
+        );
+    });
+}
+
 function chartOptions() {
     return {
         responsive: true,
@@ -458,3 +623,4 @@ function chartOptions() {
         }
     }
 }
+
