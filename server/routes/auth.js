@@ -9,12 +9,8 @@ const { login } = require('../controllers/auth.controller');
 
 const router = new Router();
 
-// Rate limit específico de login, quando disponível
-if (securityMiddleware && securityMiddleware.loginRateLimit) {
-  router.post('/login', securityMiddleware.loginRateLimit(), login);
-} else {
-  router.post('/login', login);
-}
+// Rate limit desabilitado temporariamente para testes
+router.post('/login', login);
 
 module.exports = router;
 

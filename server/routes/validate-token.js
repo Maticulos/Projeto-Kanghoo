@@ -2,7 +2,7 @@ const Router = require('koa-router');
 const { verifyToken } = require('../middleware/auth-utils');
 const logger = require('../utils/logger');
 
-const router = new Router({ prefix: '/api' });
+const router = new Router();
 
 /**
  * POST /api/validate-token

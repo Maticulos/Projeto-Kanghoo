@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Área do Motorista Escolar • Plano Basic | Kanghoo</title>
+    <title>Área do Motorista Escolar • Plano Basic | VanSegura</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
@@ -11,7 +11,55 @@
     <link rel="stylesheet" href="../assets/css/vendors/font-awesome.min.css">
     <link rel="stylesheet" href="../assets/css/auth/post-auth-shell.css">
     <link rel="stylesheet" href="../assets/css/auth/motorista-escolar.css">
+    
+    <!-- Tailwind CSS para componentes modernos -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
     <script src="/api/config.js"></script>
+    
+    <style>
+        /* Estilos adicionais para o mapa de simulação */
+        .map-simulation {
+            background-color: #e5e7eb;
+            background-image: 
+                linear-gradient(90deg, rgba(200,200,200,.5) 1px, transparent 1px),
+                linear-gradient(rgba(200,200,200,.5) 1px, transparent 1px);
+            background-size: 20px 20px;
+            position: relative;
+            overflow: hidden;
+            min-height: 400px;
+        }
+        
+        .vehicle-marker {
+            transition: all 1s linear;
+        }
+        
+        .pulse-marker {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+        
+        .notification-toast {
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        /* Integração com o tema existente */
+        .modern-card {
+            background: var(--panel);
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid var(--border);
+        }
+    </style>
 </head>
 <body data-plan="basic">
     <div class="app-shell">
@@ -87,11 +135,126 @@
         </aside>
 
         <main class="app-main">
+            <!-- Notificações em Tempo Real -->
+            <div id="notification-area" class="fixed top-4 right-4 z-50 flex flex-col gap-2 w-80"></div>
+            
             <section id="hero" class="hero" data-animate></section>
 
             <section id="feature-pills" class="feature-pills" data-animate></section>
 
             <section id="metrics-grid" class="metrics-grid" data-animate></section>
+            
+            <!-- Seção de Monitoramento em Tempo Real -->
+            <section class="panel-card modern-card" data-animate style="margin-bottom: 2rem;">
+                <div class="panel-header">
+                    <div>
+                        <p class="panel-title">
+                            <i class="fa-solid fa-map-marked-alt" style="color: #10b981; margin-right: 0.5rem;"></i>
+                            Monitoramento em Tempo Real
+                        </p>
+                        <small style="color: var(--text-muted);">Acompanhe a rota ativa e posição do veículo</small>
+                    </div>
+                    <span id="realtime-status" class="live-pill" style="background: #e5e7eb; color: #6b7280;">
+                        AGUARDANDO
+                    </span>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4" style="margin-top: 1rem;">
+                    <!-- Controles da Rota -->
+                    <div class="lg:col-span-1 space-y-4">
+                        <div class="p-4 rounded-lg" style="background: #fef3c7; border-left: 4px solid #f59e0b;">
+                            <h3 class="font-bold text-sm mb-2" style="color: #92400e;">
+                                <i class="fa-solid fa-sliders-h mr-2"></i>Controle da Rota
+                            </h3>
+                            <p class="text-xs mb-3" style="color: #78350f;">
+                                Inicie a rota para ativar o rastreamento em tempo real
+                            </p>
+                            
+                            <div class="mb-3">
+                                <label class="block text-xs font-medium mb-1" style="color: #78350f;">Rota Ativa:</label>
+                                <select id="active-route-selector" class="w-full p-2 text-sm rounded border" style="background: white; border-color: #fbbf24;">
+                                    <option value="">Selecione uma rota...</option>
+                                </select>
+                            </div>
+                            
+                            <button 
+                                id="btn-toggle-tracking" 
+                                class="w-full py-2 px-4 rounded font-bold text-sm flex items-center justify-center gap-2 transition"
+                                style="background: #10b981; color: white;"
+                                disabled
+                            >
+                                <i class="fa-solid fa-play"></i> Iniciar Rota
+                            </button>
+                            
+                            <div id="route-info-box" class="mt-3 p-2 rounded text-xs hidden" style="background: #dbeafe; color: #1e40af;">
+                                <p class="font-bold mb-1">Informações da Rota:</p>
+                                <div id="route-details-content"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Lista de Passageiros -->
+                        <div class="rounded-lg overflow-hidden" style="background: var(--panel); border: 1px solid var(--border);">
+                            <div class="p-3" style="border-bottom: 1px solid var(--border);">
+                                <h3 class="font-bold text-sm flex justify-between items-center">
+                                    <span><i class="fa-solid fa-users mr-2" style="color: #3b82f6;"></i>Passageiros</span>
+                                    <span id="realtime-passenger-count" class="text-xs px-2 py-1 rounded" style="background: #dbeafe; color: #1e40af;">
+                                        0
+                                    </span>
+                                </h3>
+                            </div>
+                            <div id="realtime-passenger-list" class="p-2 space-y-2 max-h-96 overflow-y-auto">
+                                <div class="text-center py-8" style="color: var(--text-muted);">
+                                    <i class="fa-solid fa-child text-4xl mb-2"></i>
+                                    <p class="text-xs">Selecione uma rota</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Mapa de Simulação -->
+                    <div class="lg:col-span-2 rounded-lg overflow-hidden" style="background: white; border: 1px solid var(--border);">
+                        <div class="p-3 flex justify-between items-center" style="background: #f9fafb; border-bottom: 1px solid var(--border);">
+                            <h3 class="font-bold text-sm">
+                                <i class="fa-solid fa-route mr-2" style="color: #10b981;"></i>
+                                Visualização da Rota
+                            </h3>
+                            <span id="map-coordinates" class="text-xs font-mono px-2 py-1 rounded" style="background: #e5e7eb; color: #6b7280;">
+                                --
+                            </span>
+                        </div>
+                        
+                        <div class="relative map-simulation" id="tracking-map" style="height: 500px;">
+                            <!-- Fundo do Mapa -->
+                            <div class="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
+                                <i class="fa-solid fa-map text-9xl" style="color: #9ca3af;"></i>
+                            </div>
+                            
+                            <!-- SVG para linha da rota -->
+                            <svg class="absolute inset-0 w-full h-full pointer-events-none" id="route-svg-line">
+                                <polyline id="route-path-line" fill="none" stroke="#3b82f6" stroke-width="3" stroke-dasharray="5,5" opacity="0.6"/>
+                            </svg>
+                            
+                            <!-- Escola (Destino) -->
+                            <div id="school-destination" class="absolute hidden" style="top: 10%; right: 10%;">
+                                <div class="flex flex-col items-center">
+                                    <div class="w-12 h-12 rounded-lg flex items-center justify-center shadow-lg pulse-marker" style="background: #3b82f6;">
+                                        <i class="fa-solid fa-school text-white text-xl"></i>
+                                    </div>
+                                    <span class="mt-1 px-2 py-1 rounded shadow text-xs font-bold" style="background: white;">Escola</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Pontos de Parada -->
+                            <div id="map-stop-markers"></div>
+                            
+                            <!-- Veículo -->
+                            <div id="tracking-vehicle" class="absolute w-10 h-10 rounded-full flex items-center justify-center shadow-xl vehicle-marker opacity-0 z-20" style="background: #fbbf24; border: 2px solid #f59e0b; transform: translate(-50%, -50%);">
+                                <i class="fa-solid fa-bus text-sm" style="color: #78350f;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
             <section class="panel-grid two">
                 <article id="timeline-panel" class="panel-card" data-animate>

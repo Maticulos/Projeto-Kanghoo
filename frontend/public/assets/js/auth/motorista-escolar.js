@@ -1455,3 +1455,382 @@ const planProfiles = {
 
 
 
+
+
+// ==========================================
+// SISTEMA DE SIMULAÇÃO EM TEMPO REAL
+// ==========================================
+
+const RealtimeSimulation = {
+    state: {
+        isActive: false,
+        interval: null,
+        step: 0,
+        pathPoints: [],
+        selectedRoute: null,
+        children: []
+    },
+    
+    init() {
+        console.log('🎯 Inicializando sistema de simulação em tempo real...');
+        this.setupControls();
+        this.loadRoutesForSimulation();
+    },
+    
+    setupControls() {
+        const toggleBtn = document.getElementById('btn-toggle-tracking');
+        const routeSelector = document.getElementById('active-route-selector');
+        
+        if (routeSelector) {
+            routeSelector.addEventListener('change', (e) => {
+                const routeId = e.target.value;
+                if (routeId) {
+                    this.selectRoute(routeId);
+                }
+            });
+        }
+        
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', () => {
+                if (this.state.isActive) {
+                    this.stopSimulation();
+                } else {
+                    this.startSimulation();
+                }
+            });
+        }
+    },
+    
+    async loadRoutesForSimulation() {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+            
+            const response = await fetch(`${API_BASE}/motorista-escolar/rotas`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            if (!response.ok) throw new Error('Erro ao carregar rotas');
+            
+            const data = await response.json();
+            const rotas = data.rotas || [];
+            
+            const selector = document.getElementById('active-route-selector');
+            if (selector) {
+                selector.innerHTML = rotas.length > 0 
+                    ? '<option value="">Selecione uma rota...</option>' + rotas.map(r => 
+                        `<option value="${r.id}">${r.nome_rota} (${r.turno})</option>`
+                      ).join('')
+                    : '<option value="">Nenhuma rota disponível</option>';
+                
+                const btn = document.getElementById('btn-toggle-tracking');
+                if (btn) {
+                    btn.disabled = rotas.length === 0;
+                }
+            }
+            
+        } catch (error) {
+            console.error('Erro ao carregar rotas:', error);
+        }
+    },
+    
+    async selectRoute(routeId) {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${API_BASE}/motorista-escolar/rotas/${routeId}/criancas`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            if (!response.ok) throw new Error('Erro ao carregar crianças');
+            
+            const data = await response.json();
+            this.state.children = data.criancas || [];
+            this.state.selectedRoute = routeId;
+            
+            // Atualizar UI
+            this.renderPassengerList();
+            this.renderMapStops();
+            
+            // Mostrar info da rota
+            const infoBox = document.getElementById('route-info-box');
+            if (infoBox) {
+                infoBox.classList.remove('hidden');
+                const detailsContent = document.getElementById('route-details-content');
+                if (detailsContent) {
+                    detailsContent.innerHTML = `
+                        <p class="text-xs"><strong>Crianças:</strong> ${this.state.children.length}</p>
+                        <p class="text-xs"><strong>Status:</strong> Pronta para iniciar</p>
+                    `;
+                }
+            }
+            
+        } catch (error) {
+            console.error('Erro ao selecionar rota:', error);
+            this.showNotification('Erro', 'Não foi possível carregar os dados da rota', 'error');
+        }
+    },
+    
+    renderPassengerList() {
+        const container = document.getElementById('realtime-passenger-list');
+        const counter = document.getElementById('realtime-passenger-count');
+        
+        if (!container) return;
+        
+        if (counter) {
+            counter.textContent = this.state.children.length;
+        }
+        
+        if (this.state.children.length === 0) {
+            container.innerHTML = `
+                <div class="text-center py-8" style="color: var(--text-muted);">
+                    <i class="fa-solid fa-child text-4xl mb-2"></i>
+                    <p class="text-xs">Nenhuma criança cadastrada</p>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = this.state.children.map(child => `
+            <div id="child-sim-${child.id}" class="flex items-center justify-between p-2 rounded" style="background: #f9fafb; border: 1px solid #e5e7eb;">
+                <div class="flex-1">
+                    <p class="font-bold text-xs">${child.nome_completo}</p>
+                    <p class="text-xs" style="color: #6b7280;">
+                        <i class="fa-solid fa-home mr-1"></i>${child.endereco_residencial || 'Endereço não informado'}
+                    </p>
+                </div>
+                <span class="child-status-badge px-2 py-1 rounded text-xs font-bold" style="background: #e5e7eb; color: #6b7280;">
+                    Aguardando
+                </span>
+            </div>
+        `).join('');
+    },
+    
+    renderMapStops() {
+        const container = document.getElementById('map-stop-markers');
+        if (!container) return;
+        
+        container.innerHTML = '';
+        
+        this.state.children.forEach((child, index) => {
+            const lat = 20 + (index * 15);
+            const lng = 20 + (index * 20);
+            
+            const marker = document.createElement('div');
+            marker.className = "absolute w-8 h-8 rounded-full flex items-center justify-center shadow-lg pulse-marker";
+            marker.style.cssText = `
+                background: #60a5fa;
+                border: 2px solid white;
+                top: ${lat}%;
+                left: ${lng}%;
+                transform: translate(-50%, -50%);
+            `;
+            marker.innerHTML = '<i class="fa-solid fa-home text-white text-xs"></i>';
+            marker.title = child.nome_completo;
+            
+            container.appendChild(marker);
+        });
+    },
+    
+    startSimulation() {
+        if (!this.state.selectedRoute) {
+            this.showNotification('Atenção', 'Selecione uma rota primeiro', 'warning');
+            return;
+        }
+        
+        this.state.isActive = true;
+        
+        // Atualizar botão
+        const btn = document.getElementById('btn-toggle-tracking');
+        if (btn) {
+            btn.innerHTML = '<i class="fa-solid fa-stop"></i> Parar Rota';
+            btn.style.background = '#ef4444';
+        }
+        
+        // Atualizar status
+        const statusBadge = document.getElementById('realtime-status');
+        if (statusBadge) {
+            statusBadge.textContent = 'EM ROTA';
+            statusBadge.style.background = '#10b981';
+            statusBadge.style.color = 'white';
+        }
+        
+        // Mostrar veículo e escola
+        const vehicle = document.getElementById('tracking-vehicle');
+        const school = document.getElementById('school-destination');
+        if (vehicle) vehicle.classList.remove('opacity-0');
+        if (school) school.classList.remove('hidden');
+        
+        // Desabilitar seletor
+        const selector = document.getElementById('active-route-selector');
+        if (selector) selector.disabled = true;
+        
+        this.showNotification('Rota Iniciada', 'Simulação em tempo real ativada!', 'success');
+        
+        // Iniciar movimento
+        this.generatePath();
+        this.state.step = 0;
+        this.state.interval = setInterval(() => this.tick(), 500);
+    },
+    
+    stopSimulation() {
+        this.state.isActive = false;
+        clearInterval(this.state.interval);
+        
+        // Atualizar botão
+        const btn = document.getElementById('btn-toggle-tracking');
+        if (btn) {
+            btn.innerHTML = '<i class="fa-solid fa-play"></i> Iniciar Rota';
+            btn.style.background = '#10b981';
+        }
+        
+        // Atualizar status
+        const statusBadge = document.getElementById('realtime-status');
+        if (statusBadge) {
+            statusBadge.textContent = 'AGUARDANDO';
+            statusBadge.style.background = '#e5e7eb';
+            statusBadge.style.color = '#6b7280';
+        }
+        
+        // Habilitar seletor
+        const selector = document.getElementById('active-route-selector');
+        if (selector) selector.disabled = false;
+        
+        this.showNotification('Rota Finalizada', 'Simulação encerrada', 'info');
+        
+        // Reset após 2 segundos
+        setTimeout(() => {
+            const vehicle = document.getElementById('tracking-vehicle');
+            if (vehicle) vehicle.classList.add('opacity-0');
+            
+            // Reset status das crianças
+            this.state.children.forEach(c => c.simStatus = 'waiting');
+            this.renderPassengerList();
+        }, 2000);
+    },
+    
+    generatePath() {
+        const stops = this.state.children.map((c, i) => ({
+            lat: 20 + (i * 15),
+            lng: 20 + (i * 20)
+        }));
+        
+        stops.push({ lat: 10, lng: 90 }); // Escola
+        
+        this.state.pathPoints = [];
+        for (let i = 0; i < stops.length - 1; i++) {
+            const start = stops[i];
+            const end = stops[i + 1];
+            const steps = 20;
+            
+            for (let j = 0; j <= steps; j++) {
+                this.state.pathPoints.push({
+                    lat: start.lat + (end.lat - start.lat) * (j / steps),
+                    lng: start.lng + (end.lng - start.lng) * (j / steps)
+                });
+            }
+        }
+    },
+    
+    tick() {
+        if (this.state.step >= this.state.pathPoints.length) {
+            this.stopSimulation();
+            return;
+        }
+        
+        const pos = this.state.pathPoints[this.state.step];
+        
+        // Mover veículo
+        const vehicle = document.getElementById('tracking-vehicle');
+        if (vehicle) {
+            vehicle.style.top = pos.lat + '%';
+            vehicle.style.left = pos.lng + '%';
+        }
+        
+        // Atualizar coordenadas
+        const coordsDisplay = document.getElementById('map-coordinates');
+        if (coordsDisplay) {
+            coordsDisplay.textContent = `LAT: ${pos.lat.toFixed(2)} LNG: ${pos.lng.toFixed(2)}`;
+        }
+        
+        // Verificar proximidade com crianças
+        this.state.children.forEach((child, index) => {
+            const childLat = 20 + (index * 15);
+            const childLng = 20 + (index * 20);
+            
+            const dist = Math.sqrt(
+                Math.pow(childLat - pos.lat, 2) + 
+                Math.pow(childLng - pos.lng, 2)
+            );
+            
+            if (dist < 8 && child.simStatus !== 'onboard') {
+                child.simStatus = 'onboard';
+                this.updateChildStatus(child.id);
+                this.showNotification(
+                    'Embarque Realizado',
+                    `${child.nome_completo} entrou no veículo`,
+                    'success'
+                );
+            }
+        });
+        
+        this.state.step++;
+    },
+    
+    updateChildStatus(childId) {
+        const row = document.getElementById(`child-sim-${childId}`);
+        if (!row) return;
+        
+        const badge = row.querySelector('.child-status-badge');
+        if (badge) {
+            badge.textContent = 'Embarcado';
+            badge.style.background = '#d1fae5';
+            badge.style.color = '#065f46';
+        }
+        
+        row.style.borderLeft = '4px solid #10b981';
+    },
+    
+    showNotification(title, message, type = 'info') {
+        const area = document.getElementById('notification-area');
+        if (!area) return;
+        
+        const colors = {
+            success: { bg: '#d1fae5', border: '#10b981', icon: 'fa-check-circle', iconColor: '#10b981' },
+            error: { bg: '#fee2e2', border: '#ef4444', icon: 'fa-exclamation-circle', iconColor: '#ef4444' },
+            warning: { bg: '#fef3c7', border: '#f59e0b', icon: 'fa-exclamation-triangle', iconColor: '#f59e0b' },
+            info: { bg: '#dbeafe', border: '#3b82f6', icon: 'fa-info-circle', iconColor: '#3b82f6' }
+        };
+        
+        const style = colors[type] || colors.info;
+        
+        const toast = document.createElement('div');
+        toast.className = 'notification-toast rounded shadow-lg p-4 flex items-start';
+        toast.style.cssText = `background: ${style.bg}; border-left: 4px solid ${style.border};`;
+        toast.innerHTML = `
+            <i class="fa-solid ${style.icon} text-xl mr-3 mt-1" style="color: ${style.iconColor};"></i>
+            <div class="flex-1">
+                <h4 class="font-bold text-sm" style="color: #1f2937;">${title}</h4>
+                <p class="text-sm" style="color: #4b5563;">${message}</p>
+            </div>
+            <button onclick="this.parentElement.remove()" class="ml-2" style="color: #9ca3af;">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        `;
+        
+        area.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 500);
+        }, 5000);
+    }
+};
+
+// Inicializar quando o DOM estiver pronto
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => RealtimeSimulation.init(), 1000);
+    });
+} else {
+    setTimeout(() => RealtimeSimulation.init(), 1000);
+}

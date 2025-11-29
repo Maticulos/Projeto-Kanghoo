@@ -1,0 +1,644 @@
+-- ==========================================
+-- 🧪 SEED DE DADOS DE TESTE COMPLETO
+-- ==========================================
+-- Script SQL para criar ambiente de teste completo com:
+-- - Usuários (motoristas, responsáveis, admin)
+-- - Planos de assinatura
+-- - Crianças cadastradas
+-- - Rotas escolares
+-- - Dados realistas para validação do sistema
+--
+-- Senha padrão: teste123 (criptografada com bcrypt via pgcrypto)
+-- ==========================================
+
+-- Habilitar extensão pgcrypto para criptografia de senhas
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+-- ==========================================
+-- CRIAÇÃO DE TABELAS (SE NÃO EXISTIREM)
+-- ==========================================
+
+-- Tabela de crianças
+CREATE TABLE IF NOT EXISTS criancas (
+    id SERIAL PRIMARY KEY,
+    nome_completo VARCHAR(255) NOT NULL,
+    data_nascimento DATE,
+    endereco_residencial TEXT,
+    escola VARCHAR(255),
+    endereco_escola TEXT,
+    responsavel_id INTEGER REFERENCES usuarios(id) ON DELETE CASCADE,
+    cpf VARCHAR(14) UNIQUE,
+    idade INTEGER,
+    nome_responsavel VARCHAR(255),
+    telefone_responsavel VARCHAR(20),
+    email_responsavel VARCHAR(255),
+    ativo BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabela de rotas escolares
+CREATE TABLE IF NOT EXISTS rotas_escolares (
+    id SERIAL PRIMARY KEY,
+    usuario_id INTEGER REFERENCES usuarios(id) ON DELETE CASCADE,
+    nome_rota VARCHAR(255) NOT NULL,
+    descricao TEXT,
+    escola_destino TEXT,
+    turno VARCHAR(50),
+    horario_ida TIME,
+    horario_volta TIME,
+    dias_semana VARCHAR(50),
+    preco_mensal DECIMAL(10,2),
+    vagas_disponiveis INTEGER,
+    ativa BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabela de associação crianças-rotas
+CREATE TABLE IF NOT EXISTS criancas_rotas (
+    id SERIAL PRIMARY KEY,
+    crianca_id INTEGER REFERENCES criancas(id) ON DELETE CASCADE,
+    rota_id INTEGER REFERENCES rotas_escolares(id) ON DELETE CASCADE,
+    endereco_embarque TEXT,
+    endereco_desembarque TEXT,
+    latitude_embarque DECIMAL(10,8),
+    longitude_embarque DECIMAL(11,8),
+    latitude_desembarque DECIMAL(10,8),
+    longitude_desembarque DECIMAL(11,8),
+    horario_embarque_previsto TIME,
+    horario_desembarque_previsto TIME,
+    ativo BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(crianca_id, rota_id)
+);
+
+-- ==========================================
+-- LIMPEZA DE DADOS ANTERIORES
+-- ==========================================
+
+DO $$
+BEGIN
+    -- Limpar em ordem para respeitar foreign keys
+    -- Verifica se a tabela existe antes de deletar
+    
+    IF EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'criancas_rotas') THEN
+        DELETE FROM criancas_rotas WHERE crianca_id IN (
+            SELECT id FROM criancas WHERE responsavel_id IN (
+                SELECT id FROM usuarios WHERE email LIKE '%@teste.kanghoo.com' OR email LIKE '%@example.com'
+            )
+        );
+    END IF;
+    
+    IF EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'rotas_escolares') THEN
+        DELETE FROM rotas_escolares WHERE usuario_id IN (
+            SELECT id FROM usuarios WHERE email LIKE '%@teste.kanghoo.com' OR email LIKE '%@example.com'
+        );
+    END IF;
+    
+    IF EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'criancas') THEN
+        DELETE FROM criancas WHERE responsavel_id IN (
+            SELECT id FROM usuarios WHERE email LIKE '%@teste.kanghoo.com' OR email LIKE '%@example.com'
+        );
+    END IF;
+    
+    IF EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'planos_assinatura') THEN
+        DELETE FROM planos_assinatura WHERE usuario_id IN (
+            SELECT id FROM usuarios WHERE email LIKE '%@teste.kanghoo.com' OR email LIKE '%@example.com'
+        );
+    END IF;
+    
+    IF EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'usuarios') THEN
+        DELETE FROM usuarios WHERE email LIKE '%@teste.kanghoo.com' OR email LIKE '%@example.com';
+    END IF;
+    
+    RAISE NOTICE '🧹 Dados de teste anteriores removidos';
+END $$;
+
+-- ==========================================
+-- CRIAÇÃO DE USUÁRIOS DE TESTE
+-- ==========================================
+
+-- 1) Motorista Escolar - Plano Basic
+INSERT INTO usuarios (
+    nome_completo, email, senha, tipo_cadastro, celular, 
+    endereco, tipo_usuario, created_at
+)
+VALUES (
+    'Carlos Silva Santos',
+    'basic@motorista.com',
+    crypt('teste123', gen_salt('bf', 10)),
+    'motorista_escolar',
+    '(11) 98765-4321',
+    'Rua das Flores, 123 - Vila Madalena, São Paulo - SP',
+    'escolar',
+    NOW()
+)
+ON CONFLICT (email) DO UPDATE SET senha = EXCLUDED.senha;
+
+-- 2) Motorista Escolar - Plano Premium
+INSERT INTO usuarios (
+    nome_completo, email, senha, tipo_cadastro, celular,
+    endereco, tipo_usuario, created_at
+)
+VALUES (
+    'Maria Oliveira Costa',
+    'premium@motorista.com',
+    crypt('teste123', gen_salt('bf', 10)),
+    'motorista_escolar',
+    '(11) 91234-5678',
+    'Av. Paulista, 1000 - Bela Vista, São Paulo - SP',
+    'escolar',
+    NOW()
+)
+ON CONFLICT (email) DO UPDATE SET senha = EXCLUDED.senha;
+
+-- 2.1) Motorista de Excursão
+INSERT INTO usuarios (
+    nome_completo, email, senha, tipo_cadastro, celular,
+    endereco, tipo_usuario, created_at
+)
+VALUES (
+    'Roberto Almeida Junior',
+    'excursao@motorista.com',
+    crypt('teste123', gen_salt('bf', 10)),
+    'motorista_excursao',
+    '(11) 99876-5432',
+    'Rua Augusta, 500 - Consolação, São Paulo - SP',
+    'excursao',
+    NOW()
+)
+ON CONFLICT (email) DO UPDATE SET senha = EXCLUDED.senha;
+
+-- 3) Responsável 1 - Ana Paula (mãe da Sofia)
+INSERT INTO usuarios (
+    nome_completo, email, senha, tipo_cadastro, celular,
+    endereco, tipo_usuario, created_at
+)
+VALUES (
+    'Ana Paula Ferreira',
+    'pai1@email.com',
+    crypt('teste123', gen_salt('bf', 10)),
+    'responsavel',
+    '(11) 99999-1111',
+    'Rua dos Jardins, 456 - Jardins, São Paulo - SP',
+    'responsavel',
+    NOW()
+)
+ON CONFLICT (email) DO UPDATE SET senha = EXCLUDED.senha;
+
+-- 4) Responsável 2 - João Carlos (pai do Pedro)
+INSERT INTO usuarios (
+    nome_completo, email, senha, tipo_cadastro, celular,
+    endereco, tipo_usuario, created_at
+)
+VALUES (
+    'João Carlos Mendes',
+    'pai2@email.com',
+    crypt('teste123', gen_salt('bf', 10)),
+    'responsavel',
+    '(11) 98888-2222',
+    'Rua das Palmeiras, 789 - Moema, São Paulo - SP',
+    'responsavel',
+    NOW()
+)
+ON CONFLICT (email) DO UPDATE SET senha = EXCLUDED.senha;
+
+-- 5) Responsável 3 - Fernanda Santos (mãe do Lucas)
+INSERT INTO usuarios (
+    nome_completo, email, senha, tipo_cadastro, celular,
+    endereco, tipo_usuario, created_at
+)
+VALUES (
+    'Fernanda Santos Lima',
+    'pai3@email.com',
+    crypt('teste123', gen_salt('bf', 10)),
+    'responsavel',
+    '(11) 97777-3333',
+    'Av. Faria Lima, 321 - Itaim Bibi, São Paulo - SP',
+    'responsavel',
+    NOW()
+)
+ON CONFLICT (email) DO UPDATE SET senha = EXCLUDED.senha;
+
+-- 6) Administrador do Sistema
+INSERT INTO usuarios (
+    nome_completo, email, senha, tipo_cadastro, celular,
+    endereco, tipo_usuario, created_at
+)
+VALUES (
+    'Administrador Sistema',
+    'admin@teste.kanghoo.com',
+    crypt('teste123', gen_salt('bf', 10)),
+    'admin',
+    '(11) 98765-0000',
+    'Rua Administrativa, 1 - Centro, São Paulo - SP',
+    'admin',
+    NOW()
+)
+ON CONFLICT (email) DO NOTHING;
+
+-- ==========================================
+-- PLANOS DE ASSINATURA
+-- ==========================================
+
+-- Plano Basic para Motorista Escolar
+INSERT INTO planos_assinatura (
+    usuario_id, tipo_plano, limite_rotas, limite_usuarios, 
+    ativo, data_inicio, criado_em
+)
+SELECT 
+    u.id, 
+    'basico', 
+    3, 
+    15,
+    true,
+    NOW(),
+    NOW()
+FROM usuarios u
+WHERE u.email = 'basic@motorista.com'
+ON CONFLICT (usuario_id) DO UPDATE SET 
+    tipo_plano = EXCLUDED.tipo_plano,
+    ativo = EXCLUDED.ativo;
+
+-- Plano Premium para Motorista Escolar Premium
+INSERT INTO planos_assinatura (
+    usuario_id, tipo_plano, limite_rotas, limite_usuarios,
+    ativo, data_inicio, criado_em
+)
+SELECT 
+    u.id,
+    'premium',
+    10,
+    50,
+    true,
+    NOW(),
+    NOW()
+FROM usuarios u
+WHERE u.email = 'premium@motorista.com'
+ON CONFLICT (usuario_id) DO UPDATE SET 
+    tipo_plano = EXCLUDED.tipo_plano,
+    ativo = EXCLUDED.ativo;
+
+-- Plano Premium para Motorista de Excursão
+INSERT INTO planos_assinatura (
+    usuario_id, tipo_plano, limite_rotas, limite_usuarios,
+    ativo, data_inicio, criado_em
+)
+SELECT 
+    u.id,
+    'premium',
+    10,
+    50,
+    true,
+    NOW(),
+    NOW()
+FROM usuarios u
+WHERE u.email = 'excursao@motorista.com'
+ON CONFLICT (usuario_id) DO UPDATE SET 
+    tipo_plano = EXCLUDED.tipo_plano,
+    ativo = EXCLUDED.ativo;
+
+-- ==========================================
+-- CRIANÇAS CADASTRADAS
+-- ==========================================
+
+-- Criança 1 - Sofia (filha de Ana Paula)
+INSERT INTO criancas (
+    nome_completo, data_nascimento, endereco_residencial, escola,
+    endereco_escola, responsavel_id, cpf, idade, nome_responsavel,
+    telefone_responsavel, email_responsavel, ativo, criado_em
+)
+SELECT
+    'Sofia Ferreira Costa',
+    '2016-03-15',
+    'Rua dos Jardins, 456 - Jardins, São Paulo - SP',
+    'Escola Municipal Monteiro Lobato',
+    'Rua Monteiro Lobato, 100 - Vila Madalena, SP',
+    u.id,
+    '12345678901',
+    8,
+    'Ana Paula Ferreira',
+    '(11) 99999-1111',
+    'pai1@email.com',
+    true,
+    NOW()
+FROM usuarios u
+WHERE u.email = 'pai1@email.com'
+ON CONFLICT (cpf) DO UPDATE SET 
+    nome_completo = EXCLUDED.nome_completo,
+    email_responsavel = EXCLUDED.email_responsavel;
+
+-- Criança 2 - Pedro (filho de João Carlos)
+INSERT INTO criancas (
+    nome_completo, data_nascimento, endereco_residencial, escola,
+    endereco_escola, responsavel_id, cpf, idade, nome_responsavel,
+    telefone_responsavel, email_responsavel, ativo, criado_em
+)
+SELECT
+    'Pedro Mendes Silva',
+    '2015-08-22',
+    'Rua das Palmeiras, 789 - Moema, São Paulo - SP',
+    'Colégio São Francisco',
+    'Av. São Francisco, 500 - Jardins, SP',
+    u.id,
+    '98765432109',
+    9,
+    'João Carlos Mendes',
+    '(11) 98888-2222',
+    'pai2@email.com',
+    true,
+    NOW()
+FROM usuarios u
+WHERE u.email = 'pai2@email.com'
+ON CONFLICT (cpf) DO UPDATE SET 
+    nome_completo = EXCLUDED.nome_completo,
+    email_responsavel = EXCLUDED.email_responsavel;
+
+-- Criança 3 - Lucas (filho de Fernanda)
+INSERT INTO criancas (
+    nome_completo, data_nascimento, endereco_residencial, escola,
+    endereco_escola, responsavel_id, cpf, idade, nome_responsavel,
+    telefone_responsavel, email_responsavel, ativo, criado_em
+)
+SELECT
+    'Lucas Santos Lima',
+    '2017-01-10',
+    'Av. Faria Lima, 321 - Itaim Bibi, São Paulo - SP',
+    'Escola Municipal Monteiro Lobato',
+    'Rua Monteiro Lobato, 100 - Vila Madalena, SP',
+    u.id,
+    '11122233344',
+    7,
+    'Fernanda Santos Lima',
+    '(11) 97777-3333',
+    'pai3@email.com',
+    true,
+    NOW()
+FROM usuarios u
+WHERE u.email = 'pai3@email.com'
+ON CONFLICT (cpf) DO UPDATE SET 
+    nome_completo = EXCLUDED.nome_completo,
+    email_responsavel = EXCLUDED.email_responsavel;
+
+-- ==========================================
+-- ROTAS ESCOLARES
+-- ==========================================
+
+-- Rota 1 - Vila Madalena para Escola Monteiro Lobato
+INSERT INTO rotas_escolares (
+    usuario_id, nome_rota, descricao, escola_destino, turno,
+    horario_ida, horario_volta, dias_semana, preco_mensal,
+    vagas_disponiveis, ativa, criado_em
+)
+SELECT
+    u.id,
+    'Rota Vila Madalena - Escola Monteiro Lobato',
+    'Rota matutina para Escola Municipal Monteiro Lobato',
+    'Escola Municipal Monteiro Lobato - Rua da Escola, 456 - Vila Madalena, SP',
+    'manha',
+    '06:30:00',
+    '07:15:00',
+    'seg-sex',
+    180.00,
+    12,
+    true,
+    NOW()
+FROM usuarios u
+WHERE u.email = 'joao.motorista.basic@teste.kanghoo.com';
+
+-- Rota 2 - Jardins para Colégio São Francisco
+INSERT INTO rotas_escolares (
+    usuario_id, nome_rota, descricao, escola_destino, turno,
+    horario_ida, horario_volta, dias_semana, preco_mensal,
+    vagas_disponiveis, ativa, criado_em
+)
+SELECT
+    u.id,
+    'Rota Jardins - Colégio São Francisco',
+    'Rota vespertina para Colégio São Francisco',
+    'Colégio São Francisco - Av. São Francisco, 789 - Jardins, SP',
+    'tarde',
+    '12:30:00',
+    '13:15:00',
+    'seg-sex',
+    220.00,
+    10,
+    true,
+    NOW()
+FROM usuarios u
+WHERE u.email = 'joao.motorista.basic@teste.kanghoo.com';
+
+-- ==========================================
+-- RESUMO DOS DADOS CRIADOS
+-- ==========================================
+
+DO $$
+BEGIN
+    RAISE NOTICE '';
+    RAISE NOTICE '🎉 ==========================================';
+    RAISE NOTICE '✅ DADOS DE TESTE CRIADOS COM SUCESSO!';
+    RAISE NOTICE '==========================================';
+    RAISE NOTICE '';
+    RAISE NOTICE '� USUÁRIOSi CRIADOS:';
+    RAISE NOTICE '--------------------';
+    RAISE NOTICE '� Motiorista Escolar (Basic):';
+    RAISE NOTICE '   📧 Email: joao.motorista.basic@teste.kanghoo.com';
+    RAISE NOTICE '   🔑 Senha: teste123';
+    RAISE NOTICE '   💳 Plano: Basic (3 rotas, 15 usuários)';
+    RAISE NOTICE '';
+    RAISE NOTICE '🚐 Motorista de Excursão (Premium):';
+    RAISE NOTICE '   📧 Email: maria.motorista.premium@teste.kanghoo.com';
+    RAISE NOTICE '   🔑 Senha: teste123';
+    RAISE NOTICE '   💎 Plano: Premium (10 rotas, 50 usuários)';
+    RAISE NOTICE '';
+    RAISE NOTICE '👨‍👩‍👧‍👦 Responsáveis:';
+    RAISE NOTICE '   1. Ana Costa Silva';
+    RAISE NOTICE '      📧 ana.responsavel@teste.kanghoo.com';
+    RAISE NOTICE '      👶 Criança: Sofia Costa Silva (8 anos)';
+    RAISE NOTICE '';
+    RAISE NOTICE '   2. Carlos Roberto Lima';
+    RAISE NOTICE '      📧 carlos.responsavel@teste.kanghoo.com';
+    RAISE NOTICE '      👶 Criança: Pedro Roberto Lima (10 anos)';
+    RAISE NOTICE '';
+    RAISE NOTICE '   3. Fernanda Santos Oliveira';
+    RAISE NOTICE '      📧 fernanda.responsavel@teste.kanghoo.com';
+    RAISE NOTICE '      👶 Criança: Lucas Santos Oliveira (7 anos)';
+    RAISE NOTICE '';
+    RAISE NOTICE '🔧 Administrador:';
+    RAISE NOTICE '   📧 admin@teste.kanghoo.com';
+    RAISE NOTICE '   🔑 Senha: teste123';
+    RAISE NOTICE '';
+    RAISE NOTICE '🗺️  DADOS ADICIONAIS:';
+    RAISE NOTICE '   ✅ 2 rotas escolares criadas';
+    RAISE NOTICE '   ✅ 3 crianças cadastradas';
+    RAISE NOTICE '   ✅ 2 planos de assinatura ativos';
+    RAISE NOTICE '';
+    RAISE NOTICE '==========================================';
+END $$;
+
+
+-- ==========================================
+-- ASSOCIAÇÃO CRIANÇAS <-> ROTAS
+-- ==========================================
+
+-- Sofia e Lucas na Rota 1 (Motorista Basic - Carlos)
+DO $$
+DECLARE
+    v_rota_id INTEGER;
+    v_sofia_id INTEGER;
+    v_lucas_id INTEGER;
+BEGIN
+    -- Buscar IDs
+    SELECT r.id INTO v_rota_id
+    FROM rotas_escolares r
+    JOIN usuarios u ON r.usuario_id = u.id
+    WHERE u.email = 'basic@motorista.com'
+    AND r.nome_rota = 'Rota Vila Madalena - Escola Monteiro Lobato'
+    LIMIT 1;
+    
+    SELECT id INTO v_sofia_id FROM criancas WHERE cpf = '12345678901';
+    SELECT id INTO v_lucas_id FROM criancas WHERE cpf = '11122233344';
+    
+    -- Associar Sofia
+    IF v_rota_id IS NOT NULL AND v_sofia_id IS NOT NULL THEN
+        INSERT INTO criancas_rotas (
+            crianca_id, rota_id, endereco_embarque, endereco_desembarque,
+            latitude_embarque, longitude_embarque,
+            latitude_desembarque, longitude_desembarque,
+            horario_embarque_previsto, horario_desembarque_previsto,
+            ativo, criado_em
+        )
+        VALUES (
+            v_sofia_id, v_rota_id,
+            'Rua dos Jardins, 456 - Jardins, SP',
+            'Escola Municipal Monteiro Lobato',
+            -23.5615, -46.6565,
+            -23.5505, -46.6333,
+            '06:45:00', '12:15:00',
+            true, NOW()
+        )
+        ON CONFLICT (crianca_id, rota_id) DO UPDATE SET ativo = true;
+    END IF;
+    
+    -- Associar Lucas
+    IF v_rota_id IS NOT NULL AND v_lucas_id IS NOT NULL THEN
+        INSERT INTO criancas_rotas (
+            crianca_id, rota_id, endereco_embarque, endereco_desembarque,
+            latitude_embarque, longitude_embarque,
+            latitude_desembarque, longitude_desembarque,
+            horario_embarque_previsto, horario_desembarque_previsto,
+            ativo, criado_em
+        )
+        VALUES (
+            v_lucas_id, v_rota_id,
+            'Av. Faria Lima, 321 - Itaim Bibi, SP',
+            'Escola Municipal Monteiro Lobato',
+            -23.5875, -46.6822,
+            -23.5505, -46.6333,
+            '06:50:00', '12:20:00',
+            true, NOW()
+        )
+        ON CONFLICT (crianca_id, rota_id) DO UPDATE SET ativo = true;
+    END IF;
+END $$;
+
+-- Pedro na Rota 2 (Motorista Premium - Maria)
+DO $$
+DECLARE
+    v_rota_id INTEGER;
+    v_pedro_id INTEGER;
+BEGIN
+    -- Buscar IDs
+    SELECT r.id INTO v_rota_id
+    FROM rotas_escolares r
+    JOIN usuarios u ON r.usuario_id = u.id
+    WHERE u.email = 'premium@motorista.com'
+    AND r.nome_rota = 'Rota Jardins - Colégio São Francisco'
+    LIMIT 1;
+    
+    SELECT id INTO v_pedro_id FROM criancas WHERE cpf = '98765432109';
+    
+    -- Associar Pedro
+    IF v_rota_id IS NOT NULL AND v_pedro_id IS NOT NULL THEN
+        INSERT INTO criancas_rotas (
+            crianca_id, rota_id, endereco_embarque, endereco_desembarque,
+            latitude_embarque, longitude_embarque,
+            latitude_desembarque, longitude_desembarque,
+            horario_embarque_previsto, horario_desembarque_previsto,
+            ativo, criado_em
+        )
+        VALUES (
+            v_pedro_id, v_rota_id,
+            'Rua das Palmeiras, 789 - Moema, SP',
+            'Colégio São Francisco',
+            -23.5965, -46.6722,
+            -23.5615, -46.6565,
+            '12:15:00', '17:45:00',
+            true, NOW()
+        )
+        ON CONFLICT (crianca_id, rota_id) DO UPDATE SET ativo = true;
+    END IF;
+END $$;
+
+-- ==========================================
+-- RESUMO FINAL
+-- ==========================================
+
+DO $$
+DECLARE
+    v_motoristas INTEGER;
+    v_responsaveis INTEGER;
+    v_criancas INTEGER;
+    v_rotas INTEGER;
+    v_associacoes INTEGER;
+BEGIN
+    SELECT COUNT(*) INTO v_motoristas 
+    FROM usuarios 
+    WHERE email IN ('basic@motorista.com', 'premium@motorista.com', 'excursao@motorista.com');
+    
+    SELECT COUNT(*) INTO v_responsaveis 
+    FROM usuarios 
+    WHERE email IN ('pai1@email.com', 'pai2@email.com', 'pai3@email.com');
+    
+    SELECT COUNT(*) INTO v_criancas 
+    FROM criancas 
+    WHERE cpf IN ('12345678901', '98765432109', '11122233344');
+    
+    SELECT COUNT(*) INTO v_rotas 
+    FROM rotas_escolares r
+    JOIN usuarios u ON r.usuario_id = u.id
+    WHERE u.email IN ('basic@motorista.com', 'premium@motorista.com');
+    
+    SELECT COUNT(*) INTO v_associacoes 
+    FROM criancas_rotas cr
+    JOIN criancas c ON cr.crianca_id = c.id
+    WHERE c.cpf IN ('12345678901', '98765432109', '11122233344');
+    
+    RAISE NOTICE '';
+    RAISE NOTICE '╔════════════════════════════════════════════════════════╗';
+    RAISE NOTICE '║  ✅ AMBIENTE DE SIMULAÇÃO CRIADO COM SUCESSO!         ║';
+    RAISE NOTICE '╚════════════════════════════════════════════════════════╝';
+    RAISE NOTICE '';
+    RAISE NOTICE '📊 ESTATÍSTICAS:';
+    RAISE NOTICE '   🚐 % Motoristas criados', v_motoristas;
+    RAISE NOTICE '   👨‍👩‍👧 % Responsáveis criados', v_responsaveis;
+    RAISE NOTICE '   👶 % Crianças cadastradas', v_criancas;
+    RAISE NOTICE '   🗺️  % Rotas ativas', v_rotas;
+    RAISE NOTICE '   🔗 % Associações criança-rota', v_associacoes;
+    RAISE NOTICE '';
+    RAISE NOTICE '🔐 CREDENCIAIS (Senha: teste123):';
+    RAISE NOTICE '';
+    RAISE NOTICE '   🚐 MOTORISTAS:';
+    RAISE NOTICE '      📧 basic@motorista.com (Plano Basic)';
+    RAISE NOTICE '      📧 premium@motorista.com (Plano Premium)';
+    RAISE NOTICE '      📧 excursao@motorista.com (Excursão)';
+    RAISE NOTICE '';
+    RAISE NOTICE '   👨‍👩‍👧 RESPONSÁVEIS:';
+    RAISE NOTICE '      📧 pai1@email.com (Sofia, 8 anos)';
+    RAISE NOTICE '      📧 pai2@email.com (Pedro, 9 anos)';
+    RAISE NOTICE '      📧 pai3@email.com (Lucas, 7 anos)';
+    RAISE NOTICE '';
+    RAISE NOTICE '╚════════════════════════════════════════════════════════╝';
+END $$;

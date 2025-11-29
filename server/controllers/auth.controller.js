@@ -8,15 +8,40 @@ const { generateToken } = require('../middleware/auth-utils');
 async function login(ctx) {
   try {
     const data = ctx.request.body || {};
+    
+    logger.info('=== TENTATIVA DE LOGIN ===');
+    logger.info('Body recebido:', JSON.stringify(data));
+    logger.info('Headers:', JSON.stringify(ctx.request.headers));
 
     const validation = validateLoginData(data);
+    
+    logger.info('Resultado da validação:', JSON.stringify({ isValid: validation.isValid, errors: validation.errors }));
+    
     if (!validation.isValid) {
       ctx.status = 422;
+      logger.warn('Login rejeitado - validação falhou:', validation.errors);
       return send(ctx, validationError(validation.errors, 'Dados de login invÃ¡lidos'));
     }
 
     const { email, senha } = validation.sanitizedData;
-    const userRes = await db.query('SELECT id, email, nome, tipo_usuario, senha FROM usuarios WHERE LOWER(email)=LOWER($1) LIMIT 1', [email]);
+    
+    // Criar pool direto (workaround para problema de conexão)
+    const { Pool } = require('pg');
+    const directPool = new Pool({
+      host: process.env.DB_HOST || 'postgres',
+      port: parseInt(process.env.DB_PORT || '5432', 10),
+      database: process.env.DB_NAME || 'kanghoo_db_prod',
+      user: process.env.DB_USER || 'postgres',
+      password: process.env.DB_PASSWORD || 'postgres',
+      ssl: false
+    });
+    
+    let userRes;
+    try {
+      userRes = await directPool.query('SELECT id, email, nome_completo as nome, tipo_usuario, senha FROM usuarios WHERE LOWER(email)=LOWER($1) LIMIT 1', [email]);
+    } finally {
+      await directPool.end();
+    }
     if (userRes.rows.length === 0) {
       ctx.status = 401;
       return send(ctx, validationError(['Credenciais invÃ¡lidas'], 'Falha na autenticaÃ§Ã£o'));

@@ -12,8 +12,8 @@
     <!-- Fontes otimizadas -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/bundle.min.css">
-    <!-- Sistema de Mock para APIs - Carregado antes de outros scripts -->
-    <script src="../assets/js/api/mock-api.js"></script>
+    <!-- Sistema de Mock para APIs - DESABILITADO para usar API real -->
+    <!-- <script src="../assets/js/api/mock-api.js"></script> -->
     <!-- Sistema de Cache Otimizado -->
     <script src="../assets/js/core/cache-manager.js"></script>
     <!-- Utilitários de UI -->
@@ -178,7 +178,6 @@
 </footer>
     
 <script src="../assets/js/core/app.js"></script>
-<script src="../assets/js/core/ui-utils.js"></script>
     <script>
 	const API_BASE_URL = window.location.origin;
 
@@ -302,8 +301,10 @@
                 return;
             }
 
+            // Auto-login desabilitado temporariamente para testes
             // Em desenvolvimento local, facilitar demo auto-login para o usuário demo
             // Observação: isso é intencionalmente restrito a `localhost` para evitar exposição em produção
+            /*
             try {
                 if (window.location.hostname === 'localhost' && !localStorage.getItem('authToken')) {
                     const demoEmail = 'ana.responsavel@teste.kanghoo.com';
@@ -325,6 +326,7 @@
             } catch (e) {
                 console.warn('Auto-login demo falhou:', e && e.message);
             }
+            */
 
             const loginForm = document.getElementById('login-form');
 
@@ -336,17 +338,29 @@
                     const senha = document.getElementById('senha').value;
                     const submitButton = loginForm.querySelector('button[type="submit"]');
 
+                    console.log('=== TENTATIVA DE LOGIN ===');
+                    console.log('Email:', email);
+                    console.log('Senha length:', senha.length);
+                    console.log('API URL:', `${API_BASE_URL}/api/login`);
+
                     // Mostrar loading no botão
                     const buttonLoader = showButtonLoading(submitButton, 'Entrando...');
                     
 try {
+                        const requestBody = { email, senha };
+                        console.log('Request body:', JSON.stringify(requestBody));
+                        
                         const response = await fetch(`${API_BASE_URL}/api/login`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ email, senha })
+                            body: JSON.stringify(requestBody)
                         });
 
+                        console.log('Response status:', response.status);
+                        console.log('Response ok:', response.ok);
+                        
                         const apiResponse = await response.json();
+                        console.log('API Response:', apiResponse);
 
                         if (!response.ok) {
                             throw new Error(apiResponse.message || 'Credenciais inválidas');

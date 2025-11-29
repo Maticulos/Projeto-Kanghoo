@@ -37,32 +37,40 @@ if (process.env.DATABASE_URL) {
   });
 }
 
-const pool = new Pool(poolConfig);
+let pool = null;
 
-// Event listeners para tratamento de erros
-pool.on('error', (err, client) => {
-  logger.error('Erro inesperado no pool de conexões PostgreSQL:', {
-    error: err.message,
-    stack: err.stack,
-    client: client ? 'client exists' : 'no client'
-  });
-  
-  // Não encerrar o processo, apenas logar
-  // O pool tentará reconectar automaticamente
-});
+// Lazy initialization - criar pool apenas quando necessário
+function getPool() {
+  if (!pool) {
+    console.log('[DB] Criando pool de conexões (lazy init)...');
+    pool = new Pool(poolConfig);
+    
+    pool.on('error', (err, client) => {
+      logger.error('Erro inesperado no pool de conexões PostgreSQL:', {
+        error: err.message,
+        stack: err.stack,
+        client: client ? 'client exists' : 'no client'
+      });
+    });
 
-pool.on('connect', (client) => {
-  logger.info('Nova conexão PostgreSQL estabelecida');
-});
+    pool.on('connect', (client) => {
+      logger.info('Nova conexão PostgreSQL estabelecida');
+    });
 
-pool.on('remove', (client) => {
-  logger.info('Conexão PostgreSQL removida do pool');
-});
+    pool.on('remove', (client) => {
+      logger.info('Conexão PostgreSQL removida do pool');
+    });
+  }
+  return pool;
+}
+
+// Event listeners serão adicionados no getPool()
 
 // Health check do pool
 async function checkPoolHealth() {
   try {
-    const result = await pool.query('SELECT NOW()');
+    const currentPool = getPool();
+    const result = await currentPool.query('SELECT NOW()');
     return { healthy: true, timestamp: result.rows[0].now };
   } catch (error) {
     logger.error('Health check do pool falhou:', error);
@@ -78,8 +86,35 @@ setInterval(async () => {
   }
 }, 5 * 60 * 1000);
 
+// Wrapper com retry automático
+async function queryWithRetry(text, params, retries = 3) {
+  const currentPool = getPool(); // Lazy init
+  
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await currentPool.query(text, params);
+    } catch (error) {
+      console.log(`[DB] Tentativa ${i + 1}/${retries} falhou:`, error.code);
+      
+      if (error.code === 'ECONNREFUSED' && i < retries - 1) {
+        // Aguardar um pouco antes de tentar novamente
+        await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+        
+        // Tentar reconectar
+        try {
+          await currentPool.query('SELECT 1');
+        } catch (reconnectError) {
+          console.log('[DB] Reconexão falhou, tentando novamente...');
+        }
+      } else {
+        throw error;
+      }
+    }
+  }
+}
+
 module.exports = {
-  query: (text, params) => pool.query(text, params),
-  pool, // Exportar pool para acesso direto se necessário
+  query: queryWithRetry,
+  get pool() { return getPool(); }, // Getter para lazy init
   checkPoolHealth
 };

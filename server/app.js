@@ -146,6 +146,17 @@ function buildCorsOptions() {
 
 app.use(cors(buildCorsOptions()));
 
+// Body parser - IMPORTANTE: deve vir antes das rotas
+app.use(bodyParser({
+  enableTypes: ['json', 'form'],
+  jsonLimit: '10mb',
+  formLimit: '10mb',
+  textLimit: '10mb'
+}));
+
+// JSON pretty print
+app.use(json());
+
 // Servir arquivos estaticos
 [
   { dir: SERVER_PUBLIC_DIR, label: 'server/public' },
