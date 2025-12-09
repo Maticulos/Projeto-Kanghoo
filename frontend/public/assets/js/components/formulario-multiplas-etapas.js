@@ -493,6 +493,9 @@ class MultiStepForm {
     showFieldError(field, message) {
         this.clearFieldError(field);
         
+        // Se a mensagem for "true" (string ou boolean), não exibir
+        if (message === true || message === 'true') return;
+
         field.style.borderColor = '#e74c3c';
         field.style.background = '#fdf2f2';
         
@@ -569,7 +572,7 @@ class MultiStepForm {
             const formData = new FormData(this.form);
             
             // Submit to server - sem Content-Type para permitir multipart/form-data
-            const response = await fetch('/cadastrar', {
+            const response = await fetch('/api/cadastro/cadastrar', {
                 method: 'POST',
                 body: formData // Envia FormData diretamente
             });

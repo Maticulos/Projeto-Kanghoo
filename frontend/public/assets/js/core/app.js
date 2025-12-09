@@ -208,9 +208,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Mapeamento de preços (valores atuais conforme conteúdo das páginas)
         const prices = {
-            basic: { monthly: 29.90, annualMonthly: 24.92 },
-            premium: { monthly: 59.90, annualMonthly: 49.92 },
-            enterprise: { monthly: 99.90, annualMonthly: 83.25 }
+            basic: { monthly: 189.90, annualMonthly: 161.42 },
+            premium: { monthly: 294.90, annualMonthly: 250.67 }
         };
 
         const currencyBRL = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });

@@ -15,7 +15,7 @@ function setTrackingIntegration(integration) {
 }
 
 const router = new Router({
-  prefix: '/api/conferencia'
+  prefix: '/conferencia'
 });
 
 // ==========================================

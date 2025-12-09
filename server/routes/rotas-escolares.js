@@ -6,7 +6,7 @@ const apiResponse = require('../utils/api-response');
 const logger = require('../utils/logger');
 
 const router = new Router({
-  prefix: '/api/rotas-escolares'
+  prefix: '/rotas-escolares'
 });
 
 // ==========================================

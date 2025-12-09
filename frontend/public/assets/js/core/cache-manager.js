@@ -314,13 +314,22 @@ class CacheManager {
     async preloadCriticalData() {
         if (!this.isTestEnvironment) return;
 
+        // Verificar se há token de autenticação antes de tentar endpoints protegidos
+        const token = localStorage.getItem('authToken');
+        // Prevent preloading on public pages like encontrar-transporte.html
+        if (!token || window.location.pathname.includes('encontrar-transporte.html')) return;
+
         const criticalEndpoints = [
             '/api/rastreamento/viagem-ativa',
             '/api/rastreamento/estatisticas'
         ];
 
         const preloadPromises = criticalEndpoints.map(endpoint => 
-            this.cacheApiCall(endpoint).catch(e => 
+            this.cacheApiCall(endpoint, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }).catch(e => 
                 console.warn(`Preload falhou para ${endpoint}:`, e)
             )
         );

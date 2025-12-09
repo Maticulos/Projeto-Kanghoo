@@ -14,9 +14,9 @@ const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const logger = require('../utils/logger');
 
-const router = new KoaRouter({ prefix: '/api/motorista-escolar' });
+const router = new KoaRouter({ prefix: '/motorista-escolar' });
 
-// ConfiguraÃ§Ã£o segura do upload para CSV
+// Configuração segura do upload para CSV
 const csvUpload = createSecureUpload('csv', { maxFiles: 1 });
 const documentUpload = createSecureUpload('documents', { maxFiles: 5 });
 const imageUpload = createSecureUpload('images', { maxFiles: 3 });
@@ -122,7 +122,7 @@ const encontrarOuCriarResponsavel = async ({ nome, email, celular, endereco }, m
 };
 
 
-// Aplicar middlewares de autenticaÃ§Ã£o e autorizaÃ§Ã£o em todas as rotas
+// Aplicar middlewares de autenticação e autorização em todas as rotas
 router.use(authenticateToken);
 router.use(requireRole('motorista_escolar'));
 
@@ -565,7 +565,7 @@ router.post('/responsaveis/importar-xlsx', spreadsheetUpload.single('arquivo_exc
     }
 });
 
-// Rota para listar crianÃ§as do motorista (opcionalmente por rota)
+// Rota para listar crianças do motorista (opcionalmente por rota)
 router.get('/criancas', async (ctx) => {
     try {
         const motoristaId = ctx.user.id;
@@ -573,7 +573,7 @@ router.get('/criancas', async (ctx) => {
 
         if (isDemoMode()) {
             return send(ctx, success([
-                { id: 1, nome_completo: 'CrianÃ§a Demo', rota_id: rota_id || 10, responsavel_nome: 'Demo Resp', responsavel_email: 'demo@resp.com' }
+                { id: 1, nome_completo: 'Criança Demo', rota_id: rota_id || 10, responsavel_nome: 'Demo Resp', responsavel_email: 'demo@resp.com' }
             ]));
         }
 
@@ -596,13 +596,13 @@ router.get('/criancas', async (ctx) => {
 
         return send(ctx, success(resultado.rows));
     } catch (error) {
-        logger.error('Erro ao listar crianÃ§as:', error);
+        logger.error('Erro ao listar crianças:', error);
         ctx.status = 500;
         return send(ctx, error('Erro interno do servidor', 500));
     }
 });
 
-// Listagem de responsÃ¡veis agrupados por rota
+// Listagem de responsáveis agrupados por rota
 router.get('/responsaveis/rotas/:rotaId', async (ctx) => {
     try {
         const motoristaId = ctx.user.id;
@@ -624,7 +624,7 @@ router.get('/responsaveis/rotas/:rotaId', async (ctx) => {
         const rotaPertence = await rotaPertenceAoMotorista(rotaId, motoristaId);
         if (!rotaPertence) {
             ctx.status = 404;
-            return send(ctx, error('Rota nÃ£o encontrada para este motorista', 404));
+            return send(ctx, error('Rota não encontrada para este motorista', 404));
         }
 
         const res = await db.query(
@@ -645,13 +645,13 @@ router.get('/responsaveis/rotas/:rotaId', async (ctx) => {
         );
         return send(ctx, success({ rota_id: rotaId, responsaveis: res.rows }));
     } catch (err) {
-        logger.error('Erro ao listar responsÃ¡veis por rota:', err);
+        logger.error('Erro ao listar responsáveis por rota:', err);
         ctx.status = 500;
-        return send(ctx, error('Erro interno ao listar responsÃ¡veis por rota', 500));
+        return send(ctx, error('Erro interno ao listar responsáveis por rota', 500));
     }
 });
 
-// Resumo geral de responsÃ¡veis e crianÃ§as do motorista
+// Resumo geral de responsáveis e crianças do motorista
 router.get('/responsaveis/resumo', async (ctx) => {
     try {
         const motoristaId = ctx.user.id;
@@ -697,14 +697,14 @@ router.get('/responsaveis/resumo', async (ctx) => {
             responsaveis: res.rows
         }));
     } catch (err) {
-        logger.error('Erro ao resumir responsÃ¡veis:', err);
+        logger.error('Erro ao resumir responsáveis:', err);
         ctx.status = 500;
-        return send(ctx, error('Erro interno ao resumir responsÃ¡veis', 500));
+        return send(ctx, error('Erro interno ao resumir responsáveis', 500));
     }
 });
 
-// Rota para cadastrar uma crianÃ§a
-// ValidaÃ§Ã£o por schema unificado
+// Rota para cadastrar uma criança
+// Validação por schema unificado
 const schemaCrianca = {
     nome_completo: { required: true, minLength: 2, maxLength: 255 },
     data_nascimento: { required: true, validator: validators.isValidDate },

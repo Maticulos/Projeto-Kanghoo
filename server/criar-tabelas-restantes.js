@@ -115,9 +115,9 @@ async function criarTabelasRestantes() {
     const inserirPlanosQuery = `
       INSERT INTO planos_assinatura (nome, descricao, preco, recursos, ativo)
       VALUES 
-        ('Básico', 'Plano básico com funcionalidades essenciais', 29.90, '["rastreamento", "notificacoes"]'::jsonb, true),
-        ('Premium', 'Plano premium com todas as funcionalidades', 59.90, '["rastreamento", "notificacoes", "relatorios", "geofencing"]'::jsonb, true),
-        ('Empresarial', 'Plano para empresas com múltiplos veículos', 99.90, '["rastreamento", "notificacoes", "relatorios", "geofencing", "multiplos_veiculos"]'::jsonb, true)
+        ('Básico', 'Plano básico com funcionalidades essenciais', 189.90, '["rastreamento", "notificacoes"]'::jsonb, true),
+        ('Premium', 'Plano premium com todas as funcionalidades', 294.90, '["rastreamento", "notificacoes", "relatorios", "geofencing"]'::jsonb, true),
+        ('Empresarial', 'Plano para empresas com múltiplos veículos', 0, '["rastreamento", "notificacoes", "relatorios", "geofencing", "multiplos_veiculos"]'::jsonb, true)
       ON CONFLICT DO NOTHING;
     `;
     

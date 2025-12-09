@@ -14,7 +14,7 @@ const gpsTrackingService = require('../utils/gps-tracking-service');
 const { authenticateToken } = require('../middleware/auth-utils');
 
 const router = new Router({
-    prefix: '/api/gps'
+    prefix: '/gps'
 });
 
 /**

@@ -31,6 +31,11 @@ document.addEventListener('DOMContentLoaded', function() {
             animationType: 'scaleIn',
             stagger: true
         },
+        '.testimonials-section': {
+            elements: ['.section-title', '.testimonial-card'],
+            animationType: 'fadeInUp',
+            stagger: true
+        },
         '.contact-section': {
             elements: ['.section-title', '.contact-form input', '.contact-form select', '.contact-form textarea', '.contact-form button'],
             animationType: 'fadeInUp',
@@ -76,6 +81,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .animated-section .filters-link,
         .animated-section .plans-header,
         .animated-section .plan-card,
+        .animated-section .testimonial-card,
         .animated-section .contact-form input,
         .animated-section .contact-form select,
         .animated-section .contact-form textarea,

@@ -56,8 +56,6 @@ class RealtimeServer {
             totalNotifications: 0,
             errors: 0
         };
-
-        logger.info('[REALTIME-SERVER] Servidor de notificações inicializado');
     }
 
     /**
@@ -65,7 +63,7 @@ class RealtimeServer {
      */
     async initialize() {
         try {
-            console.log('[REALTIME-SERVER] Iniciando servidor de notificações em tempo real...');
+            // console.log('[REALTIME-SERVER] Iniciando servidor de notificações em tempo real...');
 
             // 1. Criar componentes
             this.createComponents();
@@ -82,7 +80,7 @@ class RealtimeServer {
             // 5. Configurar cleanup automático
             this.setupCleanupTasks();
 
-            console.log(`[REALTIME-SERVER] Servidor iniciado em ws://${this.options.host}:${this.options.port}`);
+            // console.log(`[REALTIME-SERVER] Servidor iniciado em ws://${this.options.host}:${this.options.port}`);
             
             this.isRunning = true;
             this.startTime = new Date();

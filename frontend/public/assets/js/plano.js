@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     card.innerHTML = `
                         <div class="plan-card">
                             <h3 class="card-title">${plan.nome}</h3>
-                            <p class="price">R$ ${plan.preco_mensal.toFixed(2)}<small>/mês</small></p>
+                            <p class="price">${plan.tipo === 'empresarial' ? 'A negociar' : `R$ ${plan.preco_mensal.toFixed(2)}<small>/mês</small>`}</p>
                             <p>${plan.descricao}</p>
                             <ul class="plan-features">
                                 ${plan.recursos.map(feature => `<li>${feature}</li>`).join('')}

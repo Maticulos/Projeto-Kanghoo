@@ -6,7 +6,7 @@ const apiResponse = require('../utils/api-response');
 const logger = require('../utils/logger');
 
 const router = new Router({
-  prefix: '/api/planos-assinatura'
+  prefix: '/planos-assinatura'
 });
 
 // ==========================================
@@ -40,7 +40,7 @@ router.get('/tipos', async (ctx) => {
         descricao: 'Ideal para motoristas iniciantes',
         limite_rotas: 3,
         limite_usuarios: 15,
-        preco_mensal: 0,
+        preco_mensal: 189.90,
         recursos: [
           'Até 3 rotas ativas',
           'Até 15 crianças cadastradas',
@@ -55,7 +55,7 @@ router.get('/tipos', async (ctx) => {
         descricao: 'Para motoristas profissionais',
         limite_rotas: 10,
         limite_usuarios: 50,
-        preco_mensal: 29.90,
+        preco_mensal: 294.90,
         recursos: [
           'Até 10 rotas ativas',
           'Até 50 crianças cadastradas',
@@ -72,7 +72,7 @@ router.get('/tipos', async (ctx) => {
         descricao: 'Para empresas de transporte escolar',
         limite_rotas: -1, // Ilimitado
         limite_usuarios: -1, // Ilimitado
-        preco_mensal: 99.90,
+        preco_mensal: 0,
         recursos: [
           'Rotas ilimitadas',
           'Usuários ilimitados',

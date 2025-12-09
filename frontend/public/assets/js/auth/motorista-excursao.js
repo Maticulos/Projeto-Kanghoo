@@ -395,20 +395,28 @@ function setupActions() {
                 return;
             }
             try {
-                const res = await fetch(`${API_BASE}/rastreamento/viagens/${tripId}/finalizar`, {
-                    method: 'PUT',
+                const res = await fetch(`${API_BASE}/motorista-excursao/excursoes/${tripId}/finalizar`, {
+                    method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     }
                 });
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                PostAuth.showToast('Excursão finalizada.', 'success');
+                
+                if (!res.ok) {
+                    const errData = await res.json();
+                    throw new Error(errData.message || `HTTP ${res.status}`);
+                }
+
+                PostAuth.showToast('Excursão finalizada com sucesso!', 'success');
                 activeTripId = null;
                 stopExcursionTracking();
                 updateChatChannelLabel();
-            } catch (_) {
-                PostAuth.showToast('Falha ao finalizar excursão.', 'danger');
+                
+                setTimeout(() => window.location.reload(), 1500);
+            } catch (err) {
+                console.error(err);
+                PostAuth.showToast(`Falha ao finalizar: ${err.message}`, 'danger');
             }
         });
     }

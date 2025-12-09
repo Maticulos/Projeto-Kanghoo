@@ -4,7 +4,7 @@ const logger = require('../utils/logger');
 const { apiResponse } = require('../utils/api-response');
 const { authenticateToken, verificarMotorista } = require('../middleware/auth-utils');
 
-const router = new Router({ prefix: '/api/gps' });
+const router = new Router({ prefix: '/gps' });
 
 // POST /api/gps/atualizar-posicao - Atualizar posição GPS do motorista
 router.post('/atualizar-posicao', authenticateToken, verificarMotorista, async (ctx) => {

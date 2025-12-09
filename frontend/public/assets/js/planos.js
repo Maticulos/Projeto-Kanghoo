@@ -5,16 +5,12 @@ class PlansPage {
         this.currentBilling = 'monthly';
         this.plans = {
             basic: {
-                monthly: 29.90,
-                annual: 299.00
+                monthly: 189.90,
+                annual: 1936.98
             },
             premium: {
-                monthly: 59.90,
-                annual: 599.00
-            },
-            enterprise: {
-                monthly: 99.90,
-                annual: 999.00
+                monthly: 294.90,
+                annual: 3007.98
             }
         };
         
@@ -89,17 +85,22 @@ class PlansPage {
             }
             
             // Mostrar/ocultar preço equivalente e economia
-            if (equivalentElement && savingsElement) {
+            if (equivalentElement) {
                 if (this.currentBilling === 'annual') {
                     const monthlyPrice = this.plans[planType].monthly;
                     const annualPrice = this.plans[planType].annual;
                     const monthlyEquivalent = annualPrice / 12;
-                    const savings = ((monthlyPrice - monthlyEquivalent) / monthlyPrice * 100).toFixed(0);
+                    const savingsValue = (monthlyPrice * 12) - annualPrice;
+                    const savingsPercent = ((savingsValue / (monthlyPrice * 12)) * 100).toFixed(0);
                     
                     equivalentElement.style.display = 'block';
                     equivalentElement.innerHTML = `
-                        <strong>R$ ${this.formatPrice(monthlyEquivalent)}/mês</strong>
-                        <div class="savings">Economize ${savings}% pagando anualmente</div>
+                        <div class="price-comparison">
+                            <span class="old-price">De R$ ${this.formatPrice(monthlyPrice)}</span>
+                            <span class="new-price">Por R$ ${this.formatPrice(monthlyEquivalent)}/mês</span>
+                        </div>
+                        <div class="savings">Economize R$ ${this.formatPrice(savingsValue)} (${savingsPercent}% OFF)</div>
+                        <div class="annual-total">Total anual: R$ ${this.formatPrice(annualPrice)}</div>
                     `;
                 } else {
                     equivalentElement.style.display = 'none';

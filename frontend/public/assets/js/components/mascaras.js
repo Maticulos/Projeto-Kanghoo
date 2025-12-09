@@ -1386,6 +1386,9 @@ function aplicarMascaraPlaca(elemento) {
  * @param {string} message - Mensagem de feedback
  */
 function mostrarFeedbackValidacao(elemento, isValid, message) {
+    // Ignorar mensagens "true"
+    if (message === true || message === 'true') return;
+
     // Remove feedback anterior
     removerFeedbackValidacao(elemento);
     

@@ -14,7 +14,7 @@ const { authenticateToken } = require('../middleware/auth-utils');
 const { success, error, send } = require('../utils/api-response');
 
 const router = new Router({
-    prefix: '/api/maps'
+    prefix: '/maps'
 });
 
 /**

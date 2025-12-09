@@ -24,9 +24,9 @@ services:
       - PORT=5000
       - DB_HOST=postgres
       - DB_PORT=5432
-      - DB_NAME=${kanghoo_db_prod}
-      - DB_USER=${postgres}
-      - DB_PASSWORD=${postgres}
+      - DB_NAME=${DB_NAME:-kanghoo_db_prod}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
       - JWT_SECRET=${JWT_SECRET}
       - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
       - RATE_LIMIT_WINDOW_MS=${RATE_LIMIT_WINDOW_MS}
@@ -42,6 +42,7 @@ services:
       - TWILIO_PHONE_NUMBER=${TWILIO_PHONE_NUMBER}
       - CORS_ORIGIN=${CORS_ORIGIN}
       - SSL_ENABLED=${SSL_ENABLED}
+      - FRONTEND_STATIC_PATH=/app/frontend/public
     depends_on:
       postgres:
         condition: service_healthy
@@ -97,7 +98,7 @@ services:
       - ./database/postgresql.conf:/etc/postgresql/postgresql.conf:ro
       - postgres_backups:/backups
     ports:
-      - "127.0.0.1:${DB_PORT:-5432}:5432"  # Bind apenas ao localhost
+      - "127.0.0.1:5440:5432"  # Bind apenas ao localhost
     networks:
       - transporte-network
     restart: unless-stopped
@@ -238,43 +239,21 @@ services:
 # ========================================
 volumes:
   postgres_data:
-    driver: local
     name: transporte_postgres_data_prod
-    driver_opts:
-      type: none
-      o: bind
-      device: /var/lib/docker/volumes/transporte_postgres_data_prod
   
   redis_data:
-    driver: local
     name: transporte_redis_data_prod
   
   postgres_backups:
-    driver: local
     name: transporte_postgres_backups_prod
-    driver_opts:
-      type: none
-      o: bind
-      device: /var/backups/transporte-escolar
   
   app_uploads:
-    driver: local
     name: transporte_app_uploads_prod
-    driver_opts:
-      type: none
-      o: bind
-      device: /var/uploads/transporte-escolar
   
   app_logs:
-    driver: local
     name: transporte_app_logs_prod
-    driver_opts:
-      type: none
-      o: bind
-      device: /var/log/transporte-escolar
   
   nginx_logs:
-    driver: local
     name: transporte_nginx_logs_prod
 
 # ========================================

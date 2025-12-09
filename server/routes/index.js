@@ -27,8 +27,10 @@ module.exports = function mountRoutes() {
   const configRoutes = require('./config');
   const transportesAtivosRoutes = require('./transportes-ativos');
   const publicTransportesRoutes = require('./public-transportes');
+  const cadastroRoutes = require('./cadastro');
   const viagensRoutes = require('./viagens');
   const veiculosRoutes = require('./veiculos');
+  const avaliacoesRoutes = require('./avaliacoes');
 
   // Rota de informações da API
   router.get('/api', async (ctx) => {
@@ -48,10 +50,12 @@ module.exports = function mountRoutes() {
 
   [
     publicTransportesRoutes, // público primeiro
+    cadastroRoutes,
     transportesAtivosRoutes,
     configRoutes,
     viagensRoutes,
     veiculosRoutes,
+    avaliacoesRoutes,
     motoristaEscolarRoutes,
     responsavelRoutes,
     trackingApiRoutes,

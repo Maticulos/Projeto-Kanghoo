@@ -5,6 +5,8 @@
  */
 
 require('dotenv').config();
+delete process.env.DATABASE_URL; // Remove DATABASE_URL to force using individual params
+process.env.DB_HOST = 'localhost'; // Force localhost for local script execution
 const db = require('../config/db');
 
 async function inserirDados() {
@@ -79,9 +81,13 @@ async function inserirDados() {
       const veiculoExistente = await db.query('SELECT id FROM veiculos WHERE placa = $1', ['ABC-1234']);
       if (veiculoExistente.rows.length === 0) {
         await db.query(`
-          INSERT INTO veiculos (motorista_id, placa, modelo, capacidade, ano, status)
-          VALUES ($1, $2, $3, $4, $5, $6)
-        `, [userId, 'ABC-1234', 'Mercedes Sprinter', 25, 2020, 'ativo']);
+          INSERT INTO veiculos (motorista_id, placa, modelo, marca, capacidade, ano, status)
+          VALUES ($1, $2, $3, $4, $5, $6, $7)
+        `, [userId, 'ABC-1234', 'Sprinter', 'Mercedes-Benz', 25, 2020, 'ativo']);
+      } else {
+        await db.query(`
+          UPDATE veiculos SET marca = $1, modelo = $2 WHERE id = $3
+        `, ['Mercedes-Benz', 'Sprinter', veiculoExistente.rows[0].id]);
       }
       
       // Buscar ID do veículo
@@ -96,6 +102,12 @@ async function inserirDados() {
             INSERT INTO caracteristicas_veiculos (veiculo_id, ar_condicionado, wifi, acessibilidade_pcd, gps_rastreamento)
             VALUES ($1, $2, $3, $4, $5)
           `, [veiculoId, true, true, false, true]);
+        } else {
+            await db.query(`
+                UPDATE caracteristicas_veiculos 
+                SET ar_condicionado = $1, wifi = $2, acessibilidade_pcd = $3, gps_rastreamento = $4
+                WHERE veiculo_id = $5
+            `, [true, true, false, true, veiculoId]);
         }
       }
       
@@ -146,9 +158,13 @@ async function inserirDados() {
       const veiculoExistente2 = await db.query('SELECT id FROM veiculos WHERE placa = $1', ['DEF-5678']);
       if (veiculoExistente2.rows.length === 0) {
         await db.query(`
-          INSERT INTO veiculos (motorista_id, placa, modelo, capacidade, ano, status)
-          VALUES ($1, $2, $3, $4, $5, $6)
-        `, [userId, 'DEF-5678', 'Volkswagen Kombi', 15, 2019, 'ativo']);
+          INSERT INTO veiculos (motorista_id, placa, modelo, marca, capacidade, ano, status)
+          VALUES ($1, $2, $3, $4, $5, $6, $7)
+        `, [userId, 'DEF-5678', 'Kombi', 'Volkswagen', 15, 2019, 'ativo']);
+      } else {
+        await db.query(`
+          UPDATE veiculos SET marca = $1, modelo = $2 WHERE id = $3
+        `, ['Volkswagen', 'Kombi', veiculoExistente2.rows[0].id]);
       }
       
       const veiculo = await db.query('SELECT id FROM veiculos WHERE placa = $1', ['DEF-5678']);
@@ -159,6 +175,12 @@ async function inserirDados() {
             INSERT INTO caracteristicas_veiculos (veiculo_id, ar_condicionado, wifi, acessibilidade_pcd, gps_rastreamento)
             VALUES ($1, $2, $3, $4, $5)
           `, [veiculo.rows[0].id, true, true, false, true]);
+        } else {
+            await db.query(`
+                UPDATE caracteristicas_veiculos 
+                SET ar_condicionado = $1, wifi = $2, acessibilidade_pcd = $3, gps_rastreamento = $4
+                WHERE veiculo_id = $5
+            `, [true, true, false, true, veiculo.rows[0].id]);
         }
       }
       
@@ -205,9 +227,13 @@ async function inserirDados() {
       const veiculoExistente3 = await db.query('SELECT id FROM veiculos WHERE placa = $1', ['GHI-9012']);
       if (veiculoExistente3.rows.length === 0) {
         await db.query(`
-          INSERT INTO veiculos (motorista_id, placa, modelo, capacidade, ano, status)
-          VALUES ($1, $2, $3, $4, $5, $6)
-        `, [userId, 'GHI-9012', 'Mercedes Tourismo', 45, 2021, 'ativo']);
+          INSERT INTO veiculos (motorista_id, placa, modelo, marca, capacidade, ano, status)
+          VALUES ($1, $2, $3, $4, $5, $6, $7)
+        `, [userId, 'GHI-9012', 'Tourismo', 'Mercedes-Benz', 45, 2021, 'ativo']);
+      } else {
+        await db.query(`
+          UPDATE veiculos SET marca = $1, modelo = $2 WHERE id = $3
+        `, ['Mercedes-Benz', 'Tourismo', veiculoExistente3.rows[0].id]);
       }
       
       const veiculo = await db.query('SELECT id FROM veiculos WHERE placa = $1', ['GHI-9012']);
@@ -215,9 +241,15 @@ async function inserirDados() {
         const caracExistente3 = await db.query('SELECT veiculo_id FROM caracteristicas_veiculos WHERE veiculo_id = $1', [veiculo.rows[0].id]);
         if (caracExistente3.rows.length === 0) {
           await db.query(`
-            INSERT INTO caracteristicas_veiculos (veiculo_id, ar_condicionado, wifi, acessibilidade_pcd, gps_rastreamento, banheiro, tv_dvd)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
-          `, [veiculo.rows[0].id, true, true, true, true, true, true]);
+            INSERT INTO caracteristicas_veiculos (veiculo_id, ar_condicionado, wifi, acessibilidade_pcd, gps_rastreamento, banheiro, tv_dvd, poltronas_reclinaveis)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+          `, [veiculo.rows[0].id, true, true, true, true, true, true, true]);
+        } else {
+            await db.query(`
+                UPDATE caracteristicas_veiculos 
+                SET ar_condicionado = $1, wifi = $2, acessibilidade_pcd = $3, gps_rastreamento = $4, banheiro = $5, tv_dvd = $6, poltronas_reclinaveis = $7
+                WHERE veiculo_id = $8
+            `, [true, true, true, true, true, true, true, veiculo.rows[0].id]);
         }
       }
       
@@ -265,9 +297,13 @@ async function inserirDados() {
       const veiculoExistente4 = await db.query('SELECT id FROM veiculos WHERE placa = $1', ['JKL-3456']);
       if (veiculoExistente4.rows.length === 0) {
         await db.query(`
-          INSERT INTO veiculos (motorista_id, placa, modelo, capacidade, ano, status)
-          VALUES ($1, $2, $3, $4, $5, $6)
-        `, [userId, 'JKL-3456', 'Scania Intercity', 50, 2022, 'ativo']);
+          INSERT INTO veiculos (motorista_id, placa, modelo, marca, capacidade, ano, status)
+          VALUES ($1, $2, $3, $4, $5, $6, $7)
+        `, [userId, 'JKL-3456', 'Intercity', 'Scania', 50, 2022, 'ativo']);
+      } else {
+        await db.query(`
+          UPDATE veiculos SET marca = $1, modelo = $2 WHERE id = $3
+        `, ['Scania', 'Intercity', veiculoExistente4.rows[0].id]);
       }
       
       const veiculo = await db.query('SELECT id FROM veiculos WHERE placa = $1', ['JKL-3456']);
@@ -275,9 +311,15 @@ async function inserirDados() {
         const caracExistente4 = await db.query('SELECT veiculo_id FROM caracteristicas_veiculos WHERE veiculo_id = $1', [veiculo.rows[0].id]);
         if (caracExistente4.rows.length === 0) {
           await db.query(`
-            INSERT INTO caracteristicas_veiculos (veiculo_id, ar_condicionado, wifi, acessibilidade_pcd, gps_rastreamento, banheiro, tv_dvd, frigobar)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-          `, [veiculo.rows[0].id, true, true, false, true, true, true, true]);
+            INSERT INTO caracteristicas_veiculos (veiculo_id, ar_condicionado, wifi, acessibilidade_pcd, gps_rastreamento, banheiro, tv_dvd, frigobar, poltronas_reclinaveis)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+          `, [veiculo.rows[0].id, true, true, false, true, true, true, true, true]);
+        } else {
+            await db.query(`
+                UPDATE caracteristicas_veiculos 
+                SET ar_condicionado = $1, wifi = $2, acessibilidade_pcd = $3, gps_rastreamento = $4, banheiro = $5, tv_dvd = $6, frigobar = $7, poltronas_reclinaveis = $8
+                WHERE veiculo_id = $9
+            `, [true, true, false, true, true, true, true, true, veiculo.rows[0].id]);
         }
       }
       
@@ -325,9 +367,13 @@ async function inserirDados() {
       const veiculoExistente5 = await db.query('SELECT id FROM veiculos WHERE placa = $1', ['MNO-7890']);
       if (veiculoExistente5.rows.length === 0) {
         await db.query(`
-          INSERT INTO veiculos (motorista_id, placa, modelo, capacidade, ano, status)
-          VALUES ($1, $2, $3, $4, $5, $6)
-        `, [userId, 'MNO-7890', 'Iveco Daily', 30, 2020, 'ativo']);
+          INSERT INTO veiculos (motorista_id, placa, modelo, marca, capacidade, ano, status)
+          VALUES ($1, $2, $3, $4, $5, $6, $7)
+        `, [userId, 'MNO-7890', 'Daily', 'Iveco', 30, 2020, 'ativo']);
+      } else {
+        await db.query(`
+          UPDATE veiculos SET marca = $1, modelo = $2 WHERE id = $3
+        `, ['Iveco', 'Daily', veiculoExistente5.rows[0].id]);
       }
       
       const veiculo = await db.query('SELECT id FROM veiculos WHERE placa = $1', ['MNO-7890']);
@@ -338,6 +384,12 @@ async function inserirDados() {
             INSERT INTO caracteristicas_veiculos (veiculo_id, ar_condicionado, wifi, acessibilidade_pcd, gps_rastreamento)
             VALUES ($1, $2, $3, $4, $5)
           `, [veiculo.rows[0].id, true, true, true, true]);
+        } else {
+            await db.query(`
+                UPDATE caracteristicas_veiculos 
+                SET ar_condicionado = $1, wifi = $2, acessibilidade_pcd = $3, gps_rastreamento = $4
+                WHERE veiculo_id = $5
+            `, [true, true, true, true, veiculo.rows[0].id]);
         }
       }
       

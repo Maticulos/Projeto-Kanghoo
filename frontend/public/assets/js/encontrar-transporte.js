@@ -3,7 +3,10 @@
  * Versão melhorada com validação, filtros avançados e UX aprimorada
  */
 
-const DEFAULT_CENTER = [-23.5505, -46.6333];
+const APP_DEFAULT_CENTER = (window.APP_CONFIG?.mapCenter && Array.isArray(window.APP_CONFIG.mapCenter) && window.APP_CONFIG.mapCenter.length === 2)
+    ? window.APP_CONFIG.mapCenter
+    : [-28.480036, -49.006901];
+const DEFAULT_CENTER = [...APP_DEFAULT_CENTER];
 const MATCH_MODE = 'AND'; // Estratégia de filtros: AND (todos) ou OR (qualquer)
 const REALTIME_POLL_MS = 12000;
 
@@ -187,6 +190,7 @@ class TransporteFinder {
         this.isLoading = false;
         this.matchMode = MATCH_MODE;
         this.userCoords = null;
+        this.resultLookup = new Map();
         
         this.init();
     }
@@ -207,6 +211,14 @@ class TransporteFinder {
             if (tipo && (tipo === 'escolar' || tipo === 'excursao')) {
                 this.currentTransportType = tipo;
                 this.toggleFilterGroups(tipo);
+            }
+
+            const destino = params.get('destino');
+            if (destino) {
+                const enderecoInput = document.getElementById('endereco');
+                if (enderecoInput) {
+                    enderecoInput.value = destino;
+                }
             }
         } catch (_) { /* noop */ }
     }
@@ -508,30 +520,50 @@ class TransporteFinder {
     async buscarTransportes() {
         if (this.isLoading) return;
 
-        if (!this.validateForm()) {
-            this.showError('Por favor, corrija os erros no formulario antes de buscar.');
-            return;
-        }
+        // Validação básica apenas se o usuário interagiu com o formulário
+        // Para a carga inicial, permitimos busca sem validação estrita
+        // if (!this.validateForm()) { ... } 
 
         this.setMapState('loading', 'Buscando transportes...');
         this.showLoading('Buscando transportes...');
 
         try {
             const data = await this.fetchRotasFromApi();
-            const rotas = data.rotas || [];
+            // CORREÇÃO: Verificar se data já é o array ou se está envelopado
+            const rotas = Array.isArray(data) ? data : (data.rotas || data.transportes || []);
 
             this.currentResults = rotas.map((r) => this.mapRouteToResult(r));
-            this.filteredResults = this.aplicarFiltrosLocais(this.currentResults);
+            this.updateResultLookup();
+            
+            // Filtragem local adicional se necessário, mas confiamos na API
+            this.filteredResults = this.currentResults; // this.aplicarFiltrosLocais(this.currentResults);
+            
             this.currentPage = 1;
-            this.loadResults();
 
+            // Limpar marcadores antigos antes de adicionar novos
+            if (window.mapsIntegration) {
+                window.mapsIntegration.clearMarkers();
+            }
+
+            // Carregar veículos ativos (opcional, mas mantido)
             await this.loadActiveVehicles();
+            
+            // Atualizar mapa com resultados estáticos E veículos ativos
             this.updateMapMarkersFromApi(this.filteredResults, this.filterActiveVehicles(this.activeVehicles));
-            this.ensureRealtimeStream();
+            
+            this.loadResults(); 
+            // this.ensureRealtimeStream(); // Desabilitado conforme pedido do usuário (apenas registros estáticos)
 
             this.hideLoading();
             this.setMapState(this.filteredResults.length ? 'ready' : 'empty');
-            this.showSuccess(`${this.filteredResults.length} transportes encontrados!`);
+            
+            if (this.filteredResults.length > 0) {
+                this.showSuccess(`${this.filteredResults.length} transportes encontrados!`);
+            } else {
+                // Se não encontrou nada, tenta sugerir limpar filtros
+                this.showError('Nenhum transporte encontrado com os filtros atuais.');
+            }
+            
         } catch (error) {
             this.hideLoading();
             this.setMapState('error', 'Erro ao buscar transportes');
@@ -569,9 +601,10 @@ class TransporteFinder {
         const turno = document.getElementById('turno-escolar')?.value || document.getElementById('turno')?.value || '';
         const escola = document.getElementById('nome-escola')?.value || '';
         const capacidade = document.getElementById('capacidade')?.value || '';
+        const precoMin = document.getElementById('preco-min')?.value || '';
         const precoMax = document.getElementById('preco-max')?.value || '';
-        const idadeMin = document.getElementById('idade-min')?.value || '';
-        const idadeMax = document.getElementById('idade-max')?.value || '';
+        const idadeMin = document.getElementById('idade-minima')?.value || '';
+        const idadeMax = document.getElementById('idade-maxima')?.value || '';
         const caracteristicasSelecionadas = this.obterCaracteristicasSelecionadas();
 
         // Tentar usar geolocalização atual do mapa
@@ -584,6 +617,7 @@ class TransporteFinder {
             tipo: transportType === 'escolar' ? 'escolar' : 'excursao',
             escola: escola.trim(),
             turno: turno.trim(),
+            valor_min: precoMin ? parseFloat(precoMin) : '',
             valor_max: precoMax ? parseFloat(precoMax) : '',
             idade_min: idadeMin,
             idade_max: idadeMax,
@@ -601,48 +635,113 @@ class TransporteFinder {
 
     mapRouteToResult(rota = {}) {
         const rotaPublica = rota.rota || {};
-        const horarioIda = rota.horario_ida || rotaPublica.horarioIda;
-        const horarioVolta = rota.horario_volta || rotaPublica.horarioVolta;
-        const horarioTurno = rota.turno || rotaPublica.turno || rota.dias_semana || '-';
-        const horario = (horarioIda && horarioVolta)
-            ? `${horarioIda} - ${horarioVolta}`
-            : horarioTurno;
-        const capacidadeRaw = rota.capacidade_maxima || rota.capacidade || rota.capacidade_atual || rota.veiculo?.capacidade;
-        const capacidadeLabel = capacidadeRaw
-            ? `At\u00e9 ${capacidadeRaw} crian\u00e7as`
-            : '-';
-        const precoValor = rota.valor_mensal || rota.preco || rota.preco_mensal || rotaPublica.precoMensal || null;
-        const precoLabel = precoValor
-            ? `R$ ${precoValor}/m\u00eas`
-            : (rota.preco ? `R$ ${rota.preco}` : '-');
-        const caracteristicasList = Array.isArray(rota.caracteristicas)
-            ? rota.caracteristicas
-            : Array.isArray(rotaPublica.caracteristicas)
-                ? rotaPublica.caracteristicas
-                : Object.entries(rota.veiculo?.caracteristicas || {}).filter(([, v]) => v).map(([k]) => k);
+        const pacotePublico = rota.pacote || {};
+        
+        // Determinar tipo corretamente
+        const tipo = rota.tipo || rota.tipo_rota || (rota.tipo_servico === 'Transporte Escolar' ? 'escolar' : 'excursao');
 
-        const lat = rota.latitude_origem || rota.latitude || rota.localizacao?.latitude || null;
-        const lng = rota.longitude_origem || rota.longitude || rota.localizacao?.longitude || null;
+        // Mapeamento de campos comuns
+        const id = rota.id;
+        const nome = rota.nome || 'Transportador';
+        const avaliacao = rota.avaliacao || 5.0;
+        const avaliacoes = rota.totalAvaliacoes || 0;
+        const distancia = rota.distancia ? `${rota.distancia} km` : '-';
+        
+        // Mapeamento específico por tipo
+        let horario, capacidade, preco, caracteristicas, rotaNome, totalParadas, rotaCoords;
+
+        if (tipo === 'escolar') {
+            horario = rotaPublica.horarioIda && rotaPublica.horarioVolta 
+                ? `${rotaPublica.horarioIda} - ${rotaPublica.horarioVolta}`
+                : (rota.turno || '-');
+            
+            capacidade = rota.veiculo?.capacidade ? `Até ${rota.veiculo.capacidade} crianças` : '-';
+            preco = rotaPublica.precoMensal || (rota.valor_mensal ? `R$ ${rota.valor_mensal}/mês` : '-');
+            caracteristicas = rota.caracteristicas || [];
+            rotaNome = rotaPublica.nome || rota.nome_rota || 'Rota Escolar';
+            totalParadas = rotaPublica.totalParadas || 0;
+            
+            // Coordenadas da rota escolar (se houver)
+            if (rotaPublica.coordenadasOrigem && rotaPublica.coordenadasDestino) {
+                rotaCoords = {
+                    origin: rotaPublica.coordenadasOrigem,
+                    destination: rotaPublica.coordenadasDestino
+                };
+            }
+        } else {
+            // Excursão
+            horario = pacotePublico.dataInicio 
+                ? `${new Date(pacotePublico.dataInicio).toLocaleDateString()} - ${pacotePublico.duracao} dias`
+                : 'Data a definir';
+            
+            capacidade = pacotePublico.vagas ? `${pacotePublico.vagas} vagas` : (rota.veiculo?.capacidade ? `Até ${rota.veiculo.capacidade} lugares` : '-');
+            preco = pacotePublico.precoPorPessoa || (rota.preco ? `R$ ${rota.preco}` : '-');
+            caracteristicas = rota.caracteristicas || [];
+            rotaNome = pacotePublico.nome || rota.nome_pacote || 'Excursão';
+            totalParadas = 0; // Excursões geralmente são ponto a ponto ou roteiro fixo
+
+            // Coordenadas da excursão
+            if (pacotePublico.coordenadasPartida && pacotePublico.coordenadasDestino) {
+                rotaCoords = {
+                    origin: pacotePublico.coordenadasPartida,
+                    destination: pacotePublico.coordenadasDestino
+                };
+            }
+        }
+
+        // Localização do transportador/ponto de partida
+        const lat = rota.localizacao?.latitude || rota.latitude || null;
+        const lng = rota.localizacao?.longitude || rota.longitude || null;
 
         return {
-            id: rota.id,
-            nome: rota.nome_rota || rota.nome || rotaPublica.nome || 'Rota escolar',
-            tipo: rota.tipo_rota || rota.tipo || this.currentTransportType || 'escolar',
-            avaliacao: rota.media_avaliacoes || rota.avaliacao || 4.7,
-            avaliacoes: rota.total_avaliacoes || 0,
-            distancia: rota.distancia_km ? `${rota.distancia_km} km` : '-',
-            capacidade: capacidadeLabel,
+            id,
+            nome,
+            rotaNome,
+            tipo,
+            avaliacao,
+            avaliacoes,
+            distancia,
+            capacidade,
             horario,
-            preco: precoLabel,
-            caracteristicas: Array.isArray(caracteristicasList) ? caracteristicasList.join(', ') : (rota.features || rota.dias_semana || 'Rastreamento GPS'),
-            faixaEtaria: rota.faixa_etaria || rota.faixa_etaria_atendida || '',
-            escolas: rota.escola_destino || rota.escola || rotaPublica.escola || rota.escolas_atendidas || '',
+            preco,
+            caracteristicas: Array.isArray(caracteristicas) ? caracteristicas.join(', ') : caracteristicas,
             latitude: lat,
             longitude: lng,
-            turno: rota.turno || rotaPublica.turno || '',
-            vagaDisponivel: rota.vagas_disponiveis,
+            totalParadas,
+            routeCoordinates: rotaCoords,
+            contato: rota.contato,
             raw: rota
         };
+    }
+
+    mapVehicleToResult(vehicle) {
+        return {
+            id: vehicle.id,
+            nome: vehicle.nome || 'Veículo em Rota',
+            rotaNome: 'Monitoramento em Tempo Real',
+            tipo: vehicle.tipo || 'escolar',
+            avaliacao: vehicle.avaliacao || 5.0,
+            avaliacoes: vehicle.reviews || 0,
+            distancia: 'Próximo', 
+            capacidade: vehicle.capacidade ? `Até ${vehicle.capacidade}` : 'Consultar',
+            horario: 'Em circulação',
+            preco: vehicle.preco ? `R$ ${vehicle.preco}` : 'Sob consulta',
+            caracteristicas: vehicle.features || 'Rastreamento GPS',
+            rotaAtual: null,
+            rotaPadrao: null,
+            totalParadas: 0,
+            contato: null,
+            raw: vehicle
+        };
+    }
+
+    updateResultLookup() {
+        this.resultLookup = new Map((this.currentResults || []).map(item => [item.id, item]));
+    }
+
+    getResultadoById(id) {
+        if (!id) return null;
+        return this.resultLookup.get(id) || this.currentResults.find(item => item.id === id);
     }
 
     aplicarFiltrosLocais(lista = []) {
@@ -661,10 +760,12 @@ class TransporteFinder {
             this.currentResults = this.currentTransportType === 'escolar' 
                 ? this.gerarResultadosEscolares() 
                 : this.gerarResultadosExcursoes();
+            this.updateResultLookup();
             this.filteredResults = this.aplicarFiltrosLocais(this.currentResults);
-            this.loadResults();
+            // this.loadResults();
             await this.loadActiveVehicles();
             this.updateMapMarkersFromApi(this.filteredResults, this.filterActiveVehicles(this.activeVehicles));
+            this.loadResults();
             this.setMapState(this.filteredResults.length ? 'ready' : 'empty');
         }
     }
@@ -678,12 +779,14 @@ class TransporteFinder {
 
             // Atualiza lista
             this.currentResults = rotas.map((r) => this.mapRouteToResult(r));
+            this.updateResultLookup();
             this.filteredResults = this.aplicarFiltrosLocais(this.currentResults);
             this.currentPage = 1;
-            this.loadResults();
+            // this.loadResults();
 
             await this.loadActiveVehicles();
             this.updateMapMarkersFromApi(this.filteredResults, this.filterActiveVehicles(this.activeVehicles));
+            this.loadResults();
             this.setMapState(this.filteredResults.length ? 'ready' : 'empty');
 
             this.updateResultsCount();
@@ -697,10 +800,11 @@ class TransporteFinder {
             endereco: document.getElementById('endereco')?.value.toLowerCase() || '',
             raio: parseFloat(document.getElementById('raio')?.value) || 50,
             capacidade: document.getElementById('capacidade')?.value || '',
-            faixaPreco: document.getElementById('faixa-preco')?.value || '',
+            precoMin: document.getElementById('preco-min')?.value || '',
+            precoMax: document.getElementById('preco-max')?.value || '',
             turno: document.getElementById('turno-escolar')?.value || document.getElementById('turno')?.value || '',
-            idadeMin: document.getElementById('idade-min')?.value || '',
-            idadeMax: document.getElementById('idade-max')?.value || '',
+            idadeMin: document.getElementById('idade-minima')?.value || '',
+            idadeMax: document.getElementById('idade-maxima')?.value || '',
             escola: document.getElementById('nome-escola')?.value?.toLowerCase() || '',
             caracteristicas: this.obterCaracteristicasSelecionadas()
         };
@@ -721,9 +825,12 @@ class TransporteFinder {
             if (!atende && this.matchMode === 'AND') return false;
         }
 
-        if (filtros.faixaPreco) {
+        if (filtros.precoMin || filtros.precoMax) {
             const precoNumero = this.extrairNumeroPreco(resultado.preco);
-            const atende = this.verificarPreco(precoNumero, filtros.faixaPreco);
+            const min = filtros.precoMin ? parseFloat(filtros.precoMin) : 0;
+            const max = filtros.precoMax ? parseFloat(filtros.precoMax) : Infinity;
+            
+            const atende = precoNumero >= min && precoNumero <= max;
             checks.push(atende);
             if (!atende && this.matchMode === 'AND') return false;
         }
@@ -843,24 +950,6 @@ class TransporteFinder {
     }
 
     ordenarResultados() {
-        const ordenacao = document.getElementById('ordenacao')?.value;
-        if (!ordenacao) return;
-
-        this.filteredResults.sort((a, b) => {
-            switch (ordenacao) {
-                case 'preco-menor':
-                    return this.extrairNumeroPreco(a.preco) - this.extrairNumeroPreco(b.preco);
-                case 'preco-maior':
-                    return this.extrairNumeroPreco(b.preco) - this.extrairNumeroPreco(a.preco);
-                case 'avaliacao':
-                    return b.avaliacao - a.avaliacao;
-                case 'distancia':
-                    return parseFloat(a.distancia) - parseFloat(b.distancia);
-                default:
-                    return 0;
-            }
-        });
-
         this.loadResults();
     }
 
@@ -868,9 +957,47 @@ class TransporteFinder {
         const container = document.getElementById('results-list');
         if (!container) return;
 
+        // Ensure container is visible
+        container.style.display = 'block';
+        const section = document.querySelector('.results-section');
+        if (section) section.style.display = 'block';
+
         container.innerHTML = '';
 
-        if (this.filteredResults.length === 0) {
+        // Merge filteredResults with activeVehicles
+        const activeFiltered = this.filterActiveVehicles(this.activeVehicles);
+        
+        // Create a map of existing IDs to avoid duplicates
+        const existingIds = new Set(this.filteredResults.map(r => r.id));
+        
+        // Map active vehicles to result format
+        const activeAsResults = activeFiltered
+            .filter(v => !existingIds.has(v.id))
+            .map(v => this.mapVehicleToResult(v));
+
+        // Combine lists - Active vehicles first if they match filters
+        this.displayResults = [...activeAsResults, ...this.filteredResults];
+
+        // Apply sorting
+        const ordenacao = document.getElementById('ordenacao')?.value;
+        if (ordenacao) {
+             this.displayResults.sort((a, b) => {
+                switch (ordenacao) {
+                    case 'preco-menor':
+                        return this.extrairNumeroPreco(a.preco) - this.extrairNumeroPreco(b.preco);
+                    case 'preco-maior':
+                        return this.extrairNumeroPreco(b.preco) - this.extrairNumeroPreco(a.preco);
+                    case 'avaliacao':
+                        return b.avaliacao - a.avaliacao;
+                    case 'distancia':
+                        return parseFloat(a.distancia) - parseFloat(b.distancia);
+                    default:
+                        return 0;
+                }
+            });
+        }
+
+        if (this.displayResults.length === 0) {
             this.showNoResults(container);
             return;
         }
@@ -878,12 +1005,10 @@ class TransporteFinder {
         // Implementar paginação
         const startIndex = (this.currentPage - 1) * this.resultsPerPage;
         const endIndex = startIndex + this.resultsPerPage;
-        const pageResults = this.filteredResults.slice(startIndex, endIndex);
+        const pageResults = this.displayResults.slice(startIndex, endIndex);
 
         pageResults.forEach((resultado, index) => {
             const card = this.criarCardResultado(resultado);
-            card.classList.add('fade-in');
-            card.style.animationDelay = `${index * 0.1}s`;
             container.appendChild(card);
         });
 
@@ -894,7 +1019,7 @@ class TransporteFinder {
     showNoResults(container) {
         container.innerHTML = `
             <div class="no-results" style="text-align: center; padding: 3rem; color: #666;">
-                <h3>?? Nenhum transporte encontrado</h3>
+                <h3>🔍 Nenhum transporte encontrado</h3>
                 <p>Tente ajustar os filtros de busca para encontrar mais opções.</p>
                 <button class="btn btn-primary" onclick="transporteFinder.limparFiltros()">
                     Limpar Filtros
@@ -906,14 +1031,15 @@ class TransporteFinder {
     updateResultsCount() {
         const countElement = document.getElementById('results-count');
         if (countElement) {
-            const total = this.filteredResults.length;
+            const total = this.displayResults ? this.displayResults.length : this.filteredResults.length;
             const texto = total === 1 ? 'transporte encontrado' : 'transportes encontrados';
             countElement.textContent = `${total} ${texto}`;
         }
     }
 
     createPagination() {
-        const totalPages = Math.ceil(this.filteredResults.length / this.resultsPerPage);
+        const totalResults = this.displayResults ? this.displayResults.length : this.filteredResults.length;
+        const totalPages = Math.ceil(totalResults / this.resultsPerPage);
         if (totalPages <= 1) return;
 
         const container = document.getElementById('results-list');
@@ -981,23 +1107,24 @@ class TransporteFinder {
     async loadActiveVehicles() {
         try {
             const lista = await this.gateway.listarAtivos(this.currentTransportType);
-            this.activeVehicles = this.mapActiveVehicles(lista);
-            if (window.APP_CONFIG?.demoMode) {
-                this.startDemoMovement();
-            }
+            // Garantir que lista seja um array antes de passar para mapActiveVehicles
+            const listaArray = Array.isArray(lista) ? lista : (lista.data || lista.transportes || []);
+            this.activeVehicles = this.mapActiveVehicles(listaArray);
+            // Desabilitado demo para focar nos dados reais
             return this.activeVehicles;
         } catch (error) {
-            console.warn('Falha ao carregar transportes ativos, mantendo/demo:', error);
-            if (!this.activeVehicles.length) {
-                this.activeVehicles = this.generateDemoActiveVehicles();
-            }
-            this.startDemoMovement();
+            console.warn('Falha ao carregar transportes ativos:', error);
+            this.activeVehicles = [];
             return this.activeVehicles;
         }
     }
 
     mapActiveVehicles(lista = []) {
-        return (lista || []).map((item, idx) => ({
+        if (!Array.isArray(lista)) {
+            console.warn('mapActiveVehicles recebeu dados inválidos:', lista);
+            return [];
+        }
+        return lista.map((item, idx) => ({
             id: item.id || `ativo-${idx}`,
             nome: item.nome || item.label || 'Transporte ativo',
             tipo: item.tipo || this.currentTransportType || 'escolar',
@@ -1013,7 +1140,7 @@ class TransporteFinder {
     }
 
     generateDemoActiveVehicles() {
-        const base = window.mapsIntegration?.userLocation || [-23.5505, -46.6333];
+        const base = window.mapsIntegration?.userLocation || window.APP_CONFIG?.mapCenter || DEFAULT_CENTER;
         return [
             { id: 'demo-esc-1', nome: 'Van Azul - Zona Norte', tipo: 'escolar', latitude: base[0] + 0.01, longitude: base[1] + 0.01, capacidade: 20, preco: 480, status: 'embarque' },
             { id: 'demo-esc-2', nome: 'Circuito Leste', tipo: 'escolar', latitude: base[0] - 0.012, longitude: base[1] + 0.006, capacidade: 18, preco: 420, status: 'em_rota' },
@@ -1102,38 +1229,53 @@ class TransporteFinder {
     updateMapMarkersFromApi(rotas, vehicles = []) {
         try {
             if (!window.mapsIntegration) return;
+            
+            // Garantir limpeza
             window.mapsIntegration.clearMarkers();
-            const baseLatLng = window.mapsIntegration?.userLocation || [-23.5505, -46.6333];
+
+            const baseLatLng = window.mapsIntegration?.userLocation
+                || window.mapsIntegration?.defaultCenter
+                || window.APP_CONFIG?.mapCenter
+                || DEFAULT_CENTER;
 
             const transports = (rotas || []).map((r, idx) => {
                 const raw = r.raw || {};
-                const lat = r.latitude ?? r.latitude_origem ?? raw.latitude_origem ?? raw.latitude;
-                const lng = r.longitude ?? r.longitude_origem ?? raw.longitude_origem ?? raw.longitude;
+                
+                // Usar coordenadas mapeadas em mapRouteToResult
+                const lat = r.latitude;
+                const lng = r.longitude;
 
                 let position = null;
                 if (lat && lng) {
                     position = [Number(lat), Number(lng)];
-                } else if (window.APP_CONFIG?.demoMode) {
-                    const jitter = 0.01 * (idx + 1);
-                    position = [baseLatLng[0] + jitter, baseLatLng[1] + jitter];
-                }
+                } 
+                // Removido fallback de jitter para garantir fidelidade aos dados
 
-                const priceValue = r.preco || r.valor_mensal || raw.valor_mensal || r.preco_base;
-                const capacityValue = r.capacidade || r.capacidade_maxima || raw.capacidade_maxima;
+                if (!position) return null;
 
                 return {
-                    id: r.id || raw.id || `demo-${idx}`,
-                    name: r.nome || r.nome_rota || raw.nome_rota || 'Rota escolar',
-                    type: r.tipo || r.tipo_rota || this.currentTransportType || 'escolar',
+                    id: r.id,
+                    name: r.nome,
+                    displayRouteName: r.rotaNome,
+                    type: r.tipo,
                     position,
-                    rating: r.avaliacao || r.media_avaliacoes || raw.media_avaliacoes || 4.7,
-                    reviews: r.avaliacoes || r.total_avaliacoes || raw.total_avaliacoes || 0,
-                    price: priceValue ? `R$ ${priceValue}${(r.valor_mensal || raw.valor_mensal) ? '/mes' : ''}` : '-',
-                    capacity: capacityValue ? `Ate ${capacityValue}` : '-',
-                    features: [r.caracteristicas || r.features || raw.caracteristicas || 'Rastreamento GPS']
+                    rating: r.avaliacao,
+                    reviews: r.avaliacoes,
+                    price: r.preco,
+                    capacity: r.capacidade,
+                    features: r.caracteristicas ? r.caracteristicas.split(', ') : [],
+                    routeInfo: {
+                        totalStops: r.totalParadas
+                    },
+                    routeCoordinates: r.routeCoordinates, // Passar coordenadas da rota/excursão
+                    contact: r.contato
                 };
-            }).filter(t => Array.isArray(t.position));
+            }).filter(t => t !== null);
 
+            // Adicionar marcadores estáticos
+            transports.forEach(t => window.mapsIntegration.addTransportMarker(t));
+            
+            // Adicionar veículos ativos (se houver)
             const filteredVehicles = this.filterActiveVehicles(vehicles);
             const vehicleMarkers = filteredVehicles.map((v, idx) => ({
                 id: v.id || `veh-${idx}`,
@@ -1143,18 +1285,19 @@ class TransporteFinder {
                 rating: v.avaliacao || v.avaliacao_media || 4.7,
                 reviews: v.reviews || v.total_avaliacoes || 0,
                 price: v.preco ? `R$ ${v.preco}` : (v.valor_mensal ? `R$ ${v.valor_mensal}/mes` : '-'),
-                capacity: v.capacidade ? `Ate ${v.capacidade} passageiros` : (v.disponibilidade || '-'),
+                capacity: v.capacidade ? `Até ${v.capacidade} passageiros` : (v.disponibilidade || '-'),
                 availability: v.disponibilidade || v.status || '-',
                 features: [v.features || v.caracteristicas || 'Localizacao em tempo real']
             })).filter(t => Array.isArray(t.position));
 
-            [...transports, ...vehicleMarkers].forEach(t => window.mapsIntegration.addTransportMarker(t));
+            vehicleMarkers.forEach(t => window.mapsIntegration.addTransportMarker(t));
+
             const totalMarkers = transports.length + vehicleMarkers.length;
             if (totalMarkers > 0) {
                 window.mapsIntegration.centerOnResults();
                 this.setMapState('ready');
             } else {
-                this.setMapState('empty', 'Nenhum transporte no momento');
+                this.setMapState('empty', 'Nenhum transporte encontrado nesta região');
             }
         } catch (e) {
             console.warn('Falha ao atualizar marcadores do mapa:', e);
@@ -1168,13 +1311,16 @@ class TransporteFinder {
         
         const badgeClass = resultado.tipo === 'escolar' ? 'badge-escolar' : 'badge-excursao';
         const badgeText = resultado.tipo === 'escolar' ? 'Transporte Escolar' : 'Excursão & Fretamento';
+        const rotaLabel = resultado.rotaNome || resultado.rotaPadrao?.nome || 'Rota padrão';
+        const totalParadas = Number(resultado.totalParadas || resultado.rotaAtual?.total_paradas || resultado.rotaPadrao?.total_paradas || 0);
+        const paradasLabel = totalParadas === 1 ? '1 parada' : `${totalParadas} paradas`;
         
         card.innerHTML = `
             <div class="card-header">
                 <div class="provider-info">
                     <h4>${resultado.nome}</h4>
                     <div class="provider-rating">
-                        <span>? ${resultado.avaliacao}</span>
+                        <span>⭐ ${resultado.avaliacao}</span>
                         <span>(${resultado.avaliacoes} avaliações)</span>
                     </div>
                 </div>
@@ -1185,32 +1331,40 @@ class TransporteFinder {
             
             <div class="card-details">
                 <div class="detail-item">
-                    <span>??</span>
+                    <span>📍</span>
                     <span>${resultado.distancia}</span>
                 </div>
                 <div class="detail-item">
-                    <span>??</span>
+                    <span>👥</span>
                     <span>${resultado.capacidade}</span>
                 </div>
                 <div class="detail-item">
-                    <span>?</span>
+                    <span>⏰</span>
                     <span>${resultado.horario}</span>
                 </div>
                 <div class="detail-item">
-                    <span>??</span>
+                    <span>💰</span>
                     <span>${resultado.preco}</span>
                 </div>
                 <div class="detail-item">
-                    <span>?</span>
+                    <span>✅</span>
                     <span>${resultado.caracteristicas}</span>
+                </div>
+                <div class="detail-item">
+                    <span>🛣️</span>
+                    <span>${rotaLabel}</span>
+                </div>
+                <div class="detail-item">
+                    <span>⛔</span>
+                    <span>${paradasLabel}</span>
                 </div>
             </div>
             
             <div class="card-actions">
-                <button class="btn btn-outline" onclick="transporteFinder.verDetalhes('${resultado.nome}')">
+                <button class="btn btn-outline" onclick="transporteFinder.verDetalhes('${resultado.id}')">
                     Ver Detalhes
                 </button>
-                <button class="btn btn-primary" onclick="transporteFinder.entrarEmContato('${resultado.nome}')">
+                <button class="btn btn-primary" onclick="transporteFinder.entrarEmContato('${resultado.id}')">
                     Entrar em Contato
                 </button>
             </div>
@@ -1219,14 +1373,154 @@ class TransporteFinder {
         return card;
     }
 
-    verDetalhes(nome) {
-        this.showSuccess(`Abrindo detalhes de: ${nome}`);
-        // Implementar modal ou redirecionamento para página de detalhes
+    async verDetalhes(id) {
+        const resultado = this.getResultadoById(id);
+        if (!resultado) {
+            this.showError('Não foi possível carregar os detalhes do transporte.');
+            return;
+        }
+
+        // Se for excursão, exige login
+        if (resultado.tipo === 'excursao' || this.currentTransportType === 'excursao') {
+             const token = localStorage.getItem('authToken');
+             if (!token) {
+                 // Salvar URL de retorno
+                 localStorage.setItem('returnUrl', `../detalhes-transporte.html?id=${id}`);
+                 window.location.href = 'auth/login.html';
+                 return;
+             }
+        }
+
+        // Buscar rotas do motorista para verificar se há múltiplas opções
+        try {
+            this.showLoading('Verificando rotas disponíveis...');
+            const response = await fetch(`${this.apiBase}/public/transportes/${id}/rotas`);
+            
+            if (response.ok) {
+                const data = await response.json();
+                const rotas = data.data || data;
+                const totalRotas = (rotas.escolar?.length || 0) + (rotas.excursao?.length || 0);
+
+                if (totalRotas > 1) {
+                    this.hideLoading();
+                    this.abrirModalSelecaoRota(rotas, id);
+                    return;
+                } else if (totalRotas === 1) {
+                    // Redirecionar direto para a única rota
+                    const rota = rotas.escolar?.[0] || rotas.excursao?.[0];
+                    const tipo = rotas.escolar?.length ? 'escolar' : 'excursao';
+                    window.location.href = `detalhes-transporte.html?id=${rota.id}&type=${tipo}`;
+                    return;
+                }
+            }
+        } catch (e) {
+            console.warn('Erro ao buscar rotas detalhadas:', e);
+            // Fallback para comportamento padrão se falhar
+        }
+        
+        this.hideLoading();
+        // Se não conseguiu buscar ou não tem rotas (fallback), usa o ID do motorista (comportamento antigo ou genérico)
+        // Mas idealmente deveria ir para uma rota específica.
+        // Vamos assumir que se falhar, vai para a página genérica que vai tentar lidar com isso.
+        window.location.href = `detalhes-transporte.html?id=${id}&driver=true`;
     }
 
-    entrarEmContato(nome) {
-        this.showSuccess(`Iniciando contato com: ${nome}`);
-        // Implementar modal de contato ou redirecionamento
+    abrirModalSelecaoRota(rotas, motoristaId) {
+        // Criar modal dinamicamente se não existir
+        let modal = document.getElementById('rota-selection-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'rota-selection-modal';
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 600px;">
+                    <button class="close-modal-btn">&times;</button>
+                    <h3>Selecione a Rota/Excursão</h3>
+                    <p>Este motorista possui múltiplas opções disponíveis:</p>
+                    <div id="rota-selection-list" class="modal-options" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;"></div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            
+            modal.querySelector('.close-modal-btn').addEventListener('click', () => {
+                modal.classList.add('hidden');
+            });
+            
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) modal.classList.add('hidden');
+            });
+        }
+
+        const list = modal.querySelector('#rota-selection-list');
+        list.innerHTML = '';
+
+        // Renderizar Escolares
+        if (rotas.escolar && rotas.escolar.length) {
+            const title = document.createElement('h4');
+            title.textContent = 'Transporte Escolar';
+            title.style.margin = '0.5rem 0';
+            list.appendChild(title);
+
+            rotas.escolar.forEach(rota => {
+                const btn = document.createElement('a');
+                btn.className = 'btn btn-outline';
+                btn.style.textAlign = 'left';
+                btn.style.justifyContent = 'space-between';
+                btn.innerHTML = `
+                    <span><strong>${rota.nome_rota}</strong> <small>(${rota.turno})</small></span>
+                    <span>R$ ${rota.preco_mensal || '-'}/mês</span>
+                `;
+                btn.href = `detalhes-transporte.html?id=${rota.id}&type=escolar`;
+                list.appendChild(btn);
+            });
+        }
+
+        // Renderizar Excursões
+        if (rotas.excursao && rotas.excursao.length) {
+            const title = document.createElement('h4');
+            title.textContent = 'Excursões';
+            title.style.margin = '1rem 0 0.5rem 0';
+            list.appendChild(title);
+
+            rotas.excursao.forEach(exc => {
+                const btn = document.createElement('a');
+                btn.className = 'btn btn-outline';
+                btn.style.textAlign = 'left';
+                btn.style.justifyContent = 'space-between';
+                btn.innerHTML = `
+                    <span><strong>${exc.nome_pacote}</strong> <small>(${exc.destino})</small></span>
+                    <span>R$ ${exc.preco_por_pessoa || '-'}/pessoa</span>
+                `;
+                btn.href = `detalhes-transporte.html?id=${exc.id}&type=excursao`;
+                list.appendChild(btn);
+            });
+        }
+
+        modal.classList.remove('hidden');
+    }
+
+
+    entrarEmContato(id) {
+        const resultado = this.getResultadoById(id);
+        if (!resultado) {
+            this.showError('Transporte não encontrado para contato.');
+            return;
+        }
+
+        const contato = resultado.contato || resultado.raw?.contato;
+        const whatsappLink = contato?.whatsapp_link || contato?.whatsappLink;
+        if (!whatsappLink) {
+            this.showError('Contato via WhatsApp indisponível para este transportador.');
+            return;
+        }
+
+        const mensagem = encodeURIComponent(`Olá ${resultado.nome}, encontrei seu transporte na Kanghoo e gostaria de saber mais sobre a rota ${resultado.rotaNome || ''}.`);
+        const link = whatsappLink.includes('text=') ? whatsappLink : `${whatsappLink}${whatsappLink.includes('?') ? '&' : '?'}text=${mensagem}`;
+
+        this.showSuccess('Redirecionando para o WhatsApp do transportador...');
+        setTimeout(() => {
+            window.open(link, '_blank', 'noopener');
+        }, 1000);
     }
 
     // Dados de exemplo
@@ -1347,7 +1641,7 @@ class TransporteFinder {
 
     showMessage(message, type) {
         const className = type === 'error' ? 'error-message' : 'success-message';
-        const icon = type === 'error' ? '?' : '?';
+        const icon = type === 'error' ? '❌' : '✅';
         
         const messageDiv = document.createElement('div');
         messageDiv.className = className;

@@ -33,7 +33,7 @@ app.use(errorHandler);
 // Security headers via Helmet (fallback para headers manuais)
 if (securityMiddleware && securityMiddleware.securityHeaders) {
   const headersMiddleware = securityMiddleware.securityHeaders();
-  // Verificar se retornou uma funÃ§Ã£o vÃ¡lida (nÃ£o null)
+  // Verificar se retornou uma função válida (não null)
   if (typeof headersMiddleware === 'function') {
     app.use(headersMiddleware);
   } else {
@@ -54,14 +54,14 @@ if (securityMiddleware && securityMiddleware.securityHeaders) {
   });
 }
 
-// CompressÃ£o
+// Compressão
 app.use(compress({
   filter(ct) { return /text|javascript|json|xml|svg/.test(ct); },
   threshold: 1024,
   br: false
 }));
 
-// CORS por ambiente (restrito em produÃ§Ã£o)
+// CORS por ambiente (restrito em produção)
 function buildCorsOptions() {
   // Detectar ambiente de forma mais robusta
   const isProd = process.env.NODE_ENV === 'production' || 
@@ -75,13 +75,13 @@ function buildCorsOptions() {
   if (fromEnv) {
     origins = fromEnv.split(',').map(s => s.trim()).filter(Boolean);
   } else if (isProd) {
-    // Em produÃ§Ã£o SEM CORS_ORIGINS configurado, usar lista padrÃ£o restritiva
-    logger.warn('âš ï¸  CORS_ORIGINS nÃ£o configurado em produÃ§Ã£o. Usando lista padrÃ£o restritiva.');
+    // Em produção SEM CORS_ORIGINS configurado, usar lista padrão restritiva
+    logger.warn('⚠️  CORS_ORIGINS não configurado em produção. Usando lista padrão restritiva.');
     origins = [
       'https://kanghoo.com',
       'https://www.kanghoo.com'
     ];
-    // Se estivermos em modo demo, permitir tambÃ©m localhost para apresentaÃ§Ãµes locais
+    // Se estivermos em modo demo, permitir também localhost para apresentações locais
     if (isDemo) {
       origins.push('http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:3001', 'http://127.0.0.1:3001');
       logger.info('DEMO_MODE ativo: habilitando origens localhost para CORS');
@@ -101,10 +101,10 @@ function buildCorsOptions() {
   const originFn = (ctx) => {
     const reqOrigin = ctx.get('Origin') || '';
     
-    // Em desenvolvimento, sempre permitir (incluindo requisiÃ§Ãµes sem origem)
-    // TambÃ©m permitir em modo demo quando explicitamente habilitado
+    // Em desenvolvimento, sempre permitir (incluindo requisições sem origem)
+    // Também permitir em modo demo quando explicitamente habilitado
     if (!isProd || isDemo) {
-      // Se nÃ£o hÃ¡ origem (requisiÃ§Ã£o direta do navegador), permitir
+      // Se não há origem (requisição direta do navegador), permitir
       if (!reqOrigin || reqOrigin === '') {
         return '*';
       }
@@ -113,16 +113,16 @@ function buildCorsOptions() {
           (reqOrigin && (reqOrigin.includes('localhost') || reqOrigin.includes('127.0.0.1')))) {
         return reqOrigin;
       }
-      // Em desenvolvimento, permitir por padrÃ£o
+      // Em desenvolvimento, permitir por padrão
       return '*';
     }
     
-    // Em produÃ§Ã£o, validar origem
+    // Em produção, validar origem
     if (reqOrigin && origins.includes(reqOrigin)) {
       return reqOrigin;
     }
     
-    // Bloquear se nÃ£o estiver na lista (apenas em produÃ§Ã£o)
+    // Bloquear se não estiver na lista (apenas em produção)
     if (isProd && reqOrigin) {
       logger.warn(`CORS bloqueado para origem: ${reqOrigin}`, {
         ip: ctx.ip,
@@ -131,7 +131,7 @@ function buildCorsOptions() {
       return null; // Bloqueia
     }
     
-    // Em produÃ§Ã£o sem origem, nÃ£o permitir
+    // Em produção sem origem, não permitir
     return null;
   };
 
@@ -175,7 +175,7 @@ app.use(json());
 });
 
 
-// Health check bÃ¡sico
+// Health check básico
 const health = new Router();
 health.get('/api/health', async (ctx) => {
   ctx.body = {
@@ -191,9 +191,9 @@ app.use(health.routes());
 const rootRouter = mountRoutes();
 app.use(rootRouter.routes()).use(rootRouter.allowedMethods());
 
-// Tratamento de rotas nÃ£o encontradas (404) - removido, agora tratado no errorHandler
+// Tratamento de rotas não encontradas (404) - removido, agora tratado no errorHandler
 
-// Endpoint de mÃ©tricas Prometheus (se prom-client disponÃ­vel)
+// Endpoint de métricas Prometheus (se prom-client disponível)
 try {
   const metrics = require('./utils/metrics');
   const metricsRouter = new Router();
@@ -203,7 +203,7 @@ try {
   });
   app.use(metricsRouter.routes());
 } catch (_err) {
-  // prom-client nÃ£o instalado; ignorar
+  // prom-client não instalado; ignorar
 }
 
 
@@ -224,7 +224,7 @@ if (fs.existsSync(INDEX_HTML_PATH)) {
   logger.warn(`[STATIC] index.html nao encontrado em ${INDEX_HTML_PATH}`);
 }
 
-// Job diÃ¡rio de limpeza de uploads (24h)
+// Job diário de limpeza de uploads (24h)
 const DAY_MS = 24 * 60 * 60 * 1000;
 setInterval(() => {
   try { cleanupOldFiles(24); } catch(e) { /* noop */ }

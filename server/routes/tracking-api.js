@@ -8,7 +8,7 @@ const trackingService = require('../utils/tracking-persistence');
 const { authenticateToken } = require('../middleware/auth-utils');
 const logger = require('../utils/logger');
 
-const router = new Router({ prefix: '/api/tracking' });
+const router = new Router({ prefix: '/tracking' });
 
 // Middleware de autenticação para todas as rotas
 router.use(authenticateToken);

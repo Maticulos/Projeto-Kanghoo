@@ -32,7 +32,7 @@
         <nav class="nav" aria-label="Navegação principal">
             <a href="../planos.html" class="nav-link">Planos</a>
             <a href="../index.html#contact" class="nav-link">Fale Conosco</a>
-            <a href="#" class="nav-link" id="open-transport-modal">Encontrar Transporte</a>
+            <a href="../encontrar-transporte.html" class="nav-link" id="open-transport-modal">Encontrar Transporte</a>
             <a href="../sobre.html" class="nav-link">Sobre Nós</a>
         </nav>
         
@@ -51,6 +51,7 @@
             <h3 id="modal-title">Qual tipo de cadastro?</h3>
             <p>Escolha a opção que melhor descreve seu serviço para começar.</p>
             <div class="modal-options">
+                <a href="../cadastro-usuario.html" class="btn btn-primary" style="background-color: #28a745;">Sou Passageiro</a>
                 <a href="../cadastro-escolar.html" class="btn btn-primary">Transporte Escolar</a>
                 <a href="../cadastro-excursao.html" class="btn btn-blue">Excursão e Fretamento</a>
             </div>
@@ -287,6 +288,8 @@
                 return '';
             case 'responsavel':
                 return 'area-responsavel.html';
+            case 'usuario_comum':
+                return 'area-usuario.html';
             default:
                 return 'dashboard.html';
         }
@@ -375,6 +378,7 @@ try {
                         }
 
                         localStorage.setItem('authToken', token);
+                        localStorage.setItem('userData', JSON.stringify(user));
 
                         showSuccess(`Login realizado com sucesso! Bem-vindo, ${user.nome || 'usuário'}!`, 2000);
 

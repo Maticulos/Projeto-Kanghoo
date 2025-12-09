@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minha Área - Kanghoo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/bundle.min.css">
+    <style>
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        .welcome-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .trips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        .trip-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+        .trip-card:hover {
+            transform: translateY(-5px);
+        }
+        .trip-header {
+            height: 150px;
+            background: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
+        .trip-body {
+            padding: 1.5rem;
+        }
+        .trip-status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .status-confirmed { background: #e3fcef; color: #00a854; }
+        .status-pending { background: #fff7e6; color: #fa8c16; }
+        .status-completed { background: #f0f0f0; color: #666; }
+    </style>
+</head>
+<body class="dashboard-page">
+    <header class="header">
+        <div class="container">
+            <a href="../index.html" class="logo-link">
+                <img src="../assets/images/logo.png" alt="Ícone Kanghoo" class="logo-icon">
+                <span class="logo-text-full">Kanghoo</span>
+            </a>
+            <nav class="nav">
+                <a href="../encontrar-transporte.html" class="nav-link">Buscar Excursões</a>
+                <a href="#" id="logout-btn" class="nav-link" style="color: red;">Sair</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="dashboard-container">
+        <div class="welcome-section">
+            <div>
+                <h1 id="user-name">Olá, Usuário</h1>
+                <p>Bem-vindo à sua área de passageiro.</p>
+            </div>
+            <a href="../encontrar-transporte.html" class="btn btn-primary">Nova Viagem</a>
+        </div>
+
+        <h2 style="margin-bottom: 1.5rem;">Minhas Viagens</h2>
+        <div id="trips-list" class="trips-grid">
+            <!-- Preenchido via JS -->
+            <p>Carregando viagens...</p>
+        </div>
+    </main>
+
+    <script src="../assets/js/avaliacao-flow.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Atualizar nome do usuário a partir do localStorage
+            const userDataStr = localStorage.getItem('userData');
+            if (userDataStr) {
+                try {
+                    const user = JSON.parse(userDataStr);
+                    if (user.nome) {
+                        const firstName = user.nome.split(' ')[0];
+                        document.getElementById('user-name').textContent = `Olá, ${firstName}`;
+                    }
+                } catch (e) {
+                    console.error('Erro ao processar dados do usuário:', e);
+                }
+            }
+
+            // Logout
+            document.getElementById('logout-btn').addEventListener('click', (e) => {
+                e.preventDefault();
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('userData');
+                window.location.href = 'login.html';
+            });
+
+            // Carregar dados do usuário (decodificar token ou chamar API /me)
+            // Vamos assumir que temos um endpoint /api/auth/me ou similar, ou decodificar o token se tiver payload
+            // Por simplicidade, vamos buscar as viagens que já valida o token
+            
+            try {
+                // Buscar viagens do usuário
+                // Precisamos de um endpoint para isso. Vamos usar um placeholder ou criar.
+                // O endpoint /api/responsavel/criancas lista crianças, mas aqui é usuario comum.
+                // Vamos criar um endpoint /api/usuario/viagens ou similar.
+                // Por enquanto, vamos simular ou deixar vazio.
+                
+                document.getElementById('trips-list').innerHTML = '<p style="color: #666;">Você ainda não tem viagens agendadas.</p>';
+                
+            } catch (error) {
+                console.error(error);
+            }
+        });
+    </script>
+</body>
+</html>

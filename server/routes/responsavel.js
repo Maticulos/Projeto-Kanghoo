@@ -6,7 +6,7 @@ const { validate } = require('../middleware/validation');
 const { success, error, send } = require('../utils/api-response');
 const { getFirstChild, getChildById, updateChild } = require('../controllers/responsavel.controller');
 
-const router = new KoaRouter({ prefix: '/api/responsavel' });
+const router = new KoaRouter({ prefix: '/responsavel' });
 
 // Health/test
 router.get('/test', async (ctx) => send(ctx, success(null, 'API do responsável funcionando')));

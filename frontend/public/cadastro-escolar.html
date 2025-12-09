@@ -41,6 +41,7 @@
             <h3 id="modal-title">Qual tipo de cadastro?</h3>
             <p>Escolha a opção que melhor descreve seu serviço para começar.</p>
             <div class="modal-options">
+                <a href="cadastro-usuario.html" class="btn btn-primary" style="background-color: #28a745;">Sou Passageiro</a>
                 <a href="cadastro-escolar.html" class="btn btn-primary">Transporte Escolar</a>
                 <a href="cadastro-excursao.html" class="btn btn-blue">Excursão e Fretamento</a>
             </div>
@@ -77,6 +78,41 @@
             <div class="cadastro-pessoa">
                 <h2>Dados Pessoais</h2>
                 
+                <div class="campo-grupo">
+                    <div>
+                        <label>Tipo de Pessoa</label>
+                        <div class="radio-group" style="display: flex; gap: 20px; margin-bottom: 15px;">
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <input type="radio" id="pessoaFisica" name="tipoPessoa" value="fisica" checked onchange="togglePessoaFields()">
+                                <label for="pessoaFisica" style="margin: 0;">Pessoa Física</label>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <input type="radio" id="pessoaJuridica" name="tipoPessoa" value="juridica" onchange="togglePessoaFields()">
+                                <label for="pessoaJuridica" style="margin: 0;">Pessoa Jurídica</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="camposJuridica" style="display: none;">
+                    <div class="campo-grupo">
+                        <div>
+                            <label for="razaoSocial">Razão Social</label>
+                            <input type="text" id="razaoSocial" name="razaoSocial">
+                        </div>
+                    </div>
+                    <div class="campo-grupo">
+                        <div>
+                            <label for="nomeFantasia">Nome Fantasia</label>
+                            <input type="text" id="nomeFantasia" name="nomeFantasia">
+                        </div>
+                        <div>
+                            <label for="cnpj">CNPJ</label>
+                            <input type="text" id="cnpj" name="cnpj" placeholder="00.000.000/0000-00">
+                        </div>
+                    </div>
+                </div>
+
                 <div class="campo-grupo">
                     <div>
                         <label for="nomeCompleto">Nome Completo</label>
@@ -281,20 +317,26 @@
                 <p>Envie cópias legíveis dos seus documentos para validação.</p>
                 <div class="campo-grupo">
                     <div>
-                        <label for="uploadCNH">Cópia da CNH</label>
-                        <input type="file" id="uploadCNH" name="uploadCNH">
+                        <label for="fotoCNH">Cópia da CNH</label>
+                        <input type="file" id="fotoCNH" name="fotoCNH">
                     </div>
                 </div>
                 <div class="campo-grupo">
                     <div>
-                        <label for="uploadCRLV">Cópia do CRLV (Documento do Veículo)</label>
-                        <input type="file" id="uploadCRLV" name="uploadCRLV">
+                        <label for="fotoCRLV">Cópia do CRLV (Documento do Veículo)</label>
+                        <input type="file" id="fotoCRLV" name="fotoCRLV">
                     </div>
                 </div>
                 <div class="campo-grupo">
                     <div>
-                        <label for="uploadAntecedentes">Certificado de Antecedentes Criminais</label>
-                        <input type="file" id="uploadAntecedentes" name="uploadAntecedentes">
+                        <label for="fotoAntecedentes">Certificado de Antecedentes Criminais</label>
+                        <input type="file" id="fotoAntecedentes" name="fotoAntecedentes">
+                    </div>
+                </div>
+                <div class="campo-grupo">
+                    <div>
+                        <label for="fotoCurso">Certificado do Curso de Transporte Escolar</label>
+                        <input type="file" id="fotoCurso" name="fotoCurso">
                     </div>
                 </div>
             </div>
@@ -376,6 +418,7 @@
         document.documentElement.removeAttribute('data-theme');
         document.body.removeAttribute('data-theme');
     </script>
+    <script src="assets/js/cep-service.js"></script>
     <script src="assets/js/bundle.min.js"></script>
 
     <script>
@@ -415,6 +458,27 @@
         
         function setTransportType(type) {
             localStorage.setItem('transportType', type);
+        }
+
+        function togglePessoaFields() {
+            const isJuridica = document.getElementById('pessoaJuridica').checked;
+            const camposJuridica = document.getElementById('camposJuridica');
+            const razaoSocial = document.getElementById('razaoSocial');
+            const nomeFantasia = document.getElementById('nomeFantasia');
+            const cnpj = document.getElementById('cnpj');
+
+            if (isJuridica) {
+                camposJuridica.style.display = 'block';
+                razaoSocial.required = true;
+                cnpj.required = true;
+            } else {
+                camposJuridica.style.display = 'none';
+                razaoSocial.required = false;
+                cnpj.required = false;
+                razaoSocial.value = '';
+                nomeFantasia.value = '';
+                cnpj.value = '';
+            }
         }
     </script>
 </body>

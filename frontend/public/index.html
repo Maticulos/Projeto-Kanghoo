@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kanghoo - Transporte Escolar & Excursões</title>
-    <meta name="description" content="Kanghoo: plataforma para transporte escolar e excursões em grupo. Rastreamento, pagamentos integrados, gestão de grupos e planos flexí­veis mensais/anuais.">
+    <meta name="description" content="Kanghoo: plataforma para transporte escolar e excursões em grupo. Rastreamento, pagamentos integrados, gestão de grupos e planos flexíveis mensais/anuais.">
     <meta property="og:title" content="Kanghoo - Transporte Escolar & Excursões">
-    <meta property="og:description" content="Rastreamento, pagamentos e gestÃ£o inteligente para transporte escolar e excursões. Veja nossos planos.">
+    <meta property="og:description" content="Rastreamento, pagamentos e gestão inteligente para transporte escolar e excursões. Veja nossos planos.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://kanghoo.example/">
     <meta property="og:image" content="assets/images/logo.png">
@@ -15,14 +15,14 @@
     <meta name="twitter:description" content="Planos com recursos avançados para transporte escolar e excursões.">
     <link rel="canonical" href="https://kanghoo.example/">
     
-    <!-- Favicons e Ã­cones -->
+    <!-- Favicons e ícones -->
     <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="assets/images/icon-192.png">
+    <link rel="icon" type="image/svg+xml" sizes="192x192" href="assets/images/icon-192.svg">
     <link rel="icon" type="image/png" sizes="512x512" href="assets/images/icon-512.png">
     <link rel="manifest" href="manifest.json">
     
-    <!-- Meta tags de seguranÃ§a -->
+    <!-- Meta tags de segurança -->
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     
@@ -30,13 +30,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
-    <!-- Preload de recursos crÃ­ticos -->
+    <!-- Preload de recursos críticos -->
     <link rel="preload" href="assets/css/bundle.min.css" as="style">
     <link rel="preload" href="assets/images/mulher andando na cidade.jpg" as="image">
     <link rel="preload" href="assets/js/core/app.js" as="script">
     
     <!-- Fontes otimizadas -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/bundle.min.css">
     
     <!-- Dados estruturados JSON-LD -->
@@ -45,7 +46,7 @@
         "@context": "https://schema.org",
         "@type": "Organization",
         "name": "Kanghoo",
-        "description": "Plataforma para transporte escolar e excursÃµes em grupo com rastreamento, pagamentos integrados e gestÃ£o de grupos.",
+        "description": "Plataforma para transporte escolar e excursões em grupo com rastreamento, pagamentos integrados e gestão de grupos.",
         "url": "https://kanghoo.example/",
         "logo": "https://kanghoo.example/assets/images/logo.png",
         "contactPoint": {
@@ -62,12 +63,12 @@
             {
                 "@type": "Service",
                 "name": "Transporte Escolar",
-                "description": "Rastreamento GPS, alertas para pais e gestÃ£o completa de transporte escolar"
+                "description": "Rastreamento GPS, alertas para pais e gestão completa de transporte escolar"
             },
             {
                 "@type": "Service", 
-                "name": "ExcursÃµes e Fretamento",
-                "description": "OrganizaÃ§Ã£o de viagens em grupo, pagamentos integrados e gestÃ£o de assentos"
+                "name": "Excursões e Fretamento",
+                "description": "Organização de viagens em grupo, pagamentos integrados e gestão de assentos"
             }
         ]
     }
@@ -81,7 +82,7 @@
 <header id="header" class="header" role="banner">
     <div class="container">
         <a href="index.html" class="logo-link" aria-label="Kanghoo - Página inicial">
-            <img src="assets/images/logo.png" alt="Ãcone Kanghoo" class="logo-icon">
+            <img src="assets/images/logo.png" alt="Ícone Kanghoo" class="logo-icon">
             <span class="logo-text-full">Kanghoo</span>
         </a>
         <nav id="main-nav" class="nav" role="navigation" aria-label="Navegação principal">
@@ -101,50 +102,6 @@
     <div class="scroll-progress-bar"></div>
 </div>
 
-<section class="cta-profiles" style="padding:2rem 1rem;background:var(--bg-muted);">
-    <div class="container" style="display:grid;gap:1rem;">
-        <h3 style="margin:0;">Escolha seu caminho</h3>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;">
-            <div style="background:#fff;border:1px solid #e6e8ec;border-radius:12px;padding:1rem;display:grid;gap:0.5rem;">
-                <p style="margin:0;color:#6b7280;font-size:0.9rem;">Motorista escolar</p>
-                <h4 style="margin:0;">Cadastre rotas regulares</h4>
-                <p style="margin:0;color:#4b5563;">Capacidade, horários e GPS alimentam o mapa público automaticamente.</p>
-                <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-                    <a class="btn btn-primary" href="cadastro-escolar.html">Cadastrar transporte</a>
-                    <a class="btn btn-ghost" href="auth/area-motorista-escolar.html">Abrir painel</a>
-                </div>
-            </div>
-            <div style="background:#fff;border:1px solid #e6e8ec;border-radius:12px;padding:1rem;display:grid;gap:0.5rem;">
-                <p style="margin:0;color:#6b7280;font-size:0.9rem;">Excursão & fretamento</p>
-                <h4 style="margin:0;">Publique suas saÃ­das</h4>
-                <p style="margin:0;color:#4b5563;">Rotas avulsas com lotação, preço por pessoa e status.</p>
-                <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-                    <a class="btn btn-blue" href="cadastro-excursao.html">Cadastrar excursão</a>
-                    <a class="btn btn-outline" href="auth/area-motorista-excursao.html">Ver painel</a>
-                </div>
-            </div>
-            <div style="background:#fff;border:1px solid #e6e8ec;border-radius:12px;padding:1rem;display:grid;gap:0.5rem;">
-                <p style="margin:0;color:#6b7280;font-size:0.9rem;">Responsável/famí­lia</p>
-                <h4 style="margin:0;">Acompanhe e configure alertas</h4>
-                <p style="margin:0;color:#4b5563;">Login para preferências, notificações e chat com motoristas.</p>
-                <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-                    <a class="btn btn-blue" href="auth/login.html">Login do responsável</a>
-                    <a class="btn btn-outline" href="encontrar-transporte.html">Buscar transporte</a>
-                </div>
-            </div>
-            <div style="background:#fff;border:1px solid #e6e8ec;border-radius:12px;padding:1rem;display:grid;gap:0.5rem;">
-                <p style="margin:0;color:#6b7280;font-size:0.9rem;">Mapa público</p>
-                <h4 style="margin:0;">Filtre e rastreie em tempo real</h4>
-                <p style="margin:0;color:#4b5563;">Horários, idade, escola, capacidade e caracterí­sticas ligadas ao backend.</p>
-                <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-                    <a class="btn btn-outline" href="encontrar-transporte.html">Mapa escolar</a>
-                    <a class="btn btn-outline" href="encontrar-transporte.html?tipo=excursao">Mapa excursão</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
 <div class="scroll-nav">
     <a href="#head" class="nav-btn">
         <button class="btn-arrow" aria-label="Ir para o topo">&#9650;</button>
@@ -160,6 +117,7 @@
         <h3 id="modal-title">Qual tipo de cadastro?</h3>
         <p>Escolha a opção que melhor descreve seu serviço para começar.</p>
         <div class="modal-options">
+            <a href="cadastro-usuario.html" class="btn btn-primary" style="background-color: #28a745;">Sou Passageiro</a>
             <a href="cadastro-escolar.html" class="btn btn-primary">Transporte Escolar</a>
             <a href="cadastro-excursao.html" class="btn btn-blue">Excursão e Fretamento</a>
         </div>
@@ -175,15 +133,43 @@
     <section class="hero-section">
         <div class="container">
             <div class="hero-content">
-                <h1 class="hero-headline">Uma plataforma, dois mundos de transporte.</h1>
-                <p class="hero-subheadline">Segurança no transporte escolar, inteligência em viagens em grupo.</p>
-                <div class="hero-actions">
-                    <a href="#solutions" class="btn btn-primary btn-hero">Explore Agora</a>
-                    <a href="encontrar-transporte.html" class="btn btn-blue btn-hero">Encontrar Transporte</a>
+                <div class="hero-trust-badge" style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px; color: #f1c40f;">
+                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    <span style="color: #666; font-size: 0.9em; font-weight: 500;">+5.000 viagens seguras</span>
                 </div>
+
+                <h1 class="hero-headline">Sua tranquilidade começa no trajeto de quem você ama.</h1>
+                
+                <p class="hero-subheadline">Acompanhe o transporte escolar em tempo real ou organize excursões inesquecíveis. Segurança certificada e gestão inteligente na palma da sua mão.</p>
+                
+                <div class="hero-actions">
+                    <a href="#solutions" class="btn btn-primary btn-hero">Quero Segurança Agora</a>
+                    <a href="encontrar-transporte.html" class="btn btn-blue btn-hero"><i class="fas fa-search-location"></i> Buscar Transporte</a>
+                </div>
+                
+                <p style="font-size: 0.8rem; color: #888; margin-top: 15px;"><i class="fas fa-shield-alt" style="color: #27ae60;"></i> Motoristas 100% verificados e monitorados.</p>
             </div>
             <div class="hero-image-container">
-                <img src="assets/images/mulher andando na cidade.jpg" alt="Mulher com mochila andando em uma ciclovia na cidade" class="hero-image" fetchpriority="high" decoding="async" width="1200" height="800">
+                <img src="assets/images/crianças.jpg" alt="Crianças felizes" class="hero-image" fetchpriority="high" decoding="async" width="1200" height="800">
+            </div>
+        </div>
+    </section>
+
+    <section class="stats-section" style="background: #f8f9fa; padding: 40px 0; text-align: center;">
+        <div class="container">
+            <div class="stats-grid" style="display: flex; justify-content: space-around; flex-wrap: wrap; gap: 20px;">
+                <div class="stat-item">
+                    <h3 style="font-size: 2.5rem; color: #007bff; margin: 0; font-weight: 800;">12k+</h3>
+                    <p style="color: #666; font-weight: 500;">Passageiros Seguros</p>
+                </div>
+                <div class="stat-item">
+                    <h3 style="font-size: 2.5rem; color: #007bff; margin: 0; font-weight: 800;">98%</h3>
+                    <p style="color: #666; font-weight: 500;">Pais Satisfeitos</p>
+                </div>
+                <div class="stat-item">
+                    <h3 style="font-size: 2.5rem; color: #007bff; margin: 0; font-weight: 800;">24/7</h3>
+                    <p style="color: #666; font-weight: 500;">Monitoramento Real</p>
+                </div>
             </div>
         </div>
     </section>
@@ -192,16 +178,18 @@
         <div class="container">
             <h2 class="section-title">Nossas Soluções</h2>
             <div class="solution-grid">
-                <div class="solution-card">
+                <div class="solution-card" style="position: relative;">
                     <img src="assets/images/crianças.png" alt="Crianças sorrindo em transporte escolar" class="solution-card-image" loading="lazy" decoding="async">
+                    <span class="card-badge" style="position: absolute; top: 15px; right: 15px; background: #28a745; color: white; padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">Mais Seguro</span>
                     <div class="solution-card-content">
                         <h3>Passeios Escolares</h3>
                         <p>Rastreamento de rotas, alertas para os pais e notificações instantâneas.</p>
                         <a href="cadastro-escolar.html" class="btn btn-blue btn-small">Saiba mais</a>
                     </div>
                 </div>
-                <div class="solution-card">
-                    <img src="assets/images/transporte-turismo-viagem-rodoviaria-e-conceito-de-pessoas-grupo-de-passageiros-felizes.png" alt="Grupo de pessoas felizes em uma excursÃ£o" class="solution-card-image" loading="lazy" decoding="async">
+                <div class="solution-card" style="position: relative;">
+                    <img src="assets/images/transporte-turismo-viagem-rodoviaria-e-conceito-de-pessoas-grupo-de-passageiros-felizes.png" alt="Grupo de pessoas felizes em uma excursão" class="solution-card-image" loading="lazy" decoding="async">
+                    <span class="card-badge" style="position: absolute; top: 15px; right: 15px; background: #ffc107; color: #333; padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">Economia</span>
                     <div class="solution-card-content">
                         <h3>Passeios Compartilhados</h3>
                         <p>Agende viagens, gerencie assentos e tenha pagamentos seguros e integrados.</p>
@@ -209,7 +197,7 @@
                     </div>
                 </div>
                 <div class="solution-card">
-                    <img src="assets/images/transporte-executivo-de-pessoas-preco.png" alt="Pessoa utilizando um notebook para administraÃ§Ã£o de transportes" class="solution-card-image" loading="lazy" decoding="async">
+                    <img src="assets/images/transporte-executivo-de-pessoas-preco.png" alt="Pessoa utilizando um notebook para administração de transportes" class="solution-card-image" loading="lazy" decoding="async">
                     <div class="solution-card-content">
                         <h3>Recursos de Administração</h3>
                         <p>Gerencie usuários, acesse relatórios de dados e controle as configurações.</p>
@@ -235,7 +223,7 @@
                     </div>
                     <div class="event-card" data-image="assets/images/Imagem_lollapalooza-brasil-2025.jpg">
                         <h3>Lollapalooza 2026</h3>
-                        <p>Autódromo de Interlagos<br>Av. Senador Teotõnio Vilela, 261 - São Paulo, Brasil</p>
+                        <p>Autódromo de Interlagos<br>Av. Senador Teotônio Vilela, 261 - São Paulo, Brasil</p>
                     </div>
                 </div>
                 <div class="event-image-display">
@@ -249,11 +237,46 @@
         <div class="container">
             <h2 class="section-title">Encontre o transporte perfeito</h2>
             <p class="hero-subheadline">Busque por cidade ou utilize nossos filtros avançados</p>
-            <form class="search-form">
-                <input type="search" placeholder="Digite uma cidade..." aria-label="Buscar transportes por cidade">
-                <a href="encontrar-transporte.html" class="btn btn-primary">Buscar Transportes</a>
+            <form class="search-form" action="encontrar-transporte.html" method="GET">
+                <input type="search" name="destino" placeholder="Digite uma cidade..." aria-label="Buscar transportes por cidade">
+                <button type="submit" class="btn btn-primary">Buscar Transportes</button>
             </form>
             <a href="encontrar-transporte.html" class="filters-link">Ver todos os transportes e filtros</a>
+        </div>
+    </section>
+
+    <section id="testimonials" class="testimonials-section animated-section" style="padding: 60px 0; background: #fff;">
+        <div class="container">
+            <h2 class="section-title">Quem usa, confia no Kanghoo</h2>
+            <p class="section-subtitle" style="text-align: center; margin-bottom: 40px; color: #666;">Histórias reais de quem transformou sua rotina de transporte.</p>
+            
+            <div class="testimonials-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+                
+                <div class="testimonial-card" style="background: #fdfdfd; padding: 25px; border-radius: 12px; border: 1px solid #eee; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+                    <div class="stars" style="color: #f1c40f; margin-bottom: 10px;"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                    <p style="font-style: italic; color: #555;">"Eu ficava ansiosa todo dia esperando a van escolar. Com o app, recebo notificação quando meu filho chega na escola. Não tem preço essa paz."</p>
+                    <div class="author" style="display: flex; align-items: center; margin-top: 20px; gap: 15px;">
+                        <img src="assets/images/ana-costa.svg" alt="Foto Ana" style="width: 50px; height: 50px; border-radius: 50%;">
+                        <div>
+                            <strong style="display: block; color: #333;">Ana Costa</strong>
+                            <span style="font-size: 0.85rem; color: #888;">Mãe de 2 alunos</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card" style="background: #fdfdfd; padding: 25px; border-radius: 12px; border: 1px solid #eee; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+                    <div class="stars" style="color: #f1c40f; margin-bottom: 10px;"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                    <p style="font-style: italic; color: #555;">"A gestão financeira das minhas vans mudou da água pro vinho. O sistema de cobrança automática diminuiu minha inadimplência a quase zero."</p>
+                    <div class="author" style="display: flex; align-items: center; margin-top: 20px; gap: 15px;">
+                        <img src="assets/images/carlos-oliveira.svg" alt="Foto Carlos" style="width: 50px; height: 50px; border-radius: 50%;">
+                        <div>
+                            <strong style="display: block; color: #333;">Carlos Oliveira</strong>
+                            <span style="font-size: 0.85rem; color: #888;">Motorista Escolar</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         </div>
     </section>
 
@@ -273,29 +296,26 @@
             <div class="plans-grid">
                 <div class="plan-card" data-plan="basic">
                     <div class="plan-header">
-                        <div class="plan-pricing">
-                            <div class="monthly-price">Plano Basic</div>
-                            <div class="annual-option">ou opte pelo Plano Anual</div>
-                        </div>
 						<div class="equivalent-price">
-							<strong>Equivalente a R$ 166,66/mês</strong>
-							<div class="savings">Economize R$ 254,80!</div>
+							<strong>De R$ 189,90 por R$ 161,42/mês</strong>
+							<div class="savings">Economize R$ 341,82 (15% OFF)</div>
+                            <div class="annual-total" style="font-size: 0.8em; color: #666; margin-top: 4px;">Total anual: R$ 1.936,98</div>
 						</div>
-						<h3 class="plan-name">R$ 187,90/mês</h3>
-						<p class="plan-description">Perfeito para profissionais autónomos</p>
+						<h3 class="plan-name">R$ 189,90/mês</h3>
+						<p class="plan-description">Perfeito para profissionais autônomos</p>
 					</div>
 					<div class="plan-features">
-						<div class="feature-item"><span class="feature-icon">âœ“</span><span class="feature-text">Rastreamento GPS ao vivo incluí­do</span></div>
-						<div class="feature-item"><span class="feature-icon">âœ“</span><span class="feature-text">Alertas instantâneos para os pais</span></div>
-						<div class="feature-item"><span class="feature-icon">âœ“</span><span class="feature-text">Agendamento fácil de viagens</span></div>
-						<div class="feature-item"><span class="feature-icon">âœ“</span><span class="feature-text">Registros de presença digitais</span></div>
-						<div class="feature-item"><span class="feature-icon">âœ“</span><span class="feature-text">Sugestões de rotas de IA</span></div>
-						<div class="feature-item"><span class="feature-icon">âœ“</span><span class="feature-text">Histórico de viagens ilimitado</span></div>
-						<div class="feature-item"><span class="feature-icon">âœ“</span><span class="feature-text">Suporte básico</span></div>
-						<div class="feature-item"><span class="feature-icon">âœ“</span><span class="feature-text">Preferências personalizadas</span></div>
-						<div class="feature-item"><span class="feature-icon">âœ“</span><span class="feature-text">Validação automatica do horário de entrada e saí­da</span></div>
-						<div class="feature-item"><span class="feature-icon">âœ“</span><span class="feature-text">Relatório de presença, custos e gastos diários</span></div>
-						<div class="feature-item"><span class="feature-icon">âœ“</span><span class="feature-text">Limitado a um veí­culo</span></div>
+						<div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Rastreamento GPS ao vivo incluído</span></div>
+						<div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Alertas instantâneos para os pais</span></div>
+						<div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Agendamento fácil de viagens</span></div>
+						<div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Registros de presença digitais</span></div>
+						<div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Sugestões de rotas de IA</span></div>
+						<div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Histórico de viagens ilimitado</span></div>
+						<div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Suporte básico</span></div>
+						<div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Preferências personalizadas</span></div>
+						<div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Validação automática do horário de entrada e saída</span></div>
+						<div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Relatório de presença, custos e gastos diários</span></div>
+						<div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Limitado a um veículo</span></div>
 					</div>
                     <div class="plan-cta">
                         <button class="btn btn-primary" data-plan="basic">Junte-se a nós</button>
@@ -304,31 +324,28 @@
                 <div class="plan-card popular" data-plan="premium">
                     <div class="plan-header">
                         <div class="popular-badge">Mais popular</div>
-                        <div class="plan-pricing">
-                            <div class="monthly-price">Plano Premium</div>
-                            <div class="annual-option">ou opte pelo Plano Anual</div>
-                        </div>
 						<div class="equivalent-price">
-							<strong>Equivalente a R$ 266,66/mês</strong>
-							<div class="savings">Economize R$ 323,30!</div>
+							<strong>De R$ 294,90 por R$ 250,67/mês</strong>
+							<div class="savings">Economize R$ 530,82 (15% OFF)</div>
+                            <div class="annual-total" style="font-size: 0.8em; color: #666; margin-top: 4px;">Total anual: R$ 3.007,98</div>
 						</div>
-						<h3 class="plan-name">R$ 293,60/mês</h3>
+						<h3 class="plan-name">R$ 294,90/mês</h3>
 						<p class="plan-description">Todos os recursos, além de controles avançados</p>
 					</div>
 					<div class="plan-features">
-						<div class="feature-item"><span class="feature-icon">âœ“</span><span class="feature-text">Gestão de grupos em tempo real</span></div>
-						<div class="feature-item"><span class="feature-icon">âœ“</span><span class="feature-text">Construtor de viagens dinâmico</span></div>
-						<div class="feature-item"><span class="feature-icon">âœ“</span><span class="feature-text">Pagamentos integrados</span></div>
-						<div class="feature-item"><span class="feature-icon">âœ“</span><span class="feature-text">Ferramentas de comissão inteligentes</span></div>
-						<div class="feature-item"><span class="feature-icon">âœ“</span><span class="feature-text">Suporte prioritário</span></div>
-						<div class="feature-item"><span class="feature-icon">âœ“</span><span class="feature-text">Marca personalizada</span></div>
-						<div class="feature-item"><span class="feature-icon">âœ“</span><span class="feature-text">Atribuições de assentos em massa</span></div>
-						<div class="feature-item"><span class="feature-icon">âœ“</span><span class="feature-text">Análise avançada</span></div>
-						<div class="feature-item"><span class="feature-icon">âœ“</span><span class="feature-text">Integrações de API</span></div>
-						<div class="feature-item"><span class="feature-icon">âœ“</span><span class="feature-text">Calculadora de receita</span></div>
-						<div class="feature-item"><span class="feature-icon">âœ“</span><span class="feature-text">Veículos ilimitados</span></div>
-						<div class="feature-item"><span class="feature-icon">âœ“</span><span class="feature-text">Exportação de relatórios em PDF</span></div>
-						<div class="feature-item"><span class="feature-icon">âœ“</span><span class="feature-text">Acesso a todos os recursos futuros</span></div>
+						<div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Gestão de grupos em tempo real</span></div>
+						<div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Construtor de viagens dinâmico</span></div>
+						<div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Pagamentos integrados</span></div>
+						<div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Ferramentas de comissão inteligentes</span></div>
+						<div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Suporte prioritário</span></div>
+						<div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Marca personalizada</span></div>
+						<div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Atribuições de assentos em massa</span></div>
+						<div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Análise avançada</span></div>
+						<div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Integrações de API</span></div>
+						<div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Calculadora de receita</span></div>
+						<div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Veículos ilimitados</span></div>
+						<div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Exportação de relatórios em PDF</span></div>
+						<div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Acesso a todos os recursos futuros</span></div>
 					</div>
                     <div class="plan-cta">
                         <button class="btn btn-primary btn-premium" data-plan="premium">Junte-se a nós</button>
@@ -350,11 +367,11 @@
                         <i class="fas fa-comments"></i>
                     </div>
                     <h3>Sistema de Dúvidas</h3>
-                    <p>Tire suas dúvidas atravÃ©s do nosso sistema completo de perguntas e respostas.</p>
+                    <p>Tire suas dúvidas através do nosso sistema completo de perguntas e respostas.</p>
                     <ul class="facility-features">
-                        <li>âœ“ Respostas rápidas e precisas</li>
-                        <li>âœ“ Base de conhecimento completa</li>
-                        <li>âœ“ Suporte especializado</li>
+                        <li>✓ Respostas rápidas e precisas</li>
+                        <li>✓ Base de conhecimento completa</li>
+                        <li>✓ Suporte especializado</li>
                     </ul>
                     <a href="contato.html" class="btn btn-primary">Acessar Sistema</a>
                 </div>
@@ -366,9 +383,9 @@
                     <h3>Suporte Direto</h3>
                     <p>Fale diretamente com nossa equipe de suporte técnico especializada.</p>
                     <ul class="facility-features">
-                        <li>âœ“ Atendimento personalizado</li>
-                        <li>âœ“ Horário comercial estendido</li>
-                        <li>âœ“ Múltiplos canais de contato</li>
+                        <li>✓ Atendimento personalizado</li>
+                        <li>✓ Horário comercial estendido</li>
+                        <li>✓ Múltiplos canais de contato</li>
                     </ul>
                     <a href="contato.html" class="btn btn-primary">Entrar em Contato</a>
                 </div>
@@ -380,9 +397,9 @@
                     <h3>Formulário Completo</h3>
                     <p>Envie sua mensagem detalhada através do nosso formulário especializado com FAQ integrado.</p>
                     <ul class="facility-features">
-                        <li>âœ“ Categorização automática</li>
-                        <li>âœ“ Perguntas frequentes integradas</li>
-                        <li>âœ“ Resposta garantida</li>
+                        <li>✓ Categorização automática</li>
+                        <li>✓ Perguntas frequentes integradas</li>
+                        <li>✓ Resposta garantida</li>
                     </ul>
                     <a href="contato.html" class="btn btn-primary">Enviar Mensagem</a>
                 </div>
@@ -390,7 +407,7 @@
 
             <div class="contact-cta">
                 <h3>Precisa de ajuda imediata?</h3>
-                <p>Nossa equipe está sempre disponí­vel para ajudar você da melhor forma possí­vel.</p>
+                <p>Nossa equipe está sempre disponível para ajudar você da melhor forma possível.</p>
                 <a href="contato.html" class="btn btn-secondary btn-large">Fale Conosco Agora</a>
             </div>
         </div>
@@ -444,6 +461,8 @@
 </footer>
 
 <!-- Scripts -->
+<script src="assets/js/core/app.js"></script>
+<script src="assets/js/core/auth-header.js"></script>
 <script src="assets/js/animations/animacoes-index.js" defer></script>
 </body>
 </html>

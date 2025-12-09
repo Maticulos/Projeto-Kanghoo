@@ -2,7 +2,7 @@ const Router = require('koa-router');
 const db = require('../config/db');
 const logger = require('../utils/logger');
 
-const router = new Router({ prefix: '/api/transportes' });
+const router = new Router({ prefix: '/transportes' });
 
 /**
  * ENDPOINT DE BUSCA UNIFICADA DE TRANSPORTES

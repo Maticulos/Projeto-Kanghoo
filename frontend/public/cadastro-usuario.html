@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Usuário - Kanghoo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/bundle.min.css">
+    <style>
+        .form-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .btn-submit {
+            width: 100%;
+            padding: 1rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+        .btn-submit:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body class="form-page">
+    <header class="header">
+        <div class="container">
+            <a href="index.html" class="logo-link">
+                <img src="assets/images/logo.png" alt="Ícone Kanghoo" class="logo-icon">
+                <span class="logo-text-full">Kanghoo</span>
+            </a>
+            <nav class="nav">
+                <a href="encontrar-transporte.html" class="nav-link">Voltar para Busca</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="form-container">
+        <h1 style="text-align: center; margin-bottom: 2rem;">Criar Conta</h1>
+        
+        <form id="cadastroForm">
+            <input type="hidden" name="tipoCadastro" value="usuario_comum">
+            
+            <div class="form-group">
+                <label for="nomeCompleto">Nome Completo</label>
+                <input type="text" id="nomeCompleto" name="nomeCompleto" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">E-mail</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="celular">Celular (WhatsApp)</label>
+                <input type="tel" id="celular" name="celular" placeholder="(00) 00000-0000" required>
+            </div>
+
+            <div class="form-group">
+                <label for="senha">Senha</label>
+                <input type="password" id="senha" name="senha" required minlength="6">
+            </div>
+
+            <div class="form-group">
+                <label for="confirmarSenha">Confirmar Senha</label>
+                <input type="password" id="confirmarSenha" name="confirmarSenha" required>
+            </div>
+
+            <!-- Endereço Simplificado -->
+            <div class="form-group">
+                <label for="cep">CEP</label>
+                <input type="text" id="cep" name="cep" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="rua">Rua</label>
+                <input type="text" id="rua" name="rua" required>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label for="numero">Número</label>
+                    <input type="text" id="numero" name="numero" required>
+                </div>
+                <div class="form-group">
+                    <label for="complemento">Complemento</label>
+                    <input type="text" id="complemento" name="complemento">
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label for="cidade">Cidade</label>
+                    <input type="text" id="cidade" name="cidade" required>
+                </div>
+                <div class="form-group">
+                    <label for="estado">Estado</label>
+                    <input type="text" id="estado" name="estado" required maxlength="2">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="bairro">Bairro</label>
+                <input type="text" id="bairro" name="bairro" required>
+            </div>
+
+            <button type="submit" class="btn-submit">Cadastrar</button>
+            
+            <p style="text-align: center; margin-top: 1rem;">
+                Já tem uma conta? <a href="auth/login.html">Fazer Login</a>
+            </p>
+        </form>
+    </main>
+
+    <script src="assets/js/cep-service.js"></script>
+    <script>
+        document.getElementById('cadastroForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const senha = document.getElementById('senha').value;
+            const confirmarSenha = document.getElementById('confirmarSenha').value;
+
+            if (senha !== confirmarSenha) {
+                alert('As senhas não conferem!');
+                return;
+            }
+
+            const formData = new FormData(e.target);
+
+            try {
+                const response = await fetch('/api/cadastro/cadastrar', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Cadastro realizado com sucesso! Faça login para continuar.');
+                    window.location.href = 'auth/login.html';
+                } else {
+                    alert('Erro no cadastro: ' + data.message);
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Erro ao conectar com o servidor.');
+            }
+        });
+    </script>
+</body>
+</html>

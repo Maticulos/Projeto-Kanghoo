@@ -18,7 +18,7 @@ const TEST_EMAILS = new Set([
   'dev.test@example.com'
 ]);
 
-const router = new Router({ prefix: '/api/admin/dev-tools' });
+const router = new Router({ prefix: '/admin/dev-tools' });
 
 // Protegido: admin ou developer
 router.use(authenticateToken);

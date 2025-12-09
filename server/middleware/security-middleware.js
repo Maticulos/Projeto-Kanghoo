@@ -48,12 +48,14 @@ const SECURITY_CONFIG = {
                 "'self'",
                 "'unsafe-inline'",
                 "https://fonts.googleapis.com",
-                "https://cdn.jsdelivr.net"
+                "https://cdn.jsdelivr.net",
+                "https://cdnjs.cloudflare.com"
             ],
             fontSrc: [
                 "'self'",
                 "https://fonts.gstatic.com",
-                "https://cdn.jsdelivr.net"
+                "https://cdn.jsdelivr.net",
+                "https://cdnjs.cloudflare.com"
             ],
             imgSrc: [
                 "'self'",
@@ -93,17 +95,28 @@ const SECURITY_CONFIG = {
 };
 
 // Cliente Redis para rate limiting
-let redisClient;
+let redisClient = null;
 if (process.env.REDIS_URL) {
-    redisClient = new Redis(process.env.REDIS_URL, {
-        retryDelayOnFailover: 100,
-        maxRetriesPerRequest: 3,
-        lazyConnect: true
-    });
-    
-    redisClient.on('error', (err) => {
-        logger.error('Redis connection error:', err);
-    });
+    try {
+        const Redis = require('ioredis');
+        redisClient = new Redis(process.env.REDIS_URL, {
+            retryDelayOnFailover: 100,
+            maxRetriesPerRequest: 1, // Fail fast for rate limiting
+            lazyConnect: true,
+            enableOfflineQueue: false // Don't queue commands if disconnected
+        });
+        
+        redisClient.on('error', (err) => {
+            // Log como aviso para não poluir o console se o Redis estiver indisponível
+            // Apenas logar se não for o erro de max retries que já tratamos
+            if (!err.message.includes('max retries')) {
+                logger.warn('Redis connection warning (rate limiting may be affected):', err.message);
+            }
+        });
+    } catch (e) {
+        logger.warn('Failed to initialize Redis client:', e.message);
+        redisClient = null;
+    }
 }
 
 /**
@@ -121,8 +134,16 @@ function securityHeaders() {
  * Rate limiting geral
  */
 function generalRateLimit() {
-    if (!redisClient) {
-        logger.warn('⚠️  Redis não configurado. Usando rate limiting em memória (limitado a este processo)');
+    // Check if Redis is available and ready
+    const useRedis = redisClient && redisClient.status === 'ready';
+
+    if (!useRedis) {
+        if (redisClient) {
+             // If we have a client but it's not ready, log once per startup/period ideally, 
+             // but here we just fallback silently to avoid spamming logs on every request
+        } else {
+             logger.warn('⚠️  Redis não configurado. Usando rate limiting em memória (limitado a este processo)');
+        }
         
         // Fallback em memória usando Map
         const memoryStore = new Map();
@@ -172,8 +193,12 @@ function generalRateLimit() {
  * Rate limiting para login
  */
 function loginRateLimit() {
-    if (!redisClient) {
-        logger.warn('⚠️  Redis não configurado. Usando rate limiting em memória para login');
+    const useRedis = redisClient && redisClient.status === 'ready';
+
+    if (!useRedis) {
+        if (!redisClient) {
+            logger.warn('⚠️  Redis não configurado. Usando rate limiting em memória para login');
+        }
         
         const memoryStore = new Map();
         
@@ -203,8 +228,12 @@ function loginRateLimit() {
  * Rate limiting para API
  */
 function apiRateLimit() {
-    if (!redisClient) {
-        logger.warn('⚠️  Redis não configurado. Usando rate limiting em memória para API');
+    const useRedis = redisClient && redisClient.status === 'ready';
+
+    if (!useRedis) {
+        if (!redisClient) {
+            logger.warn('⚠️  Redis não configurado. Usando rate limiting em memória para API');
+        }
         
         const memoryStore = new Map();
         

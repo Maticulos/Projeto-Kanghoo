@@ -6,7 +6,7 @@ const { sanitizeForLog } = require('../config/security-config');
 const notificationService = require('../utils/notification-service');
 const logger = require('../utils/logger');
 
-const router = new KoaRouter({ prefix: '/api/motorista-escolar' });
+const router = new KoaRouter({ prefix: '/motorista-escolar' });
 
 // Rota de teste básica
 router.get('/test', async (ctx) => {

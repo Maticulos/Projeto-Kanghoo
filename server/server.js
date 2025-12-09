@@ -33,17 +33,17 @@ async function iniciarServidor() {
     }
 
     const server = app.listen(PORT, () => {
-      console.log('[SERVER] ✅ Servidor HTTP rodando na porta', PORT);
-      console.log('[SERVER] 🌐 Acesse: http://localhost:' + PORT);
+      console.log(`[INFO] Servidor rodando na porta ${PORT}`);
+      console.log(`[INFO] Ambiente: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`[INFO] Banco de dados conectado: ${process.env.DB_NAME || 'kanghoo_db_prod'}`);
+      console.log(`[INFO] Redis conectado: ${process.env.REDIS_HOST || 'localhost'}:${process.env.REDIS_PORT || 6379}`);
       logger.info('Server listening on port ' + PORT);
-      logger.info('Open http://localhost:' + PORT);
     });
 
-    console.log('[SERVER] Inicializando servidor realtime...');
     // Initialize realtime server using the existing HTTP server
     const realtimeServer = new RealtimeServer({ server });
     await realtimeServer.initialize();
-    console.log('[SERVER] ✅ Servidor realtime inicializado');
+    console.log('[INFO] WebSocket Server inicializado');
 
   } catch (error) {
     console.error('[SERVER] ❌ Erro ao iniciar servidor:', error);

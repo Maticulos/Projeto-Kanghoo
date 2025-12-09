@@ -5,7 +5,7 @@ const { apiResponse } = require('../utils/api-response');
 const { authenticateToken, verificarMotoristaExcursao } = require('../middleware/auth-utils');
 const { validate } = require('../middleware/validation');
 
-const router = new Router({ prefix: '/api/motorista-excursao' });
+const router = new Router({ prefix: '/motorista-excursao' });
 
 // O middleware verificarMotoristaExcursao agora é importado do auth-utils
 
@@ -56,10 +56,9 @@ router.get('/excursoes', authenticateToken, verificarMotoristaExcursao, async (c
     const params = [userId];
     
     if (status === 'ativas') {
-      whereClause += ' AND pe.data_excursao >= CURRENT_DATE';
+      whereClause += ` AND (pe.status = 'em_andamento' OR (pe.status = 'planejada' AND pe.data_inicio >= CURRENT_DATE))`;
     } else if (status === 'concluidas' || status === 'finalizadas') {
-      // aceitar ambos valores de filtro para compatibilidade
-      whereClause += ' AND pe.data_excursao < CURRENT_DATE';
+      whereClause += ` AND (pe.status = 'concluida' OR pe.data_fim < CURRENT_DATE)`;
     }
     
     const offset = (page - 1) * limit;
@@ -73,7 +72,7 @@ router.get('/excursoes', authenticateToken, verificarMotoristaExcursao, async (c
       LEFT JOIN inscricoes_excursao ie ON pe.id = ie.pacote_id
       ${whereClause}
       GROUP BY pe.id
-      ORDER BY pe.data_excursao DESC
+      ORDER BY pe.data_inicio DESC
       LIMIT $${params.length + 1} OFFSET $${params.length + 2}
     `, [...params, limit, offset]);
     
@@ -104,7 +103,37 @@ router.get('/excursoes', authenticateToken, verificarMotoristaExcursao, async (c
   }
 });
 
-// POST /api/motorista-excursao/excursoes - Criar nova excursão
+// POST /api/motorista-excursao/excursoes/:id/finalizar - Finalizar excursão manualmente
+router.post('/excursoes/:id/finalizar', authenticateToken, verificarMotoristaExcursao, async (ctx) => {
+  try {
+    const userId = ctx.state.user.id;
+    const pacoteId = ctx.params.id;
+
+    // Verificar se a excursão pertence ao motorista
+    const check = await db.query(
+      'SELECT id FROM pacotes_excursao WHERE id = $1 AND usuario_id = $2',
+      [pacoteId, userId]
+    );
+
+    if (check.rows.length === 0) {
+      return ctx.body = apiResponse.error('Excursão não encontrada ou não pertence a você', 404);
+    }
+
+    // Atualizar status
+    await db.query(
+      "UPDATE pacotes_excursao SET status = 'concluida' WHERE id = $1",
+      [pacoteId]
+    );
+
+    ctx.body = apiResponse.success(null, 'Excursão finalizada com sucesso');
+
+  } catch (error) {
+    logger.error('Erro ao finalizar excursão:', error);
+    ctx.body = apiResponse.error('Erro ao finalizar excursão', 500);
+  }
+});
+
+module.exports = router;
 router.post('/excursoes', 
   authenticateToken, 
   verificarMotoristaExcursao,

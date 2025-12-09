@@ -20,7 +20,7 @@ async function login(ctx) {
     if (!validation.isValid) {
       ctx.status = 422;
       logger.warn('Login rejeitado - validação falhou:', validation.errors);
-      return send(ctx, validationError(validation.errors, 'Dados de login invÃ¡lidos'));
+      return send(ctx, validationError(validation.errors, 'Dados de login inválidos'));
     }
 
     const { email, senha } = validation.sanitizedData;
@@ -44,7 +44,7 @@ async function login(ctx) {
     }
     if (userRes.rows.length === 0) {
       ctx.status = 401;
-      return send(ctx, validationError(['Credenciais invÃ¡lidas'], 'Falha na autenticaÃ§Ã£o'));
+      return send(ctx, validationError(['Credenciais inválidas'], 'Falha na autenticação'));
     }
     const user = userRes.rows[0];
     // Allow demo login when DEMO_MODE=true for specific demo accounts
@@ -65,7 +65,7 @@ async function login(ctx) {
 
     if (!ok) {
       ctx.status = 401;
-      return send(ctx, validationError(['Credenciais invalidas'], 'Falha na autenticacao'));
+      return send(ctx, validationError(['Credenciais inválidas'], 'Falha na autenticação'));
     }
 
     let token;

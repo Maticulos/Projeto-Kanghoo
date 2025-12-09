@@ -41,6 +41,7 @@
             <h3 id="modal-title">Qual tipo de cadastro?</h3>
             <p>Escolha a opção que melhor descreve seu serviço para começar.</p>
             <div class="modal-options">
+                <a href="cadastro-usuario.html" class="btn btn-primary" style="background-color: #28a745;">Sou Passageiro</a>
                 <a href="cadastro-escolar.html" class="btn btn-primary">Transporte Escolar</a>
                 <a href="cadastro-excursao.html" class="btn btn-blue">Excursão e Fretamento</a>
             </div>
@@ -366,26 +367,32 @@
                 <p>Envie cópias legíveis dos seus documentos para validação.</p>
                 <div class="campo-grupo">
                     <div>
-                        <label for="uploadCNH">Cópia da CNH</label>
-                        <input type="file" id="uploadCNH" name="uploadCNH">
+                        <label for="fotoCNH">Cópia da CNH</label>
+                        <input type="file" id="fotoCNH" name="fotoCNH">
                     </div>
                 </div>
                 <div class="campo-grupo">
                     <div>
-                        <label for="uploadCRLV">Cópia do CRLV (Documento do Veículo)</label>
-                        <input type="file" id="uploadCRLV" name="uploadCRLV">
+                        <label for="fotoCRLV">Cópia do CRLV (Documento do Veículo)</label>
+                        <input type="file" id="fotoCRLV" name="fotoCRLV">
                     </div>
                 </div>
                 <div class="campo-grupo">
                     <div>
-                        <label for="uploadAntecedentes">Certificado de Antecedentes Criminais</label>
-                        <input type="file" id="uploadAntecedentes" name="uploadAntecedentes">
+                        <label for="fotoAntecedentes">Certificado de Antecedentes Criminais</label>
+                        <input type="file" id="fotoAntecedentes" name="fotoAntecedentes">
                     </div>
                 </div>
                 <div class="campo-grupo">
                     <div>
-                        <label for="uploadCNPJ">Cópia do CNPJ</label>
-                        <input type="file" id="uploadCNPJ" name="uploadCNPJ">
+                        <label for="fotoCurso">Certificado do Curso de Transporte Especializado</label>
+                        <input type="file" id="fotoCurso" name="fotoCurso">
+                    </div>
+                </div>
+                <div class="campo-grupo">
+                    <div>
+                        <label for="fotoCNPJ">Cópia do CNPJ</label>
+                        <input type="file" id="fotoCNPJ" name="fotoCNPJ">
                     </div>
                 </div>
             </div>
@@ -466,6 +473,7 @@
         document.documentElement.removeAttribute('data-theme');
         document.body.removeAttribute('data-theme');
     </script>
+    <script src="assets/js/cep-service.js"></script>
     <script src="assets/js/bundle.min.js"></script>
 
     <script>

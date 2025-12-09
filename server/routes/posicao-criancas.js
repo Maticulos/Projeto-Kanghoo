@@ -4,7 +4,7 @@ const logger = require('../utils/logger');
 const { apiResponse } = require('../utils/api-response');
 const { authenticateToken, verificarResponsavel } = require('../middleware/auth-utils');
 
-const router = new Router({ prefix: '/api/criancas' });
+const router = new Router({ prefix: '/criancas' });
 
 // GET /api/criancas/posicao-atual - Obter posição atual das crianças do responsável
 router.get('/posicao-atual', authenticateToken, verificarResponsavel, async (ctx) => {
@@ -21,8 +21,8 @@ router.get('/posicao-atual', authenticateToken, verificarResponsavel, async (ctx
         re.id as rota_id,
         re.nome_rota,
         re.status_rota,
-        u_motorista.nome as motorista_nome,
-        u_motorista.telefone as motorista_telefone,
+        u_motorista.nome_completo as motorista_nome,
+        u_motorista.celular as motorista_telefone,
         rg.latitude,
         rg.longitude,
         rg.velocidade,
@@ -162,7 +162,7 @@ router.get('/:id/historico-rastreamento', authenticateToken, verificarResponsave
         rg.direcao,
         rg.timestamp,
         re.nome_rota,
-        u_motorista.nome as motorista_nome
+        u_motorista.nome_completo as motorista_nome
       FROM criancas c
       JOIN criancas_rotas cr ON c.id = cr.crianca_id AND cr.ativo = true
       JOIN rotas_escolares re ON cr.rota_id = re.id
@@ -219,7 +219,7 @@ router.get('/relatorios-viagem', authenticateToken, verificarResponsavel, async 
         c.id as crianca_id,
         c.nome as crianca_nome,
         re.nome_rota,
-        u_motorista.nome as motorista_nome,
+        u_motorista.nome_completo as motorista_nome,
         cc.horario_embarque_real,
         cc.horario_desembarque_real,
         cc.endereco_embarque,
