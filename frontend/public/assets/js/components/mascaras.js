@@ -1460,41 +1460,28 @@ async function buscarEnderecoPorCEP(cep, sufixo = '', tentativa = 1) {
             'Buscando CEP...';
         mostrarFeedbackCEP(cep, 'loading', mensagemCarregamento, sufixo);
         
-        // Faz requisição para a rota do backend com timeout
+        // Faz requisição para a API interna
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 segundos
         
         const response = await fetch(`/api/cep/${cepLimpo}`, {
             method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
             signal: controller.signal
         });
         
         clearTimeout(timeoutId);
         
         if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            const errorMessage = errorData.details || errorData.error || `Erro HTTP ${response.status}`;
-            
-            // Se for erro 404 (CEP não encontrado), não tenta novamente
-            if (response.status === 404) {
-                throw new Error(errorMessage);
-            }
-            
-            // Para outros erros, permite retry
-            if (tentativa < 3) {
-                console.warn(`Tentativa ${tentativa} falhou, tentando novamente...`);
-                await new Promise(resolve => setTimeout(resolve, 1000 * tentativa)); // Delay progressivo
-                return buscarEnderecoPorCEP(cep, sufixo, tentativa + 1);
-            }
-            
-            throw new Error(errorMessage);
+            throw new Error('Erro ao buscar CEP');
         }
         
-        const dados = await response.json();
+        const resultado = await response.json();
+        
+        if (!resultado.success) {
+            throw new Error(resultado.message || 'CEP não encontrado');
+        }
+        
+        const dados = resultado.data;
         
         // Validação dos dados essenciais (localidade e UF são obrigatórios)
         if (!dados || !dados.localidade || !dados.uf) {
@@ -1835,42 +1822,48 @@ function validarCNH(cnh) {
         return { valido: false, mensagem: 'CNH não pode ter todos os dígitos iguais' };
     }
     
-    // Algoritmo de validação da CNH
-    let soma = 0;
-    let sequencia = 0;
+    // Algoritmo de validação da CNH (Corrigido)
+    let v = 0;
+    let j = 9;
     
-    // Calcula o primeiro dígito verificador
-    for (let i = 0; i < 9; i++) {
-        soma += parseInt(cnhLimpa.charAt(i)) * (9 - i);
+    for (let i = 0; i < 9; ++i) {
+        v += parseInt(cnhLimpa.charAt(i)) * j;
+        j--;
     }
     
-    let digitoVerificador1 = soma % 11;
-    if (digitoVerificador1 >= 2) {
-        digitoVerificador1 = 11 - digitoVerificador1;
-    } else {
-        digitoVerificador1 = 0;
+    let d1 = v % 11;
+    if (d1 >= 10) {
+        d1 = 0;
     }
     
-    if (parseInt(cnhLimpa.charAt(9)) !== digitoVerificador1) {
-        return { valido: false, mensagem: 'CNH inválida - primeiro dígito verificador incorreto' };
+    if (parseInt(cnhLimpa.charAt(9)) !== d1) {
+        return { valido: false, mensagem: 'CNH inválida' };
     }
     
-    // Calcula o segundo dígito verificador
-    soma = 0;
-    for (let i = 0; i < 9; i++) {
-        soma += parseInt(cnhLimpa.charAt(i)) * (1 + i);
-    }
-    soma += digitoVerificador1 * 10;
+    v = 0;
+    j = 1;
     
-    let digitoVerificador2 = soma % 11;
-    if (digitoVerificador2 >= 2) {
-        digitoVerificador2 = 11 - digitoVerificador2;
-    } else {
-        digitoVerificador2 = 0;
+    for (let i = 0; i < 9; ++i) {
+        v += parseInt(cnhLimpa.charAt(i)) * j;
+        j++;
     }
     
-    if (parseInt(cnhLimpa.charAt(10)) !== digitoVerificador2) {
-        return { valido: false, mensagem: 'CNH inválida - segundo dígito verificador incorreto' };
+    let x = v % 11;
+    if (x >= 10) {
+        x = 0;
+    }
+    
+    let d2 = x - d1;
+    
+    if (d2 < 0) {
+        d2 += 11;
+    }
+    if (d2 >= 10) {
+        d2 = 0;
+    }
+    
+    if (parseInt(cnhLimpa.charAt(10)) !== d2) {
+        return { valido: false, mensagem: 'CNH inválida' };
     }
     
     return { valido: true, mensagem: 'CNH válida' };

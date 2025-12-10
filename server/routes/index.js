@@ -31,6 +31,7 @@ module.exports = function mountRoutes() {
   const viagensRoutes = require('./viagens');
   const veiculosRoutes = require('./veiculos');
   const avaliacoesRoutes = require('./avaliacoes');
+  const cepRoutes = require('./cep');
 
   // Rota de informações da API
   router.get('/api', async (ctx) => {
@@ -76,7 +77,8 @@ module.exports = function mountRoutes() {
     devToolsRoutes,
     authRoutes,
     validateTokenRoutes,
-    contactRoutes
+    contactRoutes,
+    cepRoutes
   ].forEach((sub) => {
     if (sub && sub.routes) {
       router.use(sub.routes());

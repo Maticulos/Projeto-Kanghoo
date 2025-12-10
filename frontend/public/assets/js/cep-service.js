@@ -27,16 +27,17 @@ const CepService = {
                 // Determine prefix (e.g. for empresa fields)
                 const isEmpresa = e.target.name === 'cepEmpresa';
                 
-                const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                // Usar API interna em vez de chamar ViaCEP diretamente
+                const response = await fetch(`/api/cep/${cep}`);
                 const data = await response.json();
                 
                 loadingNotification.remove();
 
-                if (!data.erro) {
-                    this.fillAddress(form, data, isEmpresa);
+                if (response.ok && data.success) {
+                    this.fillAddress(form, data.data, isEmpresa);
                     this.showSuccess('Endereço encontrado!');
                 } else {
-                    this.showError('CEP não encontrado.');
+                    this.showError(data.message || 'CEP não encontrado.');
                 }
             } catch (error) {
                 loadingNotification.remove();

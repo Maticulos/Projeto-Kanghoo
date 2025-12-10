@@ -50,8 +50,8 @@ const excursionData = {
 };
 
 function bindLogoutButton() {
-    const btn = document.getElementById("logout-btn");
-    if (btn) {
+    const btns = document.querySelectorAll(".js-logout-btn, #logout-btn");
+    btns.forEach(btn => {
         btn.addEventListener("click", () => {
             if (window.PostAuth?.logout) {
                 window.PostAuth.logout();
@@ -60,7 +60,7 @@ function bindLogoutButton() {
                 window.location.href = "login.html";
             }
         });
-    }
+    });
 }
 
 document.addEventListener("DOMContentLoaded", async () => {

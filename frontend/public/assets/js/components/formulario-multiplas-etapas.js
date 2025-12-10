@@ -113,8 +113,10 @@ class MultiStepForm {
                 navigation.appendChild(prevBtn);
                 
                 // Botão próximo
-                const nextBtnText = index === this.totalSteps - 1 ? 'Finalizar' : 'Próximo →';
-                const nextBtn = this.createSafeElement('button', nextBtnText, 'btn-step btn-next');
+                const isLastStep = index === this.totalSteps - 1;
+                const nextBtnText = isLastStep ? 'Finalizar Cadastro' : 'Próximo →';
+                const nextBtnClass = isLastStep ? 'btn-step btn-primary btn-submit' : 'btn-step btn-next';
+                const nextBtn = this.createSafeElement('button', nextBtnText, nextBtnClass);
                 nextBtn.type = 'button';
                 navigation.appendChild(nextBtn);
                 
@@ -473,6 +475,32 @@ class MultiStepForm {
                     if (senhaField && field.value !== senhaField.value) {
                         this.showFieldError(field, 'As senhas não coincidem');
                         isValid = false;
+                    }
+                }
+
+                // Validação de CNH
+                if (field.id === 'cnhMotorista' || field.name === 'cnhMotorista') {
+                    if (typeof validarCNH === 'function') {
+                        const validation = validarCNH(field.value);
+                        if (!validation.valido) {
+                            this.showFieldError(field, validation.mensagem);
+                            isValid = false;
+                        }
+                    }
+                }
+
+                // Validação de CNPJ
+                if (field.id === 'cnpj' || field.name === 'cnpj') {
+                    if (typeof validarCNPJ === 'function') {
+                        const validation = validarCNPJ(field.value);
+                        // Handle inconsistent return keys (valid vs valido) from mascaras.js
+                        const isValidCNPJ = validation.valid !== undefined ? validation.valid : validation.valido;
+                        const messageCNPJ = validation.message || validation.mensagem;
+                        
+                        if (!isValidCNPJ) {
+                            this.showFieldError(field, messageCNPJ);
+                            isValid = false;
+                        }
                     }
                 }
             }

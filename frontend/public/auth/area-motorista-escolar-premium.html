@@ -72,13 +72,20 @@
                 <a id="plan-switch-link" href="area-motorista-escolar.html">Ver Basic</a>
             </div>
             <div class="sidebar-card">
-                <button class="btn btn-ghost" id="logout-btn" style="width: 100%;">
+                <button class="btn btn-ghost js-logout-btn" id="logout-btn" style="width: 100%;">
                     <i class="fa-solid fa-right-from-bracket"></i> Sair
                 </button>
             </div>
         </aside>
 
         <main class="app-main">
+            <!-- Header com Logout -->
+            <header class="top-bar" style="display: flex; justify-content: flex-end; padding: 1rem 2rem; background: transparent;">
+                <button class="btn btn-ghost js-logout-btn" style="color: var(--text-muted);">
+                    <i class="fa-solid fa-right-from-bracket"></i> Sair
+                </button>
+            </header>
+
             <section id="hero" class="hero" data-animate></section>
 
             <section id="feature-pills" class="feature-pills" data-animate></section>

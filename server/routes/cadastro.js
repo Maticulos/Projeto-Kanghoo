@@ -4,8 +4,8 @@ const { createSecureUpload } = require('../middleware/upload-security');
 
 const router = new Router({ prefix: '/cadastro' });
 
-// Configuração de upload para documentos
-const upload = createSecureUpload('documents', { maxFiles: 5 });
+// Configuração de upload para documentos e imagens
+const upload = createSecureUpload('all', { maxFiles: 10 });
 
 // Rota de cadastro
 // Aceita multipart/form-data para arquivos e campos de texto

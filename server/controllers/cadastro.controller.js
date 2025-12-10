@@ -7,6 +7,7 @@ const { validateInput } = require('../config/security-config');
 const SALT_ROUNDS = 10;
 
 async function cadastrar(ctx) {
+    console.log('[DEBUG] Iniciando cadastro...', ctx.request.body);
     const client = await db.pool.connect();
     try {
         await client.query('BEGIN');
@@ -93,7 +94,7 @@ async function cadastrar(ctx) {
                 INSERT INTO empresas (
                     usuario_id, razao_social, nome_fantasia, cnpj, 
                     telefone, cep, rua, numero, complemento, bairro, cidade, estado,
-                    foto_cnpj,
+                    foto_representante,
                     criado_em
                 ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW())
             `, [
@@ -109,30 +110,33 @@ async function cadastrar(ctx) {
                 data.bairroEmpresa,
                 data.cidadeEmpresa,
                 data.estadoEmpresa,
-                getFilePath('fotoCNPJ')
+                getFilePath('fotoRepresentante') || getFilePath('fotoCNPJ')
             ]);
         }
 
         // Inserir veículo (se fornecido)
-        if (data.placa && data.renavam) {
+        if (data.placa) {
+            // TODO: Adicionar campos renavam, cor, marca na tabela veiculos via migration se necessário
+            // Campos mapeados para o schema atual:
+            // usuario_id -> motorista_id
+            // lotacao_maxima -> capacidade
+            // ano_fabricacao -> ano
+            // modelo -> 'Não informado' (obrigatório no DB)
             const veiculoResult = await client.query(`
                 INSERT INTO veiculos (
-                    usuario_id, placa, renavam, 
-                    lotacao_maxima, ano_fabricacao, 
-                    cor, modelo, marca, 
+                    motorista_id, placa, 
+                    capacidade, ano, 
+                    modelo, 
                     ano_modelo, seguradora, apolice, validade_seguro, foto_crlv,
                     criado_em
-                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW())
+                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW())
                 RETURNING id
             `, [
                 userId,
                 data.placa,
-                data.renavam,
                 parseInt(data.lotacaoMaxima) || 0,
                 parseInt(data.anoFabricacao) || null,
-                data.corVeiculo || null,
-                null, // Modelo
-                null, // Marca
+                'Não informado', // Modelo é NOT NULL no banco, mas não tem campo no form
                 parseInt(data.anoModelo) || null,
                 data.nomeSeguradora,
                 data.numeroApolice,
@@ -163,6 +167,7 @@ async function cadastrar(ctx) {
 
     } catch (err) {
         await client.query('ROLLBACK');
+        console.error('SQL Error Detail:', err.message, err.detail, err.hint); // Log detalhado no console
         logger.error('Erro no cadastro:', err);
         
         if (err.status) {

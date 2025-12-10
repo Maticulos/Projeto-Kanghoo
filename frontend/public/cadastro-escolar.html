@@ -34,22 +34,7 @@
     </div>
 </header>
 
-    <!-- Modal de Cadastro -->
-    <div id="cadastroModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-        <div class="modal-content">
-            <button class="close-modal-btn" id="close-modal" aria-label="Fechar modal">&times;</button>
-            <h3 id="modal-title">Qual tipo de cadastro?</h3>
-            <p>Escolha a opção que melhor descreve seu serviço para começar.</p>
-            <div class="modal-options">
-                <a href="cadastro-usuario.html" class="btn btn-primary" style="background-color: #28a745;">Sou Passageiro</a>
-                <a href="cadastro-escolar.html" class="btn btn-primary">Transporte Escolar</a>
-                <a href="cadastro-excursao.html" class="btn btn-blue">Excursão e Fretamento</a>
-            </div>
-            <div class="modal-footer">
-                <p>Não tem certeza? <a href="contato.html">Fale conosco</a></p>
-            </div>
-        </div>
-    </div>
+
 
     <!-- Modal de Transporte -->
     <div id="transportModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="transport-modal-title">
@@ -109,6 +94,13 @@
                         <div>
                             <label for="cnpj">CNPJ</label>
                             <input type="text" id="cnpj" name="cnpj" placeholder="00.000.000/0000-00">
+                        </div>
+                    </div>
+                    <div class="campo-grupo">
+                        <div>
+                            <label for="fotoRepresentante">Foto do Representante</label>
+                            <input type="file" id="fotoRepresentante" name="fotoRepresentante" accept="image/*">
+                            <small style="display: block; margin-top: 5px; color: #666;">Foto do responsável pelo plano de assinatura</small>
                         </div>
                     </div>
                 </div>
@@ -418,8 +410,16 @@
         document.documentElement.removeAttribute('data-theme');
         document.body.removeAttribute('data-theme');
     </script>
+    
+    <!-- Core Scripts -->
+    <script src="assets/js/core/ui-utils.js"></script>
+    <script src="assets/js/core/app.js"></script>
+    
+    <!-- Components & Services -->
     <script src="assets/js/cep-service.js"></script>
-    <script src="assets/js/bundle.min.js"></script>
+    <script src="assets/js/components/modal-cadastro.js"></script>
+    <script src="assets/js/components/formulario-multiplas-etapas.js"></script>
+    <script src="assets/js/components/mascaras.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {

@@ -1,16 +1,18 @@
 const Router = require('koa-router');
 const db = require('../config/db');
 const logger = require('../utils/logger');
-const { apiResponse } = require('../utils/api-response');
+const { success, error, send } = require('../utils/api-response');
 const { authenticateToken, verificarMotoristaExcursao } = require('../middleware/auth-utils');
 const { validate } = require('../middleware/validation');
 
 const router = new Router({ prefix: '/motorista-excursao' });
 
-// O middleware verificarMotoristaExcursao agora é importado do auth-utils
+// Aplica middleware de autenticação globalmente para todas as rotas deste arquivo
+router.use(authenticateToken);
+router.use(verificarMotoristaExcursao);
 
 // GET /api/motorista-excursao/perfil - Obter perfil do motorista de excursão
-router.get('/perfil', authenticateToken, verificarMotoristaExcursao, async (ctx) => {
+router.get('/perfil', async (ctx) => {
   try {
     const userId = ctx.state.user.id;
     
@@ -36,18 +38,18 @@ router.get('/perfil', authenticateToken, verificarMotoristaExcursao, async (ctx)
     `, [userId]);
     
     if (!result.rows.length) {
-      return ctx.body = apiResponse.error('Perfil não encontrado', 404);
+      return send(ctx, error('Perfil não encontrado', 404));
     }
     
-    ctx.body = apiResponse.success(result.rows[0], 'Perfil obtido com sucesso');
-  } catch (error) {
-    logger.error('Erro ao obter perfil do motorista de excursão:', error);
-    ctx.body = apiResponse.error('Erro interno do servidor', 500);
+    return send(ctx, success(result.rows[0], 'Perfil obtido com sucesso'));
+  } catch (err) {
+    logger.error('Erro ao obter perfil do motorista de excursão:', err);
+    return send(ctx, error('Erro interno do servidor', 500));
   }
 });
 
 // GET /api/motorista-excursao/excursoes - Listar excursões do motorista
-router.get('/excursoes', authenticateToken, verificarMotoristaExcursao, async (ctx) => {
+router.get('/excursoes', async (ctx) => {
   try {
     const userId = ctx.state.user.id;
     const { status = 'todas', page = 1, limit = 10 } = ctx.query;
@@ -86,7 +88,7 @@ router.get('/excursoes', authenticateToken, verificarMotoristaExcursao, async (c
     const total = parseInt(countResult.rows[0].total);
     const totalPages = Math.ceil(total / limit);
     
-    ctx.body = apiResponse.success({
+    return send(ctx, success({
       excursoes: result.rows,
       pagination: {
         page: parseInt(page),
@@ -96,15 +98,15 @@ router.get('/excursoes', authenticateToken, verificarMotoristaExcursao, async (c
         hasNext: page < totalPages,
         hasPrev: page > 1
       }
-    }, 'Excursões obtidas com sucesso');
-  } catch (error) {
+    }, 'Excursões obtidas com sucesso'));
+  } catch (err) {
     logger.error('Erro ao listar excursões:', error);
     ctx.body = apiResponse.error('Erro interno do servidor', 500);
   }
 });
 
 // POST /api/motorista-excursao/excursoes/:id/finalizar - Finalizar excursão manualmente
-router.post('/excursoes/:id/finalizar', authenticateToken, verificarMotoristaExcursao, async (ctx) => {
+router.post('/excursoes/:id/finalizar', async (ctx) => {
   try {
     const userId = ctx.state.user.id;
     const pacoteId = ctx.params.id;
@@ -116,7 +118,7 @@ router.post('/excursoes/:id/finalizar', authenticateToken, verificarMotoristaExc
     );
 
     if (check.rows.length === 0) {
-      return ctx.body = apiResponse.error('Excursão não encontrada ou não pertence a você', 404);
+      return send(ctx, error('Excursão não encontrada ou não pertence a você', 404));
     }
 
     // Atualizar status
@@ -125,18 +127,16 @@ router.post('/excursoes/:id/finalizar', authenticateToken, verificarMotoristaExc
       [pacoteId]
     );
 
-    ctx.body = apiResponse.success(null, 'Excursão finalizada com sucesso');
+    return send(ctx, success(null, 'Excursão finalizada com sucesso'));
 
-  } catch (error) {
-    logger.error('Erro ao finalizar excursão:', error);
-    ctx.body = apiResponse.error('Erro ao finalizar excursão', 500);
+  } catch (err) {
+    logger.error('Erro ao finalizar excursão:', err);
+    return send(ctx, error('Erro ao finalizar excursão', 500));
   }
 });
 
 module.exports = router;
 router.post('/excursoes', 
-  authenticateToken, 
-  verificarMotoristaExcursao,
   validate({
     nome_pacote: { required: true, type: 'string', minLength: 3, maxLength: 100 },
     destino: { required: true, type: 'string', minLength: 3, maxLength: 200 },
@@ -166,7 +166,7 @@ router.post('/excursoes',
       // Verificar se a data não é no passado
       const dataExcursao = new Date(data_excursao);
       if (dataExcursao < new Date()) {
-        return ctx.body = apiResponse.error('A data da excursão não pode ser no passado', 400);
+        return send(ctx, error('A data da excursão não pode ser no passado', 400));
       }
       
       const result = await db.query(`
@@ -182,16 +182,16 @@ router.post('/excursoes',
         preco_por_pessoa, vagas_disponiveis, descricao
       ]);
       
-      ctx.body = apiResponse.success(result.rows[0], 'Excursão criada com sucesso', 201);
-    } catch (error) {
-      logger.error('Erro ao criar excursão:', error);
-      ctx.body = apiResponse.error('Erro interno do servidor', 500);
+      return send(ctx, success(result.rows[0], 'Excursão criada com sucesso', 201));
+    } catch (err) {
+      logger.error('Erro ao criar excursão:', err);
+      return send(ctx, error('Erro interno do servidor', 500));
     }
   }
 );
 
 // GET /api/motorista-excursao/excursoes/:id/participantes - Listar participantes de uma excursão
-router.get('/excursoes/:id/participantes', authenticateToken, verificarMotoristaExcursao, async (ctx) => {
+router.get('/excursoes/:id/participantes', async (ctx) => {
   try {
     const userId = ctx.state.user.id;
     const excursaoId = ctx.params.id;
@@ -203,7 +203,7 @@ router.get('/excursoes/:id/participantes', authenticateToken, verificarMotorista
     );
     
     if (!excursaoResult.rows.length) {
-      return ctx.body = apiResponse.error('Excursão não encontrada ou não autorizada', 404);
+      return send(ctx, error('Excursão não encontrada ou não autorizada', 404));
     }
     
     const result = await db.query(`
@@ -221,15 +221,15 @@ router.get('/excursoes/:id/participantes', authenticateToken, verificarMotorista
       ORDER BY ie.data_inscricao DESC
     `, [excursaoId]);
     
-    ctx.body = apiResponse.success(result.rows, 'Participantes obtidos com sucesso');
-  } catch (error) {
-    logger.error('Erro ao listar participantes:', error);
-    ctx.body = apiResponse.error('Erro interno do servidor', 500);
+    return send(ctx, success(result.rows, 'Participantes obtidos com sucesso'));
+  } catch (err) {
+    logger.error('Erro ao listar participantes:', err);
+    return send(ctx, error('Erro interno do servidor', 500));
   }
 });
 
 // GET /api/motorista-excursao/gps/status - Status do GPS
-router.get('/gps/status', authenticateToken, verificarMotoristaExcursao, async (ctx) => {
+router.get('/gps/status', async (ctx) => {
   try {
     const userId = ctx.state.user.id;
     
@@ -246,17 +246,15 @@ router.get('/gps/status', authenticateToken, verificarMotoristaExcursao, async (
       direcao: 0
     };
     
-    ctx.body = apiResponse.success(gpsStatus, 'Status do GPS obtido com sucesso');
-  } catch (error) {
-    logger.error('Erro ao obter status do GPS:', error);
-    ctx.body = apiResponse.error('Erro interno do servidor', 500);
+    return send(ctx, success(gpsStatus, 'Status do GPS obtido com sucesso'));
+  } catch (err) {
+    logger.error('Erro ao obter status do GPS:', err);
+    return send(ctx, error('Erro interno do servidor', 500));
   }
 });
 
 // POST /api/motorista-excursao/gps/posicao - Atualizar posição GPS
 router.post('/gps/posicao',
-  authenticateToken,
-  verificarMotoristaExcursao,
   validate({
     latitude: { required: true, type: 'number' },
     longitude: { required: true, type: 'number' },
@@ -276,16 +274,16 @@ router.post('/gps/posicao',
         RETURNING *
       `, [userId, latitude, longitude, velocidade, direcao]);
       
-      ctx.body = apiResponse.success(result.rows[0], 'Posição GPS atualizada com sucesso');
-    } catch (error) {
-      logger.error('Erro ao atualizar posição GPS:', error);
-      ctx.body = apiResponse.error('Erro interno do servidor', 500);
+      return send(ctx, success(result.rows[0], 'Posição GPS atualizada com sucesso'));
+    } catch (err) {
+      logger.error('Erro ao atualizar posição GPS:', err);
+      return send(ctx, error('Erro interno do servidor', 500));
     }
   }
 );
 
 // GET /api/motorista-excursao/notificacoes - Buscar notificações
-router.get('/notificacoes', authenticateToken, verificarMotoristaExcursao, async (ctx) => {
+router.get('/notificacoes', async (ctx) => {
   try {
     const userId = ctx.state.user.id;
     const { page = 1, limit = 10, lidas = 'todas' } = ctx.query;
@@ -315,10 +313,10 @@ router.get('/notificacoes', authenticateToken, verificarMotoristaExcursao, async
       LIMIT $${params.length + 1} OFFSET $${params.length + 2}
     `, [...params, limit, offset]);
     
-    ctx.body = apiResponse.success(result.rows, 'Notificações obtidas com sucesso');
-  } catch (error) {
-    logger.error('Erro ao buscar notificações:', error);
-    ctx.body = apiResponse.error('Erro interno do servidor', 500);
+    return send(ctx, success(result.rows, 'Notificações obtidas com sucesso'));
+  } catch (err) {
+    logger.error('Erro ao buscar notificações:', err);
+    return send(ctx, error('Erro interno do servidor', 500));
   }
 });
 

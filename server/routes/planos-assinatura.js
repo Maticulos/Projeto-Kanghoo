@@ -2,7 +2,7 @@ const Router = require('koa-router');
 const db = require('../config/db');
 const { authenticateToken } = require('../middleware/auth-utils');
 const { validate } = require('../middleware/validation');
-const apiResponse = require('../utils/api-response');
+const { success, error, send } = require('../utils/api-response');
 const logger = require('../utils/logger');
 
 const router = new Router({
@@ -10,24 +10,7 @@ const router = new Router({
 });
 
 // ==========================================
-// MIDDLEWARE DE AUTENTICAÇÃO
-// ==========================================
-
-// Middleware para verificar se o usuário é motorista escolar
-const verificarMotoristaEscolar = async (ctx, next) => {
-  try {
-    if (!ctx.user || ctx.user.tipo !== 'motorista_escolar') {
-      return ctx.body = apiResponse.error('Acesso negado. Apenas motoristas escolares podem acessar esta funcionalidade.', 403);
-    }
-    await next();
-  } catch (error) {
-    logger.error('Erro na verificação de motorista escolar:', error);
-    ctx.body = apiResponse.error('Erro interno do servidor', 500);
-  }
-};
-
-// ==========================================
-// ENDPOINTS DE PLANOS DE ASSINATURA
+// ENDPOINTS PÚBLICOS
 // ==========================================
 
 // GET /api/planos-assinatura/tipos - Listar tipos de planos disponíveis
@@ -86,16 +69,43 @@ router.get('/tipos', async (ctx) => {
       }
     ];
     
-    ctx.body = apiResponse.success(tiposPlanos);
+    return send(ctx, success(tiposPlanos));
     
-  } catch (error) {
-    logger.error('Erro ao buscar tipos de planos:', error);
-    ctx.body = apiResponse.error('Erro ao buscar tipos de planos', 500);
+  } catch (err) {
+    logger.error('Erro ao buscar tipos de planos:', err);
+    return send(ctx, error('Erro ao buscar tipos de planos', 500));
   }
 });
 
+// ==========================================
+// MIDDLEWARE DE AUTENTICAÇÃO E AUTORIZAÇÃO
+// ==========================================
+
+// Aplicar autenticação para todas as rotas abaixo
+router.use(authenticateToken);
+
+// Middleware para verificar se o usuário é motorista escolar
+const verificarMotoristaEscolar = async (ctx, next) => {
+  try {
+    if (!ctx.user || ctx.user.tipo !== 'motorista_escolar') {
+      return send(ctx, error('Acesso negado. Apenas motoristas escolares podem acessar esta funcionalidade.', 403));
+    }
+    await next();
+  } catch (err) {
+    logger.error('Erro na verificação de motorista escolar:', err);
+    return send(ctx, error('Erro interno do servidor', 500));
+  }
+};
+
+// Aplicar verificação de papel para todas as rotas abaixo
+router.use(verificarMotoristaEscolar);
+
+// ==========================================
+// ENDPOINTS PROTEGIDOS
+// ==========================================
+
 // GET /api/planos-assinatura/meu-plano - Buscar plano atual do usuário
-router.get('/meu-plano', authenticateToken, verificarMotoristaEscolar, async (ctx) => {
+router.get('/meu-plano', async (ctx) => {
   try {
     const usuarioId = ctx.user.id;
     
@@ -118,7 +128,7 @@ router.get('/meu-plano', authenticateToken, verificarMotoristaEscolar, async (ct
     `, [usuarioId]);
     
     if (result.rows.length === 0) {
-      return ctx.body = apiResponse.error('Nenhum plano ativo encontrado', 404);
+      return send(ctx, error('Nenhum plano ativo encontrado', 404));
     }
     
     const plano = result.rows[0];
@@ -151,7 +161,7 @@ router.get('/meu-plano', authenticateToken, verificarMotoristaEscolar, async (ct
       ? Math.round((totalCriancas / plano.limite_usuarios) * 100)
       : 0;
     
-    ctx.body = apiResponse.success({
+    return send(ctx, success({
       plano,
       uso_atual: {
         rotas_ativas: parseInt(uso.rotas_ativas),
@@ -164,19 +174,16 @@ router.get('/meu-plano', authenticateToken, verificarMotoristaEscolar, async (ct
         pode_criar_rota: plano.limite_rotas === -1 || uso.rotas_ativas < plano.limite_rotas,
         pode_adicionar_crianca: plano.limite_usuarios === -1 || totalCriancas < plano.limite_usuarios
       }
-    });
+    }));
     
-  } catch (error) {
-    logger.error('Erro ao buscar plano atual:', error);
-    ctx.body = apiResponse.error('Erro ao buscar plano atual', 500);
+  } catch (err) {
+    logger.error('Erro ao buscar plano atual:', err);
+    return send(ctx, error('Erro ao buscar plano atual', 500));
   }
 });
 
 // POST /api/planos-assinatura/ativar - Ativar novo plano
-router.post('/ativar', 
-  authenticateToken, 
-  verificarMotoristaEscolar,
-  async (ctx) => {
+router.post('/ativar', async (ctx) => {
     try {
       const usuarioId = ctx.user.id;
       const { tipo_plano, preco_mensal } = ctx.request.body;
@@ -201,7 +208,7 @@ router.post('/ativar',
           preco_padrao = 99.90;
           break;
         default:
-          return ctx.body = apiResponse.error('Tipo de plano inválido', 400);
+          return send(ctx, error('Tipo de plano inválido', 400));
       }
       
       const precoFinal = preco_mensal !== undefined ? preco_mensal : preco_padrao;
@@ -234,29 +241,26 @@ router.post('/ativar',
         
         logger.info(`Novo plano ${tipo_plano} ativado para usuário ${usuarioId}`);
         
-        ctx.body = apiResponse.success({
+        return send(ctx, success({
           id: planoId,
           tipo_plano,
           message: `Plano ${tipo_plano} ativado com sucesso!`
-        }, 201);
+        }, 'Plano ativado com sucesso', 201));
         
-      } catch (error) {
+      } catch (err) {
         await db.query('ROLLBACK');
-        throw error;
+        throw err;
       }
       
-    } catch (error) {
-      logger.error('Erro ao ativar plano:', error);
-      ctx.body = apiResponse.error('Erro ao ativar plano', 500);
+    } catch (err) {
+      logger.error('Erro ao ativar plano:', err);
+      return send(ctx, error('Erro ao ativar plano', 500));
     }
   }
 );
 
 // PUT /api/planos-assinatura/upgrade - Fazer upgrade do plano
-router.put('/upgrade', 
-  authenticateToken, 
-  verificarMotoristaEscolar,
-  async (ctx) => {
+router.put('/upgrade', async (ctx) => {
     try {
       const usuarioId = ctx.user.id;
       const { novo_tipo_plano } = ctx.request.body;
@@ -271,7 +275,7 @@ router.put('/upgrade',
       `, [usuarioId]);
       
       if (planoAtualResult.rows.length === 0) {
-        return ctx.body = apiResponse.error('Nenhum plano ativo encontrado', 404);
+        return send(ctx, error('Nenhum plano ativo encontrado', 404));
       }
       
       const planoAtual = planoAtualResult.rows[0];
@@ -280,7 +284,7 @@ router.put('/upgrade',
       const hierarquiaPlanos = { 'basico': 1, 'premium': 2, 'empresarial': 3 };
       
       if (hierarquiaPlanos[novo_tipo_plano] <= hierarquiaPlanos[planoAtual.tipo_plano]) {
-        return ctx.body = apiResponse.error('O novo plano deve ser superior ao plano atual', 400);
+        return send(ctx, error('O novo plano deve ser superior ao plano atual', 400));
       }
       
       // Verificar se o usuário não excede os limites atuais
@@ -319,17 +323,17 @@ router.put('/upgrade',
       
       // Verificar se o uso atual é compatível com o novo plano
       if (novos_limite_rotas !== -1 && rotasAtivas > novos_limite_rotas) {
-        return ctx.body = apiResponse.error(
+        return send(ctx, error(
           `Você possui ${rotasAtivas} rotas ativas, mas o plano ${novo_tipo_plano} permite apenas ${novos_limite_rotas}. Desative algumas rotas antes do upgrade.`, 
           400
-        );
+        ));
       }
       
       if (novos_limite_usuarios !== -1 && totalCriancas > novos_limite_usuarios) {
-        return ctx.body = apiResponse.error(
+        return send(ctx, error(
           `Você possui ${totalCriancas} crianças cadastradas, mas o plano ${novo_tipo_plano} permite apenas ${novos_limite_usuarios}. Remova algumas crianças antes do upgrade.`, 
           400
-        );
+        ));
       }
       
       // Realizar upgrade
@@ -359,27 +363,27 @@ router.put('/upgrade',
         
         logger.info(`Upgrade de plano realizado: ${planoAtual.tipo_plano} -> ${novo_tipo_plano} para usuário ${usuarioId}`);
         
-        ctx.body = apiResponse.success({
+        return send(ctx, success({
           id: novoPlanoId,
           plano_anterior: planoAtual.tipo_plano,
           plano_atual: novo_tipo_plano,
           message: `Upgrade para plano ${novo_tipo_plano} realizado com sucesso!`
-        });
+        }));
         
-      } catch (error) {
+      } catch (err) {
         await db.query('ROLLBACK');
-        throw error;
+        throw err;
       }
       
-    } catch (error) {
-      logger.error('Erro ao fazer upgrade do plano:', error);
-      ctx.body = apiResponse.error('Erro ao fazer upgrade do plano', 500);
+    } catch (err) {
+      logger.error('Erro ao fazer upgrade do plano:', err);
+      return send(ctx, error('Erro ao fazer upgrade do plano', 500));
     }
   }
 );
 
 // GET /api/planos-assinatura/historico - Histórico de planos do usuário
-router.get('/historico', authenticateToken, verificarMotoristaEscolar, async (ctx) => {
+router.get('/historico', async (ctx) => {
   try {
     const usuarioId = ctx.user.id;
     const { page = 1, limit = 10 } = ctx.query;
@@ -412,7 +416,7 @@ router.get('/historico', authenticateToken, verificarMotoristaEscolar, async (ct
     const total = parseInt(countResult.rows[0].total);
     const totalPages = Math.ceil(total / limit);
     
-    ctx.body = apiResponse.success({
+    return send(ctx, success({
       historico: result.rows,
       pagination: {
         page: parseInt(page),
@@ -422,11 +426,11 @@ router.get('/historico', authenticateToken, verificarMotoristaEscolar, async (ct
         hasNext: page < totalPages,
         hasPrev: page > 1
       }
-    });
+    }));
     
-  } catch (error) {
-    logger.error('Erro ao buscar histórico de planos:', error);
-    ctx.body = apiResponse.error('Erro ao buscar histórico de planos', 500);
+  } catch (err) {
+    logger.error('Erro ao buscar histórico de planos:', err);
+    return send(ctx, error('Erro ao buscar histórico de planos', 500));
   }
 });
 

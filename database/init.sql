@@ -858,7 +858,7 @@ CREATE TABLE public.empresas (
     bairro character varying(100),
     cidade character varying(100),
     estado character varying(2),
-    foto_cnpj character varying(255),
+    foto_representante character varying(255),
     criado_em timestamp with time zone DEFAULT CURRENT_TIMESTAMP
 );
 

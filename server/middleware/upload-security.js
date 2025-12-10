@@ -214,8 +214,8 @@ function createSecureUpload(category = 'all', options = {}) {
         limits: {
             fileSize: config.maxSize,
             files: options.maxFiles || UPLOAD_CONFIG.MAX_FILES,
-            fieldSize: 1024 * 1024, // 1MB para campos de texto
-            fields: 20 // Máximo 20 campos
+            fieldSize: 10 * 1024 * 1024, // AUMENTADO PARA 10MB para campos de texto (FormData pode ser grande)
+            fields: 50 // AUMENTADO PARA 50 campos (formulário de cadastro tem muitos campos)
         },
         
         // Configuração de armazenamento
