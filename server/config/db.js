@@ -1,7 +1,7 @@
 const { Pool } = require('pg');
 const path = require('path');
 const logger = require('../utils/logger');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 // Configuração do pool de conexões
 let poolConfig;

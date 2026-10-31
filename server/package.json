@@ -1,16 +1,19 @@
 {
+  "name": "kanghoo-server",
+  "version": "1.0.0",
+  "description": "Backend for Kanghoo, a school transport management platform",
+  "main": "server.js",
+  "private": true,
   "scripts": {
-    "dev": "http-server src/ -p 3000",
+    "start": "node server.js",
+    "dev": "node --watch server.js",
     "test": "mocha",
     "test:watch": "mocha --watch",
     "test:coverage": "nyc mocha",
     "test:unit": "mocha --grep 'unit'",
     "test:integration": "mocha --grep 'integration'",
-    "build": "webpack --mode=production",
-    "lint": "eslint src/**/*.js",
-    "format": "prettier --write src/**/*",
-    "pre-commit": "lint-staged",
-    "start-mock-server": "node mocks/server.js"
+    "lint": "eslint \"**/*.js\" --ignore-pattern node_modules",
+    "format": "prettier --write \"**/*.js\" --ignore-path .gitignore"
   },
   "devDependencies": {
     "axios": "^1.12.2",
@@ -55,6 +58,5 @@
   },
   "engines": {
     "node": ">=18.0.0"
-  },
-  "private": true
+  }
 }
