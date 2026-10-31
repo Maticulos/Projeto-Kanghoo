@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Environment variables (use .env.example as a template)
+.env
+.env.*
+!.env.example
+
+# Logs, backups and runtime data
+logs/
+*.log
+backups/
+server/uploads/*
+!server/uploads/README.md
+
+# TLS certificates and private keys (generate locally with the scripts in ssl/)
+*.pem
+*.key
+*.crt
+*.pfx
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# OS / editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
